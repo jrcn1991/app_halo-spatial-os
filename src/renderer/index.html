@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <!--
+      Sem rede, salvo um caso: CAPAS. Só `img-src`, e só para os hosts abaixo —
+      nada de script, fonte ou `connect-src` de fora. Toda busca continua no
+      processo main; o renderer não fala com servidor nenhum.
+        · image.tmdb.org — capas da biblioteca de mídia (URLs da lista do usuário)
+        · *.scdn.co / *.spotifycdn.com — arte de playlists, álbuns e artistas do
+          Spotify. São dois hosts porque o Spotify serve arte de usuário em
+          i.scdn.co/mosaic.scdn.co e a arte editorial em image-cdn-*.spotifycdn.com.
+        · i.pinimg.com — as miniaturas do Pinterest na Social Arte, pelo mesmo
+          motivo do host abaixo: é o CDN que a própria página usa.
+        · mir-s3-cdn-cf.behance.net — as capas de projeto do Behance. Só este
+          caminho: o host a5.behance.net serve retratos de quem publica.
+        · *.artstation.com — as capas do ArtStation. Curinga porque eles servem
+          de cdna/cdnb/cdnc conforme o arquivo, e a lista mudaria sozinha.
+        · cdn.thingiverse.com / resize.thingiverse.com — as miniaturas dos
+          modelos 3D. São dois porque o site serve umas direto do CDN e outras
+          por um redimensionador próprio.
+        · *.wixmp.com — as miniaturas do DeviantArt na Social Arte. São URLs
+          públicas assinadas (o token vai na própria URL), servidas pelo CDN que
+          a página do site usa; o subdomínio é um hash da conta deles, daí o
+          curinga. Uma home traz ~33 capas e uma busca ~20: convertê-las para
+          `data:` no main seriam megabytes por tela atravessando o IPC a cada
+          rolagem, e a espera apareceria como grade cinza.
+      Baixar as imagens no main e devolvê-las em `data:` também funcionaria, mas
+      seriam dezenas por tela atravessando o IPC a cada abertura.
+      O vídeo NÃO toca aqui: ele fica na janela do player, com CSP própria.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://image.tmdb.org https://*.scdn.co https://*.spotifycdn.com https://*.wixmp.com https://i.pinimg.com https://cdn.thingiverse.com https://resize.thingiverse.com https://*.artstation.com https://mir-s3-cdn-cf.behance.net; font-src 'self' data:; connect-src 'self'"
+    />
+    <title>Halo</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/main.tsx"></script>
+  </body>
+</html>

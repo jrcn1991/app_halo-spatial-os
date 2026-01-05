@@ -1,0 +1,1181 @@
+/* Claude. Valores do protótipo (linhas 864–1090). Projetos reais (git). */
+
+.sideLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--text-tertiary);
+  flex: none;
+}
+
+.projects {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+.project {
+  padding: 12px 13px;
+  border-radius: 17px;
+  border: var(--surface-inner-border);
+  background: var(--surface-inner-bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+  flex: none;
+  transition: background 0.18s ease;
+}
+
+.project:hover {
+  background: var(--hover-row);
+}
+
+.projectHead {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.projectName {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tag {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  padding: 3px 7px;
+  border-radius: var(--radius-chip);
+  background: var(--surface-quiet-bg);
+  color: var(--text-secondary);
+}
+
+.tagDirty {
+  color: var(--accent-amber);
+}
+
+.tagClean {
+  color: var(--accent-green);
+}
+
+.projectMeta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-tertiary);
+  margin-top: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.diff {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.added {
+  color: var(--accent-green);
+}
+
+.removed {
+  color: var(--accent-red);
+}
+
+/* `.spacer` é o que sobrou da barra de título do terminal que esta tela tinha
+   antes de o painel virar mascote e agentes de verdade. As outras treze
+   classes do bloco (`.titlebar`, `.lights`, `.light`, `.terminalTitle`,
+   `.pill`, `.terminal`, `.command`, `.prompt`, `.output`, `.hash`, `.cursor`)
+   não eram usadas por ninguém — conferido uma a uma em `ClaudeScreen.tsx`,
+   `Markdown.tsx` e `Mascote.tsx`. */
+.spacer {
+  flex: 1;
+}
+
+.input {
+  flex: 1;
+  padding: 11px 14px;
+  border-radius: 14px;
+  border: var(--surface-inner-border);
+  background: var(--surface-inner-bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.send {
+  padding: 11px 18px;
+  border: none;
+  border-radius: 14px;
+  background: var(--accent-violet);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.18s var(--ease);
+}
+
+.send:hover {
+  transform: scale(1.03);
+}
+
+.send:disabled {
+  background: var(--surface-inner-bg);
+  color: var(--text-tertiary);
+  cursor: default;
+  transform: none;
+}
+
+/* ——— assistente ————————————————————————————————————————————— */
+
+.orb {
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  margin: 6px auto 0;
+  background: var(--claude-orb);
+  box-shadow: var(--claude-orb-shadow);
+  flex: none;
+}
+
+.assistantName {
+  text-align: center;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-top: 14px;
+}
+
+.assistantRole {
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--text-tertiary);
+  margin-top: 4px;
+}
+
+.action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  border: none;
+  border-radius: var(--radius-row);
+  background: var(--surface-inner-bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.action:hover {
+  background: var(--hover-row-strong);
+}
+
+/* ——— Projetos (esquerda) ——————————————————————————————————— */
+
+.projectRow {
+  position: relative;
+  display: flex;
+}
+
+.projectRow .project {
+  flex: 1;
+  min-width: 0;
+  /* Espaço para o × de tirar da lista, que fica por cima. */
+  padding-right: 26px;
+}
+
+.projectRemove {
+  position: absolute;
+  top: 8px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.16s ease;
+}
+
+.projectRow:hover .projectRemove,
+.agenteRow:hover .projectRemove,
+.projectRemove:focus-visible {
+  opacity: 1;
+}
+
+/* ——— Grupos de projetos ————————————————————————————————————— */
+
+.projetosTopo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex: none;
+}
+
+.novoGrupo {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.novoGrupo:hover {
+  background: var(--hover-row);
+  color: var(--text-primary);
+}
+
+.projectBloco {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: none;
+}
+
+.grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: none;
+}
+
+/* Linha à esquerda: diz a que grupo o cartão pertence sem gastar um recuo
+   grande num painel de 268px de conteúdo. */
+.grupoCorpo {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-left: 5px;
+  padding-left: 8px;
+  border-left: 1px solid var(--divider);
+}
+
+.grupoTopo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border-radius: var(--radius-row);
+  flex: none;
+  transition: background 0.16s ease;
+}
+
+.grupoBotao,
+.grupoSolto {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  /* Espaço para o lápis e o × que ficam por cima. */
+  padding: 6px 48px 6px 6px;
+  border: none;
+  border-radius: var(--radius-row);
+  background: none;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: left;
+}
+
+.grupoBotao {
+  cursor: pointer;
+}
+
+.grupoBotao:hover {
+  background: var(--hover-row);
+  color: var(--text-primary);
+}
+
+.grupoSolto {
+  color: var(--text-tertiary);
+}
+
+.grupoNome {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.grupoConta {
+  color: var(--text-tertiary);
+}
+
+.grupoAcao {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.16s ease;
+}
+
+/* O lápis vem antes do ×; os dois são absolutos, então o primeiro vai para
+   a esquerda. */
+.grupoAcao:nth-of-type(2) {
+  right: 26px;
+}
+
+.grupoAcaoArmada {
+  width: auto;
+  padding: 0 6px;
+  opacity: 1;
+}
+
+.grupoConfirmar {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  color: var(--accent-red);
+}
+
+.grupoTopo:hover .grupoAcao,
+.grupoAcao:focus-visible {
+  opacity: 1;
+}
+
+.grupoDrop {
+  background: var(--surface-inner-active-bg);
+  box-shadow: inset 0 0 0 1px var(--accent-green);
+}
+
+/* Arrastando um GRUPO: o traço em cima diz que ele entra antes deste — e não
+   dentro, que é o que o contorno de `.grupoDrop` diz para um projeto. */
+.grupoAntes {
+  box-shadow: inset 0 2px 0 var(--accent-green);
+}
+
+.grupoVazio {
+  margin-left: 5px;
+  padding: 12px 13px;
+  border-radius: var(--radius-row);
+  border: 1px dashed var(--divider);
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--text-tertiary);
+  flex: none;
+}
+
+.grupoCampo {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  /* O token já traz "1px solid": repeti-los aqui invalidaria a regra. */
+  border: var(--surface-inner-active-border);
+  border-radius: var(--radius-row);
+  background: var(--surface-inner-bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  outline: none;
+}
+
+/* Soltar sobre um cartão o põe NAQUELE lugar: o traço em cima diz onde. */
+.projectDrop .project {
+  box-shadow: inset 0 2px 0 var(--accent-green);
+}
+
+.projectMove {
+  position: absolute;
+  top: 8px;
+  right: 46px;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.16s ease;
+}
+
+/* Sem regra para `aria-expanded`: fixo, o ícone cobria o contador de agentes
+   do cartão enquanto a faixa estava aberta — e a faixa já mostra o estado. */
+.projectRow:hover .projectMove,
+.projectMove:focus-visible {
+  opacity: 1;
+}
+
+/* Abrir a pasta e copiar o caminho: canto de baixo do cartão, onde as linhas
+   do git (curtas, à esquerda) deixam espaço. */
+.projectAbrir,
+.projectCopiar {
+  position: absolute;
+  bottom: 8px;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.16s ease;
+}
+
+.projectAbrir {
+  right: 26px;
+}
+
+.projectCopiar {
+  right: 6px;
+}
+
+.projectRow:hover .projectAbrir,
+.projectRow:hover .projectCopiar,
+.projectAbrir:focus-visible,
+.projectCopiar:focus-visible,
+.projectCopiar[data-copiado] {
+  opacity: 1;
+}
+
+/* É um `fieldset` (o agrupamento acessível), e ele vem de fábrica com borda,
+   margem e `min-inline-size: min-content` — este último o impediria de
+   encolher e quebrar as etiquetas em linhas dentro do painel. */
+.moverPara {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0 4px 4px;
+  border: none;
+  min-width: 0;
+  min-inline-size: 0;
+}
+
+.moverPara .grupoCampo {
+  flex-basis: 100%;
+}
+
+.etiqueta {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  border: var(--surface-inner-border);
+  border-radius: var(--radius-chip);
+  background: var(--surface-inner-bg);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  cursor: pointer;
+  transition: background 0.16s ease;
+}
+
+.etiqueta:hover {
+  background: var(--hover-row);
+  color: var(--text-primary);
+}
+
+.etiquetaOn {
+  background: var(--surface-inner-active-bg);
+  color: var(--text-primary);
+}
+
+.projectAgents {
+  min-width: 16px;
+  padding: 1px 5px;
+  border-radius: 999px;
+  background: var(--surface-inner-active-bg);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-align: center;
+}
+
+.hint {
+  font-size: 10.5px;
+  line-height: 1.45;
+  color: var(--text-tertiary);
+  flex: none;
+}
+
+/* ——— Conversa (centro) —————————————————————————————————————— */
+
+.conversa {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.conversaTopo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--surface-faint-border);
+  flex: none;
+}
+
+.conversaNome {
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.mensagens {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 22px;
+  overflow-y: auto;
+  min-height: 0;
+  flex: 1;
+}
+
+.mensagem {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.mensagemQuem {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--text-tertiary);
+}
+
+.mensagemTexto {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  /* Resposta de agente vem com quebras e recuo; preservá-los é o que faz
+     código e lista continuarem legíveis. */
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.assistant .mensagemTexto {
+  color: var(--text-primary);
+}
+
+.system .mensagemTexto {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+.ferramenta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ferramentaNome {
+  padding: 3px 9px;
+  border-radius: var(--radius-chip);
+  background: var(--surface-inner-bg);
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.entrada {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-top: 1px solid var(--surface-faint-border);
+  flex: none;
+}
+
+.campo {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--surface-action-border);
+  border-radius: var(--radius-row);
+  background: var(--surface-inner-bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  outline: none;
+}
+
+.campo::placeholder {
+  color: var(--text-tertiary);
+}
+
+.campo:focus {
+  border: var(--surface-inner-active-border);
+}
+
+.enviar {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border: none;
+  border-radius: 999px;
+  background: var(--accent-green);
+  color: var(--on-accent);
+  cursor: pointer;
+}
+
+.enviar:disabled {
+  background: var(--surface-inner-bg);
+  color: var(--text-tertiary);
+  cursor: not-allowed;
+}
+
+.vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 100%;
+  padding: 0 72px;
+  text-align: center;
+}
+
+.vazioTitulo {
+  margin: 0;
+  font-size: 15px;
+  color: var(--text-primary);
+}
+
+.vazioTexto {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--text-tertiary);
+}
+
+/* O agente que não nasceu precisa DIZER isso — a mesma cor que o pulso de
+   erro da pílula já usa, não o cinza de texto secundário. */
+.erroTexto {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--player-error);
+}
+
+/* ——— Agentes (direita) ————————————————————————————————————— */
+
+.agentes {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.agenteRow {
+  position: relative;
+  display: flex;
+}
+
+.agente {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  padding: 9px 26px 9px 10px;
+  border: none;
+  border-radius: var(--radius-row);
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.agente:hover {
+  background: var(--hover-row);
+}
+
+.agenteOn {
+  background: var(--surface-inner-active-bg);
+}
+
+.agenteTexto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.agenteNome {
+  font-size: 12px;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agenteEstado,
+.estado {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--text-tertiary);
+}
+
+.estado {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* ——— Indicador de status ————————————————————————————————————
+ *
+ * Uma cor por estado, e pulso só enquanto o agente está trabalhando: ponto
+ * piscando o tempo todo vira ruído e deixa de informar.
+ */
+
+.pulso {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 999px;
+  background: var(--text-tertiary);
+}
+
+.pulso_iniciando {
+  background: var(--accent-amber);
+}
+
+.pulso_ocioso {
+  background: var(--accent-green);
+}
+
+.pulso_pensando,
+.pulso_ferramenta {
+  background: var(--accent-violet);
+}
+
+.pulso_erro {
+  background: var(--player-error);
+}
+
+.pulso_encerrado {
+  background: var(--text-tertiary);
+}
+
+/* ——— Blocos de código e formatação ——————————————————————————— */
+
+.mensagemCorpo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.paragrafo {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.titulo {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.lista {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-primary);
+}
+
+.inline {
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: var(--surface-inner-bg-strong);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
+
+.bloco {
+  border: 1px solid var(--surface-faint-border);
+  border-radius: var(--radius-chip);
+  overflow: hidden;
+  background: var(--surface-quiet-bg);
+}
+
+.blocoTopo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--surface-faint-border);
+}
+
+.blocoLingua {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.blocoCopiar {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  color: var(--text-tertiary);
+  font-family: var(--font-sans);
+  font-size: 10px;
+  cursor: pointer;
+  transition:
+    color 0.16s ease,
+    background 0.16s ease;
+}
+
+.blocoCopiar:hover {
+  background: var(--hover-row);
+  color: var(--text-secondary);
+}
+
+.blocoCodigo {
+  margin: 0;
+  padding: 10px 12px;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--text-primary);
+}
+
+/* ——— Anexos ——————————————————————————————————————————————— */
+
+.anexos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 18px 0;
+  flex: none;
+}
+
+.anexo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px 4px 9px;
+  border-radius: var(--radius-chip);
+  background: var(--surface-inner-bg);
+  color: var(--text-secondary);
+  font-size: 10.5px;
+}
+
+.anexoTirar {
+  display: grid;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+.anexar {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border: 1px solid var(--surface-action-border);
+  border-radius: 999px;
+  background: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.16s ease;
+}
+
+.anexar:hover:not(:disabled) {
+  background: var(--hover-row);
+}
+
+.anexar:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ——— Conversas antigas ————————————————————————————————————— */
+
+.projectResume {
+  position: absolute;
+  top: 8px;
+  right: 26px;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.16s ease;
+}
+
+.projectRow:hover .projectResume,
+.projectResume:focus-visible {
+  opacity: 1;
+}
+
+.sessoes {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.sessao {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 8px 9px;
+  border: none;
+  border-radius: var(--radius-row);
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.16s ease;
+}
+
+.sessao:hover {
+  background: var(--hover-row);
+}
+
+.sessaoTitulo {
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: var(--text-primary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.sessaoMeta {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-tertiary);
+}
+
+/* ——— Mascote ————————————————————————————————————————————
+ *
+ * Ocupa o mesmo espaço que o orbe ocupava, para o painel não mudar de forma
+ * quando o usuário liga ou desliga o personagem.
+ */
+.mascote {
+  display: grid;
+  place-items: center;
+  height: 128px;
+  flex: none;
+}
+
+.mascoteQuadro {
+  max-width: 100%;
+  max-height: 100%;
+  /* O filtro vem do componente: `pixelated` para quem é menor que este
+     espaço e vai ser ampliado, suave para quem é maior e vai ser reduzido.
+     Ver o comentário em Mascote.tsx. */
+}
+
+/* ——— Modal das conversas antigas ————————————————————————————
+ *
+ * Era um balão ancorado no cartão do projeto, e ficava cortado: o painel tem
+ * 300px e o título de uma conversa não cabia. O modal cobre o palco inteiro.
+ *
+ * `position: fixed` aqui se ancora no PALCO, não na tela: o palco tem
+ * `transform`, e no CSS isso torna o elemento fixo relativo a ele. É o que
+ * mantém o modal alinhado ao app quando a janela muda de tamanho.
+ */
+.modalFundo {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+}
+
+.modalVeu {
+  position: absolute;
+  inset: 0;
+  border: none;
+  padding: 0;
+  background: var(--modal-veu);
+  cursor: default;
+}
+
+.modal {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 520px;
+  max-height: 560px;
+  padding: 22px 22px 18px;
+  gap: 14px;
+  /* MEDIDO em 03/09/2026: era `border: 1px solid var(--glass-center-border)`,
+     e o token JÁ traz "1px solid …" — o atalho ficava com dois "1px solid" e
+     o Chromium descartava a declaração inteira. O modal nunca teve fio, em
+     tema nenhum. O token sozinho é a forma certa, e é como os painéis o usam. */
+  border: var(--glass-center-border);
+  border-radius: var(--radius-panel-30);
+  background: var(--modal-bg);
+  box-shadow: var(--glass-center-shadow);
+  backdrop-filter: blur(18px);
+}
+
+.modalTopo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  flex: none;
+}
+
+.modalTitulos {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.modalEyebrow {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  color: var(--text-tertiary);
+}
+
+.modalNome {
+  font-size: 19px;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.modalFechar {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border: 1px solid var(--surface-action-border);
+  border-radius: 999px;
+  background: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    background 0.16s ease,
+    color 0.16s ease;
+}
+
+.modalFechar:hover {
+  background: var(--hover-row);
+  color: var(--text-primary);
+}
+
+.modalCorpo {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow-y: auto;
+  min-height: 0;
+  /* Respiro para a barra de rolagem não encostar no texto. */
+  margin-right: -6px;
+  padding-right: 6px;
+}
+
+.modalVazio {
+  margin: 0;
+  padding: 18px 2px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-tertiary);
+}
+
+.modalRodape {
+  font-size: 10.5px;
+  color: var(--text-tertiary);
+  flex: none;
+}
+
+/* No modal a conversa tem espaço: título inteiro, em duas linhas se precisar. */
+.modal .sessao {
+  padding: 11px 12px;
+  gap: 4px;
+}
+
+.modal .sessaoTitulo {
+  font-size: 13px;
+  -webkit-line-clamp: 2;
+}

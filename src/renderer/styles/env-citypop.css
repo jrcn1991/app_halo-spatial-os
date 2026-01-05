@@ -1,0 +1,688 @@
+/* ==========================================================================
+   Halo — Ambiente: City Pop
+
+   Arquivo de TEMA. Duas coisas moram aqui, e só elas: os VALORES dos tokens
+   quando `data-env='citypop'` está no `:root`, e as regras de FORMA que um
+   token não alcança — sempre presas a atributos que o app já escreve. Nenhuma
+   tela é editada. Ver CRIACAO-DE-TEMAS.md.
+
+   ## A referência, e o que foi MEDIDO nela
+
+   A imagem de referência (gerada por IA para o tema) é
+   uma versão city pop desta própria interface — não uma inspiração vaga. A
+   paleta abaixo saiu de contar pixels nela, não de gosto:
+
+   - fundo dos painéis: `#001040` domina com folga (190k px), seguido de
+     `#002050` e `#001030`. Azul-marinho profundo, quase sem verde;
+   - rosa neon: `#f05080`–`#f06080`, matiz 342–352°. É a cor mais saturada e
+     clara da imagem, e é o que a referência acende: o botão ativo do dock e a
+     moldura do ambiente escolhido;
+   - ciano: `#0090cc`, matiz ~197°;
+   - amarelo quente: `#f0cc60`; menta: `#00c06c`; coral: `#fc906c`.
+
+   ## Papéis, e nunca trocados
+
+   A regra do projeto vale aqui como valeu nos outros dois: cor que significa
+   duas coisas não significa nenhuma.
+
+   - **ROSA** é destaque — o que está ativo, escolhido, em foco;
+   - **CIANO** é dado e leitura — medidor, gráfico, link;
+   - **AMARELO** é atenção; **CORAL**, erro; **MENTA**, sucesso.
+
+   Rosa não pinta medidor, e ciano não marca seleção.
+
+   ## O branco
+
+   `#fff` puro é o erro clássico. A referência tem `#f0f0f0` no texto, e sobre
+   marinho o branco neutro puxa para cinza — o texto aqui é `#e9edff`, com o
+   azul da cena dentro dele.
+
+   ## As peças são FORMA, não imagem
+
+   O sol retrô, as listras diagonais e o fio de neon são gradiente e sombra:
+   seguem o `border-radius`, escalam com o tema e não pesam nada. A receita
+   manda gerar só quando a peça precisa de LUMINÂNCIA (bisel, cume, oclusão) —
+   não é o caso de nenhuma delas. O papel de parede, esse sim, é arte: veio
+   pronto do usuário.
+   ========================================================================== */
+
+/* ——— Paleta crua ————————————————————————————————————————————————
+   Fora do seletor de tema de propósito: a amostra do painel de Ambientes
+   precisa mostrar as cores do City Pop enquanto outro ambiente está ativo. */
+:root {
+  /* Os três marinhos da referência, do mais fundo ao mais claro. */
+  --cy-abismo: #03081f;
+  --cy-noite: #061236;
+  --cy-mar: #0b1e4e;
+
+  /* Os neons. `-luz` é a versão que acende sobre o marinho; a base é a que
+     a referência mostra em área grande. */
+  --cy-rosa: #ff5c86;
+  --cy-rosa-luz: #ff8fae;
+  --cy-ciano: #4fd8ff;
+  --cy-ciano-fundo: #0090cc;
+  --cy-amarelo: #ffd166;
+  --cy-coral: #ff8a6c;
+  --cy-menta: #3ddc97;
+  --cy-cobalto: #2e6fd8;
+  /* O violeta do medidor de GPU na referência (medido no quadradinho do ícone). */
+  --cy-violeta: #a56cff;
+
+  /* Texto: branco com o azul da cena dentro. Ver "O branco", acima. */
+  --cy-texto: #e9edff;
+
+  /* A amostra do painel de Ambientes: destaque, dado e moldura. */
+  --env-citypop-1: var(--cy-rosa);
+  --env-citypop-2: var(--cy-ciano);
+  --env-citypop-3: var(--cy-amarelo);
+}
+
+:root[data-env="citypop"] {
+  /* ——— Palco ————————————————————————————————————————————————— */
+  --stage-bg: var(--cy-abismo);
+  --app-bg: var(--cy-abismo);
+  --glass-darken: #020617;
+
+  /* ——— Vidro ————————————————————————————————————————————————
+     A base deixa de ser cinza-neutro e passa a ser MARINHO: é o que faz o
+     painel pertencer à cena em vez de flutuar sobre ela. */
+  /* MEDIDO na segunda rodada de acabamento: o painel da referência é #0c2c64 —
+     um COBALTO saturado — e o meu saía #112446, um marinho acinzentado. A
+     diferença não era alfa (0,89 já era), era o azul ter perdido saturação ao
+     escurecer. A base agora é o cobalto medido, um degrau abaixo. */
+  --glass-side-base: rgb(10 36 92);
+  --glass-center-base: rgb(8 28 78);
+  --glass-side-filter: blur(34px) saturate(1.45);
+  --glass-center-filter: blur(40px) saturate(1.45);
+
+  /* O fio de 1px das arestas é CIANO fraco, não branco: na referência a borda
+     dos painéis é luz de neon, e branco a devolveria para o handoff. */
+  /* A moldura da referência é um NEON ciano, não um fio: o traço vai a 0,75 e o
+     brilho está na sombra, logo abaixo. */
+  --glass-side-border: 1px solid rgba(79, 216, 255, 0.75);
+  --glass-center-border: 1px solid rgba(79, 216, 255, 0.75);
+  --glass-dock-border: 1px solid rgba(255, 92, 134, 0.3);
+  --glass-rail-border: 1px solid rgba(79, 216, 255, 0.14);
+
+  /* A sombra ganha um halo de neon além do preto — é o que a referência tem
+     em volta de cada painel, e o que separa este tema de "marinho escuro". */
+  --glass-side-shadow:
+    0 50px 90px rgba(0, 0, 0, 0.62), 0 0 22px rgba(79, 216, 255, 0.28),
+    0 0 2px rgba(79, 216, 255, 0.6), inset 0 1px 0 rgba(79, 216, 255, 0.22);
+  --glass-center-shadow:
+    0 70px 130px rgba(0, 0, 0, 0.7), 0 0 26px rgba(79, 216, 255, 0.3),
+    0 0 2px rgba(79, 216, 255, 0.6), inset 0 1px 0 rgba(79, 216, 255, 0.24);
+  --glass-dock-shadow:
+    0 26px 50px rgba(0, 0, 0, 0.55), 0 0 26px rgba(255, 92, 134, 0.16),
+    inset 0 1px 0 rgba(255, 143, 174, 0.28);
+  --glass-dock-bg: rgba(11, 30, 78, 0.5);
+  --glass-transport-bg: rgba(11, 30, 78, 0.46);
+  --glass-transport-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 22px rgba(79, 216, 255, 0.1);
+
+  /* ——— Superfícies internas ———————————————————————————————————
+     Sobre marinho, superfície branca translúcida vira névoa cinza. Aqui elas
+     são AZUL claro com alfa: o cartão continua se destacando do painel sem
+     sujar a cor. */
+  /* A borda dos cartões na referência é #2d4c8f, um cobalto claro NÍTIDO — não
+     um fio de 13% que some. E o fundo do cartão sobe um degrau do painel, com
+     azul e não branco, para o cartão se separar sem embranquecer. */
+  --surface-inner-bg: rgba(60, 110, 220, 0.12);
+  --surface-inner-bg-strong: rgba(60, 110, 220, 0.16);
+  --surface-inner-border: 1px solid rgba(96, 140, 235, 0.42);
+  --surface-inner-border-strong: 1px solid rgba(96, 140, 235, 0.5);
+  /* Ativo é ROSA, e só ele: é o que diz "isto está escolhido". */
+  --surface-inner-active-bg: rgba(255, 92, 134, 0.15);
+  --surface-inner-active-bg-strong: rgba(255, 92, 134, 0.19);
+  --surface-inner-active-border: 1px solid rgba(255, 92, 134, 0.46);
+  --surface-quiet-bg: rgba(60, 110, 220, 0.12);
+  --surface-monitor-bg: rgba(60, 110, 220, 0.14);
+  --surface-monitor-border: 1px solid rgba(96, 140, 235, 0.42);
+  --surface-action-border: 1px solid rgba(96, 140, 235, 0.4);
+  --surface-raised-border: 1px solid rgba(96, 140, 235, 0.46);
+  --surface-faint-border: 1px solid rgba(96, 140, 235, 0.28);
+  --card-border-strong: 1px solid rgba(255, 92, 134, 0.28);
+  --divider: rgba(79, 216, 255, 0.14);
+
+  /* ——— Texto ————————————————————————————————————————————————
+     O terciário perde da legibilidade sobre vidro (CRIACAO § 6): ele fica
+     acima do que ficaria numa tela opaca. */
+  --text-primary: var(--cy-texto);
+  --text-secondary: rgba(233, 237, 255, 0.66);
+  /* Rótulos ("CPU", "8.4 GB EM USO", a data) a 50% sumiam no cobalto opaco; a
+     referência os mostra quase claros. 0,72 é onde ficam legíveis sem disputar
+     com o valor grande acima deles. */
+  --text-tertiary: rgba(233, 237, 255, 0.72);
+  --text-dock-idle: rgba(233, 237, 255, 0.78);
+  --text-mono-label: rgba(79, 216, 255, 0.82);
+  --text-widget-label: rgba(233, 237, 255, 0.72);
+
+  /* ——— Acentos ——————————————————————————————————————————————
+     Cada um no seu papel. O violeta do handoff vira rosa: ele é o destaque
+     genérico do app, e aqui destaque é rosa. */
+  --accent-violet: var(--cy-rosa);
+  --accent-green: var(--cy-menta);
+  --accent-green-bar: var(--cy-menta);
+  --accent-mint: var(--cy-menta);
+  --accent-mint-strong: var(--cy-menta);
+  --accent-amber: var(--cy-amarelo);
+  --accent-gold: var(--cy-amarelo);
+  --accent-red: var(--cy-coral);
+
+  /* O clima é DADO: ciano, como os medidores. */
+  --weather-icon: var(--cy-ciano);
+  --weather-accent: var(--cy-ciano);
+  --weather-outline: var(--cy-texto);
+  --weather-faint: rgba(79, 216, 255, 0.24);
+  --weather-fill: rgb(6 18 54);
+
+  /* ——— Interação ————————————————————————————————————————————— */
+  --hover-row: rgba(79, 216, 255, 0.1);
+  --hover-row-strong: rgba(79, 216, 255, 0.13);
+  --hover-dock-item: rgba(255, 92, 134, 0.18);
+  --dock-item-active: rgba(255, 92, 134, 0.32);
+  --dock-item-active-hover: rgba(255, 92, 134, 0.42);
+  --home-indicator: rgba(255, 143, 174, 0.42);
+  --home-indicator-hover: rgba(255, 143, 174, 0.72);
+  --toggle-track-off: rgba(79, 216, 255, 0.2);
+  --toggle-knob-off: rgba(233, 237, 255, 0.86);
+  --toggle-knob-on: var(--cy-abismo);
+  /* Texto sobre o rosa aceso: o marinho mais fundo, não preto. */
+  --on-accent: var(--cy-abismo);
+  --slider-track: rgba(79, 216, 255, 0.18);
+  --tab-active-bg: rgba(255, 92, 134, 0.2);
+  --avatar-ring: rgba(255, 143, 174, 0.5);
+  /* O trilho apagado é cobalto, a mesma família das bordas dos cartões. */
+  /* A barra da música na referência vai do rosa ao branco. É gradiente porque a
+     propriedade que a pinta é `background`, e um gradiente cabe ali. */
+  --track-fill: linear-gradient(90deg, var(--cy-rosa), var(--cy-rosa-luz) 60%, var(--cy-texto));
+  --track-quiet: rgba(96, 140, 235, 0.28);
+  --link: var(--cy-ciano);
+  --link-hover: #9deaff;
+
+  /* ——— Peças ————————————————————————————————————————————————— */
+  --cover-base: #0a1a44;
+  --claude-orb-shadow: 0 0 50px rgba(255, 92, 134, 0.5), inset 0 -8px 24px rgba(0, 0, 0, 0.4);
+  --hero-veil: linear-gradient(180deg, transparent, rgba(3, 8, 31, 0.78));
+  --modal-bg: rgb(5 15 45 / 0.97);
+  --modal-veu: rgb(1 4 16 / 0.68);
+  --scrim-strong: rgb(1 4 16 / 0.6);
+  --scrim-stronger: rgb(1 4 16 / 0.78);
+  --player-error: var(--cy-coral);
+
+  /* As listras do lugar-da-imagem viram as diagonais do tema — o mesmo motivo
+     que a referência usa nas barras hachuradas. */
+  --placeholder-stripes: repeating-linear-gradient(
+    -45deg,
+    rgba(255, 92, 134, 0.16) 0 6px,
+    transparent 6px 14px
+  );
+}
+
+/* ==========================================================================
+   FORMA
+
+   Tudo daqui para baixo é o que um token não alcança, e cada regra se prende a
+   um atributo que o app JÁ escreve. Nenhuma tela sabe que este arquivo existe.
+   ========================================================================== */
+
+/* ——— O carimbo do painel central ——————————————————————————————
+   Na referência o painel central termina, no canto inferior direito, num
+   traço rosa seguido de "シティポップ" — city pop, em katakana. É o `::before`
+   do painel, dentro do padding inferior (20px), fora do caminho do conteúdo.
+
+   Ele substitui o sol retrô da primeira versão. A referência NÃO tem sol no
+   painel: o que se vê ali é o papel de parede atravessando o vidro, e o
+   usuário apontou (05/09/2026). O sol é do cartão do relógio, e só dele. */
+:root[data-env="citypop"] [data-halo-in="center"] {
+  position: relative;
+  isolation: isolate;
+}
+
+:root[data-env="citypop"] [data-halo-in="center"]::before {
+  content: "シティポップ";
+  position: absolute;
+  right: 22px;
+  bottom: 6px;
+  height: 12px;
+  padding-left: 76px;
+  /* O traço à esquerda do texto, como na referência. */
+  background: linear-gradient(var(--cy-rosa), var(--cy-rosa)) left center / 64px 1px no-repeat;
+  color: var(--cy-rosa);
+  font-size: 10px;
+  line-height: 12px;
+  letter-spacing: 0.18em;
+  opacity: 0.75;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ——— As barrinhas do cartão de projeto ————————————————————————
+   Na referência o cartão "Continuar" tem, no canto superior direito, uma fita
+   curta de listras diagonais — cobalto, violeta, rosa. `data-halo-cartao~=
+   "projeto"` é o atributo que o cartão de projeto da home escreve. Mesma
+   construção da fita do rodapé: paradas fixas, cada listra um paralelogramo
+   inteiro, sem corte seco. */
+:root[data-env="citypop"] [data-halo-cartao~="projeto"] {
+  position: relative;
+}
+
+:root[data-env="citypop"] [data-halo-cartao~="projeto"]::after {
+  content: "";
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  width: 96px;
+  height: 10px;
+  pointer-events: none;
+  opacity: 0.85;
+  background: linear-gradient(
+    135deg,
+    transparent 8px,
+    var(--cy-cobalto) 8px 13px,
+    transparent 13px 19px,
+    var(--cy-cobalto) 19px 24px,
+    transparent 24px 30px,
+    var(--cy-violeta) 30px 35px,
+    transparent 35px 41px,
+    var(--cy-violeta) 41px 46px,
+    transparent 46px 52px,
+    var(--cy-rosa) 52px 57px,
+    transparent 57px 63px,
+    var(--cy-rosa) 63px 68px,
+    transparent 68px
+  );
+}
+
+/* ——— O fio de neon nas arestas ————————————————————————————————
+   Na referência cada painel tem uma linha acesa correndo pela borda. É um
+   `::after` de 1px, e não uma `border`: a borda já é do token, e somar duas
+   deixaria a aresta grossa. */
+:root[data-env="citypop"] [data-halo-in="side"],
+:root[data-env="citypop"] [data-halo-in="center"] {
+  position: relative;
+}
+
+:root[data-env="citypop"] [data-halo-in="side"]::after,
+:root[data-env="citypop"] [data-halo-in="center"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  /* Rosa no alto, ciano embaixo: a luz da cidade vem de cima, o reflexo do mar
+     vem de baixo. É a leitura da referência, não decoração aleatória. */
+  background:
+    linear-gradient(180deg, rgba(255, 92, 134, 0.55), transparent 34%) border-box,
+    linear-gradient(0deg, rgba(79, 216, 255, 0.4), transparent 30%) border-box;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  padding: 1px;
+  z-index: 1;
+}
+
+/* ——— O dock ————————————————————————————————————————————————————
+   O item ativo acende em rosa, com halo. Na referência é o único elemento
+   verdadeiramente aceso da navegação, e é o que dá o tom. */
+:root[data-env="citypop"] nav[aria-label="Telas"] button[aria-current="page"] {
+  box-shadow:
+    0 0 18px rgba(255, 92, 134, 0.45),
+    inset 0 0 0 1px rgba(255, 143, 174, 0.55);
+}
+
+:root[data-env="citypop"] nav[aria-label="Telas"] button[aria-current="page"] svg {
+  color: var(--cy-rosa-luz);
+  filter: drop-shadow(0 0 6px rgba(255, 92, 134, 0.7));
+}
+
+/* ——— Medidores ————————————————————————————————————————————————
+   Barra de medida é DADO: ciano, com o rastro aceso que a referência mostra
+   nos gráficos de CPU e GPU. */
+:root[data-env="citypop"] [data-halo-medidor] {
+  filter: drop-shadow(0 0 5px rgba(79, 216, 255, 0.5));
+}
+
+/* ——— Os ícones dos medidores ——————————————————————————————————————
+   Na referência cada ícone de medidor mora num QUADRADINHO arredondado da
+   própria cor — rosa para CPU, ciano para memória, violeta para GPU, amarelo
+   para temperatura —, e é isso que dá acabamento aos quatro cartões: sem ele o
+   ícone é um risco solto no canto.
+
+   MEDIDO: o ícone se pinta pelo atributo `fill` (o componente passa a cor como
+   prop), então `currentColor` no cartão resolvia para o branco do texto e o
+   quadradinho saía branco. Por isso a cor é dada AQUI, por posição — os quatro
+   medidores são irmãos, em ordem fixa — e o `fill` passa a seguir `color`, para
+   ícone e quadradinho serem a mesma cor por construção. O relógio e o clima
+   também são `mini` e ficam de fora: neles o primeiro svg não é um medidor.
+
+   As listras diagonais que a primeira versão pintava no rodapé de cada cartão
+   saíram: a referência só as tem na FITA do rodapé da coluna. */
+/* A cor de cada medidor é UMA variável do cartão (`--stat-tone`), e o cartão
+   diz o que mede em `data-halo-metrica`: redefinida aqui por medidor, ícone,
+   quadradinho e gráfico seguem juntos. As quatro cores são as da referência —
+   rosa para CPU, ciano para memória, violeta para GPU, amarelo para
+   temperatura. */
+:root[data-env="citypop"] [data-halo-metrica="cpu"] {
+  --stat-tone: var(--cy-rosa);
+}
+:root[data-env="citypop"] [data-halo-metrica="memoria"] {
+  --stat-tone: var(--cy-ciano);
+}
+:root[data-env="citypop"] [data-halo-metrica="gpu"] {
+  --stat-tone: var(--cy-violeta);
+}
+:root[data-env="citypop"] [data-halo-metrica="temperatura"] {
+  --stat-tone: var(--cy-amarelo);
+}
+:root[data-env="citypop"]
+  [data-halo-cartao~="mini"]:not([data-halo-cartao~="relogio"]):not([data-halo-cartao~="clima"])
+  > svg:first-child {
+  box-sizing: content-box;
+  padding: 5px;
+  border-radius: 8px;
+  color: var(--stat-tone);
+  fill: currentColor;
+  background: color-mix(in srgb, currentColor 16%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 34%, transparent);
+}
+
+/* ——— A camada de ambiente ——————————————————————————————————————
+   `data-halo-fx="ambiente"` é a camada que o `Stage` já desenha, com
+   `pointer-events: none`. Aqui ela é CENÁRIO parado, não efeito:
+
+   - o brilho do pôr do sol subindo do horizonte, no rodapé;
+   - a vinheta marinha que fecha os cantos e devolve o foco ao meio.
+
+   O usuário pediu discrição nos temas anteriores e a regra ficou: alfas
+   baixos, nada perseguível pelo olho. */
+:root[data-env="citypop"] [data-halo-fx="ambiente"] {
+  background-image:
+    linear-gradient(0deg, rgba(255, 92, 134, 0.1) 0%, transparent 26%),
+    linear-gradient(180deg, rgba(46, 111, 216, 0.1) 0%, transparent 30%),
+    radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(1, 4, 16, 0.42) 100%);
+}
+
+/* NÃO há linha do horizonte. A primeira versão desenhava um fio de neon de
+   1px atravessando a janela inteira a 22% da base — e a janela é um overlay
+   transparente: o fio cruzava o palco, o vão entre os painéis e o que estivesse
+   atrás, como um risco em cima das outras janelas. O usuário viu e pediu para
+   sair (05/09/2026). Cenário de tema fica DENTRO dos painéis ou em alfa que
+   não se lê como traço; um elemento de largura total é sempre suspeito aqui. */
+
+/* ——— O relógio aceso ——————————————————————————————————————————
+   Na referência o relógio é a peça que mais brilha do painel esquerdo: os
+   numerais têm halo, como um letreiro. É o que mais diz "city pop" no miúdo.
+
+   O endereço é `[class*="_time_"]`, o nome que o CSS Modules gera. Isso
+   contraria a preferência da receita por alvo estrutural, e é o MESMO desvio
+   que o BioShock já fez para trocar a fonte do relógio — não há atributo
+   neutro que diga "isto é a hora", e inventar um só para um brilho seria caro
+   demais para o que ele entrega. Se um dia esse atributo existir, esta regra
+   migra para ele. Registrado em MOCKS.md. */
+:root[data-env="citypop"] [class*="_time_"] {
+  text-shadow:
+    0 0 18px rgba(79, 216, 255, 0.42),
+    0 0 44px rgba(255, 92, 134, 0.24);
+}
+
+/* A temperatura e os números dos medidores acompanham, mais discretos: são
+   dado, e dado é ciano. */
+:root[data-env="citypop"] [class*="_temperature_"],
+:root[data-env="citypop"] [class*="_statValue_"] {
+  text-shadow: 0 0 14px rgba(79, 216, 255, 0.3);
+}
+
+/* ——— Movimento reduzido ————————————————————————————————————————
+   O tema não tem laço perpétuo: o sol e o fio de neon dos painéis são
+   cenário parado. O que existe de movimento é a entrada e a troca de ambiente,
+   e a receita manda não mexer nelas aqui. Fica registrado que a ausência é
+   deliberada, e não esquecimento. */
+
+/* ——— A arte dentro dos cartões ————————————————————————————————
+   A diferença que o usuário viu entre a referência e a primeira entrega: lá o
+   cartão do relógio traz o sol com a palmeira, e o do clima traz a cidade com
+   o morro. Sem elas o tema era paleta; com elas ele é o lugar.
+
+   As duas peças são as que o USUÁRIO gerou para isto, na pasta do tema — o sol
+   com a palmeira e o morro com a cidade, ambos
+   sobre preto para recorte. A primeira entrega recortou do papel de parede, e
+   ele apontou: ficava diferente da referência. Estas são as peças da própria
+   referência. O preto virou alfa pela luminância, com a cor despremultiplicada
+   para o contorno não ganhar franja escura; a cidade ainda leva um
+   desvanecimento à esquerda, para MORRER dentro do cartão.
+
+   O endereço é `data-halo-cartao~="relogio"` / `~="clima"`: fichas novas num
+   atributo que já existia, do jeito que a receita manda (§ 4). "mini" continua
+   dizendo a FORMA — é dele que o BioShock tira o quadro —, e a ficha nova diz
+   o que a peça É. A Floresta ignora as duas. */
+:root[data-env="citypop"] [data-halo-cartao~="relogio"],
+:root[data-env="citypop"] [data-halo-cartao~="clima"] {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+:root[data-env="citypop"] [data-halo-cartao~="relogio"]::before,
+:root[data-env="citypop"] [data-halo-cartao~="clima"]::before {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: -1;
+  background-repeat: no-repeat;
+  background-position: right bottom;
+  background-size: contain;
+  /* Atrás do texto e discreta: o cartão continua sendo para ler a hora e a
+     temperatura. Foi por isso que a peça entrou como FUNDO, e não como imagem
+     ao lado — ao lado ela roubaria a largura que o número precisa. */
+  opacity: 0.85;
+}
+
+/* O sol ocupa a lateral direita do cartão, do alto à base — como na referência,
+   onde ele é do tamanho do relógio. */
+:root[data-env="citypop"] [data-halo-cartao~="relogio"]::before {
+  right: 8px;
+  bottom: 6px;
+  /* Mais largo que alto: as faixas azuis correm para a esquerda do disco, por
+     baixo da data, como na referência. */
+  width: 168px;
+  height: 116px;
+  /* `sol-faixas.png` é a SEGUNDA versão do sol, gerada em 05/09/2026 a partir
+     do recorte da referência (GPT, prompt em MOCKS.md), com as faixas azuis
+     de horizonte que a primeira não tinha. A primeira (`sol.png`, também
+     gerada para o tema) continua no repositório para comparação. */
+  background-image: url("../assets/env/citypop/sol-faixas.png");
+}
+
+/* A cidade ocupa o cartão do clima INTEIRO em altura, ancorada à direita: na
+   referência o morro encosta na borda de cima e a cidade corre sob o texto. A
+   peça é larga (340×87); esticada à altura do cartão ela passa da largura, e o
+   que sobra à esquerda é cortado — e o que fica por baixo do número esmaece
+   pela máscara, para o texto continuar sendo o que se lê. O usuário apontou a
+   versão anterior (218×56, no canto) como pequena demais. */
+:root[data-env="citypop"] [data-halo-cartao~="clima"]::before {
+  inset: 0;
+  width: auto;
+  height: auto;
+  border-radius: inherit;
+  background-image: url("../assets/env/citypop/cidade.png");
+  background-size: auto 100%;
+  /* Posição afinada pelo usuário na tela (05/09/2026), em três rodadas: 30px
+     e mais 50px para a direita, depois 15px de volta — o morro sai de baixo do
+     número e a cidade corre para o canto. A peça (≈410px na altura do cartão)
+     é bem mais larga que os 268px do cartão, então mesmo 65px deslocada o lado
+     esquerdo continua coberto. */
+  background-position: right -65px bottom;
+  mask-image: linear-gradient(90deg, transparent 20%, black 56%);
+  /* MEDIDO na tela real: com o vidro translúcido, o papel de parede atrás tem
+     as MESMAS cores da peça (azul, roxo, palmeiras) e ela sumia no fundo. A
+     resposta está em duas partes — o fundo do cartão escurece (regra abaixo)
+     e a peça ganha saturação e contraste para o morro e as janelas saltarem,
+     como na referência. */
+  opacity: 1;
+  filter: saturate(1.25) contrast(1.12);
+}
+
+/* MEDIDO na tela real (05/09/2026): a cidade saía lavada. O
+   `::before` tem `z-index: -1`, e sem contexto de empilhamento próprio no
+   cartão ele era pintado ATRÁS do fundo do cartão — o vidro cobalto ficava
+   por cima da peça e a afogava. Com `isolation: isolate` o -1 passa a valer
+   dentro do cartão: acima do fundo dele, abaixo do texto. O relógio fica como
+   está — o usuário aprovou aquele resultado, e mudar a pintura mudaria o sol. */
+:root[data-env="citypop"] [data-halo-cartao~="clima"] {
+  isolation: isolate;
+  /* Na referência o cartão do clima é o mais escuro da coluna — mas escuro
+     AZULADO, o cobalto da noite (#0c2c64, medido), não preto. A primeira
+     tentativa (rgb 6 18 54 a 0,72) saiu preta demais e destoou do tema; o
+     usuário apontou. Este é o cobalto do painel, quase sólido, por cima do
+     vidro: dá chão à peça e continua da mesma família que o resto. */
+  background: rgba(12, 44, 100, 0.78);
+}
+
+/* ——— O rodapé listrado ————————————————————————————————————————
+   O outro elemento que faltava: na referência a coluna esquerda termina numa
+   fita de listras diagonais com um microtexto japonês. É assinatura, e é o que
+   fecha a composição — sem ela a coluna acabava no ar.
+
+   `data-halo-side="esquerda"` é o atributo que o app já escreve para dizer qual
+   lateral é qual, e ele nasceu exatamente para um caso como este. */
+:root[data-env="citypop"] [data-halo-in="side"][data-halo-side="esquerda"]::before {
+  content: "良い音楽、より良い日々";
+  position: absolute;
+  right: 16px;
+  /* MEDIDO: com `bottom: 12px` e 14px de altura a fita invadia 8px do último
+     cartão — o painel tem 18px de padding embaixo, e a fita agora cabe nele. */
+  bottom: 3px;
+  left: 16px;
+  height: 12px;
+  /* A fita de listras ocupa a esquerda; o texto fica à direita dela.
+
+     Não é um `repeating-linear-gradient` cortado por uma caixa: o corte da
+     caixa é vertical e partia a última listra no meio — o usuário notou o
+     corte seco. As listras são paradas fixas num gradiente a 135°, com transparente
+     antes e depois: cada uma é um paralelogramo inteiro, e a fita termina na
+     diagonal da última, como na folha de peças que ele gerou. As cores vão do
+     rosa ao cobalto, como a fita da referência. */
+  background:
+    linear-gradient(
+      135deg,
+      transparent 10px,
+      var(--cy-rosa) 10px 14px,
+      transparent 14px 19px,
+      var(--cy-rosa) 19px 23px,
+      transparent 23px 28px,
+      var(--cy-violeta) 28px 32px,
+      transparent 32px 37px,
+      var(--cy-violeta) 37px 41px,
+      transparent 41px 46px,
+      var(--cy-cobalto) 46px 50px,
+      transparent 50px
+    )
+    left center / 80px 8px no-repeat;
+  color: var(--cy-ciano);
+  font-size: 9px;
+  line-height: 12px;
+  text-align: right;
+  /* Neon aceso, a pedido do usuário (05/09/2026): antes ficava a 0,55 e lia
+     como legenda apagada. O halo é ciano em duas camadas, curta e larga, o
+     mesmo desenho do brilho do relógio. */
+  opacity: 0.95;
+  text-shadow:
+    0 0 6px rgba(79, 216, 255, 0.9),
+    0 0 16px rgba(79, 216, 255, 0.5);
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   Avisos do sistema — a janela dos balões (`src/renderer/notificacoes/`)
+
+   O balão é um painel central em miniatura: o vidro cobalto, o fio de neon
+   rosa no alto e ciano embaixo (a cidade em cima, o reflexo do mar embaixo) e,
+   no lugar do carimbo "シティポップ", um "お知らせ" — "aviso", em japonês —
+   com o mesmo traço rosa. Ação é rosa aceso, como o item ativo do dock.
+   ========================================================================== */
+
+:root[data-env="citypop"] [data-halo-in="aviso"] {
+  border-radius: 16px;
+  padding-bottom: 24px;
+  background-color: color-mix(in srgb, var(--cy-noite) 97%, transparent);
+  background-image:
+    linear-gradient(180deg, rgba(255, 92, 134, 0.1), transparent 42%),
+    linear-gradient(0deg, rgba(79, 216, 255, 0.08), transparent 38%);
+  box-shadow:
+    0 0 22px rgba(79, 216, 255, 0.16),
+    0 14px 30px -12px rgba(1, 4, 16, 0.75);
+}
+
+:root[data-env="citypop"] [data-halo-in="aviso"][data-urgencia="critica"] {
+  border-color: var(--cy-coral);
+}
+
+/* O fio de neon: a mesma construção dos painéis (máscara que deixa só 1px). */
+:root[data-env="citypop"] [data-halo-in="aviso"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255, 92, 134, 0.6), transparent 40%) border-box,
+    linear-gradient(0deg, rgba(79, 216, 255, 0.45), transparent 36%) border-box;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  padding: 1px;
+  z-index: 1;
+}
+
+:root[data-env="citypop"] [data-halo-in="aviso"]::before {
+  content: "お知らせ";
+  position: absolute;
+  right: 16px;
+  bottom: 7px;
+  height: 12px;
+  padding-left: 52px;
+  background: linear-gradient(var(--cy-rosa), var(--cy-rosa)) left center / 42px 1px no-repeat;
+  color: var(--cy-rosa);
+  font-size: 10px;
+  line-height: 12px;
+  letter-spacing: 0.18em;
+  opacity: 0.75;
+  pointer-events: none;
+  z-index: 0;
+}
+
+:root[data-env="citypop"] [data-halo-in="aviso"] [data-aviso="titulo"] {
+  color: var(--cy-texto);
+}
+
+:root[data-env="citypop"] [data-halo-in="aviso"] [data-aviso="icone"] {
+  color: var(--cy-ciano);
+}
+
+:root[data-env="citypop"] [data-halo-in="aviso"] [data-aviso="imagem"] {
+  box-shadow: 0 0 0 1px rgba(79, 216, 255, 0.6);
+}
+
+:root[data-env="citypop"] [data-halo-in="aviso"] [data-aviso="acao"] {
+  border: 1px solid rgba(255, 92, 134, 0.5);
+  border-radius: 999px;
+  background: rgba(255, 92, 134, 0.12);
+  color: var(--cy-rosa-luz);
+}
+
+:root[data-env="citypop"] [data-halo-in="aviso"] [data-aviso="acao"]:hover {
+  background: var(--cy-rosa);
+  color: var(--cy-abismo);
+  box-shadow: 0 0 14px rgba(255, 92, 134, 0.55);
+}
+
+:root[data-env="citypop"] [data-halo-in="aviso"] [data-aviso="tempo"] {
+  background: var(--track-fill);
+  opacity: 1;
+}

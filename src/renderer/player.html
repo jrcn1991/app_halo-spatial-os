@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <!--
+      CSP própria, diferente da do app.
+      `media-src` precisa aceitar o servidor da lista do usuário, que só é
+      conhecido em tempo de execução — por isso http:/https: em vez de um host
+      fixo. Continua valendo tudo o mais: nada de script externo, e `connect-src`
+      preso em 'self'. É esta a razão de o vídeo morar numa página separada em
+      vez de dentro do app: a folga fica confinada aqui.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://image.tmdb.org; font-src 'self' data:; connect-src 'self'; media-src http: https:"
+    />
+    <title>Halo · Player</title>
+  </head>
+  <body>
+    <div id="player"></div>
+    <script type="module" src="/player/main.tsx"></script>
+  </body>
+</html>

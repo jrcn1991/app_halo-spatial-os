@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <!--
+      CSP da ilha, separada da do app.
+      Ela mostra capa de música vinda dos mesmos CDNs que a home já libera, e
+      nada mais: sem script de fora, `connect-src` preso em 'self'.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://image.tmdb.org https://*.scdn.co https://*.spotifycdn.com; font-src 'self' data:; connect-src 'self'"
+    />
+    <title>Halo · Ilha</title>
+  </head>
+  <body>
+    <div id="ilha"></div>
+    <script type="module" src="/island/main.tsx"></script>
+  </body>
+</html>

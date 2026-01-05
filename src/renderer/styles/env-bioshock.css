@@ -1,0 +1,1377 @@
+/* ==========================================================================
+   Halo — Ambiente: BioShock (Art Déco Subaquático)
+
+   Arquivo de TEMA, com o mesmo contrato do `env-cyberpunk.css`: só os VALORES
+   dos tokens sob `:root[data-env='bioshock']`, mais as regras de FORMA que um
+   token não alcança — moldura dupla, ornamento, camadas de efeito. Tudo preso a
+   atributos que o app JÁ escreve (`data-halo-in`, `data-halo-side`,
+   `data-halo-fx`, `data-halo-medidor`, `aria-pressed`, `aria-current`), de
+   propósito: assim nenhuma das oito telas é editada, e apagar este arquivo
+   devolve o app ao que ele é hoje.
+
+   Por isso ele entra na lista `ALLOW` de `tools/style-lint.mjs`, ao lado de
+   `styles/tokens.css` e `styles/env-cyberpunk.css`: um tema É um arquivo de
+   tokens. Cor solta em componente continua proibida.
+
+   Leitura do tema. Três materiais, com papéis separados, e nunca trocados:
+
+   - o BRONZE envelhecido é ESTRUTURA — moldura, filete, separador, ornamento.
+     Ele desenha o objeto e nunca comunica estado;
+   - o TURQUESA é LUZ — só o que está aceso: item ativo, seleção, foco, valor de
+     medidor. É o ponto de luz da cena, e por isso é escasso: turquesa em tudo
+     deixaria de significar "isto está aceso";
+   - o MARFIM é TEXTO, e o cinza-esverdeado o texto de apoio.
+
+   O âmbar aparece só em detalhes pequenos (o cursor, o alerta ameno) — é a cor
+   das janelas acesas da cidade lá fora, e nesta escala ela é um brilho, não uma
+   superfície. Dourado brilhante e saturação alta ficam de fora de propósito:
+   a cena é água profunda, e metal polido nela seria de outro lugar.
+
+   As cores de partida foram medidas na referência estética do tema e no
+   papel de parede do próprio tema (`tools/fundo-de-ambiente.mjs`, arte original):
+   a água vai de `#0e3437` no alto a `#02090d` embaixo, e é contra esse
+   verde-petróleo que o bronze precisa ler.
+   ========================================================================== */
+
+/* ——— Paleta crua ————————————————————————————————————————————————
+   Fora do seletor de tema de propósito: a amostra do painel de Ambientes
+   precisa mostrar as cores do BioShock mesmo com a Floresta ativa. */
+:root {
+  /* Água: o mais fundo da cena, e o vidro dos painéis sobre ele. */
+  --bs-abismo: #02090d;
+  --bs-fundo: #062427;
+  --bs-vidro-lateral: rgb(4 20 20);
+  --bs-vidro-centro: rgb(2 17 18);
+
+  /* ——— Bronze, em cinco tons ————————————————————————————————
+     Cinco, e não dois, porque a moldura deste tema é um PERFIL: ela precisa de
+     um cume aceso, dois flancos, um canal recuado e um sulco quase preto. Com
+     duas cores só, a moldura vira fio de CSS — foi o que ela era antes.
+
+     MEDIDOS na referência ampliada, atravessando o trilho de fora para dentro
+     (`ref-canto-sup-esq.png`, linha horizontal na aresta esquerda): sulco quase
+     preto, cume a `#988152`, sulco, canal a `#36301e`, sulco, filete interno a
+     `#6d562e`. Os valores abaixo são esses, ABERTOS: a amostra de 3× está
+     borrada pela ampliação e puxa tudo para baixo, e o usuário pediu bronze
+     mais claro e mais quente, com mais distância até o vidro.
+
+     `--bs-patina` é a oxidação — verde de cobre, que é o que acontece com
+     bronze debaixo d'água, e o que impede o metal de parecer novo. */
+  --bs-sulco: #100b05;
+  --bs-cobre: #5d4629;
+  --bs-bronze: #a28c65;
+  --bs-bronze-luz: #d3bb87;
+  /* Especular: o ponto em que o metal devolve a claraboia inteira. Só em coisa
+     minúscula — o rebite, o cume de um filete. Em área, viraria dourado
+     brilhante, que é justamente o que o tema não é. */
+  --bs-bronze-brilho: #f2e6c4;
+  --bs-patina: #2f5f52;
+
+  /* Luz: o turquesa é o mesmo da claraboia que atravessa a água. */
+  --bs-turquesa: #a9ffff;
+  --bs-turquesa-fundo: #0e4b3f;
+
+  /* Texto: marfim quente. Branco puro seria de escritório, não de 1920. */
+  --bs-marfim: #efe7d6;
+  --bs-marfim-dim: #a9bcb3;
+  --bs-marfim-faint: #6f8880;
+
+  /* Detalhes pequenos, e os dois estados que precisam de cor própria. */
+  --bs-ambar: #d9a441;
+  --bs-alerta: #e2765c;
+  --bs-ok: #6fd6a8;
+
+  /* A amostra do painel de Ambientes: luz, estrutura e oxidação. */
+  --env-bioshock-1: var(--bs-turquesa);
+  --env-bioshock-2: var(--bs-bronze);
+  --env-bioshock-3: var(--bs-patina);
+
+  /* ——— A moldura é um PERFIL, não um fio ————————————————————
+     Foi o veredito do usuário, e ele estava certo: um fio de 1px com outro fio
+     dentro é borda de CSS. A referência é metal torneado — atravessando o
+     trilho de fora para dentro há sulco, flanco, cume, flanco, sulco, canal
+     recuado, sulco, filete interno. Oito faixas em 9px.
+
+     O TRILHO é feito de `box-shadow` inset concêntricas, e não de `border-image`
+     nem de máscara: sombra inset com espalhamento desenha um ANEL que segue o
+     `border-radius` nos quatro lados, e a primeira da lista pinta POR CIMA das
+     seguintes. Empilhando espalhamentos crescentes sai a gradação atravessada,
+     de graça e sem um pixel de emenda no canto. `border-image` foi descartado
+     porque ignora o raio; a máscara com `mask-composite`, porque a máscara vale
+     para o elemento inteiro e apagaria o resto do desenho.
+
+     Depois do trilho vem o VÃO de vidro, e só então o QUADRO INTERNO — 1px, com
+     canto cortado a 45° e um rebite redondo logo dentro dele. As três medidas
+     estão aqui porque o desenho as usa em dez lugares.
+
+     Continua não havendo `clip-path` nos painéis, e continua sendo decisão:
+     recortar o painel recortaria também a `box-shadow` (medido no Cyberpunk,
+     está escrito lá), e é a sombra macia que dá a profundidade de água. */
+  --bs-trilho: 9px;
+  --bs-quadro: 13px;
+  --bs-corte: 7px;
+  /* O mesmo corte, na escala do cartão. */
+  --bs-mini-corte: 6px;
+}
+
+:root[data-env="bioshock"] {
+  /* ——— Palco e vidro ——————————————————————————————————————— */
+  --stage-bg: var(--bs-abismo);
+  --app-bg: var(--bs-abismo);
+  --glass-side-base: var(--bs-vidro-lateral);
+  --glass-center-base: var(--bs-vidro-centro);
+  /* O "claro" deste vidro é esverdeado: clarear para um branco neutro tiraria
+     a água de dentro do painel. */
+  --glass-clarity-target: #d3ece6;
+  --glass-side-border: 1px solid rgba(162, 140, 101, 0.42);
+  --glass-center-border: 1px solid rgba(162, 140, 101, 0.5);
+  --glass-dock-bg: rgba(4, 20, 20, 0.62);
+  --glass-dock-border: 1px solid rgba(162, 140, 101, 0.45);
+  --glass-transport-bg: rgba(4, 20, 20, 0.6);
+  --glass-rail-bg: rgba(2, 14, 15, 0.4);
+  --glass-rail-border: 1px solid rgba(162, 140, 101, 0.26);
+
+  /* A sombra continua sombra — macia e funda, como o handoff. O que muda é a
+     cor (a água, não o preto) e o acréscimo de três coisas: um fio de luz na
+     aresta de cima, que é o metal pegando a claraboia; um halo turquesa por
+     dentro, muito baixo, que é a água acesa atrás do vidro; e a PÁTINA.
+
+     A pátina são as quatro últimas sombras. O vidro da referência não é chapa
+     lisa: tem manchas, como painel que passou décadas na água. Elas são feitas
+     de sombra INSET com desvio grande, desfoque grande e espalhamento
+     NEGATIVO — assim cada uma entra pela borda como uma nuvem macia em vez de
+     contornar o painel, e quatro delas em direções diferentes dão um
+     manchado que não repete.
+
+     É sombra, e não uma camada nova, por um motivo concreto: a camada de
+     `background-image` do painel é onde mora a gradação da cor escolhida em
+     Configurações (Aparência → cor do vidro), e redeclará-la aqui significaria
+     manter uma cópia dela em dois arquivos. O token da sombra é nosso. */
+  --glass-side-shadow:
+    0 44px 84px rgba(2, 9, 13, 0.6), inset 0 1px 0 rgba(239, 231, 214, 0.07),
+    inset 0 0 46px rgba(14, 75, 63, 0.16), inset 110px 60px 90px -70px rgba(3, 26, 24, 0.55),
+    inset -80px 130px 110px -85px rgba(2, 18, 22, 0.5),
+    inset 60px -120px 100px -75px rgba(5, 30, 26, 0.45),
+    inset -130px -40px 120px -95px rgba(2, 20, 18, 0.5);
+  --glass-center-shadow:
+    0 62px 120px rgba(2, 9, 13, 0.68), inset 0 1px 0 rgba(239, 231, 214, 0.08),
+    inset 0 0 70px rgba(14, 75, 63, 0.14), inset 160px 70px 120px -90px rgba(3, 26, 24, 0.5),
+    inset -120px 170px 140px -105px rgba(2, 18, 22, 0.45),
+    inset 90px -150px 130px -95px rgba(5, 30, 26, 0.42),
+    inset -180px -50px 150px -115px rgba(2, 20, 18, 0.45);
+  --glass-dock-shadow: 0 24px 46px rgba(2, 9, 13, 0.55), inset 0 1px 0 rgba(239, 231, 214, 0.08);
+  --glass-transport-shadow:
+    0 24px 46px rgba(2, 9, 13, 0.55), inset 0 1px 0 rgba(239, 231, 214, 0.08);
+
+  /* ——— Superfícies internas ————————————————————————————————
+     A ESTRIA VERTICAL é a textura metálica do tema: 1px a cada 4px, a 0,014 de
+     alfa. Nesse alfa ela não se vê como listra — ela se vê como superfície que
+     não é lisa, que é o ponto. Acima de 0,03 vira grade e o texto por cima
+     começa a vibrar (medido na tela). */
+  --surface-inner-bg:
+    repeating-linear-gradient(90deg, rgba(239, 231, 214, 0.014) 0 1px, transparent 1px 4px),
+    linear-gradient(rgba(162, 140, 101, 0.06), rgba(162, 140, 101, 0.03));
+  --surface-inner-bg-strong:
+    repeating-linear-gradient(90deg, rgba(239, 231, 214, 0.016) 0 1px, transparent 1px 4px),
+    linear-gradient(rgba(162, 140, 101, 0.08), rgba(162, 140, 101, 0.045));
+  --surface-inner-border: 1px solid rgba(162, 140, 101, 0.22);
+  --surface-inner-border-strong: 1px solid rgba(162, 140, 101, 0.3);
+  --surface-inner-active-bg: rgba(169, 255, 255, 0.08);
+  --surface-inner-active-bg-strong: rgba(169, 255, 255, 0.11);
+  --surface-inner-active-border: 1px solid rgba(169, 255, 255, 0.42);
+  --surface-quiet-bg: rgba(162, 140, 101, 0.07);
+  --surface-monitor-bg: rgba(162, 140, 101, 0.08);
+  --surface-monitor-border: 1px solid rgba(162, 140, 101, 0.26);
+  --surface-action-border: 1px solid rgba(162, 140, 101, 0.28);
+  --surface-raised-border: 1px solid rgba(162, 140, 101, 0.34);
+  --surface-faint-border: 1px solid rgba(162, 140, 101, 0.16);
+  --card-border-strong: 1px solid rgba(162, 140, 101, 0.34);
+  /* O separador é bronze, e é o mesmo fio dos filetes: dentro do painel ele lê
+     como um friso, e não como uma linha de tabela. */
+  --divider: rgba(162, 140, 101, 0.26);
+
+  /* O véu sobre a foto do ambiente afunda a imagem na água antes de o nome
+     entrar por cima dela. */
+  --env-veil: linear-gradient(
+    180deg,
+    rgba(2, 16, 18, 0.3) 0%,
+    rgba(2, 16, 18, 0.62) 55%,
+    rgba(2, 9, 13, 0.88) 100%
+  );
+
+  /* ——— Texto ——————————————————————————————————————————————— */
+  --text-primary: var(--bs-marfim);
+  --text-secondary: var(--bs-marfim-dim);
+  /* O mesmo aprendizado do Cyberpunk vale aqui: o tom mais apagado da paleta
+     some sobre vidro translúcido, que clareia com o papel de parede atrás. O
+     terciário carrega data, artista e metadado — fica entre o apagado e o
+     fraco, onde ainda se lê. */
+  --text-tertiary: color-mix(in srgb, var(--bs-marfim-dim) 74%, var(--bs-marfim-faint));
+  --text-dock-idle: var(--bs-marfim-dim);
+  /* Os rótulos em caixa alta são a voz do metal: bronze aceso, não marfim. É o
+     que os separa do texto sem precisar de peso nem de tamanho. */
+  --text-mono-label: var(--bs-bronze-luz);
+  --text-widget-label: color-mix(in srgb, var(--bs-bronze-luz) 84%, var(--bs-marfim-faint));
+  --link: var(--bs-turquesa);
+  --link-hover: var(--bs-marfim);
+
+  /* ——— Acentos ————————————————————————————————————————————
+     Papéis, não decoração: turquesa é luz, bronze é estrutura, âmbar é
+     detalhe. */
+  --accent-mint: var(--bs-turquesa);
+  --accent-mint-strong: var(--bs-turquesa);
+  --accent-green: var(--bs-ok);
+  --accent-green-bar: var(--bs-ok);
+  --accent-gold: var(--bs-bronze-luz);
+  --accent-amber: var(--bs-ambar);
+  --accent-red: var(--bs-alerta);
+  /* O ícone de "informação" é violeta no handoff; aqui ele vira o azul de água
+     rasa — a família do turquesa, um passo atrás dele. */
+  --accent-violet: #7fc9d8;
+  --weather-icon: #8fd7d2;
+  --weather-outline: var(--bs-marfim);
+  --weather-accent: var(--bs-turquesa);
+  --weather-faint: rgba(239, 231, 214, 0.18);
+  --weather-fill: rgb(6 24 24);
+
+  /* ——— Interação ——————————————————————————————————————————— */
+  --hover-row: rgba(162, 140, 101, 0.12);
+  --hover-row-strong: rgba(162, 140, 101, 0.15);
+  --hover-dock-item: rgba(169, 255, 255, 0.1);
+  --dock-item-active: rgba(169, 255, 255, 0.16);
+  --dock-item-active-hover: rgba(169, 255, 255, 0.24);
+  --home-indicator: rgba(162, 140, 101, 0.5);
+  --home-indicator-hover: var(--bs-bronze-luz);
+  --toggle-track-off: rgba(162, 140, 101, 0.26);
+  --toggle-knob-off: var(--bs-marfim-dim);
+  --toggle-knob-on: var(--bs-abismo);
+  --on-accent: var(--bs-abismo);
+  --slider-track: rgba(162, 140, 101, 0.26);
+  --tab-active-bg: rgba(169, 255, 255, 0.14);
+  --avatar-ring: rgba(162, 140, 101, 0.5);
+  --track-quiet: rgba(162, 140, 101, 0.24);
+  --track-fill: var(--bs-turquesa);
+  --cover-base: #0f2422;
+  --glass-darken: var(--bs-abismo);
+  /* Modal tem corpo próprio — ver CLAUDE.md § Modal. Aqui ele é a água mais
+     funda, quase opaca, para o texto por cima não competir com nada. */
+  --modal-bg: rgb(6 24 25 / 0.975);
+  --modal-veu: rgb(2 9 13 / 0.7);
+  --scrim-strong: rgb(2 9 13 / 0.58);
+  --scrim-stronger: rgb(2 9 13 / 0.8);
+  --placeholder-stripes: repeating-linear-gradient(
+    135deg,
+    rgba(162, 140, 101, 0.12) 0 3px,
+    rgba(162, 140, 101, 0.03) 3px 12px
+  );
+  --veil: linear-gradient(
+    180deg,
+    rgba(2, 16, 18, 0.38) 0%,
+    rgba(2, 16, 18, 0.12) 45%,
+    rgba(2, 9, 13, 0.66) 100%
+  );
+
+  /* Orbe do Claude: o mesmo desenho, com a luz da claraboia e o bronze. */
+  --claude-orb: radial-gradient(60% 60% at 35% 30%, #a9ffff, #2f7f74 46%, #0a2a26);
+  --claude-orb-shadow: 0 0 44px rgba(169, 255, 255, 0.28), inset 0 -8px 24px rgba(2, 9, 13, 0.5);
+
+  /* ——— Tipografia: DUAS fontes, com papéis separados ————————
+     As duas vêm EMPACOTADAS (`@fontsource/…`, importadas em `main.tsx`): a CSP
+     é `font-src 'self'`, o CDN do Google está bloqueado, e abrir a CSP por
+     causa de fonte não está em discussão.
+
+     JOSEFIN SANS é a geométrica dos anos 1920. Ela é a voz do metal gravado:
+     rótulo em caixa alta, cabeçalho, data, título curto.
+
+     PLAYFAIR DISPLAY é a serifa de ALTO CONTRASTE — haste fina contra haste
+     grossa, terminal em bola. Foi o que a referência ampliada mostrou nos
+     numerais do relógio (`ref-relogio.png`), e é o que nenhuma sans faz: o
+     "23:54" de lá tem a modulação de uma didone, não de uma geométrica. Ela
+     vale SÓ no relógio, nos numerais grandes e no título de tela — em texto
+     corrido a mesma modulação vira cansaço.
+
+     O corpo continua em DM Sans nos dois casos: `--font-sans` não é tocada.
+
+     Os dois tokens só existem aqui. Nenhum outro tema tem fonte própria, e
+     criá-los em `tokens.css` seria declarar um vocabulário que a Floresta não
+     usa. Está registrado em MOCKS.md. */
+  --font-label: "Josefin Sans", "DM Sans", Helvetica, Arial, sans-serif;
+  --font-display: "Playfair Display", Georgia, "DM Sans", serif;
+
+  /* ——— Raios ————————————————————————————————————————————————
+     O déco é geométrico, mas a referência estética não é afiada: as molduras
+     têm canto arredondado curto, e é o filete de dentro que faz o desenho. 16px
+     no painel, contra os 26–32 do handoff. */
+  --panel-radius: 16px;
+  --radius-panel-30: 16px;
+  --radius-dock: 18px;
+  --radius-transport: 16px;
+  --radius-card: 10px;
+  --radius-row: 8px;
+  --radius-chip: 5px;
+}
+
+/* ==========================================================================
+   Moldura: o trilho torneado, o vão, e o quadro interno com rebite
+
+   Um pseudo-elemento só faz as três coisas, e faz cada uma com a técnica que
+   ela pede:
+
+   1. O TRILHO é a pilha de `box-shadow` inset. Sombra inset com espalhamento
+      desenha um anel que acompanha o `border-radius` nos quatro lados, e a
+      PRIMEIRA da lista pinta por cima das seguintes — então espalhamentos
+      crescentes viram faixas concêntricas, de fora para dentro, e a gradação
+      atravessada sai sem uma emenda de canto. São oito faixas em 9px:
+
+          0–1  sulco       a aresta de fora, quase preta
+          1–2  bronze      o flanco que sobe
+          2–3  bronze-luz  o CUME, onde a claraboia bate
+          3–4  bronze      o flanco que desce
+          4–5  sulco       o começo do canal
+          5–7  cobre       o CANAL recuado, oxidado
+          7–8  sulco       o fundo do canal
+          8–9  bronze      o filete que fecha por dentro
+
+   2. O QUADRO INTERNO são camadas de `background`: quatro barras de 1px, quatro
+      diagonais de canto (o corte a 45° da referência) e quatro rebites. As
+      barras param a `--bs-corte` de cada canto justamente para o corte caber
+      ali. O rebite fica LOGO DENTRO do corte, na diagonal, com um miolo
+      especular — é ele que faz o quadro parecer parafusado, e não desenhado.
+
+   3. O tamanho do vão é a diferença entre `--bs-quadro` e `--bs-trilho`.
+
+   `z-index: 1` põe a moldura acima do conteúdo, e ela pode: mora nos 13px de
+   fora, e todo painel tem 16 a 22px de padding. `pointer-events: none` garante
+   que ela nunca engole um clique.
+
+   `:not([class*="bare"])`: o painel "pelado" (o container de cards da tela de
+   Música) não tem vidro nem borda de propósito — uma moldura em volta dele
+   inventaria um objeto que não existe. `bare` é o nome da classe no
+   `Panel.module.css`, e o CSS Modules a preserva dentro do nome gerado.
+   ========================================================================== */
+
+:root[data-env="bioshock"] [data-halo-in="center"]::before,
+:root[data-env="bioshock"] [data-halo-in="side"]:not([class*="bare"])::before,
+:root[data-env="bioshock"] [data-halo-in="dock"]::before,
+:root[data-env="bioshock"] [data-halo-in="dock-vertical"]::before,
+:root[data-env="bioshock"] [data-halo-in="transport"]::before,
+:root[data-env="bioshock"] [data-halo-modal] [role="dialog"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: inherit;
+  box-shadow:
+    inset 0 0 0 1px var(--bs-sulco),
+    inset 0 0 0 2px var(--bs-bronze),
+    inset 0 0 0 3px var(--bs-bronze-luz),
+    inset 0 0 0 4px var(--bs-bronze),
+    inset 0 0 0 5px var(--bs-sulco),
+    inset 0 0 0 7px var(--bs-cobre),
+    inset 0 0 0 8px var(--bs-sulco),
+    inset 0 0 0 var(--bs-trilho) var(--bs-bronze);
+}
+
+/* O quadro interno. Só onde há padding para ele: o dock e a barra de transporte
+   têm 13px de altura de folga e ficam só com o trilho. */
+:root[data-env="bioshock"] [data-halo-in="center"]::before,
+:root[data-env="bioshock"] [data-halo-in="side"]:not([class*="bare"])::before,
+:root[data-env="bioshock"] [data-halo-modal] [role="dialog"]::before {
+  background-repeat: no-repeat;
+  background-image:
+    /* rebites */
+    radial-gradient(circle closest-side, var(--bs-bronze-brilho) 0 42%, var(--bs-cobre) 46% 100%),
+    radial-gradient(circle closest-side, var(--bs-bronze-brilho) 0 42%, var(--bs-cobre) 46% 100%),
+    radial-gradient(circle closest-side, var(--bs-bronze-brilho) 0 42%, var(--bs-cobre) 46% 100%),
+    radial-gradient(circle closest-side, var(--bs-bronze-brilho) 0 42%, var(--bs-cobre) 46% 100%),
+    /* cortes a 45°: a diagonal do canto sobe da esquerda nos cantos
+       alto-esquerdo e baixo-direito, e desce nos outros dois */
+    linear-gradient(
+      45deg,
+      transparent calc(50% - 0.5px),
+      var(--bs-bronze) calc(50% - 0.5px) calc(50% + 0.5px),
+      transparent calc(50% + 0.5px)
+    ),
+    linear-gradient(
+      135deg,
+      transparent calc(50% - 0.5px),
+      var(--bs-bronze) calc(50% - 0.5px) calc(50% + 0.5px),
+      transparent calc(50% + 0.5px)
+    ),
+    linear-gradient(
+      135deg,
+      transparent calc(50% - 0.5px),
+      var(--bs-bronze) calc(50% - 0.5px) calc(50% + 0.5px),
+      transparent calc(50% + 0.5px)
+    ),
+    linear-gradient(
+      45deg,
+      transparent calc(50% - 0.5px),
+      var(--bs-bronze) calc(50% - 0.5px) calc(50% + 0.5px),
+      transparent calc(50% + 0.5px)
+    ),
+    /* as quatro barras */ linear-gradient(var(--bs-bronze), var(--bs-bronze)),
+    linear-gradient(var(--bs-bronze), var(--bs-bronze)),
+    linear-gradient(var(--bs-bronze), var(--bs-bronze)),
+    linear-gradient(var(--bs-bronze), var(--bs-bronze));
+  background-position:
+    left calc(var(--bs-quadro) + 3px) top calc(var(--bs-quadro) + 3px),
+    right calc(var(--bs-quadro) + 3px) top calc(var(--bs-quadro) + 3px),
+    left calc(var(--bs-quadro) + 3px) bottom calc(var(--bs-quadro) + 3px),
+    right calc(var(--bs-quadro) + 3px) bottom calc(var(--bs-quadro) + 3px),
+    left var(--bs-quadro) top var(--bs-quadro),
+    right var(--bs-quadro) top var(--bs-quadro),
+    left var(--bs-quadro) bottom var(--bs-quadro),
+    right var(--bs-quadro) bottom var(--bs-quadro),
+    left calc(var(--bs-quadro) + var(--bs-corte)) top var(--bs-quadro),
+    left calc(var(--bs-quadro) + var(--bs-corte)) bottom var(--bs-quadro),
+    left var(--bs-quadro) top calc(var(--bs-quadro) + var(--bs-corte)),
+    right var(--bs-quadro) top calc(var(--bs-quadro) + var(--bs-corte));
+  background-size:
+    3px 3px,
+    3px 3px,
+    3px 3px,
+    3px 3px,
+    var(--bs-corte) var(--bs-corte),
+    var(--bs-corte) var(--bs-corte),
+    var(--bs-corte) var(--bs-corte),
+    var(--bs-corte) var(--bs-corte),
+    calc(100% - 2 * (var(--bs-quadro) + var(--bs-corte))) 1px,
+    calc(100% - 2 * (var(--bs-quadro) + var(--bs-corte))) 1px,
+    1px calc(100% - 2 * (var(--bs-quadro) + var(--bs-corte))),
+    1px calc(100% - 2 * (var(--bs-quadro) + var(--bs-corte)));
+}
+
+/* O dock e a barra de transporte são baixos (66 e 64px). O trilho de 9px ali
+   comeria a folga dos ícones, então eles ficam com a versão curta do MESMO
+   perfil: sulco, flanco, cume, flanco, sulco, canal. Seis faixas em 6px. */
+:root[data-env="bioshock"] [data-halo-in="dock"]::before,
+:root[data-env="bioshock"] [data-halo-in="dock-vertical"]::before,
+:root[data-env="bioshock"] [data-halo-in="transport"]::before {
+  box-shadow:
+    inset 0 0 0 1px var(--bs-sulco),
+    inset 0 0 0 2px var(--bs-bronze),
+    inset 0 0 0 3px var(--bs-bronze-luz),
+    inset 0 0 0 4px var(--bs-bronze),
+    inset 0 0 0 5px var(--bs-sulco),
+    inset 0 0 0 6px var(--bs-cobre);
+}
+
+/* ==========================================================================
+   Crista: o leque no topo, a concha na base
+
+   Duas PEÇAS RGBA numa camada só
+   (`src/renderer/assets/env/bioshock/crista-{topo,base}.png`), e não mais duas
+   máscaras coloridas por um gradiente daqui.
+
+   Por que a troca: a crista de máscara era um fio de 1,7px de espessura
+   constante — desenho de linha, não ourivesaria. O que a referência mostra,
+   ampliada, é uma peça FUNDIDA: bisel na aresta, cume aceso, canal recuado
+   entre as lâminas, oclusão onde uma parte encosta na outra. Nada disso é
+   alfa; é luminância, e uma máscara não tem luminância. O gradiente vertical
+   que a pintava dava a mesma tinta ao cume e ao canal, e por isso a peça lia
+   como arame.
+
+   A cor continua sendo do tema, e isso não é força de expressão: as peças
+   passam por `tools/ourivesaria-bioshock.py`, que as reduz a luminância e as
+   reconstrói na rampa dos cinco bronzes DECLARADOS ACIMA. Mudar `--bs-bronze`
+   e refazer as peças as muda junto — o script é a ponte, e ele está no
+   repositório justamente para isso. A procedência (geradas por IA, com prompt
+   que descreve déco dos anos 1920/30, nunca o jogo) está em `MOCKS.md`.
+
+   O arquivo é 4× o tamanho de tela, e não 1×: a peça é reduzida pelo
+   `background-size`, e reduzir com sobra é o que mantém a aresta lisa numa
+   tela hidpi.
+
+   `z-index: -1` é o que torna a regra "ornamento nunca sobre conteúdo"
+   estrutural, e não uma questão de cuidado: descendente com z-index negativo
+   pinta DEPOIS do fundo do painel e ANTES de tudo o que está no fluxo. Se um dia
+   uma tela encostar conteúdo na base do painel, a crista passa por trás dele —
+   não por cima. (O painel já é contexto de empilhamento: o lateral tem
+   `transform`, o central tem `backdrop-filter`.)
+
+   Ela monta SOBRE a aresta, como na referência, e não mais dentro do painel:
+   o leque fica acima do filete, as volutas correm por cima dele e só o losango
+   do pé desce para dentro. Dentro era o que o usuário viu e recusou — a peça
+   passava por trás da moldura e saía decepada numa linha reta, sem começo
+   visível. Os dois números que fazem isso funcionar (a caixa transbordada e a
+   camada) estão comentados na regra, cada um com a conta de onde saiu.
+   ========================================================================== */
+
+:root[data-env="bioshock"] [data-halo-in="center"]::after,
+:root[data-env="bioshock"] [data-halo-in="side"]:not([class*="bare"])::after {
+  content: "";
+  position: absolute;
+  /* A caixa TRANSBORDA o painel, e é isso que põe a crista SOBRE a aresta em
+     vez de dentro dela. Fundo não pinta fora da própria caixa, então a caixa é
+     quem decide até onde a peça existe.
+
+     Os dois números são MEDIDOS na peça, e o que eles resolvem é uma disputa
+     por espaço: a crista quer morar nos 13px de gutter da moldura, e ela tem
+     42px de altura. Não cabe — então quase toda ela fica FORA, que é
+     exatamente o que a referência mostra: o leque acima do filete, as volutas
+     correndo por cima dele, e só o losango do pé descendo para dentro.
+
+     26px em cima: o leque ocupa os primeiros 27px da peça, então tirá-lo
+     inteiro para fora do painel pede 26. Sobram 16px dentro — as volutas e o
+     losango —, e 16px é menos que o padding de qualquer painel do handoff (16
+     a 22px). É essa conta que mantém a peça FORA do conteúdo mesmo estando
+     acima dele na pilha.
+
+     29px embaixo: a concha é o contrário — o plinto fica no alto dela e as
+     lâminas descem. 29 põe as lâminas fora e deixa o plinto de 12px no gutter. */
+  inset: -26px 0 -29px;
+  /* Acima da moldura (`::before`, `z-index: 1`), e não atrás dela. Era este o
+     erro que o usuário viu: a `z-index: -1` a crista passava POR TRÁS do filete
+     e do trilho, e o leque saía decepado numa linha reta — a peça parecia
+     começar do nada. Ornamento que monta sobre a moldura vem DEPOIS dela.
+
+     Estar acima da moldura é estar acima do conteúdo também, e por isso a
+     altura de dentro é contada (ver o `inset`): o que a peça deixa dentro do
+     painel são 16px, e ali é padding em todas as telas. A versão anterior
+     deste ajuste deixava 28px dentro, e as duas telas que isso alcançava
+     apareceram na captura — a fileira de avatares do Social e os cartões de
+     pasta em Arquivos. Uma tela nova que encoste conteúdo na aresta de cima do
+     painel precisa medir isto de novo. */
+  z-index: 2;
+  pointer-events: none;
+  background-image:
+    url("../assets/env/bioshock/crista-topo.png"), url("../assets/env/bioshock/crista-base.png");
+  background-repeat: no-repeat, no-repeat;
+  /* Quatro valores, e não três: `center top 0` é sintaxe de 3 valores, que foi
+     removida da especificação e o Chromium descarta inteira — a peça
+     simplesmente não apareceria. O deslocamento agora está no `inset`, e aqui
+     a peça só encosta nas arestas da caixa transbordada. */
+  background-position:
+    left 50% top 0,
+    left 50% bottom 0;
+  /* Cada peça guarda a proporção do arquivo (480×157 e 480×155): a largura é
+     dada, `auto` tira a altura. Fixar as duas achataria a fundição.
+
+     As duas na MESMA largura, e as duas RASAS, por medida na tela: o primeiro
+     leque saiu quase tão alto quanto largo, e a 108px ele descia 74px painel
+     adentro — por cima do relógio na coluna lateral e ao lado da saudação no
+     painel central. Uma crista é o remate da moldura, não um elemento do
+     conteúdo; a proporção que funciona é a da concha, ~3:1, e o leque foi
+     refeito nela. */
+  background-size:
+    128px auto,
+    128px auto;
+  /* Peça fundida não é transparente. O que sobra de alfa aqui é só o respiro
+     que impede o bronze de competir com o texto do painel logo abaixo. */
+  opacity: 0.94;
+}
+
+/* Menor na lateral, e por MEDIDA: o painel lateral tem 270px, e a 128px a
+   voluta esquerda da crista ia parar em cima do "S" de AMBIENTES — visto na
+   tela, o rótulo do painel termina a 78px da aresta e a voluta começava a 71.
+   A 96px ela começa a 87 e o rótulo passa livre. No painel central, que é mais
+   que o dobro da largura, 128px continua sendo o tamanho certo: a mesma peça
+   ali some se encolher. */
+:root[data-env="bioshock"] [data-halo-in="side"]:not([class*="bare"])::after {
+  background-size:
+    96px auto,
+    96px auto;
+}
+
+/* Na lateral a peça é menor (96px de largura, 31px de altura), e o transbordo
+   sai da mesma conta: o leque ocupa os primeiros 20px, e o plinto da concha os
+   primeiros 9px. */
+:root[data-env="bioshock"] [data-halo-in="side"]:not([class*="bare"])::after {
+  inset: -19px 0 -22px;
+}
+
+/* Sete painéis centrais pedem `overflow: hidden` por causa do conteúdo deles, e
+   ali o transbordo é recortado na aresta — `data-halo-recorte`, que `Panel` e
+   `CenterFrame` agora declaram, é o que diz onde. Não é perda: o corte cai
+   exatamente na base do leque, onde as volutas começam, e o que fica na aresta
+   é uma peça fechada — as duas espirais e o losango, como um ferrolho sobre o
+   filete. O que NÃO se pode fazer ali é baixar a peça para caber inteira: a
+   aresta de cima do painel central é onde Social ancora os avatares e Arquivos
+   os cartões de pasta. */
+
+/* ==========================================================================
+   Tipografia: onde cada uma das duas entra
+
+   A lista é de nomes de classe do próprio app, do jeito que o CSS Modules os
+   gera (`_nome_hash`) — é o mesmo endereço que os testes de tela já usam para
+   achar o relógio (`[class*="_time_"]`).
+
+   Primeiro a JOSEFIN, que pega o vocabulário largo: rótulo, cabeçalho, data,
+   título de cartão. `_titulo_`/`Titulo_` estão aí porque metade das telas
+   nomeia em português — sem eles, Claude e Mídia ficariam de fora.
+
+   Depois a PLAYFAIR, numa lista curta, que sobrescreve o que for dela. A ordem
+   importa: as duas regras empatam em especificidade, e quem vem depois ganha.
+   ========================================================================== */
+
+:root[data-env="bioshock"] [class*="_date_"],
+:root[data-env="bioshock"] [class*="_eyebrow_"],
+:root[data-env="bioshock"] [class*="Eyebrow_"],
+/* `_title_` NÃO entra aqui: ele está na lista da Playfair logo abaixo, e as
+   duas empatam em especificidade — quem vem depois ganha. Estar nas duas
+   listas fazia esta entrada nunca valer, o que é pior que não existir: quem
+   lesse acharia que a Josefin pega os títulos, e ela não pega. `Title_`
+   (maiúsculo) fica, e é ele que alcança `cardTitle`, `panelTitle` e afins. */
+:root[data-env="bioshock"] [class*="Title_"],
+:root[data-env="bioshock"] [class*="_titulo_"],
+:root[data-env="bioshock"] [class*="Titulo_"],
+:root[data-env="bioshock"] [class*="_head_"],
+:root[data-env="bioshock"] [class*="Head_"],
+:root[data-env="bioshock"] [class*="_header_"],
+:root[data-env="bioshock"] [class*="_label_"],
+:root[data-env="bioshock"] [class*="Label_"] {
+  font-family: var(--font-label);
+}
+
+/* A serifa. Relógio, numeral grande e título de tela — e nada mais. Um numeral
+   é onde a modulação da didone aparece inteira; um parágrafo é onde ela
+   cansa. */
+:root[data-env="bioshock"] [class*="_time_"],
+:root[data-env="bioshock"] [class*="_temperature_"],
+:root[data-env="bioshock"] [class*="_greeting_"],
+:root[data-env="bioshock"] [class*="_panelTitle_"],
+:root[data-env="bioshock"] [class*="_modalNome_"],
+:root[data-env="bioshock"] [class*="_title_"] {
+  font-family: var(--font-display);
+}
+
+/* O relógio é a peça maior do tema, e é o único lugar onde a fonte troca de
+   TAMANHO, não só de família.
+
+   MEDIDO na tela, duas vezes:
+
+   1. nos mesmos 62px do componente os numerais da Playfair saem ~17% menores
+      que os da DM Sans — a caixa alta de uma didone ocupa menos do em do que a
+      de uma grotesca, e o relógio, que é a peça maior do painel, encolhia. 74px
+      devolve o tamanho aparente;
+   2. a primeira tentativa apertou a caixa (`line-height: 0,84`) para o cartão
+      não crescer — e o "5" passou a descer POR CIMA do "QUINTA · 3 SET".
+      Entrelinha menor que 1 põe a tinta fora da caixa, e ali embaixo mora
+      texto. A caixa volta a 1 e cresce os 12px do tamanho novo; o cartão
+      acompanha, e a coluna tem folga de sobra para isso.
+
+   O tracking é a folga entre numerais estreitos; a margem é o respiro até a
+   data. */
+:root[data-env="bioshock"] [class*="_time_"] {
+  font-size: 74px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  margin-bottom: 6px;
+}
+
+/* Tracking do rótulo em caixa alta: 0,12em. O déco é generoso com o espaço
+   entre letras, e o rótulo pequeno é onde isso se nota. Fica MODESTO de
+   propósito — os rótulos deste app carregam texto de tamanho variável
+   ("APLICATIVOS · 30 INSTALADOS"), e tracking largo os faria quebrar linha. */
+:root[data-env="bioshock"] [data-halo-in] [class*="_label_"],
+:root[data-env="bioshock"] [data-halo-in] [class*="Label_"] {
+  letter-spacing: 0.12em;
+}
+
+/* ==========================================================================
+   Os cartões repetem a receita, em miniatura
+
+   Na referência ampliada (`ref-relogio.png`) o cartão do relógio tem a MESMA
+   gramática do painel, num quarto do tamanho: fio de bronze, canto cortado a
+   45° e rebite nos quatro cantos. É o que faz o painel parecer um objeto
+   montado de peças, e não uma caixa com caixas dentro.
+
+   Aqui o fio deixa de ser `border` e passa a ser desenhado: o `border-color`
+   vira transparente — e não `border: none` — para a caixa continuar com
+   exatamente a mesma largura de antes. Isso importa: as medidas do handoff são
+   `content-box`, e tirar 1px de borda moveria o conteúdo de todos eles.
+
+   Quem recebe o quadro DIZ que recebe: `data-halo-cartao`, o mesmo
+   padrão neutro de `data-halo-side` e `data-halo-tela`. Antes o endereço era
+   `[class*="_card_"]`, `[class*="_stat_"]` e `[class*="_continueCard_"]`, e
+   isso é exatamente o que `CRIACAO-DE-TEMAS.md` § 4 proíbe: o nome vem do CSS
+   Modules, e qualquer tela que criasse uma classe começando por `stat` entrava
+   na regra sem pedir. Foi o que aconteceu — os números do perfil no Social
+   (`.stat`, três caixas de 31px de altura) ganhavam o quadro, e a barra de
+   bronze da base caía exatamente em cima de "POSTS", "SEGUIDORES" e
+   "SEGUINDO", medido com folga 0px.
+
+   Quem leva o atributo: os três widgets da home (relógio, clima, tocando
+   agora), os dois mini-stats, os cartões de "Continuar", o cartão de métricas
+   do Home Lab e os dois cartões de prévia de Configurações. Cartão que é foto
+   (o de ambiente) fica de fora — ali o desenho competiria com a imagem.
+   ========================================================================== */
+
+:root[data-env="bioshock"] [data-halo-in] [data-halo-cartao~="mini"] {
+  position: relative;
+  border-radius: 0;
+  border-color: transparent;
+}
+
+:root[data-env="bioshock"] [data-halo-in] [data-halo-cartao~="mini"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-image:
+    /* rebites */
+    radial-gradient(circle closest-side, var(--bs-bronze-brilho) 0 40%, var(--bs-cobre) 46% 100%),
+    radial-gradient(circle closest-side, var(--bs-bronze-brilho) 0 40%, var(--bs-cobre) 46% 100%),
+    radial-gradient(circle closest-side, var(--bs-bronze-brilho) 0 40%, var(--bs-cobre) 46% 100%),
+    radial-gradient(circle closest-side, var(--bs-bronze-brilho) 0 40%, var(--bs-cobre) 46% 100%),
+    /* os quatro cortes a 45° */
+    linear-gradient(
+      45deg,
+      transparent calc(50% - 0.5px),
+      var(--bs-bronze) calc(50% - 0.5px) calc(50% + 0.5px),
+      transparent calc(50% + 0.5px)
+    ),
+    linear-gradient(
+      135deg,
+      transparent calc(50% - 0.5px),
+      var(--bs-bronze) calc(50% - 0.5px) calc(50% + 0.5px),
+      transparent calc(50% + 0.5px)
+    ),
+    linear-gradient(
+      135deg,
+      transparent calc(50% - 0.5px),
+      var(--bs-bronze) calc(50% - 0.5px) calc(50% + 0.5px),
+      transparent calc(50% + 0.5px)
+    ),
+    linear-gradient(
+      45deg,
+      transparent calc(50% - 0.5px),
+      var(--bs-bronze) calc(50% - 0.5px) calc(50% + 0.5px),
+      transparent calc(50% + 0.5px)
+    ),
+    /* as quatro barras */ linear-gradient(var(--bs-bronze), var(--bs-bronze)),
+    linear-gradient(var(--bs-bronze), var(--bs-bronze)),
+    linear-gradient(var(--bs-bronze), var(--bs-bronze)),
+    linear-gradient(var(--bs-bronze), var(--bs-bronze));
+  background-position:
+    left 2.5px top 2.5px,
+    right 2.5px top 2.5px,
+    left 2.5px bottom 2.5px,
+    right 2.5px bottom 2.5px,
+    left 0 top 0,
+    right 0 top 0,
+    left 0 bottom 0,
+    right 0 bottom 0,
+    left var(--bs-mini-corte) top 0,
+    left var(--bs-mini-corte) bottom 0,
+    left 0 top var(--bs-mini-corte),
+    right 0 top var(--bs-mini-corte);
+  background-size:
+    2px 2px,
+    2px 2px,
+    2px 2px,
+    2px 2px,
+    var(--bs-mini-corte) var(--bs-mini-corte),
+    var(--bs-mini-corte) var(--bs-mini-corte),
+    var(--bs-mini-corte) var(--bs-mini-corte),
+    var(--bs-mini-corte) var(--bs-mini-corte),
+    calc(100% - 2 * var(--bs-mini-corte)) 1px,
+    calc(100% - 2 * var(--bs-mini-corte)) 1px,
+    1px calc(100% - 2 * var(--bs-mini-corte)),
+    1px calc(100% - 2 * var(--bs-mini-corte));
+}
+
+/* ==========================================================================
+   Navegação: cada ícone mora num octógono
+
+   Era o que mais denunciava o tema — um ícone claro num círculo é a navegação
+   do handoff pintada de outra cor. Na referência ampliada
+   (`ref-dock-icones.png`) cada ícone mora num OCTÓGONO (cantos chanfrados a
+   45°), e o que o cerca não é uma borda inteira: são CANTONEIRAS de bronze, só
+   nos quatro cantos. O item em uso troca as cantoneiras por moldura completa,
+   acende por dentro em turquesa e ganha um PINO pendurado embaixo, que o liga
+   ao trilho da coluna.
+
+   Onde a forma é aplicada muda com o modo de navegação, e por um motivo de
+   medida: no dock flutuante o botão É 40×40, mas na coluna embutida ele cresce
+   para 164px quando ela expande (o nome entra ao lado). Quem continua 40×40 ali
+   é o `railGlyph`, o quadrado que segura o ícone — e ele é o PRIMEIRO span do
+   botão, endereço que não depende do nome gerado pelo CSS Modules.
+
+   `isolation: isolate` é o que permite pôr as duas camadas em `z-index: -1`
+   (atrás do ícone, na frente do fundo do botão): sem ela o botão não é contexto
+   de empilhamento, e as camadas iriam parar atrás do vidro da coluna.
+
+   Nada de `outline` mexido: o foco do teclado continua sendo o do app, que já
+   usa `--accent-mint-strong` — e neste tema esse token É o turquesa.
+   ========================================================================== */
+
+/* O octógono do handoff não existe: o botão precisa perder o círculo e o
+   fundo, senão eles aparecem por baixo da peça nova. */
+:root[data-env="bioshock"] nav[aria-label="Telas"] button > span:first-of-type,
+:root[data-env="bioshock"] nav[data-halo-in] > button {
+  position: relative;
+  isolation: isolate;
+  border-radius: 0;
+  background: none;
+  /* O pino do item ativo desce 7px abaixo do octógono, e a coluna recorta o que
+     passa dela — `.railItem` tem `overflow: hidden` no componente. */
+  overflow: visible;
+}
+
+:root[data-env="bioshock"] nav[aria-label="Telas"] button,
+:root[data-env="bioshock"] nav[aria-label="Telas"] button:hover {
+  background: none;
+  color: var(--bs-bronze-luz);
+  /* MEDIDO na tela: sem isto o trilho da coluna (o `::before` do `nav`, logo
+     adiante) passava POR CIMA dos ícones. Elemento posicionado pinta depois do
+     conteúdo em fluxo, e o botão estava em fluxo; posicionando-o, os dois caem
+     na mesma etapa e a ordem do DOM decide — o trilho vem antes, os botões
+     depois. */
+  position: relative;
+  /* O botão da coluna tem `overflow: hidden` no componente, para esconder o
+     nome enquanto a largura anima de 40 para 164. Aqui ele precisa deixar o
+     pino passar. O preço é conhecido e pequeno: durante os 280ms da expansão o
+     nome aparece um pouco antes da largura chegar nele — e a própria coluna,
+     que também tem `overflow: hidden` e anima junto, contém o excesso. Parado,
+     nos dois estados, não há nada para vazar: recolhida, o nome é
+     `display: none`. */
+  overflow: visible;
+}
+
+/* Camada 1: o bronze. Ela é o octógono INTEIRO, e o que a transforma em
+   cantoneira é a máscara — quatro quadrados de 15px nos cantos, e só ali ela
+   existe. O chanfro entra na cantoneira de graça, porque o recorte do octógono
+   corta o quadrado do canto exatamente na diagonal. */
+:root[data-env="bioshock"] nav[aria-label="Telas"] button > span:first-of-type::before,
+:root[data-env="bioshock"] nav[data-halo-in] > button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  clip-path: polygon(
+    22.5% 0,
+    77.5% 0,
+    100% 22.5%,
+    100% 77.5%,
+    77.5% 100%,
+    22.5% 100%,
+    0 77.5%,
+    0 22.5%
+  );
+  background: linear-gradient(150deg, var(--bs-bronze-luz), var(--bs-bronze) 55%, var(--bs-cobre));
+  mask-image:
+    linear-gradient(var(--mask-opaque), var(--mask-opaque)),
+    linear-gradient(var(--mask-opaque), var(--mask-opaque)),
+    linear-gradient(var(--mask-opaque), var(--mask-opaque)),
+    linear-gradient(var(--mask-opaque), var(--mask-opaque));
+  mask-repeat: no-repeat;
+  mask-position:
+    left top,
+    right top,
+    left bottom,
+    right bottom;
+  mask-size: 13px 13px;
+}
+
+/* Camada 2: o miolo. Ela cobre o meio da camada 1 e deixa à mostra só o
+   contorno — 1,6px de bronze acompanhando o octógono.
+
+   Ela é QUASE OPACA, e isso é medida, não gosto: a 0,55 de alfa o bronze da
+   camada de baixo aparecia através dela e as cantoneiras viravam quadrados
+   chapados; e o trilho da coluna, que corre atrás dos ícones, aparecia por
+   dentro de cada octógono. Na referência o miolo é uma chapa escura — o vidro
+   do tema está no painel, não aqui. */
+:root[data-env="bioshock"] nav[aria-label="Telas"] button > span:first-of-type::after,
+:root[data-env="bioshock"] nav[data-halo-in] > button::after {
+  content: "";
+  position: absolute;
+  inset: 1.6px;
+  z-index: -1;
+  pointer-events: none;
+  clip-path: polygon(
+    22.5% 0,
+    77.5% 0,
+    100% 22.5%,
+    100% 77.5%,
+    77.5% 100%,
+    22.5% 100%,
+    0 77.5%,
+    0 22.5%
+  );
+  background: linear-gradient(160deg, rgba(7, 28, 28, 0.94), rgba(2, 12, 13, 0.97));
+  transition: background 0.22s ease;
+}
+
+:root[data-env="bioshock"] nav[aria-label="Telas"] button:hover > span:first-of-type::after,
+:root[data-env="bioshock"] nav[data-halo-in] > button:hover::after {
+  background:
+    linear-gradient(rgba(169, 255, 255, 0.14), rgba(169, 255, 255, 0.14)),
+    linear-gradient(160deg, rgba(7, 28, 28, 0.94), rgba(2, 12, 13, 0.97));
+}
+
+/* ——— O item em uso ————————————————————————————————————————————
+   Moldura completa (a máscara das cantoneiras sai), miolo aceso, ícone quase
+   branco e o PINO embaixo. O pino sai do octógono, então a camada de bronze
+   cresce 7px para baixo e o recorte passa a ser em pixels: o botão é 40×40 nos
+   dois modos de navegação, e porcentagem numa caixa de 40×47 deformaria o
+   chanfro. */
+:root[data-env="bioshock"] nav[aria-label="Telas"] button[aria-current="page"],
+:root[data-env="bioshock"]
+  nav[aria-label="Telas"]
+  button[aria-current="page"]
+  > span:first-of-type {
+  color: var(--bs-turquesa);
+}
+
+:root[data-env="bioshock"]
+  nav[aria-label="Telas"]
+  button[aria-current="page"]
+  > span:first-of-type::before,
+:root[data-env="bioshock"] nav[data-halo-in] > button[aria-current="page"]::before {
+  inset: 0 0 -7px;
+  mask-image: none;
+  clip-path: polygon(
+    9px 0,
+    31px 0,
+    40px 9px,
+    40px 31px,
+    31px 40px,
+    21.5px 40px,
+    21.5px 47px,
+    18.5px 47px,
+    18.5px 40px,
+    9px 40px,
+    0 31px,
+    0 9px
+  );
+}
+
+:root[data-env="bioshock"]
+  nav[aria-label="Telas"]
+  button[aria-current="page"]
+  > span:first-of-type::after,
+:root[data-env="bioshock"] nav[data-halo-in] > button[aria-current="page"]::after {
+  background: linear-gradient(
+    160deg,
+    rgba(169, 255, 255, 0.36),
+    rgba(14, 75, 63, 0.86) 68%,
+    rgba(2, 20, 20, 0.95)
+  );
+}
+
+/* O halo é `drop-shadow`, e não `box-shadow`: a peça é recortada, e a sombra de
+   caixa desenharia o retângulo em volta do octógono. `drop-shadow` segue a
+   silhueta — inclusive a do pino. Estático: filtro em laço é caro, e este tema
+   não tem movimento para gastar quadro com isso. */
+:root[data-env="bioshock"] nav[aria-label="Telas"] button[aria-current="page"] {
+  filter: drop-shadow(0 0 7px rgba(169, 255, 255, 0.4));
+}
+
+/* ——— O glifo DENTRO do octógono ————————————————————————————————
+   O octógono já era do tema; o miolo dele não era. Um ícone do Phosphor é
+   grotesca geométrica dos anos 2020 — arredondado, de traço uniforme, sem
+   chanfro nenhum —, e dentro de uma cantoneira de bronze ele denuncia o tema
+   pelo mesmo motivo que o círculo denunciava antes: é o handoff pintado de
+   outra cor. Os oito glifos daqui são déco: chevron, ziggurate, losango, leque
+   e chanfro a 45° no lugar de cada curva.
+
+   Eles são MÁSCARA, e não peça colorida, e é isso que sustenta os dois estados:
+   a cor vem de `currentColor`, que as regras acima já põem em `--bs-bronze-luz`
+   parado e em `--bs-turquesa` no item em uso. Uma peça com a cor dentro daria
+   um arquivo por estado POR COR, e o item ativo não acenderia.
+
+   O desenho, esse sim, troca com o estado — vazado parado, cheio em uso —,
+   porque é o que a referência faz e é o que o Phosphor fazia com
+   `weight="fill"`. São duas máscaras por tela, e a troca é uma linha.
+
+   Quem carrega o endereço é `data-halo-tela`, o atributo neutro que `Dock.tsx`
+   escreve. Nem `aria-label` (que é texto em português e mudaria com a tradução)
+   nem classe do CSS Modules (cujo nome é gerado).
+
+   A regra vale para os OITO valores, nomeados um a um, e não para
+   `[data-halo-tela]` em geral. Medido: com um valor não previsto, `--bs-glifo`
+   fica indefinido, `mask-image` cai em `none` — e sem máscara o
+   `background: currentColor` pinta a caixa inteira. O botão vira um QUADRADO
+   de bronze chapado, sem erro em lugar nenhum. Com a lista, uma tela nova sem
+   glifo mostra o ícone do Phosphor em bronze: destoa do conjunto, mas é
+   legível e reconhecível. Tela nova ganha glifo acrescentando o par de
+   máscaras e o nome nas duas listas.
+
+   O `svg` do Phosphor continua no DOM e continua ocupando os 26px: ele é a
+   CAIXA. Some só o desenho dele (`svg > *`), e a caixa vira a superfície onde a
+   máscara é aplicada — assim nenhuma medida de layout muda, e desligar o tema
+   devolve o ícone original sem que nada tenha sido removido da tela. */
+:root[data-env="bioshock"] nav[aria-label="Telas"] button[data-halo-tela] svg {
+  /* Apaga o desenho do Phosphor sem alcançar os filhos do `svg`. Todos os
+     `<path>` dele saem SEM atributo de pintura — quem os pinta é o `fill` do
+     próprio `svg`, e uma declaração de CSS ganha de atributo de apresentação.
+     Uma linha, e o seletor continua sem descendente: `svg > *` funcionava, mas
+     entrava na frente de regras mais gerais deste arquivo e o Biome avisava. */
+  fill: none;
+  background: currentColor;
+  mask-image: var(--bs-glifo);
+  mask-repeat: no-repeat;
+  mask-position: center;
+  /* `contain`, e não `cover`: as peças saem do fatiador em caixa quadrada com
+     6% de folga, e `cover` comeria essa folga de volta. */
+  mask-size: contain;
+}
+
+:root[data-env="bioshock"]
+  nav[aria-label="Telas"]
+  button[data-halo-tela="home"][aria-current="page"]
+  svg,
+:root[data-env="bioshock"]
+  nav[aria-label="Telas"]
+  button[data-halo-tela="social"][aria-current="page"]
+  svg,
+:root[data-env="bioshock"]
+  nav[aria-label="Telas"]
+  button[data-halo-tela="claude"][aria-current="page"]
+  svg,
+:root[data-env="bioshock"]
+  nav[aria-label="Telas"]
+  button[data-halo-tela="files"][aria-current="page"]
+  svg,
+:root[data-env="bioshock"]
+  nav[aria-label="Telas"]
+  button[data-halo-tela="lab"][aria-current="page"]
+  svg,
+:root[data-env="bioshock"]
+  nav[aria-label="Telas"]
+  button[data-halo-tela="media"][aria-current="page"]
+  svg,
+:root[data-env="bioshock"]
+  nav[aria-label="Telas"]
+  button[data-halo-tela="music"][aria-current="page"]
+  svg,
+:root[data-env="bioshock"]
+  nav[aria-label="Telas"]
+  button[data-halo-tela="settings"][aria-current="page"]
+  svg {
+  mask-image: var(--bs-glifo-ativo);
+}
+
+/* Um par por tela. Fora do `nav` de propósito: o custom property é herdado, e
+   pô-lo no botão deixa a regra do glifo com um seletor só. */
+:root[data-env="bioshock"] [data-halo-tela="home"] {
+  --bs-glifo: url("../assets/env/bioshock/glifo/home.png");
+  --bs-glifo-ativo: url("../assets/env/bioshock/glifo/home-ativo.png");
+}
+
+:root[data-env="bioshock"] [data-halo-tela="social"] {
+  --bs-glifo: url("../assets/env/bioshock/glifo/social.png");
+  --bs-glifo-ativo: url("../assets/env/bioshock/glifo/social-ativo.png");
+}
+
+:root[data-env="bioshock"] [data-halo-tela="claude"] {
+  --bs-glifo: url("../assets/env/bioshock/glifo/claude.png");
+  --bs-glifo-ativo: url("../assets/env/bioshock/glifo/claude-ativo.png");
+}
+
+:root[data-env="bioshock"] [data-halo-tela="files"] {
+  --bs-glifo: url("../assets/env/bioshock/glifo/files.png");
+  --bs-glifo-ativo: url("../assets/env/bioshock/glifo/files-ativo.png");
+}
+
+:root[data-env="bioshock"] [data-halo-tela="lab"] {
+  --bs-glifo: url("../assets/env/bioshock/glifo/lab.png");
+  --bs-glifo-ativo: url("../assets/env/bioshock/glifo/lab-ativo.png");
+}
+
+:root[data-env="bioshock"] [data-halo-tela="media"] {
+  --bs-glifo: url("../assets/env/bioshock/glifo/media.png");
+  --bs-glifo-ativo: url("../assets/env/bioshock/glifo/media-ativo.png");
+}
+
+:root[data-env="bioshock"] [data-halo-tela="music"] {
+  --bs-glifo: url("../assets/env/bioshock/glifo/music.png");
+  --bs-glifo-ativo: url("../assets/env/bioshock/glifo/music-ativo.png");
+}
+
+:root[data-env="bioshock"] [data-halo-tela="settings"] {
+  --bs-glifo: url("../assets/env/bioshock/glifo/settings.png");
+  --bs-glifo-ativo: url("../assets/env/bioshock/glifo/settings-ativo.png");
+}
+
+/* O trilho da coluna, que o pino do item ativo encosta. Na referência ele corre
+   atrás dos ícones, no eixo deles: 12px de padding mais metade dos 40px do
+   quadrado dá 32px da aresta esquerda. */
+:root[data-env="bioshock"] nav[aria-label="Telas"]:not([data-halo-in])::before {
+  content: "";
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 32px;
+  width: 1px;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(93, 70, 41, 0.9) 12%,
+    rgba(93, 70, 41, 0.9) 88%,
+    transparent
+  );
+}
+
+/* ==========================================================================
+   O que está escolhido
+
+   `aria-pressed` — abas, ambientes, seletores. Turquesa, sempre curto e de alfa
+   baixo: brilho grande sobre vidro translúcido vira mancha.
+   ========================================================================== */
+
+:root[data-env="bioshock"] button[aria-pressed="true"] {
+  box-shadow:
+    inset 0 0 0 1px rgba(169, 255, 255, 0.35),
+    0 0 12px rgba(169, 255, 255, 0.1);
+}
+
+/* ==========================================================================
+   Medidores
+
+   O trilho vira o sulco escuro do bronze e o preenchimento vira luz: um núcleo
+   turquesa com um halo curto em volta. É o único lugar do tema onde o turquesa
+   ocupa área, e ele ocupa pouca — a barra tem 4 a 6px.
+   ========================================================================== */
+
+:root[data-env="bioshock"] [data-halo-medidor] {
+  background: rgba(2, 9, 13, 0.55);
+  box-shadow: inset 0 0 0 1px rgba(162, 140, 101, 0.28);
+}
+
+:root[data-env="bioshock"] [data-halo-medidor] > * {
+  background: var(--bs-turquesa);
+  box-shadow: 0 0 7px rgba(169, 255, 255, 0.4);
+}
+
+/* ==========================================================================
+   Camada de efeito do ambiente
+
+   Três coisas, todas na camada que já existe (`data-halo-fx="ambiente"`, no
+   `Stage`), todas com `pointer-events: none` por herança dela:
+
+   - no próprio elemento, a ÁGUA: um esverdeado que desce do alto e a vinheta
+     que fecha os cantos. Parado — é cenário, não efeito;
+   - no `::before`, as CÁUSTICAS: a rede de luz que o ondular da superfície
+     projeta. Quatro elipses num ladrilho de 520×320 que anda devagar;
+   - no `::after`, a NEVE MARINHA: partículas em suspensão, subindo.
+
+   O usuário pediu DISCRIÇÃO aqui, ao contrário do Cyberpunk. Por isso os alfas
+   são de 0,03 a 0,07 e o movimento é lento o bastante para não ser perseguido
+   pelo olho. `mix-blend-mode: screen` faz a luz somar em vez de cobrir: sobre o
+   painel escuro ela aparece, sobre o texto claro ela some sozinha.
+
+   O movimento está em `styles/animations.css`, como manda o projeto.
+   ========================================================================== */
+
+:root[data-env="bioshock"] [data-halo-fx="ambiente"] {
+  background-image:
+    linear-gradient(180deg, rgba(20, 74, 76, 0.14) 0%, transparent 42%),
+    radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(2, 9, 13, 0.36) 100%);
+}
+
+:root[data-env="bioshock"] [data-halo-fx="ambiente"]::before {
+  content: "";
+  position: absolute;
+  /* Sobra fora da tela para o deslocamento não descobrir a borda do ladrilho. */
+  inset: -25%;
+  mix-blend-mode: screen;
+  /* MEDIDO na tela: a 0,05–0,07 de alfa as elipses viravam manchas visíveis
+     sobre a janela transparente — a camada some no papel de parede escuro, mas
+     a soma do `screen` não some. 0,022 a 0,032, e a elipse mais estreita, é
+     onde a rede de luz se sente sem se ver. */
+  background-image:
+    radial-gradient(ellipse 130px 18px at 22% 18%, rgba(169, 255, 255, 0.032), transparent 72%),
+    radial-gradient(ellipse 96px 14px at 62% 34%, rgba(169, 255, 255, 0.026), transparent 74%),
+    radial-gradient(ellipse 160px 20px at 84% 62%, rgba(169, 255, 255, 0.024), transparent 70%),
+    radial-gradient(ellipse 112px 16px at 38% 80%, rgba(169, 255, 255, 0.022), transparent 72%);
+  background-size: 520px 320px;
+  will-change: transform;
+}
+
+:root[data-env="bioshock"] [data-halo-fx="ambiente"]::after {
+  content: "";
+  position: absolute;
+  inset: -25%;
+  mix-blend-mode: screen;
+  opacity: 0.5;
+  background-image:
+    radial-gradient(circle 1.1px at 12% 22%, rgba(239, 231, 214, 0.5), transparent 100%),
+    radial-gradient(circle 0.9px at 47% 8%, rgba(169, 255, 255, 0.45), transparent 100%),
+    radial-gradient(circle 1.3px at 71% 41%, rgba(239, 231, 214, 0.4), transparent 100%),
+    radial-gradient(circle 0.8px at 28% 63%, rgba(239, 231, 214, 0.45), transparent 100%),
+    radial-gradient(circle 1.1px at 88% 77%, rgba(169, 255, 255, 0.35), transparent 100%),
+    radial-gradient(circle 0.9px at 58% 91%, rgba(239, 231, 214, 0.4), transparent 100%);
+  background-size: 260px 260px;
+  will-change: transform;
+}
+
+/* ==========================================================================
+   Avisos do sistema — a janela dos balões (`src/renderer/notificacoes/`)
+
+   Uma placa de bronze pequena: o trilho CURTO do dock (seis faixas em 6px —
+   o de nove faixas comeria a folga de um balão de 90px), rebite nos quatro
+   cantos e uma pedra-chave no meio da aresta de cima, com a gema turquesa
+   acesa. Sem a crista: 42px de leque sobre um balão empilhado cairiam em cima
+   do vizinho. Turquesa continua sendo LUZ — só a gema e a barra do tempo
+   acendem; o resto é bronze e marfim.
+   ========================================================================== */
+
+:root[data-env="bioshock"] [data-halo-in="aviso"] {
+  /* Transparente, e não `none`: a caixa não pode perder o 1px (as medidas são
+     content-box, §11 do caderno). O fio agora é o trilho do `::before`. */
+  border-color: transparent;
+  border-radius: 10px;
+  padding: 15px 20px 19px;
+  background-color: color-mix(in srgb, var(--bs-vidro-centro) 97%, transparent);
+  /* A luz que desce da claraboia e a pátina que sobe do fundo. */
+  background-image:
+    radial-gradient(120% 70% at 50% 0%, rgba(169, 255, 255, 0.06), transparent 62%),
+    linear-gradient(180deg, rgba(47, 95, 82, 0.2), transparent 75%);
+  box-shadow: 0 16px 30px -12px rgba(2, 9, 13, 0.75);
+}
+
+:root[data-env="bioshock"] [data-halo-in="aviso"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: inherit;
+  box-shadow:
+    inset 0 0 0 1px var(--bs-sulco),
+    inset 0 0 0 2px var(--bs-bronze),
+    inset 0 0 0 3px var(--bs-bronze-luz),
+    inset 0 0 0 4px var(--bs-bronze),
+    inset 0 0 0 5px var(--bs-sulco),
+    inset 0 0 0 6px var(--bs-cobre);
+  background-repeat: no-repeat;
+  background-image:
+    radial-gradient(circle closest-side, var(--bs-bronze-brilho) 0 42%, var(--bs-cobre) 46% 100%),
+    radial-gradient(circle closest-side, var(--bs-bronze-brilho) 0 42%, var(--bs-cobre) 46% 100%),
+    radial-gradient(circle closest-side, var(--bs-bronze-brilho) 0 42%, var(--bs-cobre) 46% 100%),
+    radial-gradient(circle closest-side, var(--bs-bronze-brilho) 0 42%, var(--bs-cobre) 46% 100%);
+  background-position:
+    left 9px top 9px,
+    right 9px top 9px,
+    left 9px bottom 9px,
+    right 9px bottom 9px;
+  background-size:
+    4px 4px,
+    4px 4px,
+    4px 4px,
+    4px 4px;
+}
+
+/* A pedra-chave: trapézio de bronze pendurado no trilho, com a gema no meio.
+   Forma pura — é CSS, não peça gerada (§10 do caderno). */
+:root[data-env="bioshock"] [data-halo-in="aviso"]::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 28px;
+  height: 11px;
+  margin-left: -14px;
+  z-index: 2;
+  pointer-events: none;
+  clip-path: polygon(0 0, 100% 0, 72% 100%, 28% 100%);
+  background:
+    radial-gradient(circle at 50% 42%, var(--bs-turquesa) 0 2px, transparent 2.6px),
+    linear-gradient(180deg, var(--bs-bronze-luz), var(--bs-bronze) 45%, var(--bs-cobre));
+}
+
+:root[data-env="bioshock"] [data-halo-in="aviso"][data-urgencia="critica"]::after {
+  background:
+    radial-gradient(circle at 50% 42%, var(--bs-alerta) 0 2px, transparent 2.6px),
+    linear-gradient(180deg, var(--bs-bronze-luz), var(--bs-bronze) 45%, var(--bs-cobre));
+}
+
+/* O discreto não acende: a gema fica apagada, em pátina. */
+:root[data-env="bioshock"] [data-halo-in="aviso"][data-urgencia="baixa"]::after {
+  background:
+    radial-gradient(circle at 50% 42%, var(--bs-patina) 0 2px, transparent 2.6px),
+    linear-gradient(180deg, var(--bs-bronze-luz), var(--bs-bronze) 45%, var(--bs-cobre));
+}
+
+:root[data-env="bioshock"] [data-halo-in="aviso"] [data-aviso="app"],
+:root[data-env="bioshock"] [data-halo-in="aviso"] [data-aviso="hora"] {
+  font-family: var(--font-label);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+}
+
+:root[data-env="bioshock"] [data-halo-in="aviso"] [data-aviso="app"] {
+  color: var(--bs-bronze-luz);
+}
+
+:root[data-env="bioshock"] [data-halo-in="aviso"][data-urgencia="critica"] [data-aviso="app"] {
+  color: var(--bs-alerta);
+}
+
+:root[data-env="bioshock"] [data-halo-in="aviso"] [data-aviso="icone"] {
+  color: var(--bs-bronze-luz);
+}
+
+/* O título na serifa de alto contraste, como o título de tela; o corpo fica na
+   DM Sans (Josefin cansa num parágrafo, §7). */
+:root[data-env="bioshock"] [data-halo-in="aviso"] [data-aviso="titulo"] {
+  color: var(--bs-marfim);
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+:root[data-env="bioshock"] [data-halo-in="aviso"] [data-aviso="imagem"] {
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 1px var(--bs-sulco),
+    0 0 0 2px var(--bs-bronze),
+    0 0 0 3px var(--bs-sulco);
+}
+
+/* Botão octogonal, como os da navegação do tema. */
+:root[data-env="bioshock"] [data-halo-in="aviso"] [data-aviso="acao"] {
+  border: 0;
+  border-radius: 0;
+  clip-path: polygon(
+    5px 0,
+    calc(100% - 5px) 0,
+    100% 5px,
+    100% calc(100% - 5px),
+    calc(100% - 5px) 100%,
+    5px 100%,
+    0 calc(100% - 5px),
+    0 5px
+  );
+  background: linear-gradient(180deg, rgba(162, 140, 101, 0.24), rgba(93, 70, 41, 0.32));
+  box-shadow: inset 0 0 0 1px rgba(162, 140, 101, 0.55);
+  color: var(--bs-marfim);
+  font-family: var(--font-label);
+  font-size: 10.5px;
+  font-weight: 600;
+  /* 0,1em e não o 0,16 dos rótulos: MEDIDO na prévia, "MARCAR COMO LIDA" a
+     0,16em não cabia na metade do balão e saía cortado em reticências. */
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+:root[data-env="bioshock"] [data-halo-in="aviso"] [data-aviso="acao"]:hover {
+  background: rgba(169, 255, 255, 0.08);
+  color: var(--bs-turquesa);
+  text-shadow: 0 0 8px rgba(169, 255, 255, 0.6);
+}
+
+:root[data-env="bioshock"] [data-halo-in="aviso"] [data-aviso="fechar"]:hover {
+  background: rgba(162, 140, 101, 0.16);
+  color: var(--bs-turquesa);
+}
+
+/* O tempo corre por dentro do trilho, aceso. */
+:root[data-env="bioshock"] [data-halo-in="aviso"] [data-aviso="tempo"] {
+  left: 14px;
+  right: 14px;
+  bottom: 8px;
+  height: 1px;
+  background: var(--bs-turquesa);
+  box-shadow: 0 0 6px rgba(169, 255, 255, 0.7);
+  opacity: 0.85;
+}

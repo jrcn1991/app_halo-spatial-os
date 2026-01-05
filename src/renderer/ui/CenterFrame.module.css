@@ -1,0 +1,22 @@
+/* Moldura persistente do painel central (navegação embutida). O vidro vem das
+   classes de `Panel.module.css`; aqui é só o que a diferencia de um painel
+   comum: posição fixa no palco e o nó do miolo. */
+
+.frame {
+  /* Sem z-index de propósito: um modal (z-index 20) fora da linha de painéis
+     precisa continuar por cima da moldura. */
+  overflow: visible;
+}
+
+/* Onde as telas montam o conteúdo. Os cantos da direita seguem a moldura; os
+   da esquerda são retos porque ali o miolo encosta na coluna. */
+.content {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: inherit;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  transition: left 0.28s var(--ease);
+}

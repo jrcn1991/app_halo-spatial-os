@@ -1,0 +1,774 @@
+/*
+ * Biblioteca de mídia.
+ *
+ * A gramática (painéis, linhas, rótulos monoespaçados) continua a do protótipo
+ * — linhas 1471–1724. O conteúdo, não: onde o handoff tinha bibliotecas fixas e
+ * uma capa em destaque, aqui há categorias, busca e uma grade que vem da lista
+ * de verdade do usuário. Registrado em MOCKS.md.
+ */
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--text-tertiary);
+  flex: none;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: none;
+}
+
+.statusText {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}
+
+.libraries {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.library {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 11px;
+  border: none;
+  border-radius: var(--radius-row);
+  background: none;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.library:hover {
+  background: var(--hover-row);
+}
+
+.libraryCount {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-tertiary);
+}
+
+/* O bloco do Media Server ANTIGO saiu daqui: 196 linhas e 24 classes (`.hero`
+   até `.streamQuality`) que desenhavam o destaque, as prateleiras e a lista de
+   streams do handoff. A tela de hoje lê a lista M3U do usuário e mostra busca e
+   grade — a divergência está registrada em MOCKS.md —, e nenhuma das 24 tinha
+   um único uso nos `.tsx` da pasta. */
+
+/* ——— Filtro de tipo ————————————————————————————————————————— */
+
+.tipos {
+  display: flex;
+  gap: 4px;
+  flex: none;
+}
+
+.tipo {
+  flex: 1;
+  padding: 7px 0;
+  border: none;
+  border-radius: var(--radius-chip);
+  background: var(--surface-inner-bg);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.tipo:hover {
+  background: var(--surface-inner-bg-strong);
+}
+
+.tipoOn {
+  background: var(--surface-inner-active-bg);
+  color: var(--text-primary);
+}
+
+/* A lista de categorias rola: são cinquenta numa lista real. */
+.libraries {
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.libraryOn {
+  background: var(--surface-inner-active-bg);
+}
+
+/* ——— Catálogo ————————————————————————————————————————————— */
+
+.catalogo {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.buscaLinha {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--surface-faint-border);
+  flex: none;
+}
+
+.busca {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  outline: none;
+}
+
+.busca::placeholder {
+  color: var(--text-tertiary);
+}
+
+.total {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+.grade {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  padding: 18px 22px 22px;
+  overflow-y: auto;
+  min-height: 0;
+  align-content: start;
+}
+
+.capa {
+  position: relative;
+  min-width: 0;
+}
+
+.capaAlvo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.capaArte,
+.capaSemArte {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  border-radius: var(--radius-chip);
+  object-fit: cover;
+  background: var(--surface-inner-bg);
+  border: 1px solid var(--surface-faint-border);
+  transition:
+    border-color 0.18s ease,
+    transform 0.18s var(--ease);
+}
+
+.capaSemArte {
+  display: grid;
+  place-items: center;
+}
+
+.capa:hover .capaArte,
+.capa:hover .capaSemArte {
+  transform: translateY(-2px);
+  border: var(--surface-inner-active-border);
+}
+
+.capaOn .capaArte,
+.capaOn .capaSemArte {
+  border-color: var(--accent-green);
+}
+
+.capaNome {
+  font-size: 11px;
+  line-height: 1.3;
+  color: var(--text-primary);
+  /* Duas linhas no máximo: título longo não pode empurrar a grade. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.capaMeta {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-tertiary);
+}
+
+.semResultado,
+.maisBotao {
+  grid-column: 1 / -1;
+}
+
+.semResultado {
+  margin: 24px 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+.maisBotao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+  padding: 11px 0;
+  border: 1px solid var(--surface-action-border);
+  border-radius: var(--radius-row);
+  background: none;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.maisBotao:hover {
+  background: var(--hover-row);
+}
+
+/* ——— Sem lista ———————————————————————————————————————————— */
+
+.vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 100%;
+  padding: 0 56px;
+  text-align: center;
+}
+
+.vazioTitulo {
+  margin: 0;
+  font-size: 15px;
+  color: var(--text-primary);
+}
+
+.vazioTexto {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--text-tertiary);
+}
+
+.vazioBotao {
+  margin-top: 6px;
+  padding: 10px 20px;
+  border: 1px solid var(--surface-action-border);
+  border-radius: var(--radius-row);
+  background: var(--surface-inner-bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.vazioBotao:hover {
+  background: var(--surface-inner-bg-strong);
+}
+
+/* ——— Detalhe ——————————————————————————————————————————————— */
+
+.detalheArte {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--radius-card);
+  flex: none;
+}
+
+.detalheTopo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: none;
+}
+
+.detalheNome {
+  font-size: 15px;
+  line-height: 1.3;
+  color: var(--text-primary);
+}
+
+.detalheMeta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-tertiary);
+}
+
+.tocar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 11px 0;
+  border: none;
+  border-radius: var(--radius-row);
+  background: var(--accent-green);
+  color: var(--on-accent);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  flex: none;
+}
+
+.temporadas {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  flex: none;
+}
+
+.temporada {
+  padding: 5px 10px;
+  border: none;
+  border-radius: var(--radius-chip);
+  background: var(--surface-inner-bg);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.temporadaOn {
+  background: var(--surface-inner-active-bg);
+  color: var(--text-primary);
+}
+
+.episodios {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.episodio {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border: none;
+  border-radius: var(--radius-row);
+  background: none;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.episodio:hover {
+  background: var(--hover-row);
+}
+
+.episodioNumero {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-tertiary);
+  flex: none;
+}
+
+.episodioNome {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ——— Estrela de favoritar ————————————————————————————————————
+ *
+ * Fica escondida até o mouse chegar na capa — vinte e cinco estrelas acesas de
+ * uma vez competiriam com a arte. A favoritada continua visível sempre, senão
+ * não haveria como ver o que já está marcado.
+ */
+
+.estrela {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: var(--scrim-strong);
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity 0.16s ease,
+    background 0.16s ease;
+}
+
+.capa:hover .estrela,
+.estrela:focus-visible,
+.estrelaOn {
+  opacity: 1;
+}
+
+.estrela:hover {
+  background: var(--scrim-stronger);
+}
+
+.tipoCount {
+  margin-left: 5px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-tertiary);
+}
+
+/* ——— Continuar assistindo ————————————————————————————————————— */
+
+.voltar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  flex: none;
+}
+
+.voltar:hover {
+  color: var(--text-secondary);
+}
+
+.recentes {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.recente {
+  position: relative;
+}
+
+.recenteAlvo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px;
+  border: none;
+  border-radius: var(--radius-row);
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.recenteAlvo:hover {
+  background: var(--hover-row);
+}
+
+.recenteArte {
+  width: 54px;
+  height: 32px;
+  flex: none;
+  object-fit: cover;
+  border-radius: var(--radius-chip);
+  background: var(--surface-inner-bg);
+}
+
+.recenteTexto {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+}
+
+.recenteNome {
+  font-size: 12px;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  /* Espaço para o X de tirar da lista, que fica por cima. */
+  padding-right: 16px;
+  text-overflow: ellipsis;
+}
+
+.recenteMeta {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-tertiary);
+}
+
+.recenteBarra {
+  height: 3px;
+  border-radius: 999px;
+  background: var(--surface-inner-bg-strong);
+  overflow: hidden;
+}
+
+.recenteBarraFill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent-green);
+}
+
+.recenteTirar {
+  position: absolute;
+  top: 8px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.16s ease;
+}
+
+.recente:hover .recenteTirar,
+.recenteTirar:focus-visible {
+  opacity: 1;
+}
+
+/* ——— Metadados do TMDB ——————————————————————————————————————— */
+
+.ficha {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--accent-amber);
+  flex: none;
+}
+
+.sinopse {
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  /* O painel é estreito e a sinopse pode ser longa: corta em seis linhas em
+     vez de empurrar os episódios para fora. */
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: none;
+}
+
+.pedirChave {
+  padding: 9px 11px;
+  border: 1px dashed var(--surface-action-border);
+  border-radius: var(--radius-row);
+  background: none;
+  color: var(--text-tertiary);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  text-align: left;
+  cursor: pointer;
+  flex: none;
+  transition:
+    color 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.pedirChave:hover {
+  color: var(--text-secondary);
+  border: var(--surface-inner-active-border);
+}
+
+/* Atribuição ao TMDB: discreta, mas sempre presente onde os dados aparecem —
+   é condição dos termos de uso da API, não um enfeite. */
+.credito {
+  font-size: 9px;
+  line-height: 1.4;
+  color: var(--text-tertiary);
+  opacity: 0.75;
+  flex: none;
+}
+
+/* ——— Listas dentro dos favoritos ——————————————————————————————— */
+
+.listaLinha {
+  position: relative;
+  display: flex;
+}
+
+.listaLinha .library {
+  flex: 1;
+  min-width: 0;
+  /* Espaço para o X de apagar, que fica por cima. */
+  padding-right: 26px;
+}
+
+.listaTirar {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.16s ease;
+}
+/* Armado: o X vira a palavra, e a cor de alerta vem de token — cor literal em
+   componente é reprovada pelo `lint:style`. */
+.listaTirarArmado {
+  width: auto;
+  padding: 0 6px;
+}
+
+.listaConfirmar {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  color: var(--accent-red);
+}
+
+.listaLinha:hover .listaTirar,
+.listaTirar:focus-visible {
+  opacity: 1;
+}
+
+.listaCampo {
+  width: 100%;
+  padding: 9px 11px;
+  /* O token já traz "1px solid": repeti-los aqui invalidaria a regra. */
+  border: var(--surface-inner-active-border);
+  border-radius: var(--radius-row);
+  background: var(--surface-inner-bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  outline: none;
+}
+
+.novaLista {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 11px;
+  border: none;
+  border-radius: var(--radius-row);
+  background: none;
+  color: var(--text-tertiary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    color 0.18s ease,
+    background 0.18s ease;
+}
+
+.novaLista:hover {
+  background: var(--hover-row);
+  color: var(--text-secondary);
+}
+
+.note {
+  font-size: 10.5px;
+  line-height: 1.45;
+  color: var(--text-tertiary);
+  flex: none;
+}
+
+/* ——— Etiquetas de lista, no painel de detalhes ————————————————— */
+
+.listas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  flex: none;
+}
+
+.etiqueta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  border: 1px solid var(--surface-action-border);
+  border-radius: var(--radius-chip);
+  background: none;
+  color: var(--text-tertiary);
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.etiqueta:hover {
+  color: var(--text-secondary);
+}
+
+.etiquetaOn {
+  border-color: transparent;
+  background: var(--surface-inner-active-bg);
+  color: var(--text-primary);
+}
+
+/* Capa recebendo um arrasto: mostra onde o título vai cair. */
+.capaAlvoDrop .capaArte,
+.capaAlvoDrop .capaSemArte {
+  border-color: var(--accent-green);
+  transform: translateY(-2px);
+}
+
+/* Lista recebendo uma capa arrastada: mostra onde o título vai cair. */
+.libraryDrop {
+  background: var(--surface-inner-active-bg);
+  box-shadow: inset 0 0 0 1px var(--accent-green);
+}

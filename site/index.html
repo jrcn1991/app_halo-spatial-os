@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Halo — Spatial OS</title>
+<meta name="description" content="Painéis de vidro flutuando sobre a sua área de trabalho e uma ilha dinâmica no topo da tela. Para Linux com KDE Plasma 6. Grátis e GPL.">
+<meta property="og:title" content="Halo — Spatial OS">
+<meta property="og:description" content="Painéis de vidro sobre a sua área de trabalho e uma ilha dinâmica no topo da tela. Para KDE Plasma 6.">
+<meta property="og:image" content="assets/home-cyberpunk.jpg">
+<meta name="theme-color" content="#07090c">
+<link rel="icon" href="assets/icone.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #07090c;
+    --bg-2: #0d1116;
+    --glass: rgba(255, 255, 255, 0.045);
+    --glass-2: rgba(255, 255, 255, 0.08);
+    --line: rgba(255, 255, 255, 0.09);
+    --line-2: rgba(255, 255, 255, 0.16);
+    --text: #eef1f5;
+    --muted: #9aa3ae;
+    --faint: #6b7480;
+    /* A cor de destaque é a do ambiente escolhido na demonstração. */
+    --accent: #61d19a;
+    --accent-soft: rgba(97, 209, 154, 0.16);
+    --radius: 22px;
+    --sans: "DM Sans", system-ui, sans-serif;
+    --mono: "DM Mono", ui-monospace, monospace;
+  }
+  :root[data-env="citypop"] { --accent: #4fd8ff; --accent-soft: rgba(79, 216, 255, 0.16); }
+  :root[data-env="cyberpunk"] { --accent: #f75049; --accent-soft: rgba(247, 80, 73, 0.16); }
+  :root[data-env="bioshock"] { --accent: #d9a441; --accent-soft: rgba(217, 164, 65, 0.16); }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  a { color: inherit; }
+  img, video { display: block; max-width: 100%; }
+  .wrap { width: min(1180px, 100% - 32px); margin: 0 auto; }
+
+  /* O halo de cor atrás de tudo segue o ambiente. */
+  .aura {
+    position: fixed; inset: -20vh 0 auto; height: 90vh; z-index: -1;
+    background: radial-gradient(ellipse at 50% 0%, var(--accent-soft), transparent 60%);
+    transition: background 0.8s ease;
+    pointer-events: none;
+  }
+
+  /* ——— Navegação ——— */
+  nav {
+    position: sticky; top: 0; z-index: 20;
+    backdrop-filter: blur(18px) saturate(1.3);
+    -webkit-backdrop-filter: blur(18px) saturate(1.3);
+    background: rgba(7, 9, 12, 0.66);
+    border-bottom: 1px solid var(--line);
+  }
+  nav .wrap { display: flex; align-items: center; gap: 28px; height: 64px; }
+  .marca { display: flex; align-items: center; gap: 10px; font-weight: 700; text-decoration: none; letter-spacing: -0.01em; }
+  .marca img { width: 28px; height: 28px; }
+  nav .links { display: flex; gap: 22px; margin-left: auto; font-size: 15px; }
+  nav .links a { text-decoration: none; color: var(--muted); transition: color 0.2s; }
+  nav .links a:hover { color: var(--text); }
+  .botao {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 20px; border-radius: 999px;
+    font: 600 15px var(--sans); text-decoration: none; cursor: pointer;
+    border: 1px solid var(--line-2); background: var(--glass-2); color: var(--text);
+    transition: transform 0.2s, background 0.2s, border-color 0.2s;
+  }
+  .botao:hover { transform: translateY(-1px); border-color: var(--accent); }
+  .botao.primario { background: var(--accent); color: #07090c; border-color: transparent; }
+  .botao.primario:hover { filter: brightness(1.08); }
+  nav .botao { padding: 8px 16px; font-size: 14px; }
+
+  /* ——— Hero ——— */
+  .hero { text-align: center; padding: 72px 0 40px; position: relative; }
+  /* A pílula do topo: a ilha, respirando. */
+  .pilula {
+    width: 170px; height: 34px; margin: 0 auto 36px;
+    background: #000; border-radius: 0 0 18px 18px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--line);
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    font: 500 12px var(--mono); color: var(--muted);
+    animation: respira 6s ease-in-out infinite;
+  }
+  .pilula i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+  @keyframes respira { 0%, 100% { width: 170px; } 50% { width: 230px; } }
+  .eyebrow { font: 500 13px var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
+  h1 { font-size: clamp(40px, 7vw, 82px); line-height: 1.02; letter-spacing: -0.035em; margin: 14px 0 20px; font-weight: 700; }
+  h1 em { font-style: normal; color: var(--accent); transition: color 0.6s; }
+  .sub { color: var(--muted); font-size: clamp(17px, 2vw, 20px); max-width: 640px; margin: 0 auto 32px; }
+  .ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .selos { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 26px; }
+  .selo { font: 500 12.5px var(--mono); color: var(--muted); padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--glass); }
+
+  /* ——— Demonstração ——— */
+  .demo { padding: 20px 0 80px; }
+  .palco {
+    position: relative; aspect-ratio: 16 / 9; border-radius: var(--radius); overflow: hidden;
+    border: 1px solid var(--line-2);
+    box-shadow: 0 40px 120px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(0, 0, 0, 0.4), 0 0 80px var(--accent-soft);
+    transition: box-shadow 0.8s;
+  }
+  .palco img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.7s ease, transform 1.2s ease; transform: scale(1.02); }
+  .palco img.ativa { opacity: 1; transform: none; }
+  .seletor { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 22px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 9px; cursor: pointer;
+    padding: 9px 16px; border-radius: 999px; font: 600 14px var(--sans); color: var(--muted);
+    background: var(--glass); border: 1px solid var(--line); transition: all 0.25s;
+  }
+  .chip span { width: 10px; height: 10px; border-radius: 50%; }
+  .chip:hover { color: var(--text); border-color: var(--line-2); }
+  .chip[aria-pressed="true"] { color: var(--text); border-color: var(--accent); background: var(--accent-soft); }
+  .legenda { text-align: center; color: var(--faint); font-size: 14px; margin-top: 14px; }
+
+  /* ——— Seções ——— */
+  section { padding: 90px 0; }
+  .titulo { text-align: center; max-width: 720px; margin: 0 auto 48px; }
+  h2 { font-size: clamp(30px, 4.4vw, 48px); line-height: 1.08; letter-spacing: -0.03em; margin: 12px 0 14px; }
+  .titulo p { color: var(--muted); margin: 0; }
+
+  .video {
+    border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line-2);
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6); background: #000;
+  }
+  .video video { width: 100%; }
+
+  .grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 16px; }
+  .cartao {
+    background: var(--glass); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 24px; transition: border-color 0.25s, transform 0.25s, background 0.25s;
+  }
+  .cartao:hover { border-color: var(--line-2); background: var(--glass-2); transform: translateY(-2px); }
+  .cartao .icone { font-size: 24px; width: 46px; height: 46px; display: grid; place-items: center; border-radius: 14px; background: var(--accent-soft); margin-bottom: 16px; }
+  .cartao h3 { margin: 0 0 6px; font-size: 18px; letter-spacing: -0.01em; }
+  .cartao p { margin: 0; color: var(--muted); font-size: 15px; }
+
+  .telas { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 18px; }
+  .tela { margin: 0; cursor: zoom-in; }
+  .tela img { border-radius: 16px; border: 1px solid var(--line); transition: transform 0.35s, border-color 0.35s; aspect-ratio: 16 / 10; object-fit: cover; width: 100%; }
+  .tela:hover img { transform: scale(1.015); border-color: var(--accent); }
+  .tela figcaption { padding: 12px 4px 0; }
+  .tela figcaption b { display: block; font-size: 16px; }
+  .tela figcaption span { color: var(--muted); font-size: 14.5px; }
+
+  .ilha { display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; align-items: center; }
+  .ilha-vitrine { position: relative; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line-2); aspect-ratio: 900 / 440; background: #000; cursor: pointer; }
+  .ilha-vitrine img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; transition: opacity 0.5s; }
+  .ilha-vitrine .aberta { opacity: 0; z-index: 1; }
+  .ilha-vitrine:hover .aberta, .ilha-vitrine.aberta-agora .aberta { opacity: 1; }
+  .ilha ul { list-style: none; padding: 0; margin: 24px 0 0; display: grid; gap: 12px; }
+  .ilha li { padding-left: 28px; position: relative; color: var(--muted); }
+  .ilha li::before { content: ""; position: absolute; left: 4px; top: 10px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+  .ilha li b { color: var(--text); font-weight: 600; }
+
+  .numeros { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .numero { text-align: center; padding: 30px 12px; border-radius: var(--radius); background: var(--glass); border: 1px solid var(--line); }
+  .numero b { display: block; font-size: 44px; letter-spacing: -0.04em; line-height: 1; color: var(--accent); transition: color 0.6s; }
+  .numero span { color: var(--muted); font-size: 14.5px; }
+
+  .passos { display: grid; gap: 14px; max-width: 760px; margin: 0 auto; counter-reset: passo; }
+  .passo { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 16px; align-items: start; padding: 20px; background: var(--glass); border: 1px solid var(--line); border-radius: 18px; }
+  .passo::before { counter-increment: passo; content: counter(passo); width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; font: 600 17px var(--mono); background: var(--accent-soft); color: var(--accent); }
+  .passo h3 { margin: 0 0 4px; font-size: 17px; }
+  .passo p { margin: 0; color: var(--muted); font-size: 15px; }
+  pre { position: relative; margin: 12px 0 0; padding: 14px 16px; padding-right: 88px; background: #000; border: 1px solid var(--line); border-radius: 12px; overflow-x: auto; font: 14px/1.55 var(--mono); color: #d6dde6; }
+  .copiar { position: absolute; top: 8px; right: 8px; font: 500 12px var(--mono); padding: 5px 10px; border-radius: 8px; border: 1px solid var(--line-2); background: var(--glass-2); color: var(--muted); cursor: pointer; }
+  .copiar:hover { color: var(--text); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--faint); font: 500 12.5px var(--mono); text-transform: uppercase; letter-spacing: 0.1em; }
+  td:first-child { color: var(--muted); }
+  .tabela { background: var(--glass); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 10px; overflow-x: auto; }
+
+  .faq { max-width: 780px; margin: 0 auto; display: grid; gap: 10px; }
+  details { background: var(--glass); border: 1px solid var(--line); border-radius: 16px; padding: 4px 20px; transition: border-color 0.25s; }
+  details[open] { border-color: var(--line-2); }
+  summary { cursor: pointer; list-style: none; padding: 16px 0; font-weight: 600; display: flex; justify-content: space-between; gap: 16px; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; color: var(--accent); font: 500 20px var(--mono); line-height: 1; }
+  details[open] summary::after { content: "–"; }
+  details p { margin: 0 0 18px; color: var(--muted); font-size: 15.5px; }
+
+  .inspira { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+  .inspira a { text-decoration: none; display: block; padding: 20px; border-radius: 18px; background: var(--glass); border: 1px solid var(--line); transition: border-color 0.25s, transform 0.25s; }
+  .inspira a:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .inspira small { font: 500 11.5px var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); }
+  .inspira b { display: block; margin: 6px 0 4px; font-size: 16.5px; }
+  .inspira span { color: var(--muted); font-size: 14.5px; }
+
+  .final { text-align: center; padding: 100px 0 120px; }
+
+  footer { border-top: 1px solid var(--line); padding: 36px 0 48px; color: var(--faint); font-size: 14px; }
+  footer .wrap { display: flex; gap: 24px; flex-wrap: wrap; justify-content: space-between; }
+  footer a { color: var(--muted); }
+
+  /* Lightbox das telas. */
+  dialog { border: 0; padding: 0; background: transparent; max-width: min(1400px, 94vw); }
+  dialog::backdrop { background: rgba(0, 0, 0, 0.82); backdrop-filter: blur(6px); }
+  dialog img { border-radius: 14px; }
+
+  /* Só esconde quando o script está de pé: sem ele, a página aparece inteira. */
+  .js .revela { opacity: 0; transform: translateY(18px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .js .revela.visivel { opacity: 1; transform: none; }
+
+  @media (max-width: 860px) {
+    nav .links { display: none; }
+    nav .botao { margin-left: auto; }
+    .ilha { grid-template-columns: 1fr; }
+    .numeros { grid-template-columns: repeat(2, 1fr); }
+    section { padding: 64px 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .revela { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+<div class="aura" aria-hidden="true"></div>
+
+<nav>
+  <div class="wrap">
+    <a class="marca" href="#"><img src="assets/icone.png" alt="">Halo</a>
+    <div class="links">
+      <a href="#recursos">Recursos</a>
+      <a href="#passeio">Passeio</a>
+      <a href="#ilha">Ilha</a>
+      <a href="#instalar">Instalar</a>
+      <a href="#faq">Perguntas</a>
+      <a href="https://github.com/jrcn1991/halo-spatial-os">GitHub</a>
+    </div>
+    <a class="botao primario" href="https://github.com/jrcn1991/halo-spatial-os/releases/latest">Baixar</a>
+  </div>
+</nav>
+
+<header class="hero wrap">
+  <div class="pilula" aria-hidden="true"><i></i>tocando agora</div>
+  <div class="eyebrow">Spatial OS para Linux</div>
+  <h1>Sua área de trabalho,<br><em>em vidro.</em></h1>
+  <p class="sub">Painéis flutuando sobre o seu papel de parede, uma ilha dinâmica no topo da tela e ambientes que trocam o tema e o fundo de uma vez. Para KDE Plasma 6.</p>
+  <div class="ctas">
+    <a class="botao primario" href="https://github.com/jrcn1991/halo-spatial-os/releases/latest">Baixar o .deb</a>
+    <a class="botao" href="#passeio">Assistir ao passeio</a>
+  </div>
+  <div class="selos">
+    <span class="selo">KDE Plasma 6</span>
+    <span class="selo">Ubuntu 26.04</span>
+    <span class="selo">grátis · GPL-3.0</span>
+    <span class="selo">sem conta, sem telemetria</span>
+  </div>
+</header>
+
+<div class="demo wrap">
+  <div class="palco" id="palco">
+    <img src="assets/home-floresta.jpg" data-env="floresta" alt="O Halo no ambiente Floresta" class="ativa">
+    <img src="assets/home-citypop.jpg" data-env="citypop" alt="O Halo no ambiente City Pop" loading="lazy">
+    <img src="assets/home-cyberpunk.jpg" data-env="cyberpunk" alt="O Halo no ambiente Cyberpunk" loading="lazy">
+    <img src="assets/home-bioshock.jpg" data-env="bioshock" alt="O Halo no ambiente Shock" loading="lazy">
+  </div>
+  <div class="seletor" role="group" aria-label="Escolha um ambiente">
+    <button class="chip" data-env="floresta" aria-pressed="true"><span style="background:#61d19a"></span>Floresta</button>
+    <button class="chip" data-env="citypop" aria-pressed="false"><span style="background:#4fd8ff"></span>City Pop</button>
+    <button class="chip" data-env="cyberpunk" aria-pressed="false"><span style="background:#f75049"></span>Cyberpunk</button>
+    <button class="chip" data-env="bioshock" aria-pressed="false"><span style="background:#d9a441"></span>Shock</button>
+  </div>
+  <p class="legenda">Clique num ambiente — no app, ele troca o tema <em>e</em> o papel de parede da sua sessão.</p>
+</div>
+
+<section id="passeio" class="wrap revela">
+  <div class="titulo">
+    <div class="eyebrow">O passeio</div>
+    <h2>Quatro ambientes, oito telas, uma ilha.</h2>
+    <p>Quarenta segundos, sem cortes: a troca de ambiente, a ilha abrindo e cada tela entrando com a animação dela.</p>
+  </div>
+  <div class="video">
+    <video controls muted playsinline preload="metadata" poster="assets/passeio.jpg">
+      <source src="assets/passeio.mp4" type="video/mp4">
+    </video>
+  </div>
+</section>
+
+<section id="recursos" class="wrap revela">
+  <div class="titulo">
+    <div class="eyebrow">Recursos</div>
+    <h2>Tudo o que a sua máquina já sabe, num lugar só.</h2>
+    <p>Os dados são os seus, lidos daqui mesmo: sem conta, sem servidor, sem nada inventado.</p>
+  </div>
+  <div class="grade">
+    <div class="cartao"><div class="icone">🪟</div><h3>Janela que não cobre nada</h3><p>Mora na camada do papel de parede, fora da barra de tarefas. Volta pela bandeja ou por Meta+Espaço.</p></div>
+    <div class="cartao"><div class="icone">🏝️</div><h3>Ilha dinâmica</h3><p>Música, temporizadores, cópias, Wi-Fi, Bluetooth, captura, texto da tela e um campo que abre apps e roda comandos.</p></div>
+    <div class="cartao"><div class="icone">🎨</div><h3>Ambientes</h3><p>Floresta, City Pop, Cyberpunk e Shock trocam o tema e o papel de parede — imagem ou vídeo.</p></div>
+    <div class="cartao"><div class="icone">📈</div><h3>Medidores de verdade</h3><p>CPU, memória, GPU e temperatura, com histórico, lidos por um relógio só para não pesar.</p></div>
+    <div class="cartao"><div class="icone">✳️</div><h3>Claude Code</h3><p>Um agente por projeto, com o histórico das conversas e, se quiser, o Genie ou o Clippit reagindo.</p></div>
+    <div class="cartao"><div class="icone">🎬</div><h3>Mídia e música</h3><p>Sua lista M3U com sinopse do TMDB, um player que fica por cima, e o seu Spotify.</p></div>
+    <div class="cartao"><div class="icone">🐳</div><h3>Home Lab</h3><p>Containers do Docker, serviços com latência medida e a saúde da máquina.</p></div>
+    <div class="cartao"><div class="icone">⌨️</div><h3>Lançador no Meta+V</h3><p>O mesmo motor da ilha, numa janela vestida pelo ambiente. Desligar devolve a tecla ao Klipper.</p></div>
+  </div>
+</section>
+
+<section class="wrap revela">
+  <div class="titulo">
+    <div class="eyebrow">As telas</div>
+    <h2>Oito telas, três painéis cada.</h2>
+    <p>Clique para ver de perto.</p>
+  </div>
+  <div class="telas">
+    <figure class="tela"><img src="assets/tela-music.jpg" alt="Tela de Música" loading="lazy"><figcaption><b>Música</b><span>Playlists, álbuns e artistas do seu Spotify.</span></figcaption></figure>
+    <figure class="tela"><img src="assets/tela-lab.jpg" alt="Tela Lab" loading="lazy"><figcaption><b>Lab</b><span>Containers, serviços e a máquina.</span></figcaption></figure>
+    <figure class="tela"><img src="assets/tela-claude.jpg" alt="Tela do Claude" loading="lazy"><figcaption><b>Claude</b><span>Agentes do Claude Code por projeto.</span></figcaption></figure>
+    <figure class="tela"><img src="assets/tela-files.jpg" alt="Tela de Arquivos" loading="lazy"><figcaption><b>Arquivos</b><span>Pastas e discos, somente leitura.</span></figcaption></figure>
+    <figure class="tela"><img src="assets/tela-social.jpg" alt="Tela Social" loading="lazy"><figcaption><b>Social</b><span>Referências de arte, numa biblioteca sua.</span></figcaption></figure>
+    <figure class="tela"><img src="assets/tela-media.jpg" alt="Tela de Mídia" loading="lazy"><figcaption><b>Mídia</b><span>Sua biblioteca, com o que você parou de ver.</span></figcaption></figure>
+  </div>
+</section>
+
+<section id="ilha" class="wrap revela">
+  <div class="ilha">
+    <div class="ilha-vitrine" id="ilha-vitrine" tabindex="0" aria-label="A ilha: passe o mouse para abrir">
+      <img class="aberta" src="assets/ilha-aberta.jpg" alt="A ilha aberta" loading="lazy">
+      <img class="fechada" src="assets/ilha-fechada-alta.jpg" alt="A ilha fechada">
+    </div>
+    <div>
+      <div class="eyebrow">A ilha</div>
+      <h2>O notch que o Linux não tem.</h2>
+      <p style="color:var(--muted);margin:0">Uma pílula no topo da tela, sobre o painel do Plasma. Passe o mouse e ela abre — como na imagem ao lado.</p>
+      <ul>
+        <li><b>Tocando agora</b> — a faixa, a capa e o espectro do som de verdade.</li>
+        <li><b>Atalhos da máquina</b> — volume, microfone, cafeína, captura, bloqueio.</li>
+        <li><b>Temporizadores</b> e cronômetro, com aviso ao terminar.</li>
+        <li><b>Um campo para tudo</b> — apps, comandos, cópias, emoji, ou <code>?</code> para perguntar ao Claude.</li>
+        <li><b>Guarde janelas</b> na gaveta, com um voo que o KWin anima.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="wrap revela">
+  <div class="numeros">
+    <div class="numero"><b>8</b><span>telas</span></div>
+    <div class="numero"><b>4</b><span>ambientes</span></div>
+    <div class="numero"><b>141</b><span>integrações na ilha</span></div>
+    <div class="numero"><b>0</b><span>contas para criar</span></div>
+  </div>
+</section>
+
+<section id="instalar" class="wrap revela">
+  <div class="titulo">
+    <div class="eyebrow">Instalar</div>
+    <h2>Três passos.</h2>
+    <p>Feito para Ubuntu com KDE Plasma 6. Não tenta ser compatível com tudo — e diz o que precisa.</p>
+  </div>
+  <div class="passos">
+    <div class="passo"><div><h3>Baixe o .deb</h3><p>A versão mais recente está em <a href="https://github.com/jrcn1991/halo-spatial-os/releases/latest">Releases</a>.</p></div></div>
+    <div class="passo"><div><h3>Instale</h3><p>Ele puxa o que é essencial e o perfil do AppArmor de que o Electron precisa.</p><pre><code>sudo apt install ./halo-spatial-os_0.1.0_amd64.deb</code><button class="copiar" type="button">copiar</button></pre></div></div>
+    <div class="passo"><div><h3>Abra e confira</h3><p>Abra o Halo pelo menu. Em <b>Configurações → Sistema</b> ele lista cada programa que falta, o que se perde sem ele e o comando para instalar.</p></div></div>
+  </div>
+
+  <div class="titulo" style="margin-top:72px">
+    <h2 style="font-size:30px">Onde foi testado</h2>
+  </div>
+  <div class="tabela">
+    <table>
+      <thead><tr><th></th><th>Testado em</th><th>Precisa de</th></tr></thead>
+      <tbody>
+        <tr><td>Distribuição</td><td>Ubuntu 26.04.1 LTS</td><td>Ubuntu (ou derivado Debian) recente</td></tr>
+        <tr><td>Área de trabalho</td><td>KDE Plasma 6.6.6 · KWin 6.6.6</td><td><b>KDE Plasma 6</b></td></tr>
+        <tr><td>Sessão</td><td>Wayland, com o app em X11 pelo Xwayland</td><td>X11, ou Wayland com Xwayland</td></tr>
+        <tr><td>Vídeo</td><td>NVIDIA, driver proprietário</td><td>qualquer placa (o medidor de GPU lê NVIDIA)</td></tr>
+        <tr><td>Monitores</td><td>mais de um</td><td>um ou mais</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="faq" class="wrap revela">
+  <div class="titulo">
+    <div class="eyebrow">Perguntas</div>
+    <h2>Antes de instalar.</h2>
+  </div>
+  <div class="faq">
+    <details><summary>É grátis?</summary><p>Sim, e o código é aberto, sob GPL-3.0. Não há conta, assinatura nem versão paga.</p></details>
+    <details><summary>Funciona no GNOME, no Windows ou no Mac?</summary><p>Não. O Halo conversa com o KWin, o Klipper, a bandeja e o painel do Plasma — é feito para KDE Plasma 6. Fora dele o app abre, mas a ilha, o lançador, a bandeja e a troca de papel de parede não funcionam.</p></details>
+    <details><summary>Meus dados vão para algum lugar?</summary><p>Não há telemetria. O Halo lê a sua máquina localmente; sai para a rede só o que você liga: o clima (Open-Meteo), os feeds de notícias que você escolher, as fontes da Social Arte, o TMDB e o Spotify, se configurar as chaves — e as chaves ficam no seu computador.</p></details>
+    <details><summary>Ele mexe nas configurações do meu KDE?</summary><p>Quatro coisas, cada uma com interruptor: o papel de parede ao trocar de ambiente (o seu é guardado antes, e um botão o devolve), o efeito da gaveta do KWin e os atalhos, só com a ilha ligada, e o Meta+V, só com o lançador ligado. Desligar desfaz.</p></details>
+    <details><summary>Preciso do Claude Code, do Spotify ou do Docker?</summary><p>Não. Cada integração é opcional: sem ela, a tela diz o que falta e onde configurar, e o resto do app funciona igual.</p></details>
+    <details><summary>Como desinstalo?</summary><p>Antes, desligue a ilha e o lançador em Configurações (isso apaga os atalhos e devolve o Meta+V). Depois, <code>sudo apt remove halo-spatial-os</code>. Suas configurações ficam em <code>~/.config/halo-spatial-os</code>, se quiser apagar também.</p></details>
+  </div>
+</section>
+
+<section class="wrap revela">
+  <div class="titulo">
+    <div class="eyebrow">Inspirações</div>
+    <h2>Em ombros de gigantes.</h2>
+    <p>Projetos e trabalhos que mostraram o caminho.</p>
+  </div>
+  <div class="inspira">
+    <a href="https://github.com/TheBoredTeam/boring.notch"><small>Ilha · macOS</small><b>Boring Notch</b><span>O notch como centro de música, prateleira e HUD.</span></a>
+    <a href="https://github.com/Ebullioscopic/Atoll"><small>Ilha · macOS</small><b>Atoll</b><span>A ilha como superfície de comando, com atividades ao vivo.</span></a>
+    <a href="https://notchy.dev/"><small>Ilha · macOS</small><b>Notchy</b><span>A ilha como produto completo — e a inspiração desta página.</span></a>
+    <a href="https://github.com/aeusteixeira/dynamic-island-projects"><small>Ilha · Windows</small><b>dynamic-island-projects</b><span>Projetos e sessões do Claude Code numa gota no topo da tela.</span></a>
+    <a href="https://dribbble.com/shots/21707259-Vision-Pro-Application"><small>Design · Dribbble</small><b>Vision Pro Application</b><span>Os painéis de vidro no espaço — a gramática visual do Halo.</span></a>
+    <a href="https://www.behance.net/gallery/131293967/Cyberpunk-2077-UIUX-In-game-Ads"><small>Design · Behance</small><b>Cyberpunk 2077 — UI/UX In-game Ads</b><span>A linguagem das telas do ambiente Cyberpunk.</span></a>
+  </div>
+</section>
+
+<div class="final wrap revela">
+  <h2>Deixe a área de trabalho respirar.</h2>
+  <p class="sub" style="margin-bottom:28px">Grátis, aberto, e feito para o Plasma.</p>
+  <div class="ctas">
+    <a class="botao primario" href="https://github.com/jrcn1991/halo-spatial-os/releases/latest">Baixar o .deb</a>
+    <a class="botao" href="https://github.com/jrcn1991/halo-spatial-os">Ver no GitHub</a>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>Halo — Spatial OS · GPL-3.0 · <a href="https://github.com/jrcn1991/halo-spatial-os">código</a> · <a href="https://github.com/jrcn1991/halo-spatial-os/blob/main/THIRD-PARTY.md">créditos</a></span>
+    <span>Projeto pessoal, gratuito e sem fins comerciais. Os ambientes são inspirações com arte própria — o Shock vem de <i>BioShock</i> (2K) e o Cyberpunk da estética do gênero e de <i>Cyberpunk 2077</i> (CD Projekt Red) —, sem vínculo com os estúdios. Este produto usa a API do TMDB, mas não é endossado nem certificado pelo TMDB.</span>
+  </div>
+</footer>
+
+<dialog id="zoom"><img alt=""></dialog>
+
+<script>
+  document.documentElement.classList.add('js')
+  // A demonstração: o ambiente escolhido troca a imagem e a cor da página.
+  const raiz = document.documentElement
+  const chips = document.querySelectorAll('.chip')
+  const fotos = document.querySelectorAll('#palco img')
+  let manual = false
+  function escolher(env) {
+    raiz.dataset.env = env
+    fotos.forEach((f) => f.classList.toggle('ativa', f.dataset.env === env))
+    chips.forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.env === env)))
+  }
+  chips.forEach((c) => c.addEventListener('click', () => { manual = true; escolher(c.dataset.env) }))
+  // Sozinha, ela passeia pelos ambientes até alguém escolher um.
+  const ordem = ['floresta', 'citypop', 'cyberpunk', 'bioshock']
+  let i = 0
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    setInterval(() => { if (!manual) escolher(ordem[++i % ordem.length]) }, 4200)
+  }
+
+  // A ilha abre no toque, para quem não tem mouse.
+  const ilha = document.getElementById('ilha-vitrine')
+  ilha.addEventListener('click', () => ilha.classList.toggle('aberta-agora'))
+
+  // As telas abrem de perto.
+  const zoom = document.getElementById('zoom')
+  document.querySelectorAll('.tela img').forEach((img) =>
+    img.addEventListener('click', () => { zoom.querySelector('img').src = img.src; zoom.showModal() }),
+  )
+  zoom.addEventListener('click', () => zoom.close())
+
+  // Copiar o comando.
+  document.querySelectorAll('.copiar').forEach((b) =>
+    b.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(b.previousElementSibling.textContent)
+        b.textContent = 'copiado'
+      } catch { b.textContent = 'selecione e copie' }
+      setTimeout(() => (b.textContent = 'copiar'), 1600)
+    }),
+  )
+
+  // As seções entram quando chegam à vista.
+  const vista = new IntersectionObserver((es) => es.forEach((e) => {
+    if (e.isIntersecting) { e.target.classList.add('visivel'); vista.unobserve(e.target) }
+  }), { threshold: 0, rootMargin: '0px 0px -8% 0px' })
+  document.querySelectorAll('.revela').forEach((el) => vista.observe(el))
+</script>
+</body>
+</html>

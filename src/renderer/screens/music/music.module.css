@@ -1,0 +1,592 @@
+/* Música. Geometria do protótipo (linhas 1725–2015); o conteúdo é o Spotify
+   real do usuário. Nenhuma cor literal aqui — ver styles/tokens.css. Nenhuma
+   `animation` aqui — ver styles/animations.css. */
+
+.sideLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--text-tertiary);
+  flex: none;
+}
+
+.vazio {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  flex: none;
+}
+
+/* ——— cabeçalho da biblioteca ————————————————————————————————— */
+
+.contaLinha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex: none;
+}
+
+.contaNome {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: none;
+  margin-top: -8px;
+}
+
+/* Escopo faltando, e outros recados que não são erro nem conteúdo. */
+.notice {
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--accent-amber);
+  flex: none;
+}
+
+/* Etiqueta de conteúdo de exemplo: só aparece fora do Electron, e é a
+   condição para o app mostrar dado que não é do usuário (ver MOCKS.md). */
+.demoTag {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  padding: 3px 6px;
+  border-radius: var(--radius-chip);
+  background: var(--surface-inner-active-bg);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* ——— estados sem conta ————————————————————————————————————— */
+
+.aviso {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: var(--radius-card);
+  background: var(--surface-inner-bg);
+  border: var(--surface-inner-border);
+}
+
+.avisoTitulo {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.avisoTexto {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.avisoBotao {
+  align-self: flex-start;
+  padding: 9px 14px;
+  border-radius: var(--radius-row);
+  border: var(--surface-action-border);
+  background: var(--surface-inner-bg-strong);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.avisoBotao:hover:not(:disabled) {
+  background: var(--surface-inner-active-bg);
+}
+
+.avisoBotao:disabled {
+  color: var(--text-tertiary);
+  cursor: default;
+}
+
+/* O painel central não tem padding próprio (a arte sangra até a borda); o
+   estado vazio precisa do respiro que o herói normalmente traz. */
+.centroVazio {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 90px;
+  height: 100%;
+}
+
+/* ——— lista da biblioteca ——————————————————————————————————— */
+
+.playlists {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+}
+
+.playlist {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 7px 10px;
+  border: none;
+  border-radius: var(--radius-row);
+  background: none;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.playlist:hover {
+  background: var(--hover-row);
+}
+
+.playlistOn {
+  background: var(--surface-inner-active-bg);
+}
+
+.playlistTexto {
+  flex: 1;
+  min-width: 0;
+  display: block;
+}
+
+.cover {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border-radius: 8px;
+  object-fit: cover;
+  background: var(--placeholder-stripes), var(--cover-base);
+}
+
+.coverPequena {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: 6px;
+  object-fit: cover;
+  background: var(--placeholder-stripes), var(--cover-base);
+}
+
+/* Artista é redondo em todo lugar no Spotify; manter isso evita confundir
+   artista com álbum na mesma lista. */
+.coverRound {
+  border-radius: 50%;
+}
+
+.playlistName {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playlistMeta {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playlistCount {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-tertiary);
+  flex: none;
+}
+
+/* ——— painel central: herói ————————————————————————————————— */
+
+.hero {
+  position: relative;
+  height: 196px;
+  flex: none;
+  overflow: hidden;
+  background: var(--placeholder-stripes), var(--cover-base);
+}
+
+.heroArte {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  background: var(--placeholder-stripes), var(--cover-base);
+}
+
+.heroVeil {
+  position: absolute;
+  inset: 0;
+  background: var(--artist-veil);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 22px 24px;
+}
+
+.verified {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+}
+
+/* O handoff usa 54px para um nome curto ("Hana Vale"). Nomes reais de
+   playlist são bem mais longos, então 40px com corte em duas linhas: mantém a
+   presença do título sem estourar o herói de 196px. */
+.artistName {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.04;
+  margin-top: 6px;
+}
+
+.listeners {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  margin-top: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 24px;
+  flex: none;
+  min-width: 0;
+}
+
+.playBig {
+  width: 52px;
+  height: 52px;
+  flex: none;
+  border: none;
+  border-radius: 50%;
+  background: var(--accent-green);
+  color: var(--toggle-knob-on);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.18s var(--ease);
+}
+
+.playBig:hover:not(:disabled) {
+  transform: scale(1.07);
+}
+
+.playBig:disabled {
+  background: var(--surface-inner-active-bg);
+  color: var(--text-tertiary);
+  cursor: default;
+}
+
+.follow {
+  flex: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  border: 1px solid var(--avatar-ring);
+  background: none;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.18s ease;
+}
+
+.follow:hover {
+  border-color: var(--accent-mint);
+}
+
+/* Comando que não teve para onde ir (Spotify fechado, sem aparelho ativo). */
+.controlAviso {
+  flex: 1;
+  min-width: 0;
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--accent-amber);
+}
+
+/* ——— painel central: colunas ——————————————————————————————— */
+
+.columns {
+  display: flex;
+  gap: 26px;
+  padding: 0 24px 20px;
+  flex: 1;
+  min-height: 0;
+}
+
+.column {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+}
+
+.track,
+.recentRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 8px;
+  border: none;
+  border-radius: var(--radius-row);
+  background: none;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.track:hover,
+.recentRow:hover {
+  background: var(--hover-row);
+}
+
+.trackIndex {
+  width: 14px;
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+.trackTexto {
+  flex: 1;
+  min-width: 0;
+  display: block;
+}
+
+.trackTitle {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trackArtist {
+  display: block;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trackMeta {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-tertiary);
+}
+
+/* ——— painel direito ————————————————————————————————————————— */
+
+.agoraCard {
+  position: relative;
+  height: 208px;
+  flex: none;
+  border-radius: 24px;
+  overflow: hidden;
+  border: var(--card-border-strong);
+  background: var(--placeholder-stripes), var(--cover-base);
+}
+
+.agoraArte {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--placeholder-stripes), var(--cover-base);
+}
+
+.agoraVeil {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 16px;
+  background: var(--hero-veil);
+}
+
+.agoraTitulo {
+  display: block;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agoraArtista {
+  display: block;
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.progresso {
+  height: 3px;
+  margin-top: 6px;
+  border-radius: 2px;
+  background: var(--track-quiet);
+  overflow: hidden;
+}
+
+.progressoFill {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--track-fill);
+}
+
+.agoraFonte {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.likesCard {
+  flex: 1;
+  min-height: 0;
+  padding: 16px;
+  border-radius: 24px;
+  background: var(--glass-side-bg);
+  border: var(--glass-side-border);
+  backdrop-filter: var(--glass-side-filter);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.likesList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+}
+
+.like {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 6px;
+  border: none;
+  border-radius: var(--radius-row);
+  background: none;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.like:hover {
+  background: var(--hover-row);
+}
+
+.likeTitle {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ——— transporte ————————————————————————————————————————————— */
+
+.transport {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  padding: 12px 26px;
+  border-radius: var(--radius-transport);
+  border: var(--glass-dock-border);
+  background: var(--glass-transport-bg);
+  backdrop-filter: var(--glass-dock-filter);
+  box-shadow: var(--glass-transport-shadow);
+  pointer-events: auto;
+}
+
+.transportButton {
+  border: none;
+  background: none;
+  color: var(--text-dock-idle);
+  cursor: pointer;
+  display: flex;
+  padding: 0;
+}
+
+/* Aleatório ligado precisa ser visível sem trocar de ícone. */
+.transportOn {
+  color: var(--accent-mint-strong);
+}
+
+.transportPlay {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  color: var(--toggle-knob-on);
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.18s var(--ease);
+}
+
+.transportPlay:hover {
+  transform: scale(1.07);
+}
+
+/* Capa pequena na lista da discografia de um artista.
+
+   Sem isto a imagem ocupa a coluna inteira: a lista de faixas nunca teve
+   imagem, então não havia regra para ela. */
+.trackArte {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: 6px;
+  object-fit: cover;
+}

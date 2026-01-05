@@ -1,0 +1,480 @@
+/* Arquivos. Valores do protótipo (linhas 632–863), sistema de arquivos real. */
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 24px 16px;
+  flex: none;
+}
+
+.nav {
+  display: flex;
+  gap: 8px;
+}
+
+.navButton {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background: var(--surface-inner-active-bg);
+  color: var(--text-dock-idle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.navButton:hover:not(:disabled) {
+  background: var(--hover-row-strong);
+}
+
+.navButton:disabled {
+  background: var(--surface-inner-bg);
+  color: var(--text-tertiary);
+  cursor: default;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.breadcrumb {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+  max-width: 320px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 200px;
+  padding: 9px 13px;
+  border-radius: 14px;
+  background: var(--surface-inner-active-bg);
+  border: var(--surface-inner-border-strong);
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  outline: none;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+}
+
+.searchInput::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* Cabeçalho do carrossel: rótulo à esquerda, setas à direita. */
+.carouselHead {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 24px 10px;
+  flex: none;
+}
+
+.arrows {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.arrow {
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 50%;
+  background: var(--surface-quiet-bg);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.arrow:hover:not(:disabled) {
+  background: var(--hover-row-strong);
+  color: var(--text-primary);
+}
+
+.arrow:disabled {
+  color: var(--text-tertiary);
+  cursor: default;
+  opacity: 0.4;
+}
+
+/* Carrossel de favoritas: quatro à mostra, o resto rolando.
+   
+   O recuo lateral fica no INVÓLUCRO, não no trilho: padding pertence à área
+   rolável, então o conteúdo passa por baixo dele e o rabo do card anterior
+   aparecia na borda. Com o recuo fora, o trilho corta exatamente onde termina.
+
+   SEM `scroll-snap`: o encaixe do navegador reposiciona por conta própria e
+   briga com o alvo calculado no componente. Quem decide onde a página começa é
+   o `page()`, que mira no card exato — medido, não estimado. */
+.carousel {
+  padding: 0 24px 18px;
+  flex: none;
+}
+
+.folders {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+}
+
+/* Quatro cards preenchem EXATAMENTE a faixa visível: largura fixa deixaria
+   folga, e a folga revela um pedaço do card anterior no fim da rolagem — era
+   o card "agarrado" na borda. A conta se ajusta sozinha se o painel mudar. */
+.folder {
+  flex: 0 0 calc((100% - 36px) / 4);
+  padding: 14px 15px;
+  border-radius: 18px;
+  background: var(--surface-inner-bg);
+  border: var(--surface-faint-border);
+  text-align: left;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    transform 0.22s var(--ease);
+}
+
+.folder:hover {
+  background: var(--surface-inner-active-bg);
+  transform: translateY(-3px);
+}
+
+.folderName {
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.folderMeta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-tertiary);
+  margin-top: 3px;
+}
+
+.columns {
+  display: flex;
+  padding: 0 24px 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--text-tertiary);
+  flex: none;
+}
+
+.colName {
+  flex: 1;
+}
+
+.colModified {
+  width: 130px;
+}
+
+.colSize {
+  width: 90px;
+}
+
+.colOwner {
+  width: 60px;
+  text-align: right;
+}
+
+.rows {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 14px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  /* Sem `width: 100%`, e isto é medida: as caixas aqui são content-box
+     (CLAUDE.md § CSS), então 100% MAIS os 20px de padding punha a linha 20px
+     além de `.rows` — o corpo da tabela desalinhado do cabeçalho, e a coluna
+     DONO por baixo da moldura nos temas ("hal" em vez de "halo"). `.rows` é
+     bloco: a largura automática já preenche a linha, e o padding entra para
+     dentro. */
+  padding: 10px 10px;
+  border-radius: var(--radius-row);
+  transition: background 0.18s ease;
+}
+
+.row:hover {
+  background: var(--hover-row);
+}
+
+/* O alvo de abrir ocupa a linha toda menos a estrela e as colunas. */
+.rowMain {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+
+.rowNameText {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cell {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-tertiary);
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 24px 16px;
+  border-top: 1px solid var(--divider);
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+}
+
+/* ——— painel direito ————————————————————————————————————————— */
+
+.sideLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--text-tertiary);
+}
+
+.sideList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sideItem {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 11px;
+  border: none;
+  border-radius: var(--radius-row);
+  background: none;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.sideItem:hover {
+  background: var(--hover-row);
+}
+
+.sideMeta {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-tertiary);
+}
+
+.storage {
+  margin-top: auto;
+  padding: 16px;
+  border-radius: var(--radius-card);
+  background: var(--surface-inner-bg);
+  border: var(--surface-inner-border);
+  flex: none;
+}
+
+.storageValue {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.bar {
+  height: 5px;
+  border-radius: 3px;
+  background: var(--slider-track);
+  margin-top: 11px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--text-primary);
+}
+
+/* ——— widget de discos ————————————————————————————————————————— */
+
+.disk {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 13px;
+  border: var(--surface-inner-border);
+  border-radius: 17px;
+  background: var(--surface-inner-bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.disk:hover {
+  background: var(--hover-row);
+}
+
+.diskActive {
+  background: var(--surface-monitor-bg);
+  border: var(--surface-monitor-border);
+}
+
+.diskHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.diskName {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.diskSize {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+}
+
+.diskBar {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--slider-track);
+  overflow: hidden;
+}
+
+.diskBarFill {
+  /* MEDIDO em 03/09/2026: sem isto o preenchimento nunca desenhou, em tema
+     nenhum. É um `span`, e `span` é `inline` — que ignora `width` e `height`.
+     A caixa vinha 0×0 desde que a barra existe; a trilha aparecia vazia e
+     ninguém notou porque vazia ela também é um desenho plausível. */
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--accent-mint);
+}
+
+/* ——— caminho dentro do disco ————————————————————————————————— */
+
+.trail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+}
+
+.crumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 9px;
+  border: none;
+  border-radius: 11px;
+  background: none;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.crumb:hover {
+  background: var(--hover-row);
+}
+
+.crumbHere {
+  color: var(--text-primary);
+  font-weight: 500;
+  background: var(--surface-inner-bg);
+}
+
+.crumbName {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* A estrela some quando não é favorita: numa lista longa, dezenas de estrelas
+   apagadas viram ruído. Aparece ao passar o mouse, e fica quando é favorita. */
+.star {
+  border: none;
+  background: none;
+  padding: 4px;
+  margin: -4px;
+  cursor: pointer;
+  display: flex;
+  flex: none;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.row:hover .star,
+.star:focus-visible,
+.starOn {
+  opacity: 1;
+}

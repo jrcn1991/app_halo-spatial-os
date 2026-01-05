@@ -1,0 +1,245 @@
+/* Cards do painel de widgets da home. Valores do protótipo, linhas 83–93. */
+
+.card {
+  border-radius: 20px;
+  border: var(--surface-inner-border-strong);
+  background: var(--surface-inner-bg-strong);
+  flex: none;
+}
+
+/* ——— relógio ————————————————————————————————————————————————— */
+
+.clock {
+  padding: 20px 20px 22px;
+}
+
+.time {
+  font-size: 62px;
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  /* Os dígitos não podem dançar de largura a cada segundo. */
+  font-variant-numeric: tabular-nums;
+}
+
+.date {
+  margin-top: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--text-widget-label);
+}
+
+/* ——— clima ——————————————————————————————————————————————————— */
+
+.weather {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+}
+
+.weatherIcon {
+  color: var(--weather-icon);
+  flex: none;
+}
+
+/* Os conjuntos em imagem ocupam a mesma caixa do ícone Phosphor (42px) para o
+   cartão não mudar de medida ao trocar de conjunto. */
+.weatherImage {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  user-select: none;
+}
+
+.temperature {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.weatherLine {
+  margin-top: 2px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--text-widget-label);
+}
+
+/* Enquanto o dado não chegou, o card mantém a altura para nada pular. */
+.loading {
+  color: var(--text-tertiary);
+}
+
+/* ——— tocando agora ————————————————————————————————————————————— */
+
+.playing {
+  padding: 16px 18px;
+  cursor: pointer;
+  border: none;
+  width: 100%;
+  text-align: left;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  transition: background 0.18s ease;
+}
+
+.playing:hover {
+  background: var(--surface-inner-active-bg);
+}
+
+.playingLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--text-tertiary);
+  margin-bottom: 12px;
+}
+
+.playingRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cover {
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border-radius: 11px;
+  background: var(--placeholder-stripes), var(--cover-base);
+  background-size: cover;
+  background-position: center;
+}
+
+.playingText {
+  flex: 1;
+  min-width: 0;
+}
+
+.playingTitle {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playingArtist {
+  display: block;
+  font-size: 11px;
+  color: var(--text-widget-label);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playingProgress {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--track-quiet);
+  margin-top: 13px;
+  overflow: hidden;
+}
+
+.playingFill {
+  height: 100%;
+  background: var(--track-fill);
+}
+
+/* ——— mini-stats ————————————————————————————————————————————————— */
+
+/* Grade de DUAS colunas, e não uma fila: eram dois cartões e passaram a ser
+   quatro (CPU, memória, GPU, temperatura). Numa fila de 270px cada um ficaria
+   com ~57px e o rótulo quebraria; em duas linhas cada um mantém os ~120px que
+   tinha. A coluna da home tinha folga de sobra abaixo deles. */
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  flex: none;
+}
+
+.stat {
+  position: relative;
+  min-width: 0;
+  padding: 13px 14px;
+  border-radius: 18px;
+  border: var(--surface-inner-border-strong);
+  background: var(--surface-inner-bg-strong);
+}
+
+/* A cor de cada medidor, pelo que ele mede. São as cores que os ícones já
+   tinham no handoff (menta, o cinza do dock, violeta, dourado); um tema
+   redefine `--stat-tone` pelo mesmo atributo. */
+.stat[data-halo-metrica="cpu"] {
+  --stat-tone: var(--accent-mint-strong);
+}
+.stat[data-halo-metrica="memoria"] {
+  --stat-tone: var(--text-dock-idle);
+}
+.stat[data-halo-metrica="gpu"] {
+  --stat-tone: var(--accent-violet);
+}
+.stat[data-halo-metrica="temperatura"] {
+  --stat-tone: var(--accent-gold);
+}
+
+/* O gráfico do histórico, no canto direito do cartão, na linha do VALOR — e
+   acima do rótulo: o rótulo é largo ("10.4 GB EM USO") e um gráfico na altura
+   dele passava por cima do texto (medido). É absoluto para não mexer na altura
+   do cartão: com ou sem gráfico o cartão mede o mesmo, e a baseline do layout
+   não sente. A cor é a do cartão (`--stat-tone`), a mesma do ícone. */
+.grafico {
+  position: absolute;
+  right: 14px;
+  bottom: 30px;
+  width: 46%;
+  height: 26px;
+  color: var(--stat-tone);
+  pointer-events: none;
+}
+
+.onda {
+  display: block;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6px;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  /* O brilho de neon vem da própria cor: nada literal aqui. */
+  filter: drop-shadow(0 0 4px currentColor);
+}
+
+.barras {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.barra {
+  flex: 1;
+  border-radius: 1px;
+  background: currentColor;
+  opacity: 0.85;
+}
+
+.statValue {
+  font-size: 15px;
+  font-weight: 700;
+  margin-top: 7px;
+  font-variant-numeric: tabular-nums;
+}
+
+.statLabel {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}

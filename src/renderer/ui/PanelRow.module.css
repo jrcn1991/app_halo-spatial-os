@@ -1,0 +1,21 @@
+/* Linha de painéis: o "trilho" 3D de cada tela. */
+.row {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* A linha cobre o palco inteiro; deixar o clique passar para o véu (arraste da
+   janela). Painéis e dock reativam com pointer-events: auto. */
+.row {
+  pointer-events: none;
+}
+
+/* Navegação embutida: grade de três colunas, a do meio no tamanho da moldura
+   persistente (as colunas vêm inline de `PanelRow`, que conhece a medida). */
+.rowEmbedded {
+  display: grid;
+  align-items: center;
+}

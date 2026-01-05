@@ -1,0 +1,112 @@
+appId: dev.halo.spatial
+productName: Halo
+directories:
+  output: dist
+  buildResources: build
+files:
+  - out/**
+  - package.json
+# O papel de parede do BioShock é arte nossa e vem com o app. Fica FORA do asar
+# porque quem o aplica é o `plasma-apply-wallpaperimage`, um programa de fora:
+# ele precisa de um arquivo de verdade no disco. O main copia daqui para
+# `~/.local/share/halo-spatial-os/wallpapers/` na primeira vez.
+extraResources:
+  - from: src/renderer/assets/env
+    to: env
+  # As obrigações de licença de terceiros viajam COM o artefato. As fontes são
+  # OFL-1.1 (o aviso tem de acompanhar) e os conjuntos de ícone do clima são
+  # CC BY-NC-SA — a cláusula NonCommercial vale para quem receber o pacote,
+  # não só para quem lê o repositório. Ver `docs/DEPENDENCIAS.md`.
+  # O ícone da bandeja precisa de um arquivo NO DISCO: o `Tray` do Electron
+  # recebe um caminho, e dentro do asar não haveria arquivo para ler.
+  - from: build/icons
+    to: icons
+  - from: THIRD-PARTY.md
+    to: THIRD-PARTY.md
+  - from: LICENSE
+    to: LICENSE
+linux:
+  target:
+    - AppImage
+    - deb
+  # Utility é onde um widget de área de trabalho é procurado.
+  #
+  # UMA categoria principal, e não duas. `Utility;System` fazia o app aparecer
+  # DUAS VEZES no menu — o `desktop-file-validate` avisa, e o aviso é real:
+  # cada categoria principal vira uma entrada de menu. `Utility;Monitor` também
+  # não serve (o validador pede que `Monitor` venha com `System` ou `Network`,
+  # e aí voltam as duas). O que o app faz de "sistema" está na descrição e nas
+  # palavras-chave, que é onde a busca do menu procura.
+  category: Utility
+  synopsis: Halo — Spatial OS
+  description: >
+    Widget de área de trabalho em painéis de vidro: medidores da máquina,
+    arquivos, mídia, música, containers e agentes do Claude, numa janela
+    transparente que fica na camada do papel de parede. Feito para KDE Plasma 6
+    (X11, ou Wayland com Xwayland).
+  maintainer: Rafael Neves <67796818+jrcn1991@users.noreply.github.com>
+  desktop:
+    entry:
+      Keywords: overlay;widget;desktop;halo;painel;
+      # O nome da classe da janela, para o KWin casar o ícone com o app.
+      #
+      # `halo-spatial-os`, e não `Halo`: o Electron tira a WM_CLASS do nome do
+      # EXECUTÁVEL, não do `productName`. Com `Halo` aqui o pacote instalava
+      # bem e mesmo assim a janela ficava órfã — ícone genérico na barra de
+      # tarefas e no alternador, e o favorito sem ligação com o que está
+      # aberto. MEDIDO com `xprop` sobre a janela do app instalado
+      # (06/09/2026): WM_CLASS(STRING) = "halo-spatial-os", "halo-spatial-os".
+      StartupWMClass: halo-spatial-os
+  # X11 é requisito do app, não preferência: é só ali que dá para escolher a
+  # camada da janela, lembrar a posição e manter o player por cima. E só o
+  # argumento de linha de comando muda a plataforma (medido) — sem isto o app
+  # abriria em Wayland e teria de se relançar. Ver `ensureX11` no main.
+  executableArgs:
+    - --ozone-platform=x11
+deb:
+  # O que o app chama e sem o que uma função central para de funcionar. A lista
+  # sai de `src/shared/dependencias.ts`, que é a mesma que `npm run doctor` e a
+  # tela de Configurações → Sistema leem — três lugares, uma fonte.
+  depends:
+    # O que o Electron pede.
+    - libgtk-3-0
+    - libnotify4
+    - libnss3
+    - libxss1
+    - libxtst6
+    - libatspi2.0-0
+    - libuuid1
+    - libsecret-1-0
+    - xdg-utils
+    # O que o Halo pede: `gio` abre aplicativos, `busctl` fala MPRIS e
+    # `pactl` é todo o áudio da ilha.
+    - libglib2.0-bin
+    - libx11-6
+    - systemd
+    - dbus-bin
+    - pulseaudio-utils
+    - util-linux
+    - coreutils
+    - procps
+    - iproute2
+    - xdg-user-dirs
+  # Recomendadas, e não obrigatórias, de propósito: o app ABRE sem elas, com
+  # menos. Um `depends` em `plasma-workspace` arrastaria meio KDE para dentro
+  # de uma máquina GNOME só para instalar um widget.
+  recommends:
+    - qdbus-qt6
+    - libkf6config-bin
+    - plasma-workspace
+    - kde-spectacle
+    - libnotify-bin
+    - network-manager
+    - bluez
+    - udisks2
+    - lm-sensors
+  # `suggests` NÃO entra aqui: o electron-builder 26 não o expõe (a única
+  # forma seria passar argumentos crus ao fpm, e um campo de metadado não vale
+  # essa dependência). Os quatro que ficariam nele — `tesseract-ocr`,
+  # `docker.io`, `git` e `kdeconnect` — são opcionais de verdade: o app abre e
+  # funciona sem eles, cada um custa uma leitura. Quem os quiser encontra o
+  # nome do pacote em Configurações → Sistema, dentro do app, e em
+  # `docs/DEPENDENCIAS.md`.

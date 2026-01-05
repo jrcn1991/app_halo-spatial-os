@@ -1,0 +1,1080 @@
+/*
+ * Social Arte.
+ *
+ * A tela mantém a linha de três painéis do handoff — 300 / 470 / 320 × 620 —,
+ * e o que mudou foram os papéis: de onde vem, o que se acha, o que se guarda.
+ * As medidas internas seguem a mesma gramática das outras telas (18px de
+ * respiro lateral no painel central, chips de 11px, mono nos rótulos).
+ *
+ * Nenhuma cor literal: tudo sai de `styles/tokens.css`, e é isso que faz a
+ * tela nascer pronta no Cyberpunk e no BioShock sem uma linha por tema.
+ * Nenhuma `animation` aqui dentro: o CSS Modules renomeia `animation-name` e
+ * o keyframe deixaria de existir em silêncio (CLAUDE.md § CSS).
+ */
+
+/*
+ * Os dois primeiros painéis não têm respiro lateral próprio — a caixa deles é
+ * a mesma de antes, ao pixel, e a baseline do layout depende disso. Quem dá o
+ * respiro é a coluna, por dentro.
+ */
+.colunaFontes,
+.colunaFeed {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+/* À esquerda rola a COLUNA inteira, e não cada bloco dentro dela: são cinco
+   fontes, doze tipos e três ordenações num painel de 300px, e três áreas de
+   rolagem disputando a mesma altura deixavam todas espremidas — nenhuma
+   mostrando o que tinha. */
+.colunaFontes {
+  gap: 12px;
+  padding: 0 18px;
+  overflow-y: auto;
+}
+
+/* No meio a busca encosta no topo e a grade sangra até a aresta: quem rola é o
+   feed, para a busca ficar sempre à mão. */
+.colunaFeed {
+  padding: 20px 0 0;
+}
+
+/* ——— cabeçalhos e rótulos, comuns aos três painéis ————————————— */
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  flex: none;
+}
+
+.title {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.subtitulo {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.contador {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-tertiary);
+}
+
+/* ——— painel esquerdo: fontes e filtros ——————————————————————— */
+
+.fontes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: none;
+}
+
+.fonte {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 9px 11px;
+  border: var(--surface-inner-border);
+  border-radius: var(--radius-card);
+  background: var(--surface-inner-bg);
+}
+
+.fonteTopo {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.fonteNome {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fonteQuando {
+  display: flex;
+  flex: none;
+  color: var(--text-tertiary);
+}
+
+.fonteDescricao {
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.fonteCaps {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+}
+
+/* O que impede a fonte de funcionar. Fica na tela, e não escondido: é
+   informação que muda o que a pessoa espera dali. Duas linhas bastam para
+   dizer o assunto; o texto inteiro está no `title` do elemento. */
+.fonteErro {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-top: 2px;
+  font-size: 10.5px;
+  line-height: 1.4;
+  /* Secundário e não terciário: é o MOTIVO, e o terciário do Cyberpunk quase
+     o apaga. O que é legenda ali é a lista de capacidades, logo acima. */
+  color: var(--text-secondary);
+}
+
+.tipos,
+.filtros,
+.ordens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-content: start;
+}
+
+.tipos {
+  flex: none;
+}
+
+.rodapeFiltros {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: none;
+}
+
+.chip,
+.chipFraco {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 9px;
+  border: var(--surface-inner-border);
+  border-radius: var(--radius-chip);
+  background: var(--surface-inner-bg);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  cursor: pointer;
+  transition:
+    background 0.16s ease,
+    color 0.16s ease;
+}
+
+.chip:hover,
+.chipFraco:hover {
+  background: var(--hover-row-strong);
+  color: var(--text-primary);
+}
+
+.chipOn {
+  border: var(--surface-inner-active-border);
+  background: var(--surface-inner-active-bg);
+  color: var(--text-primary);
+}
+
+/* A sugestão é convite, não estado: fio pontilhado para não se confundir com
+   uma coleção que já existe. */
+.chipFraco {
+  border-style: dashed;
+  background: none;
+  color: var(--text-tertiary);
+}
+
+.limpar {
+  align-self: flex-start;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--link);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.limpar:hover {
+  color: var(--link-hover);
+}
+
+/* ——— painel do meio: procurar e descobrir ————————————————————— */
+
+.busca {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  margin: 0 18px 12px;
+  padding: 8px 12px;
+  border: var(--surface-inner-border);
+  border-radius: var(--radius-chip);
+  background: var(--surface-inner-bg);
+}
+
+.buscaCampo,
+.buscaSalvos,
+.colecaoCampo,
+.campoEntrada,
+.campoTexto {
+  border: none;
+  background: none;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  outline: none;
+}
+
+.buscaCampo {
+  flex: 1;
+  min-width: 0;
+}
+
+.buscaCampo::placeholder,
+.buscaSalvos::placeholder,
+.campoEntrada::placeholder,
+.campoTexto::placeholder {
+  color: var(--text-tertiary);
+}
+
+.porLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: none;
+  margin-left: auto;
+  padding: 3px 9px;
+  border: var(--surface-action-border);
+  border-radius: var(--radius-chip);
+  background: none;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  cursor: pointer;
+  transition:
+    background 0.16s ease,
+    color 0.16s ease;
+}
+
+.porLink:hover {
+  background: var(--hover-row-strong);
+  color: var(--text-primary);
+}
+
+/* Uma fonte fora do ar é nota de rodapé, não erro de página. */
+.falhas {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: none;
+  margin: 0 18px 8px;
+}
+
+.falha {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.04em;
+  color: var(--text-tertiary);
+}
+
+.feed {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 18px 18px;
+}
+
+.secao {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 0 10px;
+}
+
+.secaoTitulo {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.secaoContagem {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-tertiary);
+}
+
+.grade {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-content: start;
+  padding-bottom: 6px;
+}
+
+.cartao {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* O botão É a imagem: a área de clique inteira leva ao detalhe, e a proporção
+   fica presa para a grade não pular enquanto as capas chegam. */
+.cartaoAbrir {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  padding: 0;
+  overflow: hidden;
+  border: var(--surface-faint-border);
+  border-radius: var(--radius-card);
+  background: var(--cover-base);
+  cursor: pointer;
+}
+
+.cartaoEsqueleto {
+  height: 176px;
+  border-radius: var(--radius-card);
+  background: var(--placeholder-stripes), var(--cover-base);
+}
+
+.cartaoTexto {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.cartaoTitulo {
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--text-primary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* A marca da plataforma, no canto da capa. O véu por baixo existe porque ela
+   fica SOBRE a imagem: sem ele, uma capa clara engole o texto. */
+.cartaoMarca {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  padding: 2px 6px;
+  border-radius: var(--radius-chip);
+  background: var(--scrim-strong);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.secaoRecarregar {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin-left: auto;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-row);
+  background: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition:
+    background 0.16s ease,
+    color 0.16s ease;
+}
+
+.secaoRecarregar:hover {
+  background: var(--hover-row);
+  color: var(--text-primary);
+}
+
+/* Autor e plataforma. A atribuição é exigência dos termos (SOCIAL-ARTE.md) —
+   some do cartão só se o item deixar de existir. */
+.cartaoOrigem {
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cartaoTipo {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cartaoAcoes {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cartaoBotao {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-row);
+  background: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    background 0.16s ease,
+    color 0.16s ease;
+}
+
+.cartaoBotao:hover {
+  background: var(--hover-row);
+  color: var(--text-primary);
+}
+
+.cartaoBotao[aria-pressed="true"] {
+  color: var(--text-primary);
+}
+
+.vazio {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px 2px;
+}
+
+.vazioTitulo {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.vazioCorpo {
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--text-tertiary);
+  text-wrap: pretty;
+}
+
+/* ——— a capa ——————————————————————————————————————————————————— */
+
+/* O quadro é o LUGAR da imagem: enquanto ela não chega — e quando não vem —
+   fica o mesmo fundo do tema, não um ícone de erro. */
+.capa {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--placeholder-stripes), var(--cover-base);
+}
+
+.capaGrande {
+  height: auto;
+  max-height: 300px;
+  border-radius: var(--radius-card);
+  object-fit: contain;
+}
+
+.capaPequena {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border-radius: 10px;
+}
+
+/* ——— painel direito: a biblioteca ————————————————————————————— */
+
+.colecaoLinha {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.colecaoTirar {
+  display: grid;
+  place-items: center;
+  height: 22px;
+  min-width: 22px;
+  padding: 0 5px;
+  border: none;
+  border-radius: var(--radius-row);
+  background: none;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: color 0.16s ease;
+}
+
+.colecaoTirar:hover {
+  color: var(--text-primary);
+}
+
+/* Armado: o segundo clique apaga. A cor é o aviso. */
+.colecaoArmado,
+.colecaoArmado:hover {
+  color: var(--accent-red);
+}
+
+.colecaoCampo {
+  width: 130px;
+  padding: 4px 9px;
+  border: var(--surface-inner-active-border);
+  border-radius: var(--radius-chip);
+  background: var(--surface-inner-bg);
+  font-size: 11px;
+}
+
+.sugestoes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: none;
+}
+
+.sugestoesRotulo {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.buscaSalvos {
+  flex: none;
+  padding: 7px 11px;
+  border: var(--surface-inner-border);
+  border-radius: var(--radius-chip);
+  background: var(--surface-inner-bg);
+  font-size: 12px;
+}
+
+.salvos {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.salvo {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px 4px 4px;
+  border-radius: var(--radius-row);
+  transition: background 0.18s ease;
+}
+
+.salvo:hover {
+  background: var(--hover-row);
+}
+
+.salvoAbrir {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  padding: 4px;
+  border: none;
+  background: none;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+}
+
+.salvoTexto {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.salvoTitulo {
+  font-size: 12.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.salvoOrigem {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+}
+
+/* ——— os modais ————————————————————————————————————————————————
+ *
+ * FORA do `PanelRow`, sempre: ele tem `perspective`, e ali a ordem de pintura
+ * sai da profundidade e não do `z-index`. Quem monta é a tela.
+ *
+ * `position: fixed` se ancora no PALCO e não na tela — o palco tem
+ * `transform`, e no CSS isso torna o filho fixo relativo a ele.
+ */
+
+.modalFundo {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+}
+
+.modalVeu {
+  position: absolute;
+  inset: 0;
+  border: none;
+  padding: 0;
+  background: var(--modal-veu);
+  cursor: default;
+}
+
+.modal {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 540px;
+  max-height: 580px;
+  padding: 22px 22px 18px;
+  gap: 14px;
+  /* O token JÁ traz "1px solid …": escrever `border: 1px solid var(--token)`
+     faria o Chromium descartar a declaração inteira, em silêncio. */
+  border: var(--glass-center-border);
+  border-radius: var(--radius-panel-30);
+  /* O vidro dos painéis é transparente de propósito; um modal fica por cima de
+     texto, e ali transparência vira ilegibilidade. */
+  background: var(--modal-bg);
+  box-shadow: var(--glass-center-shadow);
+  backdrop-filter: blur(18px);
+}
+
+.modalTopo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  flex: none;
+}
+
+.modalTitulos {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.modalEyebrow {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  color: var(--text-tertiary);
+}
+
+.modalNome {
+  font-size: 19px;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.modalFechar {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border: 1px solid var(--surface-action-border);
+  border-radius: 999px;
+  background: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    background 0.16s ease,
+    color 0.16s ease;
+}
+
+.modalFechar:hover {
+  background: var(--hover-row);
+  color: var(--text-primary);
+}
+
+.modalCorpo {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  overflow-y: auto;
+  /* Respiro para a barra de rolagem não encostar no texto. */
+  margin-right: -6px;
+  padding-right: 6px;
+}
+
+.modalAcoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  padding-top: 2px;
+  border-top: var(--surface-faint-border);
+}
+
+.acao {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 7px 12px;
+  border: var(--surface-action-border);
+  border-radius: var(--radius-chip);
+  background: none;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background 0.16s ease,
+    color 0.16s ease;
+}
+
+.acao:hover {
+  background: var(--hover-row-strong);
+  color: var(--text-primary);
+}
+
+.acao[aria-pressed="true"] {
+  border: var(--surface-inner-active-border);
+  background: var(--surface-inner-active-bg);
+  color: var(--text-primary);
+}
+
+/* O botão principal leva à publicação original: é dele que o conteúdo é, e
+   quando o arquivo precisa ser obtido é lá que se obtém. */
+.acaoPrincipal {
+  margin-left: auto;
+  border: var(--surface-inner-active-border);
+  background: var(--surface-inner-active-bg-strong);
+  color: var(--text-primary);
+}
+
+.acao:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* ——— detalhe ——————————————————————————————————————————————————— */
+
+.galeria {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.miniatura {
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  overflow: hidden;
+  border: var(--surface-faint-border);
+  border-radius: 10px;
+  background: var(--cover-base);
+  cursor: pointer;
+}
+
+.miniaturaOn {
+  border: var(--surface-inner-active-border);
+}
+
+.detalheLinha {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.detalheAutor {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.detalheLicenca {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+  text-align: right;
+}
+
+.detalheTexto {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.tag {
+  padding: 3px 8px;
+  border-radius: var(--radius-chip);
+  background: var(--surface-quiet-bg);
+  font-size: 10.5px;
+  color: var(--text-tertiary);
+}
+
+.metricas {
+  display: flex;
+  gap: 20px;
+}
+
+.metrica {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.metricaValor {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.metricaRotulo {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+}
+
+/* ——— salvar por link ——————————————————————————————————————————— */
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.campoRotulo {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.campoEntrada,
+.campoTexto {
+  padding: 8px 11px;
+  border: var(--surface-inner-border);
+  border-radius: var(--radius-chip);
+  background: var(--surface-inner-bg);
+}
+
+.campoTexto {
+  min-height: 56px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.campoEntrada:focus,
+.campoTexto:focus,
+.colecaoCampo:focus {
+  border: var(--surface-inner-active-border);
+}
+
+.previa {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border: var(--surface-inner-border);
+  border-radius: var(--radius-card);
+  background: var(--surface-inner-bg);
+}
+
+/* A página não publicou nada sobre si — e o caminho não acaba aqui. */
+.aviso {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--accent-amber);
+  text-wrap: pretty;
+}
+
+.fonteBusca {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: 5px;
+  margin-top: 3px;
+  color: var(--link);
+  font-size: 11px;
+  text-decoration: none;
+}
+
+.fonteBusca:hover {
+  color: var(--link-hover);
+}
+
+/* ——— a conta de uma fonte ————————————————————————————————————— */
+
+.fonteConta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.fonteEntrar {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border: var(--surface-action-border);
+  border-radius: var(--radius-chip);
+  background: none;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  cursor: pointer;
+  transition:
+    background 0.16s ease,
+    color 0.16s ease;
+}
+
+.fonteEntrar:hover {
+  background: var(--hover-row-strong);
+  color: var(--text-primary);
+}
+
+.fonteContaOk {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-green);
+}
+
+.fonteSair {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--link);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.fonteSair:hover {
+  color: var(--link-hover);
+}
+
+/* ——— carregar mais ——————————————————————————————————————————— */
+
+.mais {
+  display: flex;
+  justify-content: center;
+  padding: 14px 0 4px;
+}
+
+.maisBotao {
+  padding: 7px 16px;
+  border: var(--surface-action-border);
+  border-radius: var(--radius-chip);
+  background: none;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  cursor: pointer;
+  transition:
+    background 0.16s ease,
+    color 0.16s ease;
+}
+
+.maisBotao:hover:not(:disabled) {
+  background: var(--hover-row-strong);
+  color: var(--text-primary);
+}
+
+.maisBotao:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ——— onde procurar ————————————————————————————————————————————— */
+
+/* `fieldset` traz moldura e recuos próprios do navegador; aqui ela é só o
+   agrupamento semântico, e o desenho é o da fileira de chips. */
+.ondes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  min-width: 0;
+  margin: 0 18px 12px;
+  padding: 0;
+  border: none;
+}
+
+/* O `legend` fica FORA do fluxo flex do `fieldset` — é assim que o elemento
+   funciona, e não dá para alinhá-lo aos chips como se fosse um irmão. Em vez
+   de brigar com isso, o rótulo vai acima deles, que é como "TIPO" e "ORDENAR"
+   já aparecem no painel ao lado. */
+.ondesRotulo {
+  float: none;
+  padding: 0;
+  margin-bottom: 6px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-right: 2px;
+}

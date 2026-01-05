@@ -1,0 +1,89 @@
+/* Painel de vidro. Duas variantes apenas (handoff § Vidro). */
+
+.panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+
+  /* Item de flex tem `min-width: auto`, ou seja, não encolhe abaixo do
+     conteúdo. Sem isto, um painel com conteúdo largo (os mini-stats da home,
+     por exemplo) rouba espaço dos vizinhos e a linha inteira sai das medidas do
+     handoff — medido: 4,7px a mais no lateral, 3,6px a menos no central. As
+     medidas do handoff mandam; o conteúdo se ajusta. */
+  min-width: 0;
+  /* Acima do véu: reativa clique e cancela o arraste da janela. */
+  pointer-events: auto;
+}
+
+.side {
+  border: var(--glass-side-border);
+  /* Composto aqui, e não em tokens.css, para que os ajustes de Aparência
+     aplicados no palco (alpha e claridade) sejam mesmo lidos. */
+  background: rgb(
+    from
+      color-mix(in srgb, var(--glass-side-base), var(--glass-clarity-target) var(--glass-clarity)) r
+      g b /
+    var(--glass-side-alpha)
+  );
+  /* Gradação da cor escolhida em Configurações, do canto superior para o
+     centro. Com --glass-tint em `transparent` (padrão) some por completo.
+     Vem DEPOIS do atalho `background`, que zeraria a imagem. */
+  background-image: linear-gradient(
+    155deg,
+    color-mix(in srgb, transparent, var(--glass-tint) 30%) 0%,
+    color-mix(in srgb, transparent, var(--glass-tint) 10%) 34%,
+    transparent 68%
+  );
+  backdrop-filter: var(--glass-side-filter);
+  box-shadow: var(--glass-side-shadow);
+  transform: var(--rest);
+}
+
+.center {
+  border: var(--glass-center-border);
+  background: rgb(
+    from
+      color-mix(in srgb, var(--glass-center-base), var(--glass-clarity-target) var(--glass-clarity))
+      r g b /
+    var(--glass-center-alpha)
+  );
+  /* Gradação da cor escolhida em Configurações, do canto superior para o
+     centro. Com --glass-tint em `transparent` (padrão) some por completo.
+     Vem DEPOIS do atalho `background`, que zeraria a imagem. */
+  background-image: linear-gradient(
+    155deg,
+    color-mix(in srgb, transparent, var(--glass-tint) 26%) 0%,
+    color-mix(in srgb, transparent, var(--glass-tint) 8%) 34%,
+    transparent 68%
+  );
+  backdrop-filter: var(--glass-center-filter);
+  box-shadow: var(--glass-center-shadow);
+}
+
+/* Navegação embutida: o lugar do painel central na linha. A moldura de
+   verdade é o `CenterFrame`, persistente e fora da linha; isto só ocupa a
+   coluna do meio da grade para os laterais se arrumarem em volta. */
+.ghost {
+  grid-column: 2;
+}
+
+/* O miolo de uma tela dentro da moldura: o mesmo flex em coluna de um painel,
+   ocupando o nó do conteúdo por inteiro. Os cantos seguem o nó (retos na
+   esquerda, arredondados na direita), então `overflow: hidden` recorta certo. */
+.frameContent {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border-radius: inherit;
+}
+
+/* Alguns painéis laterais (ex.: direita da tela de Música) são só um container
+   de cards: mesma animação e mesmo repouso 3D, sem vidro próprio. */
+.bare {
+  border: none;
+  background: none;
+  backdrop-filter: none;
+  box-shadow: none;
+}

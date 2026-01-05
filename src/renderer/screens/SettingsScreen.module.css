@@ -1,0 +1,602 @@
+/* Tela de Configurações — não existe no handoff. Construída com a mesma
+   gramática das outras: rótulos em DM Mono caixa alta, títulos em DM Sans 700
+   com tracking negativo, linhas com hover, cards em superfície interna. */
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: none;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.title {
+  font-size: 27px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.subtitle {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.divider {
+  height: 1px;
+  flex: none;
+  background: var(--divider);
+}
+
+/* ——— painel esquerdo: seções ——————————————————————————————————— */
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  /* A lista não cabe nos 650px do painel, e cada seção nova aumenta a
+     diferença: hoje são 14 seções, 584px de lista para 562px de folga (MEDIDO
+     em 06/09/2026, com Sistema e Sobre dentro e sem nenhum "em breve"). Item
+     de flex nasce com `min-height: auto` e NÃO encolhe, e o painel não recorta
+     — sem estas duas linhas a última seção era desenhada FORA do vidro, sobre
+     o papel de parede, nos três ambientes. `min-height: 0` libera o
+     encolhimento; a rolagem é o que sustenta a próxima seção que entrar. */
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  /* 8px e não 11px: com 11 a lista passava 58px do painel. */
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-row);
+  background: none;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.navItem:hover {
+  background: var(--hover-row);
+}
+
+.navItemActive {
+  background: var(--surface-inner-active-bg);
+  /* `border`, e não `border-color`: o token guarda o atalho inteiro
+     ("1px solid rgba(...)"), e `border-color: 1px solid …` é valor inválido —
+     o Chromium descarta a declaração sem erro nenhum, e o realce nunca
+     existiu. Mesma armadilha do fio do modal, que já custou meses. */
+  border: var(--surface-inner-active-border);
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* ——— painel central: as 13 variações ————————————————————————————— */
+
+/* O respiro do painel central mora aqui, e não no `padding` do painel: lá ele
+   somaria à altura declarada (content-box) e empurraria a base para baixo do
+   dock. */
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+  padding: 24px 24px 22px;
+  /* Seções longas (as 13 variações, a lista de janelas) precisam rolar; sem
+     isto o fim da seção é cortado pelo painel. */
+  overflow-y: auto;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  align-content: start;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: var(--surface-inner-border);
+  border-radius: var(--radius-row);
+  background: var(--surface-inner-bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    transform 0.18s var(--ease);
+}
+
+.option:hover {
+  background: var(--hover-row);
+  transform: translateY(-2px);
+}
+
+.option:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.optionActive {
+  background: var(--surface-inner-active-bg-strong);
+  border: var(--surface-inner-active-border);
+  font-weight: 500;
+}
+
+.index {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+  flex: none;
+}
+
+.optionActive .index {
+  color: var(--accent-violet);
+}
+
+/* Etiqueta "preset" na variação que o ambiente traz: mono, minúscula,
+   terciária, alinhada ANTES do ponto de ativo — os dois podem aparecer na
+   mesma linha quando o preset é o que está valendo, e `margin-left: auto` nos
+   dois empurraria um para cima do outro. */
+.presetTag {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--text-tertiary);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-left: auto;
+  flex: none;
+  background: var(--accent-violet);
+  box-shadow: 0 0 8px var(--accent-violet);
+}
+
+/* Depois do `.dot`, e não antes: seletor mais específico primeiro esconderia o
+   geral, e o Biome avisa. Com a etiqueta ao lado, o ponto perde o `auto` —
+   quem empurra a dupla para a direita é ela. */
+.presetTag + .dot {
+  margin-left: 0;
+}
+
+/* ——— painel direito: prévia ————————————————————————————————————— */
+
+.previewName {
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  text-wrap: pretty;
+}
+
+.previewHint {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border: var(--surface-inner-border);
+  border-radius: var(--radius-card);
+  background: var(--surface-inner-bg);
+}
+
+.metric {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.metricValue {
+  color: var(--text-primary);
+  font-size: 12px;
+}
+
+.replay {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 13px;
+  border: none;
+  border-radius: var(--radius-row);
+  background: var(--accent-violet);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.18s var(--ease);
+}
+
+.replay:hover {
+  transform: scale(1.03);
+}
+
+.replay:active {
+  transform: scale(0.97);
+}
+
+/* Ação secundária: mesma forma, sem o peso do violeta. */
+.secondary {
+  background: var(--surface-inner-active-bg);
+  border: var(--surface-inner-active-border);
+}
+
+/* Quando a prévia tem DOIS botões, quem desce para o rodapé é o grupo, não
+   cada um: `.replay` sozinho traz `margin-top: auto`, e com dois botões o auto
+   do primeiro abria um vão no meio do painel e outro entre eles. */
+.actions {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.actions .replay {
+  margin-top: 0;
+}
+
+/* Ação de dentro de um bloco — a que NÃO é a ação principal da tela.
+ *
+ * `.replay` nasceu como botão de rodapé do painel direito e traz
+ * `margin-top: auto`; usado no miolo ele se empurra para o fim do bloco e
+ * ganha o peso de ação principal (medido em Mídia: "Trocar lista" e "Remover"
+ * viravam dois blocos de largura total, com 18px de vão). Esta é a forma
+ * curta, para caber numa linha ao lado do que ela age. */
+.acao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  flex: none;
+  padding: 7px 11px;
+  border: var(--surface-inner-active-border);
+  border-radius: var(--radius-chip);
+  background: var(--surface-inner-active-bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.acao:hover {
+  background: var(--hover-row-strong);
+}
+
+.acao:disabled {
+  color: var(--text-tertiary);
+  cursor: default;
+}
+
+.secondary:disabled {
+  background: var(--surface-inner-bg);
+  border: var(--surface-inner-border);
+  color: var(--text-tertiary);
+  cursor: default;
+  transform: none;
+}
+
+/* ——— seções de Aparência ————————————————————————————————————————— */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  flex: none;
+}
+
+.sectionLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 16px;
+  border: var(--surface-inner-border);
+  border-radius: var(--radius-card);
+  background: var(--surface-inner-bg);
+}
+
+.note {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--text-tertiary);
+  text-wrap: pretty;
+}
+
+/* ——— escolha da cor do vidro ————————————————————————————————————— */
+
+.hexRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.swatch {
+  width: 26px;
+  height: 26px;
+  flex: none;
+  border-radius: var(--radius-chip);
+  border: var(--surface-inner-active-border);
+  background: var(--glass-tint);
+}
+
+.hexInput {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 12px;
+  border: var(--surface-inner-border);
+  border-radius: var(--radius-chip);
+  background: var(--surface-inner-bg);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  outline: none;
+}
+
+.hexInput:focus {
+  border: var(--surface-inner-active-border);
+  background: var(--surface-inner-active-bg);
+}
+
+/* Campo de texto de uma linha — usado pela chave do TMDB. */
+.campo {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--surface-action-border);
+  border-radius: var(--radius-row);
+  background: var(--surface-inner-bg);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  outline: none;
+}
+
+.campo::placeholder {
+  color: var(--text-tertiary);
+}
+
+.campo:focus {
+  border: var(--surface-inner-active-border);
+}
+
+/* ——— Lista com remover (os feeds de Notícias) ————————————————————
+ *
+ * Uma linha por item, na ordem do usuário, com o estado da última busca em
+ * letra miúda e o "x" no fim. Não é reordenável: a ordem é a de inserção.
+ */
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.linha {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px 9px 12px;
+  border: var(--surface-inner-border);
+  border-radius: var(--radius-row);
+  background: var(--surface-inner-bg);
+}
+
+.linhaTexto {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.linhaTitulo {
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.linhaDetalhe {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.linhaRemover {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex: none;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-chip);
+  background: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.linhaRemover:hover {
+  background: var(--hover-row-strong);
+  color: var(--text-primary);
+}
+
+/* ——— Escolha de personagem ————————————————————————————————
+ *
+ * Com a carinha de cada um: nome de arquivo não diz se aquilo é um mago, um
+ * clipe de papel ou um gênio.
+ */
+.personagens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.personagem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 84px;
+  padding: 10px 6px 8px;
+  border: 1px solid var(--surface-faint-border);
+  border-radius: var(--radius-card);
+  background: var(--surface-inner-bg);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.personagem:hover {
+  background: var(--surface-inner-bg-strong);
+  color: var(--text-primary);
+}
+
+.personagemOn {
+  border-color: var(--accent-green);
+  background: var(--surface-inner-active-bg);
+  color: var(--text-primary);
+}
+
+.personagemArte {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  /* Personagens de 1997: ampliar suavizando os deixaria borrados. */
+  image-rendering: pixelated;
+}
+
+.personagemNome {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* ——— Sistema: o que falta nesta máquina ————————————————————————
+ *
+ * A mesma lista que `npm run doctor` percorre, para quem não abre terminal.
+ * As linhas aqui QUEBRAM em vez de cortar com reticências como as outras: o
+ * que importa nelas é a frase do que se perde, e meia frase não ensina nada.
+ */
+
+.depLinha {
+  align-items: flex-start;
+}
+
+.depMarca {
+  flex: none;
+  width: 14px;
+  padding-top: 1px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-align: center;
+}
+
+/* Presente é sossego, e sossego não pede destaque — a cor vale para quem
+   procura o que falta. Vermelho só no essencial: faltar um opcional não é
+   erro nenhum, é uma leitura a menos, e pintar os dois igual ensinaria o
+   usuário a ignorar os dois. */
+.depOk {
+  color: var(--accent-green);
+}
+
+.depFalta {
+  color: var(--accent-amber);
+}
+
+.depFaltaGrave {
+  color: var(--accent-red);
+}
+
+.depTexto {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.depNome {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.depDetalhe {
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--text-tertiary);
+  text-wrap: pretty;
+}
+
+/* O comando é para ser copiado com o mouse — o app não instala nada, ele diz
+   o que rodar (CLAUDE.md § Janela e camada: nunca escrever fora do app). */
+.depComando {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-secondary);
+  user-select: text;
+  cursor: text;
+  overflow-wrap: anywhere;
+}

@@ -1,0 +1,547 @@
+import { CaretDown } from '@phosphor-icons/react/dist/icons/CaretDown'
+import { Check } from '@phosphor-icons/react/dist/icons/Check'
+import { GridFour } from '@phosphor-icons/react/dist/icons/GridFour'
+import { Info } from '@phosphor-icons/react/dist/icons/Info'
+import { Sparkle } from '@phosphor-icons/react/dist/icons/Sparkle'
+import { Warning } from '@phosphor-icons/react/dist/icons/Warning'
+import {
+  ENVIRONMENTS,
+  type Environment,
+  type EnvironmentId,
+  environmentLabel,
+} from '@shared/environments'
+import { type CSSProperties, useEffect, useState } from 'react'
+import { aplicarWallpaper } from '@/app/environment'
+import { repositories } from '@/data'
+import type { NewsFeedStatus, NewsItem } from '@/domain/types'
+import { useApps, useNotifications } from '@/hooks/useHome'
+import { useContainers, useHost } from '@/hooks/useLab'
+import { useNews } from '@/hooks/useNews'
+import { useProjects } from '@/hooks/useProjects'
+import { useHalo } from '@/store/useHalo'
+import { cx } from '@/ui/cx'
+import styles from './home.module.css'
+
+/**
+ * Dashboard central da Home.
+ *
+ * O que é real: a saudação (usuário e hora do sistema), o resumo (containers
+ * ativos e projetos com alterações), a gaveta de apps — que lista os
+ * aplicativos instalados de verdade, pelos arquivos `.desktop`, e os abre —
+ * e a coluna de leitura, que mostra as manchetes dos feeds RSS configurados.
+ *
+ * O que é do protótipo: as notificações. Não há fonte para elas nesta
+ * máquina — ver MOCKS.md.
+ */
+export function Dashboard() {
+  const drawer = useHalo((s) => s.drawer)
+  const toggleDrawer = useHalo((s) => s.toggleDrawer)
+  const { data: host } = useHost()
+  const { data: containers } = useContainers()
+  const { data: projects } = useProjects()
+  const { data: avisos } = useNotifications()
+  const setScreen = useHalo((s) => s.setScreen)
+  const setSettingsSection = useHalo((s) => s.setSettingsSection)
+  const abrirIlha = () => {
+    setSettingsSection('island')
+    setScreen('settings')
+  }
+
+  const running = (containers ?? []).filter((c) => c.state === 'running').length
+  const dirty = (projects ?? []).filter((p) => p.dirtyFiles > 0).length
+
+  return (
+    <>
+      <div className={styles.head}>
+        <div>
+          <div className={styles.greeting}>
+            {greeting()}, {host ? userName(host.hostname) : 'você'}
+          </div>
+          <div className={styles.summary}>
+            {running} {running === 1 ? 'container ativo' : 'containers ativos'} ·{' '}
+            {dirty === 0 ? 'nenhum projeto' : dirty === 1 ? '1 projeto' : `${dirty} projetos`} com
+            alterações
+          </div>
+        </div>
+        <div className={styles.spacer} />
+        <button type="button" className={styles.appsButton} onClick={toggleDrawer}>
+          <GridFour size={16} weight="fill" />
+          Apps
+          <CaretDown size={13} />
+        </button>
+      </div>
+
+      {drawer && <AppsDrawer />}
+
+      <span className={styles.label}>CONTINUAR</span>
+      <div className={styles.continueRow}>
+        {(projects ?? []).slice(0, 3).map((project) => (
+          <button
+            type="button"
+            key={project.path}
+            className={styles.continueCard}
+            // `projeto` é o que este cartão é; um tema que queira marcá-lo
+            // (o City Pop põe uma fita de listras no canto) lê daqui.
+            data-halo-cartao="mini projeto"
+            // Era um `<button>` sem `onClick`: tinha `cursor: pointer`, tinha
+            // hover, e não fazia nada. A tela do Claude é onde projeto vira
+            // ação — é a única coisa que um cartão de "Continuar" pode
+            // razoavelmente abrir, e a escolha do projeto acontece lá dentro.
+            onClick={() => setScreen('claude')}
+            title={`${project.name}: abrir na tela do Claude`}
+          >
+            <div className={styles.continueHead}>
+              <Sparkle size={15} weight="fill" color="var(--accent-gold)" />
+              <span className={styles.continueTitle}>{project.name}</span>
+            </div>
+            <div className={styles.continueBody}>{project.lastCommit || 'sem commits ainda'}</div>
+            <div className={styles.continueMeta}>
+              <span className={styles.added}>+{project.insertions}</span>
+              <span className={styles.removed}>−{project.deletions}</span>
+            </div>
+          </button>
+        ))}
+        {(projects ?? []).length === 0 && (
+          <span className={styles.continueBody}>Nenhum projeto git por aqui.</span>
+        )}
+      </div>
+
+      <div className={styles.bottom}>
+        <NewsColumn />
+
+        <div className={styles.column}>
+          {/* Sem "· EXEMPLO": dentro do app estas são as notificações do
+              SISTEMA, pelo vigia do D-Bus da ilha. Fora dele (o navegador dos
+              guarda-fidelidade) o mock avisa por outro caminho. */}
+          <span className={styles.label}>NOTIFICAÇÕES</span>
+
+          {/* Coluna vazia tem DUAS causas, e mostrá-las iguais seria mentir.
+              Sem vigia, a tela diz onde ligar — que é a regra do projeto para
+              integração que falta configurar. */}
+          {avisos && !avisos.listening ? (
+            <span className={styles.feedEmpty}>
+              As notificações do sistema chegam pela ilha dinâmica. Ligue-a em{' '}
+              <button type="button" onClick={abrirIlha}>
+                Configurações → Ilha
+              </button>
+              .
+            </span>
+          ) : null}
+
+          {avisos?.listening && avisos.items.length === 0 ? (
+            <span className={styles.feedEmpty}>Nada por aqui ainda.</span>
+          ) : null}
+
+          {(avisos?.items ?? []).map((item, i) => (
+            <div
+              key={item.title}
+              className={styles.notification}
+              // Dois sinais neutros, que a Floresta não lê. O Cyberpunk usa o
+              // primeiro para montar a linha em varredura (como o popup de
+              // notificação da referência) e o segundo para dar cor de
+              // urgência à barra de acento — ver `styles/animations.css` e
+              // `styles/env-cyberpunk.css`.
+              data-halo-in="notificacao"
+              data-urgencia={item.kind}
+              // A pilha não entra de uma vez: cada linha atrasa 90ms sobre a
+              // anterior. A propriedade é lida também pelos pseudo-elementos
+              // da linha (a aresta da varredura), que não herdariam um
+              // `animation-delay`.
+              style={{ '--cp-atraso': `${i * 90}ms` } as CSSProperties}
+            >
+              <NotificationIcon kind={item.kind} />
+              <span>
+                <span className={styles.notificationTitle}>{item.title}</span>
+                <span className={styles.notificationBody}>{item.body}</span>
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  )
+}
+
+/** Quantas manchetes cabem na coluna de uma vez. Medido na tela: cabem 5. */
+const VISIVEIS = 5
+/** Entre quantas das mais novas a coluna alterna. */
+const RODIZIO = 12
+const ROTACAO_MS = 8000
+
+/**
+ * A coluna de leitura: manchetes reais dos feeds RSS configurados.
+ *
+ * Mostra três por vez e, a cada oito segundos, avança uma — as três de baixo
+ * do rodízio entram com a animação de sempre. A busca é do hook (a cada 15
+ * minutos); aqui só se escolhe quais mostrar. Sem feed, ou sem resposta, a
+ * coluna diz isso e aponta para Configurações → Notícias — nunca inventa.
+ *
+ * Cada manchete é um `<a target="_blank">`: o main intercepta a abertura de
+ * janela e manda para o navegador do sistema (ver `window.ts`).
+ */
+function NewsColumn() {
+  const feeds = useHalo((s) => s.newsFeeds)
+  const setScreen = useHalo((s) => s.setScreen)
+  const setSettingsSection = useHalo((s) => s.setSettingsSection)
+  const { data, loading, error } = useNews()
+  const [passo, setPasso] = useState(0)
+  // O rodízio some com a manchete que a pessoa está lendo, a cada 8s, e não
+  // havia como segurá-lo. Parar sob o ponteiro é o gesto que toda lista que
+  // gira sozinha tem; `onFocus`/`onBlur` fazem o mesmo para quem chega pelo
+  // teclado, que é quem mais precisa de tempo.
+  const [pausado, setPausado] = useState(false)
+
+  const pool = (data?.items ?? []).slice(0, RODIZIO)
+  const gira = pool.length > VISIVEIS
+
+  useEffect(() => {
+    if (!gira || pausado) return
+    const id = setInterval(() => setPasso((p) => p + 1), ROTACAO_MS)
+    return () => clearInterval(id)
+  }, [gira, pausado])
+
+  // O módulo mantém o passo válido mesmo quando a lista muda de tamanho: não
+  // precisa zerar nada quando os feeds voltam com outra quantidade.
+  const inicio = pool.length ? passo % pool.length : 0
+  const visiveis = gira
+    ? Array.from({ length: VISIVEIS }, (_, i) => pool[(inicio + i) % pool.length])
+    : pool
+  const falhas = (data?.feeds ?? []).filter((f) => f.error)
+
+  const abrirConfiguracoes = () => {
+    setSettingsSection('news')
+    setScreen('settings')
+  }
+
+  return (
+    // `<section>` com nome, e não um `<div>`: a coluna passou a reagir ao
+    // ponteiro e ao foco (para segurar o rodízio), e um `<div>` com esses
+    // ouvintes é, para o linter e para o leitor de tela, um elemento que
+    // promete interação sem dizer qual. Ela É uma região da página — a de
+    // leitura —, e o elemento certo para isso já existe no HTML.
+    <section
+      className={styles.column}
+      aria-label="Leitura"
+      onMouseEnter={() => setPausado(true)}
+      onMouseLeave={() => setPausado(false)}
+      onFocus={() => setPausado(true)}
+      onBlur={() => setPausado(false)}
+    >
+      <span className={styles.label}>LEITURA · RSS{data?.demo ? ' · EXEMPLO' : ''}</span>
+
+      {feeds.length === 0 ? (
+        <span className={styles.feedEmpty}>
+          Nenhum feed configurado. Adicione um em{' '}
+          <button type="button" onClick={abrirConfiguracoes}>
+            Configurações → Notícias
+          </button>
+          .
+        </span>
+      ) : error ? (
+        <span className={styles.feedEmpty}>Não consegui buscar as manchetes: {error.message}</span>
+      ) : !data && loading ? (
+        <span className={styles.feedEmpty}>Buscando manchetes…</span>
+      ) : pool.length === 0 ? (
+        <span className={styles.feedEmpty}>
+          {falhas.length > 0
+            ? `${nomeDoFeed(falhas[0])} não respondeu: ${falhas[0]?.error}. `
+            : 'Os feeds não trouxeram nenhuma manchete. '}
+          Confira em{' '}
+          <button type="button" onClick={abrirConfiguracoes}>
+            Configurações → Notícias
+          </button>
+          .
+        </span>
+      ) : (
+        visiveis.map((item, i) =>
+          item ? (
+            <Manchete
+              // O passo entra na chave de propósito: a cada avanço as três
+              // remontam e entram juntas, escalonadas — é uma virada de
+              // página, não três coisas pulando de lugar.
+              key={`${inicio}:${item.id}`}
+              item={item}
+              delayMs={i * 60}
+            />
+          ) : null,
+        )
+      )}
+
+      {pool.length > 0 && falhas.length > 0 ? (
+        <span className={styles.feedWarn}>
+          {nomeDoFeed(falhas[0]).toUpperCase()} NÃO RESPONDEU: {falhas[0]?.error}
+        </span>
+      ) : null}
+    </section>
+  )
+}
+
+function Manchete({ item, delayMs }: { item: NewsItem; delayMs: number }) {
+  const quando = idade(item.publishedAt)
+  return (
+    <a
+      className={styles.feedItem}
+      href={item.link}
+      target="_blank"
+      rel="noreferrer"
+      title={item.summary || item.title}
+      data-halo-in="feed"
+      style={{ animationDelay: `${delayMs}ms` }}
+    >
+      {/* A miniatura chega como `data:` do main — a CSP do renderer não abre
+          host nenhum, e um feed traz imagem de onde quiser. Sem imagem, o
+          quadro listrado do handoff continua no lugar: ele é o vazio
+          desenhado, não uma imagem que falhou. */}
+      {item.image ? (
+        <img className={styles.thumb} src={item.image} alt="" />
+      ) : (
+        <span className={styles.thumb} />
+      )}
+      <span className={styles.feedText}>
+        <span className={styles.feedSource}>
+          {item.source.toUpperCase()}
+          {quando ? ` · ${quando}` : ''}
+        </span>
+        <span className={styles.feedTitle}>{item.title}</span>
+      </span>
+    </a>
+  )
+}
+
+/** O nome que o feed deu de si, ou o host — o que der para reconhecer. */
+function nomeDoFeed(status: NewsFeedStatus | undefined): string {
+  if (!status) return 'o feed'
+  if (status.name) return status.name
+  try {
+    return new URL(status.url).hostname.replace(/^www\./, '')
+  } catch {
+    return status.url
+  }
+}
+
+/** "2 H", "ONTEM", "3 D": o vocabulário do handoff para a idade da manchete. */
+function idade(iso: string | null): string {
+  if (!iso) return ''
+  const min = Math.round((Date.now() - Date.parse(iso)) / 60_000)
+  if (!Number.isFinite(min) || min < 1) return 'AGORA'
+  if (min < 60) return `${min} MIN`
+  const horas = Math.round(min / 60)
+  if (horas < 24) return `${horas} H`
+  const dias = Math.round(horas / 24)
+  if (dias === 1) return 'ONTEM'
+  if (dias < 7) return `${dias} D`
+  return new Date(iso)
+    .toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })
+    .replace('.', '')
+    .toUpperCase()
+}
+
+function NotificationIcon({ kind }: { kind: 'ok' | 'info' | 'error' }) {
+  if (kind === 'error') return <Warning size={15} weight="fill" color="var(--accent-red)" />
+  if (kind === 'ok') return <Check size={15} weight="bold" color="var(--accent-green)" />
+  return <Info size={15} weight="fill" color="var(--accent-violet)" />
+}
+
+/** Gaveta de apps: os aplicativos instalados de verdade. */
+function AppsDrawer() {
+  const { data: apps } = useApps()
+
+  return (
+    <div className={styles.drawer}>
+      <span className={styles.label}>
+        APLICATIVOS · {(apps ?? []).length} {(apps ?? []).length === 1 ? 'INSTALADO' : 'INSTALADOS'}
+      </span>
+      <div className={styles.drawerGrid} style={{ marginTop: 12 }}>
+        {/* Sem corte: o rótulo acima anuncia o total real (passa de cem numa máquina comum) e a
+            grade mostrava 30, sem dizer e sem caminho para os outros. A grade
+            já rola (`max-height: 300px; overflow-y: auto` em home.module.css),
+            então o corte não era para caber. */}
+        {(apps ?? []).map((app) => (
+          <button
+            type="button"
+            key={app.id}
+            className={styles.app}
+            title={app.comment ?? app.name}
+            onClick={() => void repositories.apps.launch(app.id)}
+          >
+            <GridFour size={20} color="var(--text-secondary)" />
+            <span className={styles.appName}>{app.name}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function greeting(): string {
+  const hour = new Date().getHours()
+  if (hour < 12) return 'Bom dia'
+  return hour < 19 ? 'Boa tarde' : 'Boa noite'
+}
+
+/** O hostname costuma trazer o nome de quem usa a máquina. */
+function userName(hostname: string): string {
+  const first = hostname.split('-')[0] ?? hostname
+  return first.charAt(0).toUpperCase() + first.slice(1)
+}
+
+/**
+ * A amostra da paleta de cada tema, por token.
+ *
+ * Nomes de token, e não cores: as cores moram em `styles/tokens.css` (Floresta)
+ * e no arquivo de cada tema (`styles/env-cyberpunk.css`,
+ * `styles/env-bioshock.css`). Ambiente sem tema não tem amostra — ele mostra
+ * "EM BREVE" no lugar.
+ */
+const AMOSTRAS: Record<EnvironmentId, readonly string[]> = {
+  floresta: ['--env-floresta-1', '--env-floresta-2', '--env-floresta-3'],
+  citypop: ['--env-citypop-1', '--env-citypop-2', '--env-citypop-3'],
+  cyberpunk: ['--env-cyberpunk-1', '--env-cyberpunk-2', '--env-cyberpunk-3'],
+  bioshock: ['--env-bioshock-1', '--env-bioshock-2', '--env-bioshock-3'],
+  estudio: [],
+  espaco: [],
+  costa: [],
+}
+
+/**
+ * Ambientes: o tema do app e o papel de parede da máquina, juntos.
+ *
+ * Escolher um ambiente troca os tokens de cor da interface (ver
+ * `app/environment.ts`) e manda o main aplicar o papel de parede daquele
+ * ambiente — a única coisa que ele muda fora do app, e só se o interruptor de
+ * Configurações → Ambiente estiver ligado.
+ *
+ * Os três sem tema continuam listados, inertes: eles existem no handoff, e
+ * sumir com eles seria perder algo que já estava aqui.
+ */
+export function Environments() {
+  const atual = useHalo((s) => s.environment.id)
+  const trocarPapel = useHalo((s) => s.environment.wallpaper)
+  const imagens = useHalo((s) => s.environment.wallpapers)
+  const setEnvironment = useHalo((s) => s.setEnvironment)
+  const [erro, setErro] = useState('')
+  const previas = useWallpaperPreviews(imagens)
+
+  const escolher = (ambiente: Environment) => {
+    if (!ambiente.ready || ambiente.id === atual) return
+    setErro('')
+    setEnvironment(ambiente.id)
+    // Fora do Electron não há área de trabalho para mexer: o tema muda e o
+    // papel de parede é ignorado, sem erro na tela.
+    if (trocarPapel) void aplicarWallpaper(ambiente.id).then(setErro)
+  }
+
+  return (
+    <>
+      <span className={styles.label}>AMBIENTES</span>
+      {/* `fieldset` traria moldura e margens próprias, e esta é uma coluna com
+          medidas do handoff. O papel e o rótulo estão declarados, e cada
+          ambiente informa `aria-pressed`. */}
+      {/* biome-ignore lint/a11y/useSemanticElements: ver acima */}
+      <div className={styles.envGrid} role="group" aria-label="Ambientes">
+        {ENVIRONMENTS.map((ambiente) => {
+          const ativo = ambiente.id === atual
+          return (
+            <button
+              type="button"
+              key={ambiente.id}
+              className={cx(
+                styles.env,
+                ativo && styles.envActive,
+                !ambiente.ready && styles.envSoon,
+              )}
+              // `aria-pressed` diz qual tema está posto; `aria-disabled` (e não
+              // `disabled`) mantém os "em breve" alcançáveis pelo teclado, para
+              // quem navega assim saber que eles existem.
+              aria-pressed={ambiente.ready ? ativo : undefined}
+              aria-disabled={ambiente.ready ? undefined : true}
+              // O nome inteiro nem sempre cabe no cartão (246px, uma linha):
+              // quando o ambiente traz uma segunda linha, ela vem no tooltip,
+              // junto com a imagem — é a única largura que há aqui.
+              title={
+                ambiente.ready
+                  ? `${environmentLabel(ambiente)}\nPapel de parede: ${nomeDaImagem(
+                      imagens[ambiente.id] || ambiente.wallpaper,
+                    )}`
+                  : `${environmentLabel(ambiente)}: tema em breve`
+              }
+              onClick={() => escolher(ambiente)}
+            >
+              {previas[ambiente.id] && (
+                <span
+                  className={styles.envFoto}
+                  aria-hidden="true"
+                  style={{ backgroundImage: `url(${previas[ambiente.id]})` }}
+                />
+              )}
+              <span className={styles.envName}>{ambiente.name}</span>
+              {ambiente.ready ? (
+                <span className={styles.envSwatches} aria-hidden="true">
+                  {AMOSTRAS[ambiente.id].map((token) => (
+                    <span
+                      key={token}
+                      className={styles.envSwatch}
+                      style={{ background: `var(${token})` }}
+                    />
+                  ))}
+                </span>
+              ) : (
+                <span className={styles.envSoonTag}>EM BREVE</span>
+              )}
+              {ativo && (
+                <Check
+                  size={14}
+                  weight="bold"
+                  className={styles.envCheck}
+                  color="var(--accent-mint-strong)"
+                />
+              )}
+            </button>
+          )
+        })}
+      </div>
+      {erro && <span className={styles.envErro}>Não troquei o papel de parede: {erro}</span>}
+    </>
+  )
+}
+
+/**
+ * As miniaturas dos papéis de parede, uma por ambiente.
+ *
+ * Quem lê o disco e encolhe a imagem é o main (ver
+ * `src/main/services/wallpaper.ts`): o renderer não alcança arquivo, e a CSP
+ * dele só abre `data:`. Fora do Electron — o navegador dos testes de tela —
+ * não há `window.halo`, e o quadrado fica com as listras de sempre.
+ *
+ * Refaz a busca quando o usuário troca a imagem de um ambiente nas
+ * configurações; o main guarda cada miniatura pela data do arquivo, então
+ * pedir de novo é barato.
+ */
+function useWallpaperPreviews(
+  imagens: Record<string, string>,
+): Partial<Record<EnvironmentId, string>> {
+  const [previas, setPrevias] = useState<Partial<Record<EnvironmentId, string>>>({})
+  // `imagens` não é lido aqui dentro de propósito: quem sabe o caminho de cada
+  // ambiente é o main. Ele está na lista para a busca refazer quando o usuário
+  // troca a imagem nas configurações — sem isso o quadrado ficaria com a
+  // miniatura antiga até o app reabrir.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: ver acima
+  useEffect(() => {
+    let vivo = true
+    void window.halo?.wallpaper
+      .previews()
+      .then((lista) => vivo && setPrevias(lista))
+      .catch(() => {
+        // Sem prévia o painel continua inteiro: é enfeite, não conteúdo.
+      })
+    return () => {
+      vivo = false
+    }
+  }, [imagens])
+  return previas
+}
+
+/** O nome do arquivo, que é o que cabe no tooltip. */
+function nomeDaImagem(caminho: string): string {
+  return caminho.split('/').filter(Boolean).pop() ?? caminho
+}

@@ -1,0 +1,68 @@
+/* Slider — valores do protótipo (trilho 5px, botão 13px). */
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.value {
+  color: var(--text-primary);
+  font-size: 11px;
+}
+
+.track {
+  position: relative;
+  touch-action: none;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--slider-track);
+  cursor: pointer;
+}
+
+/* O trilho tem 5px de altura: sem isto o foco do teclado não aparece em lugar
+   nenhum, e o controle passou a ser operável por teclado. `outline`, e não
+   `animation` — não esbarra na regra de CSS Modules do CLAUDE.md. */
+.track:focus-visible {
+  outline: 2px solid var(--accent-mint-strong);
+  outline-offset: 3px;
+}
+
+.fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--text-primary);
+  transition: width 0.14s ease;
+}
+
+.knob {
+  position: absolute;
+  top: -4px;
+  width: 13px;
+  height: 13px;
+  margin-left: -6px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  transition: left 0.14s ease;
+}
+
+/* Barra de matiz: o trilho é o próprio espectro, e o preenchimento some. */
+.hue {
+  background: var(--hue-track);
+}
+
+.hue .fill {
+  background: none;
+}

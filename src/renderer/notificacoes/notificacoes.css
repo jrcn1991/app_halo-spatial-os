@@ -1,0 +1,282 @@
+/*
+ * A janela dos avisos — o balão da Floresta, e a base que os outros temas
+ * redesenham.
+ *
+ * Só tokens, como o lançador: é isso que faz o balão vestir o tema. O vidro é
+ * o do painel central, com o MESMO piso quase sólido do lançador — o balão
+ * aparece por cima de qualquer janela, texto sobre texto, e o vidro aberto de
+ * um widget de área de trabalho ali seria ilegível. O movimento (entrada,
+ * saída, a barra do tempo) mora em `styles/animations.css`. Nenhuma cor
+ * literal aqui — `lint:style` cobra.
+ */
+
+html,
+body,
+#avisos {
+  height: 100%;
+}
+
+/* O piso do balão: quase sólido sem desfoque atrás, nenhum com ele — a
+   página marca `data-desfoque` com o que o main perguntou ao KWin. */
+:root {
+  --aviso-piso: 97%;
+}
+
+:root[data-desfoque="sim"] {
+  --aviso-piso: 0%;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  background: transparent;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* A coluna. A janela tem a altura da área útil; a pilha nasce na borda do
+   canto escolhido e cresce para dentro da tela. A folga (22px dos lados, 14px
+   na borda) é onde sombra e ornamento do tema cabem sem serem cortados pela
+   janela. */
+.pilha {
+  box-sizing: border-box;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 22px 22px;
+}
+
+.pilha[data-canto^="base"] {
+  flex-direction: column-reverse;
+  padding: 22px 22px 14px;
+}
+
+/* ——— O balão ————————————————————————————————————————————————— */
+
+.aviso {
+  position: relative;
+  isolation: isolate;
+  box-sizing: border-box;
+  flex: none;
+  width: 380px;
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 13px 16px 16px;
+  border-radius: var(--radius-card);
+  border: var(--glass-center-border);
+  /* Duas propriedades, e não um `background` só: num shorthand de várias
+     camadas a cor só vale na última (o lançador perdeu o fundo inteiro assim,
+     medido em 05/09/2026). A cor é o piso; a imagem é o vidro do tema. */
+  /* 97%, e não os 94% do lançador: MEDIDO na tela real (12/09/2026), a 94% o
+     texto da janela de trás ("Comment", "Share" de uma aba do navegador)
+     aparecia por baixo do botão "Entendi" — o balão é menor que o lançador, e
+     o que atravessa fica colado no texto dele.
+     Isso vale SEM desfoque atrás. Com o efeito de desfoque do KWin (a janela
+     o pede por `_KDE_NET_WM_BLUR_BEHIND_REGION`), o piso some e sobra só o
+     vidro do handoff, a 62%, sobre o papel de parede desfocado — o material
+     do painel do Plasma, pedido do usuário para a Floresta (12/09/2026). Os
+     outros temas trazem o próprio fundo sólido e não mudam. */
+  background-color: color-mix(in srgb, var(--glass-center-base) var(--aviso-piso), transparent);
+  background-image: linear-gradient(var(--glass-center-bg), var(--glass-center-bg));
+  box-shadow: var(--launcher-shadow);
+  overflow: hidden;
+}
+
+.pilha[data-canto$="esquerda"] .aviso {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+/* A urgência na Floresta é discreta: a crítica ganha um fio de acento na
+   borda esquerda; a baixa apaga um pouco o título (lá embaixo, depois da
+   regra do título, para a mais específica vir por último). */
+.aviso[data-urgencia="critica"] {
+  box-shadow:
+    var(--launcher-shadow),
+    inset 3px 0 0 var(--accent-red);
+}
+
+/* ——— O cabeçalho: ícone, aplicativo, hora, dispensar —————————————— */
+
+.avisoTopo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.avisoIcone {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  color: var(--text-secondary);
+}
+
+.avisoIcone img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.avisoApp {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--text-mono-label);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.avisoHora {
+  flex: none;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+}
+
+/* O X só aparece com o ponteiro no balão: parado, ele competiria com a hora. */
+.avisoFechar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin: -4px -6px -4px 0;
+  padding: 0;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity 0.15s ease,
+    background 0.15s ease;
+}
+
+.aviso:hover .avisoFechar {
+  opacity: 1;
+}
+
+.avisoFechar:hover {
+  background: var(--hover-row);
+  color: var(--text-primary);
+}
+
+/* ——— O miolo: imagem, título, texto ———————————————————————————— */
+
+.avisoMiolo {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: default;
+}
+
+.avisoMiolo[data-padrao="sim"] {
+  cursor: pointer;
+}
+
+.avisoImagem {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.avisoTexto {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.avisoTitulo {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.avisoCorpo {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  overflow: hidden;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.aviso[data-urgencia="baixa"] .avisoTitulo {
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* ——— As ações que o aplicativo pediu —————————————————————————— */
+
+.avisoAcoes {
+  display: flex;
+  gap: 8px;
+}
+
+.avisoAcao {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 7px 10px;
+  border: var(--surface-inner-border);
+  border-radius: var(--radius-row);
+  background: var(--surface-inner-bg);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.avisoAcao:hover {
+  background: var(--surface-inner-active-bg);
+}
+
+/* ——— O tempo: a barra que encolhe até o balão sair ———————————————— */
+
+.avisoTempo {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--accent-mint);
+  opacity: 0.7;
+  transform-origin: 0 50%;
+  pointer-events: none;
+}

@@ -1,0 +1,44 @@
+/* Abas / segmentado — valores do helper `tab()` do protótipo. */
+
+.tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.tab {
+  flex: 1;
+  padding: 9px 0;
+  border: none;
+  border-radius: 12px;
+  background: var(--surface-inner-bg);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.tabActive {
+  background: var(--tab-active-bg);
+  color: var(--text-primary);
+}
+
+.tab:disabled {
+  color: var(--text-tertiary);
+  cursor: default;
+  background: none;
+}
+
+/* Segmentado longo: linhas de quatro pílulas de largura igual (a base tira o
+   gap de 6px para as quatro caberem exatas). */
+.tabsWrap {
+  flex-wrap: wrap;
+}
+
+.tabsWrap .tab {
+  flex: 1 1 calc(25% - 6px);
+}

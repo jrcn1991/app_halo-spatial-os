@@ -1,0 +1,24 @@
+/* Sparkline do handoff: 12 barras, 18px de altura, 2px de gap, animadas em
+   `halo-graph` com atraso de 0.11s por índice. */
+
+.sparkline {
+  display: flex;
+  gap: 2px;
+  height: 18px;
+  align-items: flex-end;
+}
+
+.bar {
+  flex: 1;
+  border-radius: 1px;
+  background: var(--accent-green-bar);
+  transform-origin: bottom;
+}
+
+.warn {
+  background: var(--accent-amber);
+}
+
+.down {
+  background: var(--accent-red);
+}

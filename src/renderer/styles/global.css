@@ -1,0 +1,88 @@
+/* Reset mínimo + base do app. O protótipo assume `body { margin: 0 }`.
+ *
+ * ATENÇÃO — NÃO adicionar `box-sizing: border-box` global aqui.
+ *
+ * O protótipo do handoff roda no box model padrão (content-box): quando ele diz
+ * "painel 270x600, padding 18px 16px", o painel renderiza 270+32+2 = 304px de
+ * largura, e a linha flex ainda encolhe os três painéis porque a soma passa do
+ * espaço disponível. Medido: 297 / 733 / 278 px reais na home.
+ *
+ * Com `border-box` os mesmos números do handoff produzem painéis menores e
+ * desalinhados (medido: 267 / 700 / 248). Mantendo content-box, todo valor do
+ * handoff pode ser transcrito literalmente — que é a regra do projeto.
+ */
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  background: transparent;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  cursor: default;
+}
+
+img {
+  -webkit-user-drag: none;
+}
+
+a {
+  color: var(--link);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--link-hover);
+}
+
+/* ——— Troca de ambiente ———————————————————————————————————————————
+ *
+ * Trocar de tema troca os VALORES de dezenas de tokens de uma vez. Sem nada,
+ * o app pisca de uma paleta para outra num quadro só.
+ *
+ * A transição vale só durante a troca (`data-env-trocando`, posto por ~600 ms
+ * em `app/environment.ts`) e só para o que é cor: nada de layout, nada de
+ * `transform` — animar geometria aqui custaria caro e mexeria com as entradas.
+ *
+ * `!important` é deliberado: esta seleção empata em especificidade com um
+ * `.alguma:hover` do componente, e quem desempata é a ordem no bundle — onde os
+ * `.module.css` vêm DEPOIS deste arquivo. Sem ele, o pedaço da tela que tem
+ * transição própria viraria de cor num salto enquanto o resto atravessa.
+ *
+ * Custom properties não são interpoláveis sem `@property`; quem transiciona são
+ * as propriedades finais, que é onde o olho vê a mudança de qualquer forma. */
+:root[data-env-trocando="sim"] * {
+  transition:
+    background-color var(--dur-env) var(--ease),
+    border-color var(--dur-env) var(--ease),
+    color var(--dur-env) var(--ease),
+    fill var(--dur-env) var(--ease),
+    /* biome-ignore lint/complexity/noImportantStyles: ver o parágrafo acima */ box-shadow
+    var(--dur-env) var(--ease) !important;
+}
+
+/* Scrollbars: o protótipo não desenha nenhuma. */
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* ——— Foco de teclado em campo de texto ————————————————————————
+   Quatro campos (o hex da cor, a busca de mídia, o de conversa do Claude, o de
+   feed de notícias) apagavam o `outline` do navegador e não repunham nada:
+   quem navega por teclado não sabia onde estava. A regra é ESCOPADA a campo de
+   texto de propósito — uma `:focus-visible` universal somaria um segundo anel
+   por cima dos controles que já resolvem o foco à sua maneira (a estrela de
+   favorito, o cartão de ambiente, o botão de remover projeto). */
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--accent-mint-strong);
+  outline-offset: 2px;
+}

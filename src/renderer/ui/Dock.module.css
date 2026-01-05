@@ -1,0 +1,261 @@
+.dock {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 13px 20px;
+  border-radius: var(--radius-dock);
+  border: var(--glass-dock-border);
+  background-color: var(--glass-dock-bg);
+  /* O dock é vidro também: acompanha a cor escolhida, mais discreto. */
+  background-image: linear-gradient(
+    150deg,
+    color-mix(in srgb, transparent, var(--glass-tint) 22%),
+    transparent 72%
+  );
+  backdrop-filter: var(--glass-dock-filter);
+  box-shadow: var(--glass-dock-shadow);
+  pointer-events: auto;
+}
+
+/* As quatro posições. A de baixo é a do handoff; as outras mantêm a mesma
+   margem de 76px da borda e a mesma animação de entrada, girada. */
+.bottom {
+  left: 50%;
+  bottom: 76px;
+  transform: translateX(-50%);
+}
+
+.top {
+  left: 50%;
+  top: 76px;
+  transform: translateX(-50%);
+}
+
+.left {
+  left: 76px;
+  top: 50%;
+  flex-direction: column;
+  transform: translateY(-50%);
+}
+
+.right {
+  right: 76px;
+  top: 50%;
+  flex-direction: column;
+  transform: translateY(-50%);
+}
+
+.item {
+  width: 40px;
+  height: 40px;
+  border: none;
+  padding: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--text-dock-idle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    background 0.22s ease,
+    transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.item:hover {
+  background: var(--hover-dock-item);
+  transform: translateY(-3px) scale(1.06);
+}
+
+.item:active {
+  transform: translateY(0) scale(0.94);
+}
+
+.active {
+  background: var(--dock-item-active);
+  color: var(--text-primary);
+}
+
+.active:hover {
+  background: var(--dock-item-active-hover);
+}
+
+/* Traço de mover a janela: em pé, na altura dos ícones, depois da engrenagem.
+   Aqui é só o DESENHO. Quem arrasta de fato é a área invisível montada em
+   cima dele por `Stage` (ver `useWindowHandle`): dentro do palco o Chromium
+   não registra região de arraste — o palco tem `transform` e a raiz tem
+   máscara, e qualquer um dos dois basta para a janela travar. */
+.handle {
+  width: 3px;
+  height: 22px;
+  flex: none;
+  border-radius: 2px;
+  background: var(--home-indicator);
+  cursor: grab;
+  transition:
+    background 0.22s ease,
+    height 0.22s var(--ease);
+}
+
+.handle:hover {
+  background: var(--home-indicator-hover);
+  height: 26px;
+}
+
+.handle:active {
+  cursor: grabbing;
+}
+
+/* Dock em pé: o traço deita junto. */
+.left .handle,
+.right .handle {
+  width: 22px;
+  height: 3px;
+}
+
+.left .handle:hover,
+.right .handle:hover {
+  width: 26px;
+  height: 3px;
+}
+
+/* ——— Navegação embutida: a coluna dentro do painel central ——————————
+   Mesmo vidro do dock, um pouco mais escuro para se distinguir do painel que a
+   contém. Os cantos da esquerda herdam o raio do painel; os da direita são
+   retos, porque ali ela encosta no conteúdo. */
+.rail {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  /* Local e de propósito (a regra do projeto é contra o GLOBAL): a largura
+     declarada aqui é a mesma que `Panel` desconta do painel, com o fio da
+     borda já dentro dela. */
+  box-sizing: border-box;
+  width: 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 12px 16px;
+  border-right: var(--glass-rail-border);
+  border-radius: inherit;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  background: var(--glass-rail-bg);
+  overflow: hidden;
+  transition: width 0.28s var(--ease);
+  pointer-events: auto;
+}
+
+.railExpanded {
+  width: 188px;
+}
+
+/* O tile: quadrado arredondado, e não o círculo do dock flutuante — encostado
+   numa coluna reta, o círculo parecia solto. */
+.railItem {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border: none;
+  padding: 0;
+  border-radius: 12px;
+  background: none;
+  color: var(--text-dock-idle);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition:
+    background 0.22s ease,
+    color 0.22s ease,
+    width 0.28s var(--ease);
+}
+
+.railExpanded .railItem {
+  width: 164px;
+}
+
+.railGlyph {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.railLabel {
+  display: none;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.railExpanded .railLabel {
+  display: inline;
+}
+
+.railItem:hover {
+  background: var(--hover-dock-item);
+}
+
+.railActive {
+  background: var(--dock-item-active);
+  color: var(--text-primary);
+}
+
+.railActive:hover {
+  background: var(--dock-item-active-hover);
+}
+
+/* Traço de mover a janela, deitado, entre os itens e a seta. Só o desenho —
+   ver `.handle` acima. */
+.railHandle {
+  margin-top: auto;
+  align-self: center;
+  width: 22px;
+  height: 3px;
+  flex: none;
+  border-radius: 2px;
+  background: var(--home-indicator);
+  cursor: grab;
+  transition:
+    background 0.22s ease,
+    width 0.22s var(--ease);
+}
+
+.railHandle:hover {
+  background: var(--home-indicator-hover);
+  width: 26px;
+}
+
+.railHandle:active {
+  cursor: grabbing;
+}
+
+.railToggle {
+  width: 40px;
+  height: 34px;
+  flex: none;
+  border: none;
+  padding: 0;
+  border-radius: 12px;
+  background: none;
+  color: var(--text-dock-idle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    background 0.22s ease,
+    color 0.22s ease;
+}
+
+.railToggle:hover {
+  background: var(--hover-dock-item);
+  color: var(--text-primary);
+}

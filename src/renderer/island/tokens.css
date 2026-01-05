@@ -1,0 +1,202 @@
+/*
+ * Tokens da ilha dinâmica.
+ *
+ * Arquivo próprio, e não `styles/tokens.css`: a ilha é código isolado, e
+ * misturar as duas paletas faria uma mudança nela respingar nas sete telas.
+ * A regra do projeto continua valendo — nenhuma cor literal fora daqui — e o
+ * `style-lint` conhece este arquivo pelo mesmo motivo que conhece o outro.
+ *
+ * A gramática é a da Dynamic Island: uma placa PRETA E OPACA, sem borda e
+ * sem vidro — a ilha da Apple precisa sumir contra o recorte dos sensores, e
+ * sobre o painel do KDE o mesmo vale: quanto mais neutra, mais parece parte
+ * dele. Vidro (translúcido, saturado, borda de luz) é o material dos
+ * CONTROLES do Control Center, não da moldura. Revisão de 01/09/2026.
+ */
+:root {
+  --ilha-fundo: rgb(0 0 0);
+  --ilha-fundo-forte: rgb(0 0 0);
+  /* Separadores e trilhos, nunca a borda da placa. */
+  --ilha-borda: rgb(255 255 255 / 0.08);
+  --ilha-borda-forte: rgb(255 255 255 / 0.14);
+  /* Duas sombras: uma curta que assenta e uma longa que descola do painel. */
+  --ilha-sombra: 0 2px 8px rgb(0 0 0 / 0.45), 0 16px 40px rgb(0 0 0 / 0.55);
+  --ilha-sombra-capa: 0 4px 14px rgb(0 0 0 / 0.4);
+  --ilha-sombra-voo: 0 28px 60px rgb(0 0 0 / 0.55);
+
+  /* Texto em quatro pesos de branco: label, secondary, tertiary, quaternary. */
+  --ilha-texto: rgb(255 255 255);
+  --ilha-texto-2: rgb(255 255 255 / 0.62);
+  --ilha-texto-3: rgb(255 255 255 / 0.5);
+  --ilha-texto-4: rgb(255 255 255 / 0.36);
+
+  /* Semânticas saturadas: sobre preto puro, pastel vira cinza. */
+  --ilha-ok: rgb(48 209 88);
+  --ilha-alerta: rgb(255 159 10);
+  --ilha-erro: rgb(255 69 58);
+  --ilha-acao: rgb(10 132 255);
+  --ilha-acao-fraca: rgb(10 132 255 / 0.24);
+  /* Alternância de sistema ligada: tile branco com glifo preto (Control Center do macOS). */
+  --ilha-ligado: rgb(255 255 255);
+  --ilha-ligado-texto: rgb(0 0 0);
+  --ilha-trilha: rgb(255 255 255 / 0.14);
+
+  --ilha-hover: rgb(255 255 255 / 0.06);
+  --ilha-ativo: rgb(255 255 255 / 0.12);
+
+  /*
+   * A tinta: a cor média da capa que está tocando (o renderer a calcula e
+   * escreve `--ilha-tinta` na gota). Só tinge o que a Apple tinge — a onda e
+   * o fundo do player — e transita entre capas.
+   */
+  --ilha-tinta: rgb(120 226 176);
+  --ilha-tinta-fraca: color-mix(in srgb, var(--ilha-tinta) 22%, transparent);
+
+  /* Oito cores para "quem mandou" (avisos): a mesma cor para o mesmo app. */
+  --ilha-app-0: rgb(48 209 88);
+  --ilha-app-1: rgb(10 132 255);
+  --ilha-app-2: rgb(255 159 10);
+  --ilha-app-3: rgb(255 105 130);
+  --ilha-app-4: rgb(191 90 242);
+  --ilha-app-5: rgb(100 210 255);
+  --ilha-app-6: rgb(255 214 10);
+  --ilha-app-7: rgb(172 230 150);
+
+  /*
+   * A altura da pílula FECHADA. 36 é o número do handoff; o renderer reescreve
+   * esta variável no palco com o que o usuário escolheu em Configurações
+   * (`island.pillHeight`, 24–48). Fica aqui para a página valer sozinha — sem
+   * a consulta da URL, como no navegador durante o desenvolvimento.
+   */
+  --ilha-altura: 36px;
+
+  --ilha-fonte: "DM Sans", Helvetica, Arial, sans-serif;
+  /* Mono só onde é CONTEÚDO (uma URL ou trecho copiado), nunca interface. */
+  --ilha-mono: "DM Mono", ui-monospace, monospace;
+
+  /*
+   * As molas, em `linear()`: a forma é de uma mola física (massa 1),
+   * amostrada; a duração vem de `transition-duration`. Revisão de movimento
+   * de 01/09/2026 — ver DINAMICA.md.
+   *
+   * `assentar`  ζ = 1,00 — não passa do ponto. Fechar, saídas de geometria.
+   * `gota`      ζ = 0,74 — passa 2,9 %. Abrir, cápsula, cascata, dígitos.
+   * `viva`      ζ = 0,55 — passa 12,9 %. Anúncio, chegada, chip entrando.
+   * `gelatina`  ζ = 0,34 — passa 32 %. Só a reação ao engolir e a variação "elástico".
+   */
+  --ilha-assentar: linear(
+    0,
+    0.067 4.2%,
+    0.202 8.3%,
+    0.351 12.5%,
+    0.49 16.7%,
+    0.608 20.8%,
+    0.704 25%,
+    0.78 29.2%,
+    0.838 33.3%,
+    0.882 37.5%,
+    0.914 41.7%,
+    0.938 45.8%,
+    0.956 50%,
+    0.969 54.2%,
+    0.978 58.3%,
+    0.984 62.5%,
+    0.989 66.7%,
+    0.992 70.8%,
+    0.995 75%,
+    0.997 83.3%,
+    0.999 91.7%,
+    1
+  );
+  --ilha-gota: linear(
+    0,
+    0.061 4.2%,
+    0.194 8.3%,
+    0.355 12.5%,
+    0.515 16.7%,
+    0.658 20.8%,
+    0.776 25%,
+    0.869 29.2%,
+    0.935 33.3%,
+    0.979 37.5%,
+    1.007 41.7%,
+    1.022 45.8%,
+    1.029 50%,
+    1.029 52.7%,
+    1.027 58.3%,
+    1.022 62.5%,
+    1.017 66.7%,
+    1.013 70.8%,
+    1.009 75%,
+    1.006 79.2%,
+    1.003 83.3%,
+    1.001 87.5%,
+    1 91.7%,
+    1
+  );
+  --ilha-viva: linear(
+    0,
+    0.137 4.2%,
+    0.416 8.3%,
+    0.703 12.5%,
+    0.928 16.7%,
+    1.065 20.8%,
+    1.123 25%,
+    1.129 27.2%,
+    1.096 33.3%,
+    1.058 37.5%,
+    1.023 41.7%,
+    1 45.8%,
+    0.987 50%,
+    0.983 54.2%,
+    0.985 58.3%,
+    0.99 62.5%,
+    0.995 66.7%,
+    0.999 70.8%,
+    1.001 75%,
+    1.002 81.7%,
+    1.001 91.7%,
+    1
+  );
+  --ilha-gelatina: linear(
+    0,
+    0.276 4.2%,
+    0.78 8.3%,
+    1.178 12.5%,
+    1.318 16.7%,
+    1.243 20.8%,
+    1.084 25%,
+    0.951 29.2%,
+    0.899 33.3%,
+    0.919 37.5%,
+    0.969 41.7%,
+    1.013 45.8%,
+    1.032 50%,
+    1.027 54.2%,
+    1.011 58.3%,
+    0.997 62.5%,
+    0.99 66.7%,
+    0.991 70.8%,
+    0.996 75%,
+    1.001 79.2%,
+    1.003 85%,
+    1.001 91.7%,
+    1
+  );
+  /* Fades: entrada decelerada, saída acelerada. Nunca a "standard" numa saída. */
+  --ilha-entrar: cubic-bezier(0.2, 0, 0, 1);
+  --ilha-sair: cubic-bezier(0.4, 0, 1, 1);
+  /* A sucção do genie: acelera forte, freia na boca. */
+  --ilha-sugar: cubic-bezier(0.6, 0, 0.2, 1);
+
+  /* Nomes antigos, para o que ainda os cita. */
+  --ilha-mola: var(--ilha-gota);
+  --ilha-mola-viva: var(--ilha-viva);
+  --ilha-suave: var(--ilha-entrar);
+}
+
+/* A tinta transita entre capas em vez de saltar. */
+@property --ilha-tinta {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgb(120 226 176);
+}

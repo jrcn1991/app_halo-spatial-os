@@ -1,0 +1,45 @@
+node_modules/
+out/
+dist/
+.vite/
+*.log
+
+# Listas de mídia são do usuário e nunca entram no repositório: além do
+# catálogo em si, a URL de cada stream carrega as credenciais do provedor dele.
+# O app aponta para a lista onde ela já está (Configurações > Mídia) — não
+# copia, não versiona.
+filmes/
+*.m3u
+*.m3u8
+
+# Worktrees de agentes paralelos: são cópias de trabalho temporárias do
+# próprio repositório, não conteúdo dele.
+.claude/worktrees/
+__pycache__/
+
+# As imagens do bundle de handoff são material de referência de terceiro —
+# pôsteres de filme, capas e uma foto de proveniência desconhecida. Elas
+# continuam no disco de quem tem o bundle (o handoff segue servindo de
+# referência de design), mas não entram num repositório público sob GPL.
+# O app não depende de nenhuma delas: o único arquivo que ia junto no pacote
+# era `src/renderer/assets/images/wallpaper.jpg`, hoje gerado por
+# `tools/fundo-de-comparacao.mjs`.
+design_handoff_halo_spatial_os/assets/
+
+# Nada que seja do usuário entra aqui: configurações, chaves e segredos moram
+# em ~/.config/halo-spatial-os/, fora do repositório. As linhas abaixo são a
+# rede para um `git add -A` distraído.
+settings.json
+.env
+.env.*
+*.pem
+*.key
+.claude/
+
+# Cadernos internos de desenvolvimento: ficam na máquina de quem desenvolve e
+# não entram no repositório público. O que importa deles para quem lê o código
+# está em DOCUMENTATION.md / DOCUMENTACAO.md.
+CLAUDE.md
+docs/
+design_handoff_halo_spatial_os/
+src/renderer/assets/weather/CREDITOS.md

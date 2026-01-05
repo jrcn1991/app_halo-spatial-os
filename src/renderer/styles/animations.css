@@ -1,0 +1,1624 @@
+/* ==========================================================================
+   Halo — Keyframes
+   Copiadas VERBATIM de `Halo Spatial Social.dc.html` (§ <style> do protótipo).
+   Não editar valores sem atualizar o handoff: são a assinatura de movimento.
+   ========================================================================== */
+
+@keyframes halo-center {
+  from {
+    transform: translate(var(--c-x, 0px), var(--c-y, 230px))
+      scale(var(--c-s, 0.42), var(--c-sy, var(--c-s, 0.42))) rotateX(var(--c-rx, 0deg))
+      rotate(var(--c-rz, 0deg));
+    opacity: 0;
+    filter: blur(var(--c-blur, 0px));
+  }
+  to {
+    transform: none;
+    opacity: 1;
+    filter: blur(0px);
+  }
+}
+
+@keyframes halo-side {
+  from {
+    transform: translateX(calc(var(--from-x) * var(--s-dir, 1))) translateZ(var(--s-z, -340px))
+      translateY(var(--s-y, 0px)) rotateY(var(--s-ry, 0deg)) rotate(var(--s-rz, 0deg))
+      scale(var(--s-s, 0.5)) var(--rest);
+    opacity: 0;
+    filter: blur(var(--s-blur, 0px));
+  }
+  to {
+    transform: var(--rest);
+    opacity: 1;
+    filter: blur(0px);
+  }
+}
+
+@keyframes halo-dock {
+  from {
+    transform: translateX(-50%) translateY(70px) scale(0.86);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-50%);
+    opacity: 1;
+  }
+}
+
+/* Mesma entrada do dock, para quando ele está na vertical (esquerda/direita):
+   o repouso é translateY(-50%), então o deslocamento inicial vira horizontal. */
+@keyframes halo-dock-vertical {
+  from {
+    transform: translateY(-50%) translateX(-70px) scale(0.86);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(-50%);
+    opacity: 1;
+  }
+}
+
+@keyframes halo-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.42;
+  }
+}
+
+@keyframes halo-blink {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  50%,
+  95% {
+    opacity: 0;
+  }
+}
+
+@keyframes halo-eq {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes halo-graph {
+  0% {
+    transform: scaleY(0.55);
+  }
+  25% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.7);
+  }
+  75% {
+    transform: scaleY(0.95);
+  }
+  100% {
+    transform: scaleY(0.55);
+  }
+}
+
+@keyframes halo-flow {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(260%);
+  }
+}
+
+@keyframes halo-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes halo-breathe {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ==========================================================================
+   Aplicadores
+   ==========================================================================
+   ARMADILHA: o CSS Modules renomeia `animation-name` para o escopo do módulo.
+   Um `.painel { animation: halo-side ... }` dentro de um `.module.css` vira
+   `animation: _halo-side_ab12_1`, que não existe — e a animação simplesmente
+   não roda, sem erro nenhum. `:global(halo-side)` dentro do shorthand também
+   não resolve (testado: continua hasheado).
+
+   Por isso quem DECLARA as animações é este arquivo global, selecionado por
+   `data-halo-in`. Os módulos cuidam de aparência; o movimento mora aqui.
+   `npm run lint:style` falha se alguma animação referenciar keyframe que não
+   existe no bundle. */
+
+[data-halo-in="side"] {
+  animation: halo-side var(--dur-side, 0.66s) var(--ease, cubic-bezier(0.22, 1, 0.36, 1))
+    var(--s-delay, 0.16s) both;
+}
+
+[data-halo-in="center"] {
+  /* `var(--dur, var(--dur-center, …))`: `--dur-center` existia em tokens.css e
+     ninguém o lia — o centro lia `--dur`, e o token prometia um controle que
+     não havia. A variação escolhida em Configurações continua ganhando (é ela
+     quem define `--dur`); `--dur-center` passa a valer quando nenhuma está em
+     vigor, que é o papel que o nome dele promete. A lateral logo acima já lê
+     `--dur-side` desse jeito. */
+  animation: halo-center var(--dur, var(--dur-center, 0.58s))
+    var(--ease, cubic-bezier(0.22, 1, 0.36, 1)) var(--c-delay, 0s) both;
+}
+
+[data-halo-in="dock"] {
+  animation: halo-dock var(--dur-dock, 0.5s) var(--ease, cubic-bezier(0.22, 1, 0.36, 1))
+    var(--dock-delay, 0s) both;
+}
+
+/* Navegação embutida: a moldura do painel central fica parada e só o miolo
+   troca de tela, com um fade curto — nunca a entrada inteira do painel. */
+@keyframes halo-content {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* "Surgir": 0,5s e 24px — com 0,32s e 8px não se via (medido pelo usuário).
+   Sem quique: a diferença para o Elástico é justamente não passar do ponto. */
+[data-halo-in="content"] {
+  animation: halo-content 0.5s var(--ease, cubic-bezier(0.22, 1, 0.36, 1)) both;
+}
+
+/* As variações da transição do conteúdo (Configurações → Aparência), presas a
+   `data-content-entrance`. O vocabulário é o das entradas do handoff: o
+   Elástico usa a mesma mola da variação "Elástico" (`entrances.ts`), e o
+   Recarregar é o "Materializar" em miniatura — sai do desfoque, com um
+   clarão curto, como um refresh. "Surgir" é a base acima. */
+@keyframes halo-content-elastico {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+[data-halo-in="content"][data-content-entrance="elastico"] {
+  animation: halo-content-elastico 0.62s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes halo-content-recarregar {
+  0% {
+    opacity: 0;
+    transform: scale(0.98);
+    filter: blur(8px) brightness(1.35);
+  }
+  55% {
+    opacity: 1;
+    transform: none;
+    filter: blur(0px) brightness(1.18);
+  }
+  100% {
+    filter: blur(0px) brightness(1);
+  }
+}
+
+[data-halo-in="content"][data-content-entrance="recarregar"] {
+  animation: halo-content-recarregar 0.46s ease-out both;
+}
+
+/* "Materializar": a entrada de mesmo nome em miniatura — aparece no lugar,
+   saindo do desfoque forte, com a escala e o tempo dela (0,7s, ease-out).
+   Sem o clarão: esse é o Recarregar. */
+@keyframes halo-content-materializar {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+    filter: blur(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: blur(0px);
+  }
+}
+
+[data-halo-in="content"][data-content-entrance="materializar"] {
+  animation: halo-content-materializar 0.7s ease-out both;
+}
+
+/* "Deslize lateral": o miolo vem do lado da coluna, com a curva da entrada de
+   mesmo nome. */
+@keyframes halo-content-deslize {
+  from {
+    opacity: 0;
+    transform: translateX(-48px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+[data-halo-in="content"][data-content-entrance="deslize"] {
+  animation: halo-content-deslize 0.55s cubic-bezier(0.33, 1, 0.36, 1) both;
+}
+
+/* "Dobra": tomba para trás e se endireita, como a entrada — em ângulo menor,
+   porque aqui é conteúdo com texto, não um painel de vidro. */
+@keyframes halo-content-dobra {
+  from {
+    opacity: 0;
+    transform: perspective(1400px) rotateX(-22deg) translateY(28px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(1400px) rotateX(0deg);
+  }
+}
+
+[data-halo-in="content"][data-content-entrance="dobra"] {
+  animation: halo-content-dobra 0.6s var(--ease, cubic-bezier(0.22, 1, 0.36, 1)) both;
+  transform-origin: 50% 100%;
+}
+
+/* "Implodir": vem grande demais e encolhe até encaixar, com a curva da entrada. */
+@keyframes halo-content-implodir {
+  from {
+    opacity: 0;
+    transform: scale(1.08);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: blur(0px);
+  }
+}
+
+[data-halo-in="content"][data-content-entrance="implodir"] {
+  animation: halo-content-implodir 0.62s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+[data-halo-in="content"][data-content-entrance="nenhuma"] {
+  animation: none;
+}
+
+/* O dock em pé (esquerda/direita) entra pelo lado. O keyframe existia, mas
+   nada apontava para ele — o dock lateral simplesmente aparecia. */
+[data-halo-in="dock-vertical"] {
+  animation: halo-dock-vertical var(--dur-dock, 0.5s) var(--ease, cubic-bezier(0.22, 1, 0.36, 1))
+    var(--dock-delay, 0s) both;
+}
+
+/* Ambiente: laços que rodam o tempo todo (§ Animação do handoff). */
+
+[data-halo-in="graph"] {
+  animation: halo-graph 2.6s ease-in-out infinite;
+}
+
+[data-halo-in="pulse"] {
+  animation: halo-pulse 2.6s ease-in-out infinite;
+}
+
+[data-halo-in="flow"] {
+  animation: halo-flow 2.2s linear infinite;
+}
+
+[data-halo-in="spin"] {
+  animation: halo-spin 3.4s linear infinite;
+}
+
+[data-halo-in="breathe"] {
+  animation: halo-breathe 1.8s ease-in-out infinite;
+}
+
+[data-halo-in="blink"] {
+  animation: halo-blink 1.05s steps(1, end) infinite;
+}
+
+[data-halo-in="eq"] {
+  animation: halo-eq 0.9s ease-in-out infinite;
+}
+
+/* A barra de transporte da Música tem tempos próprios no protótipo. */
+[data-halo-in="transport"] {
+  animation: halo-dock 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
+}
+
+/* ==========================================================================
+   Ícones de clima animados (opcionais)
+   ==========================================================================
+   Portados do CodePen "Animated Weather Icons" (baseado no Dribbble de kylor).
+   Os keyframes ficam aqui, e não no módulo do componente, pela mesma razão de
+   sempre: o CSS Modules renomearia `animation-name` e nada rodaria. */
+
+@keyframes weather-spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes weather-cloud {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5) translate(-200%, -3em);
+  }
+}
+
+@keyframes weather-rain {
+  0% {
+    background: var(--weather-accent);
+    box-shadow:
+      0.625em 0.875em 0 -0.125em var(--weather-faint),
+      -0.875em 1.125em 0 -0.125em var(--weather-faint),
+      -1.375em -0.125em 0 var(--weather-accent);
+  }
+  25% {
+    box-shadow:
+      0.625em 0.875em 0 -0.125em var(--weather-faint),
+      -0.875em 1.125em 0 -0.125em var(--weather-accent),
+      -1.375em -0.125em 0 var(--weather-faint);
+  }
+  50% {
+    background: var(--weather-faint);
+    box-shadow:
+      0.625em 0.875em 0 -0.125em var(--weather-accent),
+      -0.875em 1.125em 0 -0.125em var(--weather-faint),
+      -1.375em -0.125em 0 var(--weather-faint);
+  }
+  100% {
+    box-shadow:
+      0.625em 0.875em 0 -0.125em var(--weather-faint),
+      -0.875em 1.125em 0 -0.125em var(--weather-faint),
+      -1.375em -0.125em 0 var(--weather-accent);
+  }
+}
+
+@keyframes weather-lightning {
+  45% {
+    color: var(--weather-outline);
+    background: var(--weather-outline);
+    opacity: 0.2;
+  }
+  50% {
+    color: var(--weather-accent);
+    background: var(--weather-accent);
+    opacity: 1;
+  }
+  55% {
+    color: var(--weather-outline);
+    background: var(--weather-outline);
+    opacity: 0.2;
+  }
+}
+
+/* Quem anima os ícones de clima. Preso a `data-weather` porque parte das
+   animações vive em pseudo-elementos, onde não dá para pôr atributo — e
+   porque dentro de um `.module.css` o nome do keyframe seria renomeado. */
+
+[data-weather="cloud-passing"] {
+  animation: weather-cloud 4s linear infinite;
+}
+
+[data-weather="sun"] {
+  animation: weather-spin 12s linear infinite;
+}
+
+[data-weather="rain"]::after {
+  animation: weather-rain 3s linear infinite;
+}
+
+[data-weather="bolt"] {
+  animation: weather-lightning 2s linear infinite;
+}
+
+[data-weather="bolt-small"] {
+  animation: weather-lightning 1.5s linear infinite;
+}
+
+[data-weather="flake"]::before {
+  animation: weather-spin 8s linear infinite reverse;
+}
+
+[data-weather="flake"]::after {
+  animation: weather-spin 14s linear infinite;
+}
+
+[data-weather="flake-2"]::before {
+  animation: weather-spin 10s linear infinite;
+}
+
+[data-weather="flake-2"]::after {
+  animation: weather-spin 16s linear infinite reverse;
+}
+
+/*
+ * Pulso dos agentes do Claude.
+ *
+ * Aqui, e não no .module.css: o CSS Modules renomearia `animation-name` e a
+ * animação simplesmente não rodaria — sem erro nenhum. Ver CLAUDE.md.
+ */
+[class*="pulso_pensando"],
+[class*="pulso_ferramenta"] {
+  animation: halo-pulso 1.4s ease-in-out infinite;
+}
+
+@keyframes halo-pulso {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.82);
+  }
+}
+
+/*
+ * Entrada do modal das conversas antigas.
+ *
+ * Aqui, e não no .module.css: o CSS Modules renomearia `animation-name` e a
+ * animação não rodaria — sem erro nenhum. Ver CLAUDE.md.
+ */
+[data-halo-modal] > [class*="modal"]:last-child {
+  animation: halo-modal-entra 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+[data-halo-modal] > [class*="modalVeu"] {
+  animation: halo-veu-entra 0.24s ease both;
+}
+
+@keyframes halo-modal-entra {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.975);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes halo-veu-entra {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/*
+ * Manchete entrando na coluna de leitura da home.
+ *
+ * A coluna alterna entre as manchetes com o tempo; cada uma que entra sobe
+ * de leve e aparece, com a curva de sempre. Aqui, e não no .module.css: o
+ * CSS Modules renomearia `animation-name` e nada rodaria. Ver CLAUDE.md.
+ */
+[data-halo-in="feed"] {
+  animation: halo-feed-entra 0.46s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes halo-feed-entra {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ==========================================================================
+   Ambiente: Cyberpunk 2077
+
+   O movimento do tema mora aqui, e não em `env-cyberpunk.css`, pelo motivo de
+   sempre: `animation` fora de `.module.css`, e keyframes num lugar só — onde
+   `npm run lint:style` consegue conferir que todo nome existe.
+
+   Tudo preso a atributos que já existem: `data-env`, `data-env-trocando`,
+   `data-halo-in`, `data-halo-fx`. Nenhuma das oito telas é editada por isto.
+   ========================================================================== */
+
+/* ——— Glitch de troca de tela (datamosh) ——————————————————————————
+   Quadro perdido de vídeo: a imagem escorrega, com franja vermelha de um lado
+   e ciano do outro, e um clarão curtíssimo no começo.
+
+   Quadros DUROS (`steps(1, end)`), não interpolação: datamosh é compressão
+   quebrada, e nada nele é suave. A franja é `box-shadow` de raio 0 — a
+   aberração cromática do HUD sem `filter`, que custaria uma camada de
+   composição por quadro. */
+@keyframes halo-content-datamosh {
+  0% {
+    opacity: 0.16;
+    transform: translate3d(0, 0, 0);
+    box-shadow: none;
+  }
+  10% {
+    opacity: 1;
+    transform: translate3d(-21px, 0, 0);
+    box-shadow:
+      -2px 0 0 color-mix(in srgb, transparent, var(--cp-red) 55%),
+      2px 0 0 color-mix(in srgb, transparent, var(--cp-cyan) 45%);
+  }
+  20% {
+    transform: translate3d(13px, 0, 0);
+    box-shadow:
+      2px 0 0 color-mix(in srgb, transparent, var(--cp-red) 50%),
+      -2px 0 0 color-mix(in srgb, transparent, var(--cp-cyan) 40%);
+  }
+  30% {
+    transform: translate3d(-8px, 0, 0);
+    box-shadow:
+      -2px 0 0 color-mix(in srgb, transparent, var(--cp-red) 45%),
+      2px 0 0 color-mix(in srgb, transparent, var(--cp-cyan) 35%);
+  }
+  40% {
+    transform: translate3d(21px, 0, 0);
+    box-shadow:
+      2px 0 0 color-mix(in srgb, transparent, var(--cp-red) 40%),
+      -2px 0 0 color-mix(in srgb, transparent, var(--cp-cyan) 30%);
+  }
+  50% {
+    transform: translate3d(-13px, 0, 0);
+    box-shadow:
+      -2px 0 0 color-mix(in srgb, transparent, var(--cp-red) 35%),
+      2px 0 0 color-mix(in srgb, transparent, var(--cp-cyan) 28%);
+  }
+  60% {
+    transform: translate3d(6px, 0, 0);
+    box-shadow:
+      2px 0 0 color-mix(in srgb, transparent, var(--cp-red) 30%),
+      -2px 0 0 color-mix(in srgb, transparent, var(--cp-cyan) 22%);
+  }
+  70% {
+    transform: translate3d(-4px, 0, 0);
+    box-shadow:
+      -1px 0 0 color-mix(in srgb, transparent, var(--cp-red) 22%),
+      1px 0 0 color-mix(in srgb, transparent, var(--cp-cyan) 18%);
+  }
+  85% {
+    transform: translate3d(2px, 0, 0);
+    box-shadow:
+      1px 0 0 color-mix(in srgb, transparent, var(--cp-red) 14%),
+      -1px 0 0 color-mix(in srgb, transparent, var(--cp-cyan) 12%);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    box-shadow: none;
+  }
+}
+
+[data-halo-in="content"][data-content-entrance="datamosh"] {
+  animation: halo-content-datamosh 0.28s steps(1, end) both;
+}
+
+/* ——— Flicker de neon ao ligar —————————————————————————————————
+   Estrobo a 7 Hz cujo tempo ACESO cresce — é assim que um tubo de neon pega.
+   O apagado fica em 0.16, nunca em 0: luz que sumiu por completo lê como
+   elemento faltando, não como lâmpada piscando. */
+@keyframes halo-cp-flicker {
+  0%,
+  12% {
+    opacity: 0.16;
+  }
+  14%,
+  22% {
+    opacity: 0.9;
+  }
+  24%,
+  46% {
+    opacity: 0.16;
+  }
+  48%,
+  62% {
+    opacity: 0.85;
+  }
+  64%,
+  74% {
+    opacity: 0.16;
+  }
+  76% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.75;
+  }
+}
+
+/* ——— Moldura que se fecha ————————————————————————————————————
+   O painel não "aparece": a moldura se desenha, das arestas para dentro, e só
+   então acende. `clip-path: inset()` na camada de cantos — nada de layout. */
+@keyframes halo-cp-moldura {
+  0% {
+    clip-path: inset(0 50% 0 50%);
+    opacity: 0.16;
+  }
+  32% {
+    clip-path: inset(0 0 0 0);
+    opacity: 0.9;
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+    opacity: 0.75;
+  }
+}
+
+/* Roda na CAMADA DE CANTOS (o `::before` do painel), nunca no painel: ele tem
+   `backdrop-filter` de 34–40px, e animar dentro desse subtree custa caro. */
+:root[data-env="cyberpunk"] [data-halo-in="center"]::before,
+:root[data-env="cyberpunk"] [data-halo-in="side"]::before {
+  animation:
+    halo-cp-moldura 0.38s cubic-bezier(0.05, 0.7, 0.1, 1) both,
+    halo-cp-flicker 0.18s steps(1, end) 0.38s 2 both;
+}
+
+/* ——— Aberração cromática, curta ————————————————————————————————
+   Ciclo de 900 ms com distorção só em 0–11% e 51–60%: no resto do tempo o
+   texto está parado e legível. Dois `text-shadow`, nunca `filter` em laço. */
+@keyframes halo-cp-aberracao {
+  0% {
+    text-shadow:
+      -1.4px 0 color-mix(in srgb, transparent, var(--cp-red) 50%),
+      1.4px 0 color-mix(in srgb, transparent, var(--cp-cyan) 40%);
+  }
+  6% {
+    text-shadow:
+      -4px 0 color-mix(in srgb, transparent, var(--cp-red) 50%),
+      4px 0 color-mix(in srgb, transparent, var(--cp-cyan) 40%);
+  }
+  11%,
+  50% {
+    text-shadow: none;
+  }
+  55% {
+    text-shadow:
+      -2.4px 0 color-mix(in srgb, transparent, var(--cp-red) 50%),
+      2.4px 0 color-mix(in srgb, transparent, var(--cp-cyan) 40%);
+  }
+  60%,
+  100% {
+    text-shadow: none;
+  }
+}
+
+/* Só ENQUANTO o ambiente troca: os rótulos assentam com a aberração e depois
+   ficam quietos. Glitch em cima de texto que alguém está lendo é o erro
+   clássico deste tema. */
+/* E o rótulo DECODIFICA: a máscara descobre o texto da esquerda para a direita
+   em passos do tamanho de um caractere, não numa varredura lisa. É a leitura
+   possível, em CSS, do `recGlitchText` da referência — lá cada caractere só
+   existe depois que a cabeça passa por ele, e a cabeça é branca e treme.
+   Aqui não há um elemento por caractere, então quem faz o degrau é `steps`. */
+@keyframes halo-cp-decodifica {
+  from {
+    mask-size: 0 100%;
+  }
+  to {
+    mask-size: 100% 100%;
+  }
+}
+
+:root[data-env="cyberpunk"][data-env-trocando="sim"] [data-halo-in] [class*="label"],
+:root[data-env="cyberpunk"][data-env-trocando="sim"] [data-halo-in] [class*="Label"] {
+  mask-image: linear-gradient(90deg, var(--mask-opaque), var(--mask-opaque));
+  mask-repeat: no-repeat;
+  mask-position: 0 0;
+  animation:
+    halo-cp-aberracao 0.9s linear 1 both,
+    halo-cp-decodifica 0.42s steps(14, end) 1 both;
+}
+
+/* ——— A troca de ambiente é um quadro perdido ————————————————————
+   `anim.ts drawWsGlitchProc`: 14 bandas horizontais, umas finas (8–28px) e
+   outras grossas (35–115px), escorregando em direções alternadas, cada uma com
+   franja VERMELHA 8px à frente e CIANA 5px atrás — e um clarão branco de 0,15
+   de alfa entre 18% e 24% do tempo, com pico em 21%.
+
+   Aqui cinco bandas por camada dão a mesma leitura sem virar um arquivo de
+   gradientes. Quadros duros (`steps`), como lá: datamosh é compressão
+   quebrada, e nada nele é suave. */
+@keyframes halo-cp-datamosh-tela {
+  0% {
+    background-position:
+      -22px 0,
+      14px 0,
+      0 0;
+    background-size:
+      100% 100%,
+      100% 100%,
+      100% 0;
+  }
+  10% {
+    background-position:
+      30px 0,
+      -18px 0,
+      0 0;
+    background-size:
+      100% 100%,
+      100% 100%,
+      100% 0;
+  }
+  20% {
+    background-position:
+      -14px 0,
+      26px 0,
+      0 0;
+    background-size:
+      100% 100%,
+      100% 100%,
+      100% 100%;
+  }
+  30% {
+    background-position:
+      18px 0,
+      -10px 0,
+      0 0;
+    background-size:
+      100% 100%,
+      100% 100%,
+      100% 0;
+  }
+  42% {
+    background-position:
+      -26px 0,
+      20px 0,
+      0 0;
+    background-size:
+      100% 100%,
+      100% 100%,
+      100% 0;
+  }
+  54% {
+    background-position:
+      10px 0,
+      -24px 0,
+      0 0;
+    background-size:
+      100% 100%,
+      100% 100%,
+      100% 0;
+  }
+  66% {
+    background-position:
+      -8px 0,
+      12px 0,
+      0 0;
+    background-size:
+      100% 100%,
+      100% 100%,
+      100% 0;
+  }
+  78% {
+    background-position:
+      5px 0,
+      -6px 0,
+      0 0;
+    background-size:
+      100% 100%,
+      100% 100%,
+      100% 0;
+  }
+  90% {
+    background-position:
+      -3px 0,
+      3px 0,
+      0 0;
+    background-size:
+      100% 100%,
+      100% 100%,
+      100% 0;
+  }
+  100% {
+    background-position:
+      0 0,
+      0 0,
+      0 0;
+    background-size:
+      100% 0,
+      100% 0,
+      100% 0;
+  }
+}
+
+:root[data-env="cyberpunk"][data-env-trocando="sim"] [data-halo-fx="ambiente"] {
+  animation: halo-cp-datamosh-tela 0.58s steps(1, end) both;
+}
+
+/* ——— A régua do rótulo se desenha ————————————————————————————
+   O HUD da referência não põe as réguas na tela prontas: elas crescem do texto
+   para fora. 320ms, saindo da esquerda. */
+@keyframes halo-cp-regua {
+  from {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+:root[data-env="cyberpunk"] [data-halo-in] [class*="label"]::after,
+:root[data-env="cyberpunk"] [data-halo-in] [class*="Label"]::after {
+  transform-origin: 0 50%;
+  animation: halo-cp-regua 0.32s cubic-bezier(0.05, 0.7, 0.1, 1) both;
+}
+
+/* ——— Notificação: a moldura que cresce ————————————————————————
+   Medido em `modules/notifpopup.ts`: a moldura de um aviso vai de 122 a 400px
+   de largura (30,5% → 100%) enquanto `prog` sobe 0,06 por tique de 16ms — 267
+   ms — com `easeOut` quadrático. É isso, e nada mais, que revela o texto: na
+   referência ele também só existe dentro da moldura.
+
+   As linhas não entram juntas. Na referência elas chegam uma a uma e a pilha
+   se acomoda; aqui cada uma atrasa 90ms sobre a anterior (`--cp-atraso`, posto
+   em `Dashboard.tsx`), depois dos 420ms que o rótulo leva para se desenhar —
+   a montagem em ESTÁGIOS do popup, que espera 700ms com o cabeçalho pronto
+   antes de trazer o conteúdo. */
+@keyframes halo-cp-notif {
+  0% {
+    mask-size: 30.5% 100%;
+    opacity: 0.16;
+  }
+  8% {
+    opacity: 1;
+  }
+  100% {
+    mask-size: 100% 100%;
+    opacity: 1;
+  }
+}
+
+/* A aresta acesa vai na frente da varredura, e só existe enquanto ela corre —
+   na referência, entre 3% e 97% do progresso. */
+@keyframes halo-cp-notif-aresta {
+  0% {
+    left: 30.5%;
+    opacity: 0;
+  }
+  3% {
+    opacity: 1;
+  }
+  97% {
+    opacity: 1;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+
+/* O tremeluzir da moldura enquanto ela cresce: 8,3 Hz, apagando para 45% em
+   pouco menos de um terço do ciclo (`sin(t·52) > -0,35 ? 1 : 0,45`). Quadros
+   duros: é lâmpada pegando, não gradação. */
+@keyframes halo-cp-notif-cintila {
+  0%,
+  72% {
+    border-left-color: var(--cp-urg);
+  }
+  73%,
+  100% {
+    border-left-color: color-mix(in srgb, transparent, var(--cp-urg) 45%);
+  }
+}
+
+:root[data-env="cyberpunk"] [data-halo-in="notificacao"] {
+  animation:
+    halo-cp-notif 0.27s cubic-bezier(0.5, 1, 0.89, 1) calc(420ms + var(--cp-atraso, 0ms)) both,
+    halo-cp-notif-cintila 0.12s steps(1, end) calc(420ms + var(--cp-atraso, 0ms)) 3 both;
+}
+
+:root[data-env="cyberpunk"] [data-halo-in="notificacao"]::after {
+  animation: halo-cp-notif-aresta 0.27s cubic-bezier(0.5, 1, 0.89, 1)
+    calc(420ms + var(--cp-atraso, 0ms)) both;
+}
+
+/* O ícone de alerta pisca — `toast.ts` o pulsa a `0,3 + 0,7·|sin(e/90)|`, uns
+   3,5 Hz. Lá o aviso vive 3,5s e some; aqui a linha FICA na tela, e um pisca
+   perpétuo a 3,5 Hz seria castigo. Por isso ele pisca seis ciclos (1,7s) na
+   chegada e depois assenta — e só na urgência que justifica alarme. */
+@keyframes halo-cp-alerta {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0.3;
+  }
+}
+
+:root[data-env="cyberpunk"] [data-halo-in="notificacao"][data-urgencia="error"] > svg {
+  animation: halo-cp-alerta 0.28s steps(1, end) calc(420ms + var(--cp-atraso, 0ms)) 6 both;
+}
+
+/* ——— HUD de mídia: o painel se abre de uma linha ————————————————
+   `modules/nowplaying.ts`, entrada de 620ms em quatro tempos:
+
+     0    – 174ms  (ip < 0,28)  a linha cresce da esquerda, `barW` 0,02 → 1
+     174  – 372ms  (ip < 0,60)  linha inteira, PISCANDO em quatro passos
+     372  – 620ms  (ip < 1)     `reveal` 0 → 1: o painel se descola da linha
+                                para cima e para baixo, ao mesmo tempo
+     496  – 620ms  (ip > 0,80)  o conteúdo acende
+
+   O recorte faz os dois primeiros tempos e o terceiro sozinho: no começo ele é
+   uma FAIXA de 4px no meio da altura, e é dentro dela que a linha vermelha do
+   `::after` aparece. Depois a faixa se abre até a silhueta cheia. Polígono com
+   o mesmo número de vértices dos dois lados, que é o que a interpolação de
+   `clip-path` exige. */
+@keyframes halo-cp-hud-abre {
+  0% {
+    clip-path: polygon(
+      0 calc(50% - 2px),
+      2% calc(50% - 2px),
+      2% calc(50% - 2px),
+      2% calc(50% + 2px),
+      0 calc(50% + 2px),
+      0 calc(50% + 2px)
+    );
+  }
+  28%,
+  60% {
+    clip-path: polygon(
+      0 calc(50% - 2px),
+      100% calc(50% - 2px),
+      100% calc(50% - 2px),
+      100% calc(50% + 2px),
+      0 calc(50% + 2px),
+      0 calc(50% + 2px)
+    );
+  }
+  100% {
+    clip-path: polygon(
+      10px 0,
+      100% 0,
+      100% calc(100% - 10px),
+      calc(100% - 10px) 100%,
+      0 100%,
+      0 10px
+    );
+  }
+}
+
+/* A linha só existe enquanto o painel está fechado; some quando ele já abriu.
+   O pisca do segundo tempo são quatro passos (`floor(bp*4) % 2`), com o
+   apagado em 0,12 — o desenho não deixa a linha sumir de todo. */
+@keyframes halo-cp-hud-linha {
+  0%,
+  27.9% {
+    background-size: 100% 4px;
+    opacity: 1;
+  }
+  28% {
+    opacity: 1;
+  }
+  36% {
+    opacity: 0.12;
+  }
+  44% {
+    opacity: 1;
+  }
+  52% {
+    opacity: 0.12;
+  }
+  60% {
+    background-size: 100% 4px;
+    opacity: 1;
+  }
+  72%,
+  100% {
+    background-size: 100% 0;
+    opacity: 0;
+  }
+}
+
+/* O conteúdo acende nos últimos 20% (ip > 0,80 no desenho). */
+@keyframes halo-cp-hud-conteudo {
+  0%,
+  80% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* A varredura da aresta de cima: um segmento de 46% da largura que vai e volta
+   DUAS vezes em 2000ms, e depois para. Na referência ela também não é eterna —
+   o banner inteiro vive 7,5s. */
+@keyframes halo-cp-hud-varre {
+  0%,
+  100% {
+    background-position:
+      0 0,
+      0 0,
+      0 0,
+      0 0,
+      100% 0,
+      0 100%,
+      100% 100%,
+      0 0;
+  }
+  50% {
+    background-position:
+      0 0,
+      0 0,
+      100% 0,
+      0 0,
+      100% 0,
+      0 100%,
+      100% 100%,
+      0 0;
+  }
+}
+
+:root[data-env="cyberpunk"] [data-halo-in="hud"] {
+  animation: halo-cp-hud-abre 0.62s cubic-bezier(0.05, 0.7, 0.1, 1) both;
+}
+
+:root[data-env="cyberpunk"] [data-halo-in="hud"]::after {
+  animation: halo-cp-hud-linha 0.62s steps(1, end) both;
+}
+
+:root[data-env="cyberpunk"] [data-halo-in="hud"]::before {
+  animation:
+    halo-cp-hud-conteudo 0.62s linear both,
+    halo-cp-hud-varre 1s ease-in-out 0.62s 2 both;
+}
+
+/* O que está dentro do HUD acende junto com a grade. */
+:root[data-env="cyberpunk"] [data-halo-in="hud"] > *:not([class*="Arte"]) {
+  animation: halo-cp-hud-conteudo 0.62s linear both;
+}
+
+/* ——— Equalizador ——————————————————————————————————————————————
+   Quatro barras que trocam de altura a cada 95ms (`el - eqT > 95`), com valor
+   entre 0,18 e 1 e altura `(0,16 + v·0,84)·12` — ou seja, de 3,7 a 12px. Aqui
+   o sorteio vira um ciclo fixo de oito quadros, 760ms ao todo, em passos
+   duros. Ele só roda com som tocando: uma barra dançando sem música seria
+   enfeite mentindo. */
+@keyframes halo-cp-eq {
+  0% {
+    background-size:
+      3.4px 8px,
+      3.4px 4px,
+      3.4px 11px,
+      3.4px 6px;
+  }
+  12.5% {
+    background-size:
+      3.4px 5px,
+      3.4px 10px,
+      3.4px 6px,
+      3.4px 12px;
+  }
+  25% {
+    background-size:
+      3.4px 11px,
+      3.4px 6px,
+      3.4px 4px,
+      3.4px 8px;
+  }
+  37.5% {
+    background-size:
+      3.4px 4px,
+      3.4px 12px,
+      3.4px 9px,
+      3.4px 5px;
+  }
+  50% {
+    background-size:
+      3.4px 9px,
+      3.4px 5px,
+      3.4px 12px,
+      3.4px 10px;
+  }
+  62.5% {
+    background-size:
+      3.4px 6px,
+      3.4px 9px,
+      3.4px 5px,
+      3.4px 4px;
+  }
+  75% {
+    background-size:
+      3.4px 12px,
+      3.4px 4px,
+      3.4px 8px,
+      3.4px 11px;
+  }
+  87.5% {
+    background-size:
+      3.4px 5px,
+      3.4px 11px,
+      3.4px 10px,
+      3.4px 7px;
+  }
+}
+
+:root[data-env="cyberpunk"] [data-halo-in="hud"][data-tocando="sim"] [class*="abel"]::before {
+  animation: halo-cp-eq 0.76s steps(1, end) infinite;
+}
+
+/* ——— Camada de tela: estática e varredura ——————————————————————
+   A estática desliza 4px (o passo do padrão) em 280 ms lineares, infinitos —
+   um elemento só, `transform` apenas. */
+@keyframes halo-cp-scanline {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(4px);
+  }
+}
+
+/* A varredura cruza o palco em 440 ms e some pelo resto do ciclo: 440 ms em
+   6,3 s dá os ~7% do corte abaixo. Uma linha passando o tempo todo viraria
+   televisão quebrada. */
+@keyframes halo-cp-varredura {
+  0% {
+    transform: translateY(0);
+    opacity: 0.16;
+  }
+  7% {
+    transform: translateY(900px);
+    opacity: 0.16;
+  }
+  7.01%,
+  100% {
+    transform: translateY(900px);
+    opacity: 0;
+  }
+}
+
+:root[data-env="cyberpunk"] [data-halo-fx="ambiente"]::before {
+  animation: halo-cp-scanline 0.28s linear infinite;
+}
+
+:root[data-env="cyberpunk"] [data-halo-fx="ambiente"]::after {
+  animation: halo-cp-varredura 6.3s linear infinite;
+}
+
+/* ——— A partida, ao entrar no ambiente ——————————————————————————
+   O sinal `data-env-trocando` já existe (posto por 600 ms em
+   `app/environment.ts`); aqui ele vira o "boot": um clarão que desce a tela,
+   como tubo que acabou de receber corrente. */
+@keyframes halo-cp-boot {
+  0% {
+    opacity: 0;
+    transform: translateY(-40px) scaleY(40);
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(900px) scaleY(1);
+  }
+}
+
+:root[data-env="cyberpunk"][data-env-trocando="sim"] [data-halo-fx="ambiente"]::after {
+  animation: halo-cp-boot 0.6s cubic-bezier(0.05, 0.7, 0.1, 1) both;
+}
+
+/* ——— Movimento reduzido ————————————————————————————————————————
+   Quem pediu menos movimento fica com as CORES e as FORMAS do tema, e sem
+   nada que pisque, escorregue ou varra a tela. */
+@media (prefers-reduced-motion: reduce) {
+  [data-halo-in="content"][data-content-entrance="datamosh"],
+  :root[data-env="cyberpunk"] [data-halo-in="center"]::before,
+  :root[data-env="cyberpunk"] [data-halo-in="side"]::before,
+  :root[data-env="cyberpunk"] [data-halo-fx="ambiente"]::before,
+  :root[data-env="cyberpunk"][data-env-trocando="sim"] [data-halo-fx="ambiente"]::after,
+  :root[data-env="cyberpunk"][data-env-trocando="sim"] [data-halo-in] [class*="label"],
+  :root[data-env="cyberpunk"][data-env-trocando="sim"] [data-halo-in] [class*="Label"],
+  :root[data-env="cyberpunk"] [data-halo-in] [class*="label"]::after,
+  :root[data-env="cyberpunk"] [data-halo-in] [class*="Label"]::after,
+  :root[data-env="cyberpunk"] [data-halo-in="notificacao"],
+  :root[data-env="cyberpunk"] [data-halo-in="notificacao"][data-urgencia="error"] > svg,
+  :root[data-env="cyberpunk"] [data-halo-in="hud"],
+  :root[data-env="cyberpunk"] [data-halo-in="hud"]::before,
+  :root[data-env="cyberpunk"] [data-halo-in="hud"] > *:not([class*="Arte"]),
+  :root[data-env="cyberpunk"] [data-halo-in="hud"][data-tocando="sim"] [class*="abel"]::before,
+  :root[data-env="cyberpunk"][data-env-trocando="sim"] [data-halo-fx="ambiente"] {
+    animation: none;
+  }
+
+  /* A linha de abertura é só o movimento: parada, ela seria um traço vermelho
+     atravessando o card. */
+  :root[data-env="cyberpunk"] [data-halo-in="hud"]::after {
+    animation: none;
+    background-size: 100% 0;
+  }
+
+  /* A aresta da varredura é só o movimento: sem ele, ela não existe. */
+  :root[data-env="cyberpunk"] [data-halo-in="notificacao"]::after {
+    animation: none;
+    opacity: 0;
+  }
+
+  /* Sem varredura, a linha não pode ficar parada atravessando o topo da tela. */
+  :root[data-env="cyberpunk"] [data-halo-fx="ambiente"]::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   Ambiente: BioShock — Art Déco Subaquático
+
+   Movimento AMBIENTAL, e só ele. O tema não traz transição de conteúdo própria
+   (o Cyberpunk traz, o Datamosh): aqui o padrão do app continua o padrão, e
+   quem escolheu uma variação em Configurações continua com a dela.
+
+   As duas camadas de partícula moram na camada de efeito que já existe
+   (`data-halo-fx="ambiente"`, no `Stage`) e andam só por `transform` — os
+   painéis têm `backdrop-filter` de 34–40px, e nada pode animar dentro desse
+   subtree sem custar quadro. O desenho está em `styles/env-bioshock.css`; aqui
+   fica o quanto e em quanto tempo.
+
+   O usuário pediu DISCRIÇÃO neste tema. Os dois laços são LENTOS de propósito:
+   42 s e 55 s. Movimento que o olho consegue perseguir vira o assunto da tela,
+   e o assunto da tela é o que está escrito nela.
+   ========================================================================== */
+
+/* Cáusticas: a rede de luz que a superfície projeta. O ladrilho tem 520×320 e o
+   deslocamento é de um ladrilho EXATO — é isso que faz o laço fechar sem
+   emenda. */
+@keyframes halo-bs-causticas {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(520px, 320px, 0);
+  }
+}
+
+/* Neve marinha: partícula em suspensão, DESCENDO. Mesmo truque do ladrilho
+   (260px), na vertical. Subir leria como bolha, e bolha é ar. */
+@keyframes halo-bs-neve {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 260px, 0);
+  }
+}
+
+/* A chegada ao ambiente: a luz acende. Só `opacity` — o `transform` está
+   ocupado com o laço das cáusticas, e duas animações disputando a mesma
+   propriedade fazem a última ganhar e a outra sumir. */
+@keyframes halo-bs-mergulho {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+:root[data-env="bioshock"] [data-halo-fx="ambiente"]::before {
+  animation: halo-bs-causticas 42s linear infinite;
+}
+
+:root[data-env="bioshock"] [data-halo-fx="ambiente"]::after {
+  animation: halo-bs-neve 55s linear infinite;
+}
+
+/* `data-env-trocando` já existe (posto por 600 ms em `app/environment.ts`). */
+:root[data-env="bioshock"][data-env-trocando="sim"] [data-halo-fx="ambiente"]::before {
+  animation:
+    halo-bs-causticas 42s linear infinite,
+    halo-bs-mergulho var(--dur-env) var(--ease) both;
+}
+
+/* ——— Movimento reduzido ————————————————————————————————————————
+   Quem pediu menos movimento fica com as CORES e as FORMAS do tema — moldura,
+   ornamento, paleta — e sem nada que se mexa. As duas camadas continuam
+   pintadas e param onde estão: são luz de fundo a 0,05 de alfa, e paradas não
+   incomodam ninguém. */
+@media (prefers-reduced-motion: reduce) {
+  :root[data-env="bioshock"] [data-halo-fx="ambiente"]::before,
+  :root[data-env="bioshock"] [data-halo-fx="ambiente"]::after,
+  :root[data-env="bioshock"][data-env-trocando="sim"] [data-halo-fx="ambiente"]::before {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   Movimento reduzido: a camada BASE
+
+   Havia dois blocos `prefers-reduced-motion` neste arquivo, e os dois eram de
+   TEMA — um do Cyberpunk, um do BioShock. A Floresta, que é o app de todo dia,
+   não tinha nenhum: quem pede movimento reduzido no sistema continuava com
+   sete laços perpétuos na tela (o gráfico, o pulso, o fluxo, o giro, a
+   respiração, o pisca e o equalizador), mais os nove do widget de clima e o
+   pulso do mascote.
+
+   Só os LAÇOS, de propósito, e não as entradas. Entrada é movimento que
+   acontece uma vez e termina; laço perpétuo é o que cansa e o que a
+   preferência do sistema pede para calar. Mexer nas entradas aqui é o caminho
+   onde o erro é silencioso e caro — o app inteiro entra por elas.
+
+   E cada peça precisa de um estado PARADO legível, como as regras do Cyberpunk
+   já fazem logo acima: uma animação que só existe enquanto se move vira, ao
+   parar, um traço no meio da tela. `halo-flow` e `halo-eq` são assim.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  [data-halo-in="graph"],
+  [data-halo-in="pulse"],
+  [data-halo-in="spin"],
+  [data-halo-in="breathe"],
+  [data-halo-in="blink"],
+  [data-weather],
+  [data-weather]::before,
+  [data-weather]::after,
+  [class*="pulso_pensando"],
+  [class*="pulso_ferramenta"] {
+    animation: none;
+  }
+
+  /* O fluxo é um gradiente que anda: parado no lugar de partida ele deixa a
+     barra meio apagada. `background-position` no fim devolve a barra cheia. */
+  [data-halo-in="flow"] {
+    animation: none;
+    background-position: 100% 0;
+  }
+
+  /* O equalizador é altura variando: parado, as barras ficam na média em vez
+     de todas no chão. */
+  [data-halo-in="eq"] {
+    animation: none;
+    transform: scaleY(0.6);
+  }
+}
+
+/* ——— Dormindo ——————————————————————————————————————————————
+   A janela está minimizada ou escondida (recolhida para a ilha, por exemplo):
+   ninguém vê, e um laço infinito num palco de 1440×900 gera um quadro por
+   vsync mesmo assim — a 144 Hz, 2,4× o custo de 60 (DESEMPENHO.md, P3-12).
+   Pausar preserva o desenho: ao voltar, tudo retoma de onde parou. */
+:root[data-halo-dormindo="sim"] * {
+  /* `!important` de propósito: o shorthand `animation` de cada laço repõe o
+     `animation-play-state: running`, e uma regra em `*` perderia para todos
+     eles na cascata. É a única forma de pausar tudo de um lugar só. */
+  /* biome-ignore lint/complexity/noImportantStyles: ver acima */
+  animation-play-state: paused !important;
+}
+
+/* ==========================================================================
+   Avisos do sistema — a janela dos balões (`src/renderer/notificacoes/`)
+
+   Três movimentos, e cada tema troca os dois primeiros:
+
+   - a ENTRADA, vinda da borda do canto onde a pilha mora (`--aviso-lado`
+     inverte o sentido nos cantos da esquerda);
+   - a SAÍDA, quando o balão é dispensado, venceu o tempo ou virou ação;
+   - o TEMPO, a barra fina no pé do balão. Ela não é enfeite: o fim desta
+     animação É o fim do balão (`NotificacoesApp.tsx` escuta o
+     `animationend`), e é por isso que o ponteiro em cima dele o segura — a
+     animação pausa, e o balão fica. Nenhum relógio em JavaScript para
+     dessincronizar dela.
+
+   A Floresta é o gesto do vidro do handoff: desliza, cresce um nada e assenta
+   na curva de sempre (`--ease`).
+   ========================================================================== */
+
+@keyframes halo-aviso-entra {
+  from {
+    opacity: 0;
+    transform: translateX(calc(var(--aviso-lado, 1) * 56px)) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes halo-aviso-sai {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateX(calc(var(--aviso-lado, 1) * 36px)) scale(0.97);
+  }
+}
+
+@keyframes halo-aviso-tempo {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+[data-canto$="esquerda"] {
+  --aviso-lado: -1;
+}
+
+[data-halo-in="aviso"] {
+  animation: halo-aviso-entra 0.5s var(--ease, cubic-bezier(0.22, 1, 0.36, 1)) both;
+}
+
+[data-halo-in="aviso"][data-saindo="sim"] {
+  animation: halo-aviso-sai 0.34s cubic-bezier(0.4, 0, 1, 1) both;
+  pointer-events: none;
+}
+
+[data-aviso="tempo"] {
+  animation: halo-aviso-tempo var(--aviso-tempo, 6s) linear both;
+}
+
+[data-halo-in="aviso"]:hover [data-aviso="tempo"] {
+  animation-play-state: paused;
+}
+
+/* ——— Cyberpunk: o popup da referência, montado como na referência ——————
+   A moldura que cresce de 30,5% a 100% com a aresta acesa na frente e a barra
+   de urgência tremeluzindo são os MESMOS keyframes da linha de notificação da
+   home (`halo-cp-notif*`, acima) — lá eles imitam este popup, aqui eles
+   voltam a ser ele. Sem o atraso de 420ms da linha: aquele espera o rótulo da
+   coluna se desenhar, e um balão não tem coluna. A saída é a lâmpada que
+   falha duas vezes e a moldura que se recolhe para a barra. */
+@keyframes halo-cp-aviso-sai {
+  0% {
+    opacity: 1;
+    mask-size: 100% 100%;
+  }
+  12% {
+    opacity: 0.2;
+  }
+  22% {
+    opacity: 1;
+  }
+  34% {
+    opacity: 0.12;
+  }
+  44% {
+    opacity: 1;
+    mask-size: 100% 100%;
+  }
+  100% {
+    opacity: 0;
+    mask-size: 0% 100%;
+  }
+}
+
+:root[data-env="cyberpunk"] [data-halo-in="aviso"] {
+  animation:
+    halo-cp-notif 0.27s cubic-bezier(0.5, 1, 0.89, 1) both,
+    halo-cp-notif-cintila 0.12s steps(1, end) 3 both;
+}
+
+:root[data-env="cyberpunk"] [data-halo-in="aviso"]::after {
+  animation: halo-cp-notif-aresta 0.27s cubic-bezier(0.5, 1, 0.89, 1) both;
+}
+
+:root[data-env="cyberpunk"] [data-halo-in="aviso"][data-saindo="sim"] {
+  animation: halo-cp-aviso-sai 0.4s linear both;
+}
+
+/* O alerta pisca seis ciclos na chegada e assenta — a mesma regra da linha da
+   home (nada pisca para sempre). */
+:root[data-env="cyberpunk"] [data-halo-in="aviso"][data-urgencia="critica"] [data-aviso="icone"] {
+  animation: halo-cp-alerta 0.28s steps(1, end) 6 both;
+}
+
+/* ——— BioShock: a placa sobe da água e afunda de volta ———————————————
+   Nada de desfoque animado (nunca se anima `blur`): a água é a curva lenta e
+   o deslocamento vertical. */
+@keyframes halo-bs-aviso-emerge {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+  55% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes halo-bs-aviso-afunda {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+}
+
+:root[data-env="bioshock"] [data-halo-in="aviso"] {
+  animation: halo-bs-aviso-emerge 0.62s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+:root[data-env="bioshock"] [data-halo-in="aviso"][data-saindo="sim"] {
+  animation: halo-bs-aviso-afunda 0.42s cubic-bezier(0.55, 0, 0.8, 0.4) both;
+}
+
+/* ——— City Pop: entra passando do ponto, como um adesivo colado ————————— */
+@keyframes halo-cy-aviso-entra {
+  0% {
+    opacity: 0;
+    transform: translateX(calc(var(--aviso-lado, 1) * 64px)) scale(0.94);
+  }
+  62% {
+    opacity: 1;
+    transform: translateX(calc(var(--aviso-lado, 1) * -6px)) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes halo-cy-aviso-sai {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateX(calc(var(--aviso-lado, 1) * 48px)) skewX(-6deg);
+  }
+}
+
+:root[data-env="citypop"] [data-halo-in="aviso"] {
+  animation: halo-cy-aviso-entra 0.56s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+:root[data-env="citypop"] [data-halo-in="aviso"][data-saindo="sim"] {
+  animation: halo-cy-aviso-sai 0.32s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+/* Sem movimento, o balão aparece e some no lugar; cor e forma continuam do
+   tema. A barra do TEMPO fica de fora de propósito: ela não é ornamento, é o
+   relógio do balão — sem ela nenhum aviso sairia sozinho. */
+@media (prefers-reduced-motion: reduce) {
+  [data-halo-in="aviso"],
+  [data-halo-in="aviso"][data-saindo="sim"],
+  :root[data-env] [data-halo-in="aviso"],
+  :root[data-env] [data-halo-in="aviso"][data-saindo="sim"],
+  :root[data-env] [data-halo-in="aviso"]::after,
+  :root[data-env="cyberpunk"] [data-halo-in="aviso"][data-urgencia="critica"] [data-aviso="icone"] {
+    animation: none;
+  }
+}

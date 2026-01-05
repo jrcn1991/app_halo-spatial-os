@@ -1,0 +1,112 @@
+/* Palco fixo 1440x900 escalado para caber na janela, preservando a geometria
+   absoluta do handoff (dock em bottom:76, teto de painel em y=741). */
+
+.root {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  /* Modo overlay: nada é pintado atrás dos painéis — vê-se a tela real. */
+  background: transparent;
+}
+
+.stage {
+  position: relative;
+  width: var(--stage-w);
+  height: var(--stage-h);
+  flex: none;
+  overflow: hidden;
+  transform-origin: center center;
+  transform: scale(var(--stage-scale, 1));
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+
+  /* As sombras dos painéis do handoff são enormes (até 130px de blur). Sobre um
+     fundo opaco elas se dissolvem; sobre uma janela transparente batem no
+     limite da janela e param em seco, desenhando um retângulo escuro em volta
+     de tudo. Esta máscara dissolve os 20px de borda, então a sombra termina
+     como sombra. Nenhum painel chega tão perto (o mais próximo, na home,
+     começa em x=31,7), então nada de conteúdo é tocado.
+
+     Fica no PALCO, e não na raiz: com a máscara na raiz, a área de arraste da
+     janela ficava dentro dela — e o Chromium não registra região de arraste
+     dentro de um subtree mascarado. */
+  mask-image:
+    linear-gradient(
+      to right,
+      transparent,
+      var(--mask-opaque) 20px,
+      var(--mask-opaque) calc(100% - 20px),
+      transparent
+    ),
+    linear-gradient(
+      to bottom,
+      transparent,
+      var(--mask-opaque) 20px,
+      var(--mask-opaque) calc(100% - 20px),
+      transparent
+    );
+  mask-composite: intersect;
+}
+
+/* NÃO colocar `-webkit-app-region: drag` aqui.
+ *
+ * Esta camada cobre o palco inteiro. Como área de arraste, ela engole TODO
+ * clique da janela — inclusive no dock: o `no-drag` do dock não a anula,
+ * porque ele é irmão desta camada e não descendente. No Wayland o Electron
+ * ignora `app-region` e o problema fica escondido; em X11 (que é onde
+ * rodamos, por causa do blur do KWin) a janela inteira vira intocável.
+ *
+ * A janela sem moldura continua movível pelo atalho do próprio KDE:
+ * Meta + arrastar com o botão esquerdo, em qualquer ponto da janela. */
+.veil {
+  position: absolute;
+  inset: 0;
+}
+
+/* Camada de efeito do ambiente. Sem desenho próprio: quem pinta é o tema (ver
+   `styles/env-cyberpunk.css`). `pointer-events: none` é o que a torna
+   inofensiva — ela cobre o palco inteiro, dock incluído. */
+.fx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* ——— Modo de comparação (`?bg=wallpaper`) ———————————————————————
+   O único lugar do app com fundo OPACO, e por isso o único onde
+   `backdrop-filter` tem o que borrar. A imagem já foi a do protótipo; hoje é
+   arte nossa, gerada por `tools/fundo-de-comparacao.mjs` — o que o modo pede
+   dela é superfície opaca com variação de luz, não aquela foto. */
+
+.rootWallpaper {
+  background: var(--app-bg);
+}
+
+/* No modo de comparação o fundo é opaco e vai até a borda: sem máscara, senão
+   um diff de imagem acusaria as bordas dissolvidas. */
+.stageWallpaper {
+  background: var(--stage-bg) var(--wallpaper) center / cover no-repeat;
+  mask-image: none;
+}
+
+.veilWallpaper {
+  background: var(--veil);
+}
+
+/* Área invisível que move a janela. O desenho é o traço do dock; isto aqui é
+   só a superfície de arraste, fora do palco (com `transform`) e fora da
+   máscara da raiz — dentro de qualquer um dos dois o Chromium não registra a
+   região e a janela trava. */
+.windowHandle {
+  position: absolute;
+  background: transparent;
+  cursor: grab;
+  -webkit-app-region: drag;
+}
+
+.windowHandle:active {
+  cursor: grabbing;
+}

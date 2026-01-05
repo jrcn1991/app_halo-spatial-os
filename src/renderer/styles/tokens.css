@@ -1,0 +1,266 @@
+/* ==========================================================================
+   Halo — Design Tokens
+   Fonte da verdade: design_handoff_halo_spatial_os/README.md § "Design Tokens".
+   NENHUMA cor literal pode existir fora deste arquivo (ver `npm run lint:tokens`).
+   ========================================================================== */
+
+:root {
+  /* ——— Palco ————————————————————————————————————————————————— */
+  --stage-w: 1440px;
+  --stage-h: 900px;
+  --stage-bg: #08120f;
+  --app-bg: #08070a;
+  --veil: linear-gradient(
+    180deg,
+    rgba(4, 10, 8, 0.35) 0%,
+    rgba(4, 10, 8, 0.15) 45%,
+    rgba(2, 6, 5, 0.6) 100%
+  );
+
+  /* ——— Ajustes de Aparência ————————————————————————————————————
+     Os três valores abaixo são a ÚNICA porta para mexer no vidro. Nos padrões
+     (alpha do handoff, claridade 0) tudo reproduz o protótipo exatamente; a
+     tela de Configurações só os sobrescreve no palco. */
+  --glass-side-alpha: 0.5;
+  --glass-center-alpha: 0.62;
+  --glass-clarity: 0%;
+  --glass-clarity-target: #f2f0f5;
+  /* Cor do vidro; `transparent` faz a gradação sumir (padrão). */
+  --glass-tint: transparent;
+  /* Trilho da barra de matiz — mesma saturação/luminosidade de `lib/color.ts`. */
+  --hue-track: linear-gradient(
+    90deg,
+    hsl(0 45% 62%),
+    hsl(60 45% 62%),
+    hsl(120 45% 62%),
+    hsl(180 45% 62%),
+    hsl(240 45% 62%),
+    hsl(300 45% 62%),
+    hsl(360 45% 62%)
+  );
+
+  /* ——— Vidro: painel lateral ——————————————————————————————————— */
+  --glass-side-base: rgb(20 24 22);
+  --glass-side-bg: rgb(
+    from
+      color-mix(in srgb, var(--glass-side-base), var(--glass-clarity-target) var(--glass-clarity)) r
+      g b /
+    var(--glass-side-alpha)
+  );
+  --glass-side-border: 1px solid rgba(255, 255, 255, 0.14);
+  --glass-side-filter: blur(34px) saturate(1.3);
+  --glass-side-shadow: 0 50px 90px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+  /* ——— Vidro: painel central ——————————————————————————————————— */
+  --glass-center-base: rgb(14 18 17);
+  --glass-center-bg: rgb(
+    from
+      color-mix(in srgb, var(--glass-center-base), var(--glass-clarity-target) var(--glass-clarity))
+      r g b /
+    var(--glass-center-alpha)
+  );
+  --glass-center-border: 1px solid rgba(255, 255, 255, 0.17);
+  --glass-center-filter: blur(40px) saturate(1.3);
+  --glass-center-shadow: 0 70px 130px rgba(0, 0, 0, 0.66), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  /* A sombra do lançador de Meta+V. Curta e com espalhamento negativo, para
+     caber INTEIRA na folga de 24px da janela dele: a sombra de 130px do painel
+     central, cortada pela borda da janela, virava um retângulo escuro em volta
+     (MEDIDO em 05/09/2026: a faixa da folga saía 15 pontos mais escura que a
+     tela ao lado). */
+  --launcher-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+  /* ——— Vidro: dock / barra de transporte ——————————————————————— */
+  --glass-dock-bg: rgba(240, 238, 245, 0.14);
+  --glass-dock-border: 1px solid rgba(255, 255, 255, 0.18);
+  --glass-dock-filter: blur(30px) saturate(1.4);
+  --glass-dock-shadow: 0 26px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  /* Navegação embutida: a coluna dentro do painel central é um vidro um pouco
+     mais escuro que o painel, separado dele por um fio. */
+  --glass-rail-bg: rgba(0, 0, 0, 0.16);
+  --glass-rail-border: 1px solid rgba(255, 255, 255, 0.08);
+  --glass-transport-bg: rgba(240, 238, 245, 0.13);
+  --glass-transport-shadow:
+    0 26px 50px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.24);
+
+  /* ——— Superfícies internas (cards dentro do vidro) ————————————— */
+  --surface-inner-bg: rgba(255, 255, 255, 0.05);
+  --surface-inner-bg-strong: rgba(255, 255, 255, 0.055);
+  --surface-inner-border: 1px solid rgba(255, 255, 255, 0.09);
+  --surface-inner-border-strong: 1px solid rgba(255, 255, 255, 0.1);
+  --surface-inner-active-bg: rgba(255, 255, 255, 0.08);
+  --surface-inner-active-bg-strong: rgba(255, 255, 255, 0.09);
+  --surface-inner-active-border: 1px solid rgba(255, 255, 255, 0.14);
+  /* Variações que o handoff usa em cards específicos (Lab, Media, Claude). */
+  --surface-quiet-bg: rgba(255, 255, 255, 0.07);
+  --surface-monitor-bg: rgba(255, 255, 255, 0.075);
+  --surface-monitor-border: 1px solid rgba(255, 255, 255, 0.11);
+  --surface-action-border: 1px solid rgba(255, 255, 255, 0.12);
+  --surface-raised-border: 1px solid rgba(255, 255, 255, 0.15);
+  --surface-faint-border: 1px solid rgba(255, 255, 255, 0.08);
+
+  /* Véu sobre a foto do ambiente: escurece de baixo para cima, onde mora o
+     nome, e deixa o topo da imagem à mostra. */
+  --env-veil: linear-gradient(
+    180deg,
+    rgba(8, 12, 10, 0.25) 0%,
+    rgba(8, 12, 10, 0.55) 55%,
+    rgba(6, 10, 8, 0.82) 100%
+  );
+
+  /* ——— Texto ——————————————————————————————————————————————— */
+  --text-primary: #f2f0f5;
+  --text-secondary: rgba(242, 240, 245, 0.6);
+  --text-tertiary: rgba(242, 240, 245, 0.45);
+  --text-dock-idle: rgba(242, 240, 245, 0.8);
+  --text-mono-label: rgba(242, 240, 245, 0.7);
+  /* Rótulos dos widgets da home (relógio, clima): entre o secundário e o
+     terciário, e o handoff usa exatamente este. */
+  --text-widget-label: rgba(242, 240, 245, 0.5);
+
+  /* ——— Acentos ————————————————————————————————————————————— */
+  --accent-violet: oklch(0.72 0.13 275);
+  --accent-green: oklch(0.78 0.15 150);
+  --accent-green-bar: oklch(0.72 0.14 150);
+  --accent-amber: oklch(0.82 0.15 85);
+  --accent-red: oklch(0.72 0.15 25);
+  --accent-mint: oklch(0.78 0.13 160);
+  --accent-mint-strong: oklch(0.8 0.11 160);
+  --accent-gold: oklch(0.82 0.12 65);
+  /* Ícone do clima (o handoff mostra neblina neste tom). */
+  --weather-icon: oklch(0.82 0.06 200);
+  /* Ícone animado opcional. O original usa branco + ciano #0cf; aqui o
+     "ciano" é o próprio tom de clima do handoff, para não abrir uma cor nova
+     na paleta. O preenchimento imita o vidro: a técnica do desenho é recorte,
+     e o miolo precisa parecer o fundo do card. */
+  --weather-outline: #f2f0f5;
+  --weather-accent: oklch(0.82 0.06 200);
+  --weather-faint: rgba(242, 240, 245, 0.2);
+  --weather-fill: rgb(28 34 32);
+  --divider: rgba(255, 255, 255, 0.1);
+  --glass-darken: #05080a;
+  /* Estêncil de máscara: não é cor de desenho, é o "opaco" de um mask-image. */
+  --mask-opaque: #000;
+  --link: #b9b3ff;
+  --link-hover: #d9d5ff;
+
+  /* ——— Interação ————————————————————————————————————————————— */
+  --hover-row: rgba(255, 255, 255, 0.09);
+  --hover-dock-item: rgba(255, 255, 255, 0.13);
+  --dock-item-active: rgba(255, 255, 255, 0.22);
+  --dock-item-active-hover: rgba(255, 255, 255, 0.3);
+  --home-indicator: rgba(255, 255, 255, 0.35);
+  --home-indicator-hover: rgba(255, 255, 255, 0.6);
+  --hover-row-strong: rgba(255, 255, 255, 0.1);
+
+  /* Controles (valores do protótipo: helpers `sw()` e `tab()`) */
+  --toggle-track-off: rgba(255, 255, 255, 0.18);
+  --toggle-knob-off: rgba(242, 240, 245, 0.85);
+  --toggle-knob-on: #0e1512;
+  /* Texto e ícone SOBRE uma superfície de acento (o botão cheio de "Tocar", o
+     de enviar do Claude). Existe porque os dois já o liam e ninguém o
+     declarava: `var(--on-accent)` caía em `inherit`, e o texto saía quase
+     branco sobre verde — 1,7:1 medido. Não é o `--toggle-knob-on` acima, ainda
+     que hoje coincidam: aquele nomeia a bolinha de um Toggle. */
+  --on-accent: #0e1512;
+
+  --slider-track: rgba(255, 255, 255, 0.16);
+  --tab-active-bg: rgba(255, 255, 255, 0.14);
+  --avatar-ring: rgba(255, 255, 255, 0.4);
+  --track-quiet: rgba(255, 255, 255, 0.15);
+  --track-fill: rgba(242, 240, 245, 0.8);
+  --cover-base: #1c2422;
+
+  /* ——— Claude ——————————————————————————————————————————————— */
+  --claude-orb: radial-gradient(
+    60% 60% at 35% 30%,
+    oklch(0.9 0.09 75),
+    oklch(0.75 0.14 45) 45%,
+    oklch(0.5 0.12 300)
+  );
+  --claude-orb-shadow: 0 0 50px oklch(0.7 0.13 60 / 0.55), inset 0 -8px 24px rgba(0, 0, 0, 0.35);
+
+  /* ——— Véus ——————————————————————————————————————————————————— */
+  /* Véus das telas de Música/Media (handoff). */
+  --artist-veil: linear-gradient(
+    90deg,
+    rgba(10, 12, 11, 0.92),
+    rgba(10, 12, 11, 0.5) 52%,
+    rgba(10, 12, 11, 0.15)
+  );
+  --hero-veil: linear-gradient(180deg, transparent, rgba(4, 10, 8, 0.75));
+  --card-border-strong: 1px solid rgba(255, 255, 255, 0.16);
+
+  /* ——— Placeholder listrado (onde ainda não há imagem) —————————— */
+  --placeholder-stripes: repeating-linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.09) 0 3px,
+    rgba(255, 255, 255, 0.02) 3px 12px
+  );
+
+  /* ——— Tipografia ——————————————————————————————————————————— */
+  --font-sans: "DM Sans", Helvetica, Arial, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, monospace;
+
+  /* ——— Raios ————————————————————————————————————————————————— */
+  --radius-panel-30: 30px;
+  --radius-dock: 34px;
+  --radius-transport: 30px;
+  --radius-card: 20px;
+  --radius-row: 14px;
+  --radius-chip: 8px;
+
+  /* ——— Animação ————————————————————————————————————————————— */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-center: 0.58s;
+  --dur-side: 0.66s;
+  --dur-dock: 0.5s;
+  /* Troca de ambiente. Espelhado em `TROCA_MS` (`app/environment.ts`): é a
+     mesma transição, contada dos dois lados. */
+  --dur-env: 0.6s;
+
+  /* ——— Ambientes: a amostra da paleta de cada um ————————————————
+   *
+   * O painel de Ambientes mostra as cores de um tema mesmo com OUTRO ativo, e
+   * por isso estas não podem ser `var(--accent-…)`: a substituição é preguiçosa
+   * e a amostra da Floresta passaria a mostrar as cores do tema ligado.
+   *
+   * As da Floresta são cópias literais dos acentos do handoff (menta, violeta,
+   * ouro). As de cada outro tema ficam no arquivo dele — ver
+   * `styles/env-cyberpunk.css`. */
+  --env-floresta-1: oklch(0.8 0.11 160);
+  --env-floresta-2: oklch(0.72 0.13 275);
+  --env-floresta-3: oklch(0.82 0.12 65);
+
+  /* ——— Player —————————————————————————————————————————————————
+   *
+   * A janela do player é opaca e preta, não de vidro: vídeo por cima de
+   * transparência com o papel de parede atrás lava o contraste da imagem. Os
+   * controles reaproveitam a gramática do app, escurecidos para não competir
+   * com o que está sendo assistido.
+   */
+  --player-bg: rgb(0 0 0);
+  --player-scrim: linear-gradient(
+    to top,
+    rgb(0 0 0 / 0.86) 0%,
+    rgb(0 0 0 / 0.5) 46%,
+    rgb(0 0 0 / 0) 100%
+  );
+  --player-scrim-top: linear-gradient(to bottom, rgb(0 0 0 / 0.72) 0%, rgb(0 0 0 / 0) 100%);
+  --player-control: rgb(255 255 255 / 0.9);
+  --player-control-idle: rgb(255 255 255 / 0.62);
+  --player-control-bg: rgb(255 255 255 / 0.1);
+  --player-control-bg-hover: rgb(255 255 255 / 0.18);
+  --player-track: rgb(255 255 255 / 0.22);
+  --player-buffered: rgb(255 255 255 / 0.36);
+  --player-error: rgb(255 138 138);
+
+  /* Fundo dos botões que ficam POR CIMA de arte (a estrela na capa): precisa
+     de corpo próprio para o ícone não sumir num pôster claro. */
+  --scrim-strong: rgb(0 0 0 / 0.55);
+  /* Fundo de modal: o vidro dos painéis é transparente de propósito (o app é
+     um overlay), mas um modal fica POR CIMA de texto — e ali a transparência
+     vira ilegibilidade. Este tem corpo próprio. */
+  --modal-bg: rgb(16 20 19 / 0.97);
+  --modal-veu: rgb(0 0 0 / 0.62);
+  --scrim-stronger: rgb(0 0 0 / 0.75);
+}

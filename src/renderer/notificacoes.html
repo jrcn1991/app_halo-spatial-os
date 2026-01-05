@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <!--
+      CSP da janela dos avisos, separada da do app.
+      Ela não fala com rede: o ícone e a imagem de cada notificação chegam do
+      main já em `data:` (o renderer não alcança disco, e os caminhos vêm de
+      outro programa pelo D-Bus).
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'"
+    />
+    <title>Halo · Avisos</title>
+  </head>
+  <body>
+    <div id="avisos"></div>
+    <script type="module" src="/notificacoes/main.tsx"></script>
+  </body>
+</html>

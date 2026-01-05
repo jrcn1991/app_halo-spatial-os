@@ -1,0 +1,1068 @@
+/* ==========================================================================
+   Halo — Ambiente: Cyberpunk 2077
+
+   Arquivo de TEMA. Duas coisas moram aqui, e só elas:
+
+   1. os VALORES dos tokens quando `data-env='cyberpunk'` está no `:root`;
+   2. as regras de FORMA que um tema precisa e um token não alcança — chanfro,
+      moldura de canto, camadas de efeito. Todas presas a `:root[data-env=…]`
+      e a atributos que já existem no app (`data-halo-in`, `data-halo-fx`),
+      de propósito: assim as oito telas não são editadas uma a uma.
+
+   Por isso ele está na lista `ALLOW` de `tools/style-lint.mjs`, ao lado de
+   `styles/tokens.css` e `island/tokens.css`: a regra do projeto é "cor literal
+   só em arquivo de tokens", e um tema É um arquivo de tokens. Cor solta em
+   componente continua proibida.
+
+   Leitura do tema: o jogo é amarelo de marca, e o HUD de netrunner é vermelho.
+   Aqui os dois convivem com papéis separados — AMARELO é destaque (foco, ação,
+   seleção), VERMELHO é moldura e alerta, CIANO é dado e leitura. Magenta só
+   entra em glitch; nunca em conteúdo.
+
+   O amarelo `#FCEE0A` é ESCOLHA NOSSA: a CDPR não publica um hex oficial.
+   Está registrado em MOCKS.md — não afirme que é oficial.
+   ========================================================================== */
+
+/* ——— Paleta crua ————————————————————————————————————————————————
+   Fora do seletor de tema de propósito: a amostra do painel de Ambientes
+   precisa mostrar as cores do Cyberpunk mesmo com a Floresta ativa. */
+:root {
+  --cp-void: #080002;
+  --cp-panel: #0a0a08;
+  /* Névoa vermelha por cima do painel, e o fio de 1px que desenha as arestas. */
+  --cp-fog: rgba(255, 42, 58, 0.18);
+  --cp-line: rgba(255, 45, 61, 0.3);
+  /* Branco QUENTE. `#fff` puro é o erro que faz o tema parecer interface de
+     escritório: no jogo nada é branco absoluto. */
+  --cp-text: #e6e4d8;
+  --cp-text-dim: #9a8b8d;
+  --cp-text-faint: #5a4a4e;
+  --cp-yellow: #fcee0a;
+  --cp-red: #ff2a3c;
+  --cp-cyan: #5ef4f8;
+  --cp-magenta: #e432c8;
+  --cp-green: #50f096;
+  --cp-amber: #ffb224;
+  --cp-crit: #d92027;
+
+  /* A amostra do painel de Ambientes: destaque, dado e moldura. */
+  --env-cyberpunk-1: var(--cp-yellow);
+  --env-cyberpunk-2: var(--cp-cyan);
+  --env-cyberpunk-3: var(--cp-red);
+
+  /* ——— Formas ———————————————————————————————————————————————
+     O chanfro é sempre a 45°, e em DOIS cantos opostos — não nos quatro. Os
+     quatro cantos chanfrados são a assinatura de tema de fã; dois opostos são
+     a do jogo. Ficam no `:root` para poderem ser lidos também pelo que não é
+     tema (nada os usa na Floresta, onde valem `none`).
+
+     E cada moldura tem a SUA quebra. Na referência não existe um polígono
+     repetido: o painel do HUD (`glass.ts panelPath`) tem degrau na aresta
+     direita e um corte grande embaixo; o painel do login (`CutPanel.qml`)
+     corta a outra diagonal; a faixa do gravador (`anim.ts drawRecBanner`)
+     corta ainda outra. Cada um dos três virou uma forma aqui. */
+
+  /* Central — é o `panelPath` medido: canto de 8 no alto-esquerdo, a aresta
+     direita DEGRAU para dentro 7px logo abaixo dos 42% da altura e assim
+     segue até o corte de 26 na base-direita. O degrau é a quebra: a aresta
+     não é uma reta só. (Números de `modules/glass.ts`: ny = h·0,42, ndep 7,
+     ncut 9, brc 26, tlc 8.) */
+  --cp-clip-center: polygon(
+    8px 0,
+    100% 0,
+    100% 42%,
+    calc(100% - 7px) calc(42% + 9px),
+    calc(100% - 7px) calc(100% - 26px),
+    calc(100% - 33px) 100%,
+    0 100%,
+    0 8px
+  );
+
+  /* Lateral ESQUERDA — mesma diagonal do central (alto-esquerdo/base-direita,
+     corte menor: 8 e 22), com um ENTALHE na aresta de dentro, a que olha para
+     o painel do meio. O entalhe é o da barra de acento do `toast.ts`: a aresta
+     recua 6px entre 34% e 72% da altura, com 8px de diagonal em cada ponta. */
+  --cp-clip-side-esq: polygon(
+    8px 0,
+    100% 0,
+    100% 34%,
+    calc(100% - 6px) calc(34% + 8px),
+    calc(100% - 6px) calc(72% - 8px),
+    100% 72%,
+    100% calc(100% - 22px),
+    calc(100% - 22px) 100%,
+    0 100%,
+    0 8px
+  );
+
+  /* Lateral DIREITA — a OUTRA diagonal (alto-direito/base-esquerda, corte 10,
+     como `CutPanel.qml` no login), e o entalhe também na aresta de dentro,
+     que deste lado é a esquerda. Espelho, e não cópia: as duas laterais não
+     podem ter a mesma silhueta. */
+  --cp-clip-side-dir: polygon(
+    0 0,
+    calc(100% - 10px) 0,
+    100% 10px,
+    100% 100%,
+    10px 100%,
+    0 calc(100% - 10px),
+    0 72%,
+    6px calc(72% - 8px),
+    6px calc(34% + 8px),
+    0 34%
+  );
+
+  /* Dock — a faixa do gravador: corte de 10 no alto-esquerdo e na
+     base-direita (`drawRecBanner`, c = 10). */
+  --cp-clip-bar: polygon(
+    10px 0,
+    100% 0,
+    100% calc(100% - 10px),
+    calc(100% - 10px) 100%,
+    0 100%,
+    0 10px
+  );
+
+  /* Transporte — a diagonal contrária à do dock, mais uma FENDA de 5px no meio
+     da aresta de cima. As duas barras ficam lado a lado na tela de Música; com
+     a mesma forma elas leriam como uma peça repetida. */
+  --cp-clip-transporte: polygon(
+    0 0,
+    calc(50% - 26px) 0,
+    calc(50% - 20px) 5px,
+    calc(50% + 20px) 5px,
+    calc(50% + 26px) 0,
+    calc(100% - 10px) 0,
+    100% 10px,
+    100% 100%,
+    10px 100%,
+    0 calc(100% - 10px)
+  );
+
+  /* ——— Molduras de canto ————————————————————————————————————
+     `Bracket.qml` do login: braço de 20, espessura 2 — e os quatro cantos NÃO
+     são iguais. Lá, dois vão em `cAmber` (#FF2A3C) e dois em `cLineDim`, um
+     cinza quente translúcido. A regra que sai daí, e que vale para toda
+     moldura deste tema: o braço FORTE fica no canto reto, o APAGADO no canto
+     chanfrado — que corta o braço e o deixaria pela metade de qualquer jeito.
+
+     O 0,28 do QML vira 0,55 aqui porque o painel do login é chapa e o nosso é
+     vidro translúcido sobre papel de parede: medido na tela, 0,28 some. */
+  --cp-braco-forte: var(--cp-red);
+  --cp-braco-fraco: rgba(154, 150, 138, 0.55);
+  --cp-braco: 20px;
+  --cp-braco-esp: 2px;
+}
+
+:root[data-env="cyberpunk"] {
+  /* ——— Palco e vidro ——————————————————————————————————————— */
+  --stage-bg: var(--cp-void);
+  --app-bg: var(--cp-void);
+  --glass-side-base: rgb(10 10 8);
+  --glass-center-base: rgb(8 8 6);
+  --glass-clarity-target: #ffe9ea;
+  /* O vidro do dock e do transporte deixa de ser leitoso: aqui ele é chapa
+     escura com um fio vermelho. */
+  --glass-dock-bg: rgba(10, 10, 8, 0.72);
+  --glass-dock-border: 1px solid var(--cp-line);
+  --glass-transport-bg: rgba(10, 10, 8, 0.68);
+  --glass-side-border: 1px solid var(--cp-line);
+  --glass-center-border: 1px solid var(--cp-line);
+  --glass-rail-bg: rgba(255, 42, 58, 0.06);
+  --glass-rail-border: 1px solid var(--cp-line);
+
+  /* Sombra vira GLOW, e glow aqui nunca é `blur` solto: é pilha de sombras de
+     raio 0 (as quatro primeiras) mais um bloom curto. As de raio 0 são o que
+     dá a impressão de luz "dura" de tubo, e não de sombra macia. */
+  --glass-side-shadow:
+    inset 0 0 0 1px var(--cp-line), inset 1.2px 0 0 rgba(255, 42, 58, 0.12),
+    inset -1.2px 0 0 rgba(255, 42, 58, 0.12), inset 0 0 2.5px rgba(255, 42, 58, 0.05),
+    inset 0 0 7px rgba(255, 42, 58, 0.02), inset 0 0 40px rgba(255, 42, 58, 0.06);
+  --glass-center-shadow:
+    inset 0 0 0 1px var(--cp-line), inset 1.2px 0 0 rgba(255, 42, 58, 0.12),
+    inset -1.2px 0 0 rgba(255, 42, 58, 0.12), inset 0 0 4.5px rgba(255, 42, 58, 0.034),
+    inset 0 0 10px rgba(255, 42, 58, 0.012), inset 0 0 60px rgba(255, 42, 58, 0.05);
+  --glass-dock-shadow: inset 0 0 0 1px var(--cp-line), inset 0 0 18px rgba(255, 42, 58, 0.08);
+  --glass-transport-shadow: inset 0 0 0 1px var(--cp-line), inset 0 0 18px rgba(255, 42, 58, 0.08);
+
+  /* ——— Superfícies internas ———————————————————————————————— */
+  --surface-inner-bg: rgba(255, 42, 58, 0.05);
+  --surface-inner-bg-strong: rgba(255, 42, 58, 0.07);
+  --surface-inner-border: 1px solid rgba(255, 45, 61, 0.22);
+  --surface-inner-border-strong: 1px solid var(--cp-line);
+  --surface-inner-active-bg: rgba(252, 238, 10, 0.1);
+  --surface-inner-active-bg-strong: rgba(252, 238, 10, 0.13);
+  --surface-inner-active-border: 1px solid rgba(252, 238, 10, 0.5);
+  --surface-quiet-bg: rgba(255, 42, 58, 0.06);
+  --surface-monitor-bg: rgba(255, 42, 58, 0.07);
+  --surface-monitor-border: 1px solid rgba(255, 45, 61, 0.24);
+  --surface-action-border: 1px solid rgba(255, 45, 61, 0.26);
+  --surface-raised-border: 1px solid var(--cp-line);
+  --surface-faint-border: 1px solid rgba(255, 45, 61, 0.18);
+  --card-border-strong: 1px solid var(--cp-line);
+  --divider: rgba(255, 45, 61, 0.28);
+
+  /* O véu do ambiente ganha a névoa do HUD: a foto entra sob o vermelho, como
+     tudo mais aqui, e o nome em Rajdhani continua legível sobre ela. */
+  --env-veil: linear-gradient(
+    180deg,
+    rgba(8, 0, 2, 0.42) 0%,
+    rgba(20, 2, 6, 0.68) 55%,
+    rgba(8, 0, 2, 0.88) 100%
+  );
+
+  /* ——— Texto ——————————————————————————————————————————————— */
+  --text-primary: var(--cp-text);
+  --text-secondary: var(--cp-text-dim);
+  /* MEDIDO na tela: `--cp-text-faint` puro (#5A4A4E) some sobre o vidro deste
+     app — que é translúcido e clareia com o papel de parede atrás. Ele continua
+     valendo para o que é decoração (a etiqueta "EM BREVE"), mas o terciário
+     carrega DATA, ARTISTA e METADADO: aqui ele fica entre o apagado e o fraco,
+     onde ainda se lê. Legibilidade ganha da paleta quando as duas brigam. */
+  --text-tertiary: color-mix(in srgb, var(--cp-text-dim) 78%, var(--cp-text-faint));
+  --text-dock-idle: var(--cp-text-dim);
+  --text-mono-label: var(--cp-text-dim);
+  /* MEDIDO na tela (03/09/2026): a mistura meio a meio some sob o vidro
+     translúcido — o rótulo do relógio e o "TOCANDO AGORA" viravam vulto. O
+     tracking largo do HUD já rouba peso do texto pequeno; aqui ele precisa
+     de mais luz, não de menos. */
+  --text-widget-label: color-mix(in srgb, var(--cp-text-dim) 82%, var(--cp-text-faint));
+  --link: var(--cp-cyan);
+  --link-hover: var(--cp-yellow);
+
+  /* ——— Acentos ————————————————————————————————————————————
+     Papéis, não decoração: amarelo destaca, vermelho alerta, ciano é dado. */
+  --accent-mint: var(--cp-cyan);
+  --accent-mint-strong: var(--cp-yellow);
+  --accent-green: var(--cp-green);
+  --accent-green-bar: var(--cp-green);
+  --accent-gold: var(--cp-yellow);
+  --accent-amber: var(--cp-amber);
+  --accent-red: var(--cp-crit);
+  --accent-violet: var(--cp-cyan);
+  --weather-icon: var(--cp-cyan);
+  --weather-outline: var(--cp-text);
+  --weather-accent: var(--cp-cyan);
+  --weather-faint: rgba(230, 228, 216, 0.18);
+  --weather-fill: rgb(10 10 8);
+
+  /* ——— Interação ——————————————————————————————————————————— */
+  --hover-row: rgba(255, 42, 58, 0.12);
+  --hover-row-strong: rgba(255, 42, 58, 0.14);
+  --hover-dock-item: rgba(252, 238, 10, 0.14);
+  --dock-item-active: rgba(252, 238, 10, 0.22);
+  --dock-item-active-hover: rgba(252, 238, 10, 0.3);
+  --home-indicator: rgba(255, 42, 58, 0.4);
+  --home-indicator-hover: var(--cp-red);
+  --toggle-track-off: rgba(255, 42, 58, 0.22);
+  --toggle-knob-off: var(--cp-text-dim);
+  --toggle-knob-on: var(--cp-void);
+  --on-accent: var(--cp-void);
+  --slider-track: rgba(255, 42, 58, 0.22);
+  --tab-active-bg: rgba(252, 238, 10, 0.16);
+  --avatar-ring: rgba(252, 238, 10, 0.45);
+  --track-quiet: rgba(255, 42, 58, 0.2);
+  --track-fill: var(--cp-yellow);
+  --cover-base: #12100c;
+  --glass-darken: var(--cp-void);
+  --modal-bg: rgb(10 10 8 / 0.97);
+  --modal-veu: rgb(8 0 2 / 0.72);
+  --scrim-strong: rgb(8 0 2 / 0.6);
+  --scrim-stronger: rgb(8 0 2 / 0.8);
+  --placeholder-stripes: repeating-linear-gradient(
+    135deg,
+    rgba(255, 42, 58, 0.12) 0 3px,
+    rgba(255, 42, 58, 0.02) 3px 12px
+  );
+  --veil: linear-gradient(
+    180deg,
+    rgba(8, 0, 2, 0.4) 0%,
+    rgba(8, 0, 2, 0.12) 45%,
+    rgba(8, 0, 2, 0.66) 100%
+  );
+
+  /* Orbe do Claude: o mesmo desenho, no amarelo/vermelho do tema. */
+  --claude-orb: radial-gradient(60% 60% at 35% 30%, #fcee0a, #ff2a3c 52%, #5a0a12);
+  --claude-orb-shadow: 0 0 40px rgba(252, 238, 10, 0.35), inset 0 -8px 24px rgba(8, 0, 2, 0.5);
+
+  /* ——— Tipografia ————————————————————————————————————————————
+     Rajdhani é a fonte do HUD do jogo; Share Tech Mono dá numerais mais duros
+     que o DM Mono. As duas vêm EMPACOTADAS (`@fontsource/…`, importadas em
+     `main.tsx`): a CSP é `font-src 'self'`, o CDN do Google está bloqueado, e
+     abrir a CSP por causa de fonte não está em discussão.
+
+     A escala medida do HUD: quanto MENOR o texto, MAIOR o tracking. O tracking
+     por tamanho é aplicado adiante, nos rótulos e títulos. */
+  --font-sans: "Rajdhani", "DM Sans", Helvetica, Arial, sans-serif;
+  --font-mono: "Share Tech Mono", "DM Mono", ui-monospace, monospace;
+
+  /* ——— Raios ————————————————————————————————————————————————
+     O tema zera os raios: quem faz o canto é o chanfro. 2px é o teto — nada
+     aqui é "arredondado", no máximo é "não afiado". */
+  --panel-radius: 0px;
+  --radius-panel-30: 0px;
+  --radius-dock: 0px;
+  --radius-transport: 0px;
+  --radius-card: 2px;
+  --radius-row: 2px;
+  --radius-chip: 2px;
+
+  /* Curva de entrada do tema — mais seca que a do handoff. */
+  --cp-ease: cubic-bezier(0.05, 0.7, 0.1, 1);
+  /* Assentamento curto, para o que chega em cima de algo. */
+  --cp-ease-assenta: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ==========================================================================
+   Forma
+   ========================================================================== */
+
+/* Chanfro dos painéis.
+
+   ARMADILHA MEDIDA: `clip-path` recorta TUDO que o elemento pinta, `box-shadow`
+   incluído — e o vidro do app depende de sombra. Um pseudo-elemento "atrás"
+   não resolve: ele é descendente e é recortado junto. Por isso o glow do tema
+   é INSET (ver `--glass-*-shadow` acima, que sobrevive ao recorte) e o halo
+   externo é um único `drop-shadow` estático, que segue a silhueta recortada.
+   Estático de propósito: `filter: drop-shadow()` em laço é caro, e o tema tem
+   movimento demais para gastar quadro com isso. */
+:root[data-env="cyberpunk"] [data-halo-in="center"] {
+  clip-path: var(--cp-clip-center);
+  filter: drop-shadow(0 0 6px rgba(255, 42, 58, 0.16));
+}
+
+/* As duas laterais têm silhuetas diferentes, e o lado vem do atributo que
+   `Panel` escreve. Na Floresta o atributo existe e não é lido por ninguém. */
+:root[data-env="cyberpunk"] [data-halo-in="side"] {
+  filter: drop-shadow(0 0 5px rgba(255, 42, 58, 0.14));
+}
+
+:root[data-env="cyberpunk"] [data-halo-in="side"][data-halo-side="esquerda"] {
+  clip-path: var(--cp-clip-side-esq);
+}
+
+:root[data-env="cyberpunk"] [data-halo-in="side"][data-halo-side="direita"] {
+  clip-path: var(--cp-clip-side-dir);
+}
+
+:root[data-env="cyberpunk"] [data-halo-in="dock"],
+:root[data-env="cyberpunk"] [data-halo-in="dock-vertical"] {
+  clip-path: var(--cp-clip-bar);
+}
+
+:root[data-env="cyberpunk"] [data-halo-in="transport"] {
+  clip-path: var(--cp-clip-transporte);
+}
+
+/* Camada de molduras de canto: um pseudo-elemento, oito gradientes, dois
+   braços por canto. O que muda de painel para painel é QUAL diagonal recebe o
+   braço forte — sempre a dos cantos retos daquela silhueta (ver as formas
+   acima). Nos cantos chanfrados o braço é cortado pelo `clip-path`, e por isso
+   ali ele é o apagado: um braço forte cortado pela metade lê como defeito. */
+:root[data-env="cyberpunk"] [data-halo-in="center"]::before,
+:root[data-env="cyberpunk"] [data-halo-in="side"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  /* Forte o bastante para ler como moldura, e não como mais um fio: o painel
+     já tem o traço de 1px em volta. */
+  opacity: 0.75;
+  z-index: 1;
+}
+
+/* Central e lateral esquerda cortam alto-esquerdo/base-direita: o braço forte
+   vai para o alto-direito e a base-esquerda. */
+:root[data-env="cyberpunk"] [data-halo-in="center"]::before,
+:root[data-env="cyberpunk"] [data-halo-in="side"][data-halo-side="esquerda"]::before {
+  background-image:
+    linear-gradient(var(--cp-braco-forte), var(--cp-braco-forte)),
+    linear-gradient(var(--cp-braco-forte), var(--cp-braco-forte)),
+    linear-gradient(var(--cp-braco-forte), var(--cp-braco-forte)),
+    linear-gradient(var(--cp-braco-forte), var(--cp-braco-forte)),
+    linear-gradient(var(--cp-braco-fraco), var(--cp-braco-fraco)),
+    linear-gradient(var(--cp-braco-fraco), var(--cp-braco-fraco)),
+    linear-gradient(var(--cp-braco-fraco), var(--cp-braco-fraco)),
+    linear-gradient(var(--cp-braco-fraco), var(--cp-braco-fraco));
+  background-position:
+    100% 0,
+    100% 0,
+    0 100%,
+    0 100%,
+    0 0,
+    0 0,
+    100% 100%,
+    100% 100%;
+  background-size:
+    var(--cp-braco) var(--cp-braco-esp),
+    var(--cp-braco-esp) var(--cp-braco),
+    var(--cp-braco) var(--cp-braco-esp),
+    var(--cp-braco-esp) var(--cp-braco),
+    var(--cp-braco) var(--cp-braco-esp),
+    var(--cp-braco-esp) var(--cp-braco),
+    var(--cp-braco) var(--cp-braco-esp),
+    var(--cp-braco-esp) var(--cp-braco);
+}
+
+/* A lateral direita corta a outra diagonal — e o braço forte troca de lado
+   junto. É esta troca que faz as duas laterais não lerem como o mesmo painel
+   espelhado. */
+:root[data-env="cyberpunk"] [data-halo-in="side"][data-halo-side="direita"]::before {
+  background-image:
+    linear-gradient(var(--cp-braco-forte), var(--cp-braco-forte)),
+    linear-gradient(var(--cp-braco-forte), var(--cp-braco-forte)),
+    linear-gradient(var(--cp-braco-forte), var(--cp-braco-forte)),
+    linear-gradient(var(--cp-braco-forte), var(--cp-braco-forte)),
+    linear-gradient(var(--cp-braco-fraco), var(--cp-braco-fraco)),
+    linear-gradient(var(--cp-braco-fraco), var(--cp-braco-fraco)),
+    linear-gradient(var(--cp-braco-fraco), var(--cp-braco-fraco)),
+    linear-gradient(var(--cp-braco-fraco), var(--cp-braco-fraco));
+  background-position:
+    0 0,
+    0 0,
+    100% 100%,
+    100% 100%,
+    100% 0,
+    100% 0,
+    0 100%,
+    0 100%;
+  background-size:
+    var(--cp-braco) var(--cp-braco-esp),
+    var(--cp-braco-esp) var(--cp-braco),
+    var(--cp-braco) var(--cp-braco-esp),
+    var(--cp-braco-esp) var(--cp-braco),
+    var(--cp-braco) var(--cp-braco-esp),
+    var(--cp-braco-esp) var(--cp-braco),
+    var(--cp-braco) var(--cp-braco-esp),
+    var(--cp-braco-esp) var(--cp-braco);
+}
+
+/* Tipografia do HUD: quanto menor o texto, maior o tracking. Os rótulos do app
+   são todos `font-family: var(--font-mono)` em caixa alta — é neles que a
+   régua do jogo entra.
+
+   E o rótulo ganha a RÉGUA COM TIQUES do HUD do gravador (`anim.ts
+   drawRecTop`): traço fino saindo do texto, tique alto na ponta, tique médio
+   no meio, tique curto perto do texto. Medidas de lá: traço 1,2px a 0,7 de
+   alfa; tiques de 1,5px de largura e meia-altura 7 / 4 / 3, a 0,9 / 0,7 / 0,6.
+   Aqui as meias-alturas viram alturas (14 / 8 / 6), porque o tique cruza a
+   régua pelo meio.
+
+   `flex: 1` na régua: onde o rótulo é `flex: none` numa linha (a etiqueta de
+   conteúdo de exemplo, na Música), a régua fica com zero de largura e some —
+   é o que se quer, ali não há espaço para ela. */
+:root[data-env="cyberpunk"] [data-halo-in] [class*="label"],
+:root[data-env="cyberpunk"] [data-halo-in] [class*="Label"] {
+  letter-spacing: 0.2em;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Exceção ao tracking, e só para o rótulo de DADO dentro do mini-stat.
+   MEDIDO: com 0,2em, "11.0 GB EM USO" não cabe nos ~95px do cartão e quebra em
+   duas linhas — quebra a partir de 0,14em e cabe até 0,12em. O endereço é o
+   cartão (`data-halo-cartao="mini"`), e não o `_stat_`: o Social também tem
+   uma classe com esse nome, e foi por aí que o BioShock riscou os números do
+   perfil. A régua continua, só o espaçamento cede. */
+:root[data-env="cyberpunk"] [data-halo-in] [data-halo-cartao="mini"] [class*="abel"] {
+  letter-spacing: 0.12em;
+}
+
+:root[data-env="cyberpunk"] [data-halo-in] [class*="label"]::after,
+:root[data-env="cyberpunk"] [data-halo-in] [class*="Label"]::after {
+  content: "";
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 14px;
+  background-repeat: no-repeat;
+  background-image:
+    linear-gradient(rgba(255, 42, 58, 0.7), rgba(255, 42, 58, 0.7)),
+    linear-gradient(rgba(255, 42, 58, 0.6), rgba(255, 42, 58, 0.6)),
+    linear-gradient(rgba(255, 42, 58, 0.7), rgba(255, 42, 58, 0.7)),
+    linear-gradient(rgba(255, 42, 58, 0.9), rgba(255, 42, 58, 0.9));
+  background-position:
+    0 50%,
+    6px 50%,
+    50% 50%,
+    100% 50%;
+  background-size:
+    100% 1.2px,
+    1.5px 6px,
+    1.5px 8px,
+    1.5px 14px;
+}
+
+/* ==========================================================================
+   Notificações
+
+   O popup da referência (`modules/notifpopup.ts`) monta cada aviso como uma
+   MOLDURA QUE CRESCE: ela nasce com 122px de largura, varre até 400 com uma
+   aresta acesa na frente, pisca a 8,3 Hz enquanto cresce, e o texto aparece
+   dentro dela. A linha da lista aqui faz o mesmo — o movimento está em
+   `styles/animations.css`; aqui ficam a forma e a cor.
+   ========================================================================== */
+
+:root[data-env="cyberpunk"] [data-halo-in="notificacao"] {
+  position: relative;
+  /* Cor da urgência. Vermelho é o padrão porque, sem urgência declarada, o que
+     resta é um aviso — e aviso neste tema é vermelho. */
+  --cp-urg: #ff4a44;
+  /* `drawFrame`: espora de 5px no alto-esquerdo e canto de 3 na base-esquerda;
+     mais o bisel de `toast.ts bevelPts` na base-direita (bev = mín(13, h·0,42);
+     a linha tem 38px de altura, então 13 é o teto). Nenhum canto igual ao
+     outro, que é o ponto. */
+  clip-path: polygon(
+    5px 0,
+    100% 0,
+    100% calc(100% - 13px),
+    calc(100% - 13px) 100%,
+    3px 100%,
+    0 calc(100% - 3px),
+    0 2px
+  );
+  /* `.notif-row` do `cyber.scss`: barra de 2px e 12px de recuo. */
+  border-left: 2px solid var(--cp-urg);
+  padding-left: 12px;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, transparent, var(--cp-urg) 16%), transparent 62%),
+    var(--surface-inner-bg);
+  /* A varredura da montagem: `mask-size` cresce de 30,5% (= 122/400, a largura
+     inicial da moldura na referência) até 100%. Máscara, e não `clip-path`,
+     porque o `clip-path` já está ocupado com a silhueta. */
+  mask-image: linear-gradient(90deg, var(--mask-opaque), var(--mask-opaque));
+  mask-repeat: no-repeat;
+  mask-position: 0 0;
+  mask-size: 100% 100%;
+}
+
+/* As três urgências que o app tem, nas cores de `modules/colors.ts`:
+   `notifred` [255,74,68], `notifcyn` [108,230,246], e o verde do HUD. */
+:root[data-env="cyberpunk"] [data-urgencia="error"] {
+  --cp-urg: #ff4a44;
+}
+
+:root[data-env="cyberpunk"] [data-urgencia="info"] {
+  --cp-urg: #6ce6f6;
+}
+
+:root[data-env="cyberpunk"] [data-urgencia="ok"] {
+  --cp-urg: #50f096;
+}
+
+/* O topo da pilha é mais forte que o resto — na referência ele tem preenchimento
+   e borda próprios (`GOLDF` contra `GOLDD`, alfa 0,95 contra 0,8). Aqui o que
+   muda é a barra: 3px em vez de 2. O recuo compensa, para a largura do texto
+   não mudar de linha para linha. */
+:root[data-env="cyberpunk"] [data-halo-in="notificacao"]:first-of-type {
+  border-left-width: 3px;
+  padding-left: 11px;
+}
+
+/* A aresta que lidera a varredura: na referência são dois traços no mesmo
+   lugar, um branco de 1,5px a 0,7 de alfa e um amarelo de 0,7px a 0,5. Aqui é
+   um traço claro com o amarelo virando halo. */
+:root[data-env="cyberpunk"] [data-halo-in="notificacao"]::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 30.5%;
+  width: 2px;
+  background: var(--cp-text);
+  box-shadow:
+    0 0 5px var(--cp-yellow),
+    0 0 1px var(--cp-yellow);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   HUD de mídia
+
+   `modules/nowplaying.ts` é um banner de 300×54 que se ABRE a partir de uma
+   linha: o traço cresce, pisca duas vezes, o painel se descola dele para cima
+   e para baixo, e só então o conteúdo acende. Dentro dele há grade, marcas de
+   canto, uma varredura na aresta de cima e um equalizador de quatro barras.
+   Todas as medidas abaixo saem de lá; o movimento está em `animations.css`.
+   ========================================================================== */
+
+:root[data-env="cyberpunk"] [data-halo-in="hud"] {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0;
+  /* A silhueta do banner do gravador (`anim.ts drawRecBanner`, c = 10). */
+  clip-path: polygon(
+    10px 0,
+    100% 0,
+    100% calc(100% - 10px),
+    calc(100% - 10px) 100%,
+    0 100%,
+    0 10px
+  );
+}
+
+/* Fundo do HUD: a lavagem azul-acinzentada do corpo do banner ([120,150,185] a
+   0,12), a grade interna — verticais a cada 1/6 da largura, horizontais a cada
+   1/3 da altura, em `NEON.grid` #283246 —, as quatro marcas de canto (1,8 de
+   meia-medida, ou seja 3,6px) e o segmento de varredura da aresta de cima
+   (46% da largura). O 0,08 do desenho vira 0,5 aqui: lá a grade é pintada
+   sobre chapa quase preta, e aqui sobre vidro que já tem o papel de parede. */
+:root[data-env="cyberpunk"] [data-halo-in="hud"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-repeat:
+    repeat, repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+  background-image:
+    repeating-linear-gradient(90deg, rgba(40, 50, 70, 0.5) 0 1px, transparent 1px 16.6667%),
+    repeating-linear-gradient(180deg, rgba(40, 50, 70, 0.5) 0 1px, transparent 1px 33.3333%),
+    linear-gradient(90deg, transparent, var(--cp-red), transparent),
+    linear-gradient(var(--cp-red), var(--cp-red)), linear-gradient(var(--cp-red), var(--cp-red)),
+    linear-gradient(var(--cp-red), var(--cp-red)), linear-gradient(var(--cp-red), var(--cp-red)),
+    linear-gradient(rgba(120, 150, 185, 0.12), rgba(120, 150, 185, 0.12));
+  background-position:
+    0 0,
+    0 0,
+    0 0,
+    0 0,
+    100% 0,
+    0 100%,
+    100% 100%,
+    0 0;
+  background-size:
+    100% 100%,
+    100% 100%,
+    46% 2px,
+    4px 4px,
+    4px 4px,
+    4px 4px,
+    4px 4px,
+    100% 100%;
+}
+
+/* A linha de onde o painel se abre. Ela é a primeira coisa que existe: cresce
+   da esquerda (`barW` 0,02 → 1 em 28% dos 620ms de entrada), pisca quatro
+   passos e some quando o painel já está aberto. 3,4px de altura — o `half` de
+   1,7 do desenho, para os dois lados. */
+:root[data-env="cyberpunk"] [data-halo-in="hud"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-image: linear-gradient(var(--cp-red), var(--cp-red));
+  background-position: 0 50%;
+  background-size: 100% 0;
+}
+
+/* O equalizador: quatro barras de 3,4px com 2,6 de folga, 12px de altura
+   máxima, em ciano a 0,85. Mora no `::before` do rótulo do card — `order: 2`
+   o joga para depois da régua, que é o `::after`. Só existe dentro do HUD, e
+   só se mexe quando há som (ver `data-tocando`). */
+:root[data-env="cyberpunk"] [data-halo-in="hud"] [class*="abel"]::before {
+  content: "";
+  order: 2;
+  flex: none;
+  width: 22px;
+  height: 12px;
+  background-repeat: no-repeat;
+  background-image:
+    linear-gradient(rgba(94, 244, 248, 0.85), rgba(94, 244, 248, 0.85)),
+    linear-gradient(rgba(94, 244, 248, 0.85), rgba(94, 244, 248, 0.85)),
+    linear-gradient(rgba(94, 244, 248, 0.85), rgba(94, 244, 248, 0.85)),
+    linear-gradient(rgba(94, 244, 248, 0.85), rgba(94, 244, 248, 0.85));
+  background-position:
+    0 100%,
+    6px 100%,
+    12px 100%,
+    18px 100%;
+  background-size:
+    3.4px 5px,
+    3.4px 9px,
+    3.4px 4px,
+    3.4px 11px;
+}
+
+/* ==========================================================================
+   Medidores
+
+   `proj.ts tiltBar`: o trilho é a cor a 0,16 e o preenchimento é uma PILHA —
+   três camadas de brilho (espessura ×2,4 a 0,06, ×1,4 a 0,13, ×0,7 a 0,5), um
+   núcleo mais claro que a cor, e uma cabeça branca de 3px na ponta. E as
+   barras do `modules/monitors.ts` não são contínuas: são tiques de 8px com
+   1,6 de folga. As duas coisas se somam aqui.
+   ========================================================================== */
+
+:root[data-env="cyberpunk"] [data-halo-medidor] {
+  border-radius: 0;
+  background: rgba(255, 42, 58, 0.16);
+  /* Segmentação: máscara, para valer no trilho E no preenchimento de uma vez. */
+  mask-image: repeating-linear-gradient(90deg, var(--mask-opaque) 0 8px, transparent 8px 9.6px);
+}
+
+:root[data-env="cyberpunk"] [data-halo-medidor] > * {
+  position: relative;
+  border-radius: 0;
+  background: var(--cp-yellow);
+  box-shadow:
+    0 0 0 1.5px rgba(252, 238, 10, 0.13),
+    0 0 0 3px rgba(252, 238, 10, 0.06),
+    0 0 6px rgba(252, 238, 10, 0.5);
+}
+
+/* A cabeça: na referência ela é branca e mais alta que a barra. Aqui fica no
+   branco quente do tema, e a altura é a da barra — a máscara de segmentos
+   cortaria qualquer sobra fora dela. */
+:root[data-env="cyberpunk"] [data-halo-medidor] > *::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 3px;
+  background: var(--cp-text);
+}
+
+/* ==========================================================================
+   O que está selecionado ganha moldura de canto
+
+   No login da referência o painel em foco é cercado por `Bracket.qml` — braço
+   e espessura, sem preenchimento nenhum. É a marca de "isto aqui é o alvo", e
+   ela cabe em qualquer coisa que o app já diga estar ativa: `aria-pressed`
+   (abas, ambientes) e `aria-current` (o dock). Nada de classe nova, e nenhuma
+   tela editada.
+
+   Braço de 10px em vez de 20: estes são controles pequenos, e o braço do
+   painel tomaria metade deles. A cor é o AMARELO, que neste tema é o papel de
+   seleção — o vermelho é moldura e alerta.
+   ========================================================================== */
+
+:root[data-env="cyberpunk"] button[aria-pressed="true"],
+:root[data-env="cyberpunk"] [aria-current="page"] {
+  position: relative;
+}
+
+/* Só o `aria-pressed` leva chanfro: o item do dock é pequeno e redondo, e
+   cortá-lo o deixaria com cara de defeito. */
+:root[data-env="cyberpunk"] button[aria-pressed="true"] {
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+}
+
+:root[data-env="cyberpunk"] button[aria-pressed="true"]::after,
+:root[data-env="cyberpunk"] [aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  background-repeat: no-repeat;
+  background-image:
+    linear-gradient(var(--cp-yellow), var(--cp-yellow)),
+    linear-gradient(var(--cp-yellow), var(--cp-yellow)),
+    linear-gradient(var(--cp-yellow), var(--cp-yellow)),
+    linear-gradient(var(--cp-yellow), var(--cp-yellow)),
+    linear-gradient(var(--cp-yellow), var(--cp-yellow)),
+    linear-gradient(var(--cp-yellow), var(--cp-yellow)),
+    linear-gradient(var(--cp-yellow), var(--cp-yellow)),
+    linear-gradient(var(--cp-yellow), var(--cp-yellow));
+  background-position:
+    0 0,
+    0 0,
+    100% 0,
+    100% 0,
+    0 100%,
+    0 100%,
+    100% 100%,
+    100% 100%;
+  background-size:
+    10px 2px,
+    2px 10px,
+    10px 2px,
+    2px 10px,
+    10px 2px,
+    2px 10px,
+    10px 2px,
+    2px 10px;
+  opacity: 0.85;
+}
+
+/* ==========================================================================
+   Barra de transporte
+
+   `modules/osd.ts` não desenha moldura: desenha TRÊS traços assimétricos —
+   16px de 2px a 0,8 no alto-esquerdo, a aresta esquerda inteira de 1px a 0,4,
+   e outros 16px de 2px a 0,8 na base-direita. É o que dá a ele o ar de peça
+   de máquina, e não de caixa.
+   ========================================================================== */
+
+:root[data-env="cyberpunk"] [data-halo-in="transport"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-image:
+    linear-gradient(rgba(94, 244, 248, 0.8), rgba(94, 244, 248, 0.8)),
+    linear-gradient(rgba(94, 244, 248, 0.4), rgba(94, 244, 248, 0.4)),
+    linear-gradient(rgba(94, 244, 248, 0.8), rgba(94, 244, 248, 0.8));
+  background-position:
+    0 0,
+    0 0,
+    100% 100%;
+  background-size:
+    16px 2px,
+    1px 100%,
+    16px 2px;
+}
+
+/* ==========================================================================
+   Camadas de tela (scanline, ruído, varredura)
+   ========================================================================== */
+
+/* As bandas de rasgo da troca de ambiente. Ficam pintadas na própria camada de
+   efeito (os dois pseudo-elementos dela já são a estática e a varredura), e só
+   têm tamanho enquanto a animação roda — ver `halo-cp-datamosh-tela` em
+   `styles/animations.css`. As alturas em porcentagem são as bandas grossas e
+   finas do `drawWsGlitchProc`; a terceira camada é o clarão branco. */
+:root[data-env="cyberpunk"] [data-halo-fx="ambiente"] {
+  background-repeat: no-repeat;
+  background-size:
+    100% 0,
+    100% 0,
+    100% 0;
+  background-image:
+    linear-gradient(
+      180deg,
+      transparent 11%,
+      rgba(255, 42, 58, 0.16) 11%,
+      rgba(255, 42, 58, 0.16) 14%,
+      transparent 14%,
+      transparent 37%,
+      rgba(255, 42, 58, 0.11) 37%,
+      rgba(255, 42, 58, 0.11) 48%,
+      transparent 48%,
+      transparent 63%,
+      rgba(255, 42, 58, 0.14) 63%,
+      rgba(255, 42, 58, 0.14) 66%,
+      transparent 66%,
+      transparent 81%,
+      rgba(255, 42, 58, 0.1) 81%,
+      rgba(255, 42, 58, 0.1) 90%,
+      transparent 90%
+    ),
+    linear-gradient(
+      180deg,
+      transparent 6%,
+      rgba(94, 244, 248, 0.08) 6%,
+      rgba(94, 244, 248, 0.08) 9%,
+      transparent 9%,
+      transparent 28%,
+      rgba(94, 244, 248, 0.06) 28%,
+      rgba(94, 244, 248, 0.06) 34%,
+      transparent 34%,
+      transparent 55%,
+      rgba(94, 244, 248, 0.07) 55%,
+      rgba(94, 244, 248, 0.07) 58%,
+      transparent 58%,
+      transparent 72%,
+      rgba(94, 244, 248, 0.06) 72%,
+      rgba(94, 244, 248, 0.06) 78%,
+      transparent 78%
+    ),
+    linear-gradient(rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.15));
+}
+
+/* Scanlines de 1px a cada 4px, e o ruído por cima. A 0.02 elas são pele; acima
+   de 0.06 viram televisão quebrada. O ruído é um gradiente cônico repetido,
+   barato, movido em passos — nada de `feTurbulence` animado. */
+:root[data-env="cyberpunk"] [data-halo-fx="ambiente"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(230, 226, 210, 0.02) 0 1px,
+    transparent 1px 4px
+  );
+  mix-blend-mode: screen;
+}
+
+/* A varredura: uma linha que atravessa o palco de cima a baixo. Um elemento
+   só, `transform` apenas — os painéis têm `backdrop-filter` de 34–40px e nada
+   pode animar dentro desse subtree. */
+:root[data-env="cyberpunk"] [data-halo-fx="ambiente"]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(94, 244, 248, 0.16), transparent);
+  will-change: transform;
+}
+
+/* ==========================================================================
+   Avisos do sistema — a janela dos balões (`src/renderer/notificacoes/`)
+
+   É o popup da referência (`modules/notifpopup.ts`) de volta ao lugar dele: o
+   balão no canto da tela. Mesma gramática da linha de notificação da home — a
+   barra de urgência, a espora de 5px no alto-esquerdo, o canto de 3 na
+   base-esquerda e o bisel de 13 na base-direita —, no tamanho do popup (400px
+   lá, 380 aqui) e com o que um balão tem e a linha não: cabeçalho, ações e a
+   barra do tempo. Os papéis de cor continuam os do tema: a urgência pinta a
+   MOLDURA (vermelho é aviso, ciano é o discreto), e AMARELO é ação.
+   ========================================================================== */
+
+:root[data-env="cyberpunk"] [data-halo-in="aviso"] {
+  --cp-urg: #ff4a44;
+  border: 0;
+  border-left: 3px solid var(--cp-urg);
+  border-radius: 0;
+  padding: 12px 16px 16px 15px;
+  clip-path: polygon(
+    5px 0,
+    100% 0,
+    100% calc(100% - 13px),
+    calc(100% - 13px) 100%,
+    3px 100%,
+    0 calc(100% - 3px),
+    0 2px
+  );
+  background-color: color-mix(in srgb, var(--cp-panel) 97%, transparent);
+  /* A névoa da urgência que se apaga para a direita (a linha da home) e as
+     linhas de varredura do monitor, a 3,5% — mais que isso vira listra. */
+  background-image:
+    linear-gradient(90deg, color-mix(in srgb, transparent, var(--cp-urg) 16%), transparent 62%),
+    repeating-linear-gradient(180deg, rgba(255, 42, 58, 0.035) 0 1px, transparent 1px 3px);
+  /* Sombra de fora seria recortada pelo `clip-path` (caderno de medidas, §11):
+     o brilho é inset, como nos painéis. */
+  box-shadow:
+    inset 0 0 0 1px var(--cp-line),
+    inset 0 0 18px rgba(255, 42, 58, 0.08);
+  /* A varredura da montagem anima `mask-size` (ver `animations.css`). */
+  mask-image: linear-gradient(90deg, var(--mask-opaque), var(--mask-opaque));
+  mask-repeat: no-repeat;
+  mask-position: 0 0;
+  mask-size: 100% 100%;
+}
+
+:root[data-env="cyberpunk"] [data-halo-in="aviso"][data-urgencia="baixa"] {
+  --cp-urg: #6ce6f6;
+}
+
+:root[data-env="cyberpunk"] [data-halo-in="aviso"][data-urgencia="critica"] {
+  --cp-urg: #ff2a3c;
+}
+
+/* Molduras de canto, na regra do tema: braço FORTE nos cantos retos
+   (alto-direito e o quase reto da base-esquerda), APAGADO nos chanfrados.
+   Braço de 14 e não de 20: o balão tem um terço da altura de um painel. */
+:root[data-env="cyberpunk"] [data-halo-in="aviso"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.75;
+  background-repeat: no-repeat;
+  background-image:
+    linear-gradient(var(--cp-braco-forte), var(--cp-braco-forte)),
+    linear-gradient(var(--cp-braco-forte), var(--cp-braco-forte)),
+    linear-gradient(var(--cp-braco-forte), var(--cp-braco-forte)),
+    linear-gradient(var(--cp-braco-fraco), var(--cp-braco-fraco));
+  background-position:
+    100% 0,
+    100% 0,
+    0 100%,
+    100% calc(100% - 13px);
+  background-size:
+    14px 2px,
+    2px 14px,
+    14px 2px,
+    2px 10px;
+}
+
+/* A aresta acesa que corre na frente da varredura — só existe enquanto ela
+   corre (`halo-cp-notif-aresta`). */
+:root[data-env="cyberpunk"] [data-halo-in="aviso"]::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 30.5%;
+  width: 2px;
+  z-index: 2;
+  background: var(--cp-text);
+  box-shadow:
+    0 0 5px var(--cp-yellow),
+    0 0 1px var(--cp-yellow);
+  opacity: 0;
+  pointer-events: none;
+}
+
+:root[data-env="cyberpunk"] [data-halo-in="aviso"] [data-aviso="app"] {
+  color: var(--cp-urg);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+}
+
+:root[data-env="cyberpunk"] [data-halo-in="aviso"] [data-aviso="icone"] {
+  color: var(--cp-urg);
+}
+
+/* Rajdhani tem altura-x pequena: o corpo sobe para ler como os 13px da DM Sans. */
+:root[data-env="cyberpunk"] [data-halo-in="aviso"] [data-aviso="titulo"] {
+  color: var(--cp-text);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+:root[data-env="cyberpunk"] [data-halo-in="aviso"] [data-aviso="corpo"] {
+  font-size: 14.5px;
+  font-weight: 500;
+  line-height: 1.32;
+}
+
+:root[data-env="cyberpunk"] [data-halo-in="aviso"] [data-aviso="imagem"] {
+  border-radius: 0;
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+}
+
+:root[data-env="cyberpunk"] [data-halo-in="aviso"] [data-aviso="acao"] {
+  border: 1px solid rgba(252, 238, 10, 0.5);
+  border-radius: 0;
+  background: rgba(252, 238, 10, 0.06);
+  color: var(--cp-yellow);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+}
+
+:root[data-env="cyberpunk"] [data-halo-in="aviso"] [data-aviso="acao"]:hover {
+  background: var(--cp-yellow);
+  color: var(--cp-void);
+}
+
+:root[data-env="cyberpunk"] [data-halo-in="aviso"] [data-aviso="fechar"] {
+  border-radius: 0;
+}
+
+:root[data-env="cyberpunk"] [data-halo-in="aviso"] [data-aviso="fechar"]:hover {
+  background: rgba(252, 238, 10, 0.14);
+  color: var(--cp-yellow);
+}
+
+:root[data-env="cyberpunk"] [data-halo-in="aviso"] [data-aviso="tempo"] {
+  background: var(--cp-urg);
+  opacity: 0.9;
+  box-shadow: 0 0 6px var(--cp-urg);
+}
