@@ -9,6 +9,7 @@ import { EN_MAIN } from './main'
 import { EN_MEDIA } from './media'
 import { EN_MUSIC } from './music'
 import { EN_NOTIFICACOES } from './notificacoes'
+import { EN_PLAYER } from './player'
 import { EN_SETTINGS } from './settings'
 import { EN_SHARED } from './shared'
 import { EN_SOCIAL } from './social'
@@ -33,6 +34,7 @@ export const EN: Record<string, string> = {
   ...EN_ISLAND,
   ...EN_LAUNCHER,
   ...EN_NOTIFICACOES,
+  ...EN_PLAYER,
   ...EN_MAIN,
   ...EN_SHARED,
 }

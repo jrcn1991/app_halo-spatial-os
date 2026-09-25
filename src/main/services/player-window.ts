@@ -1,4 +1,5 @@
 import { join } from 'node:path'
+import { idiomaAtual } from '@shared/i18n'
 import { IPC } from '@shared/ipc-contract'
 import { BrowserWindow, screen } from 'electron'
 import { isX11 } from './desktop-layer'
@@ -82,8 +83,10 @@ function criar(): BrowserWindow {
   })
 
   const devUrl = process.env.ELECTRON_RENDERER_URL
-  if (devUrl) void win.loadURL(`${devUrl}/player.html`)
-  else void win.loadFile(join(import.meta.dirname, '../renderer/player.html'))
+  // O idioma vai na consulta, como nas outras janelas; trocas chegam por IPC.
+  const consulta = `lang=${idiomaAtual()}`
+  if (devUrl) void win.loadURL(`${devUrl}/player.html?${consulta}`)
+  else void win.loadFile(join(import.meta.dirname, '../renderer/player.html'), { search: consulta })
 
   return win
 }
