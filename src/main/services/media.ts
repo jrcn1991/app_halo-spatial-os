@@ -1,6 +1,7 @@
 import { createReadStream } from 'node:fs'
 import { stat } from 'node:fs/promises'
 import { createInterface } from 'node:readline'
+import { t } from '@shared/i18n'
 import type {
   CatalogPage,
   CatalogQuery,
@@ -245,7 +246,7 @@ async function construir(path: string): Promise<Indice> {
  * o app.
  */
 async function obter(path: string): Promise<Indice> {
-  if (!path) throw new Error('nenhuma lista escolhida')
+  if (!path) throw new Error(t('nenhuma lista escolhida'))
   indiceUsadoEm = Date.now()
   if (indice?.path === path) {
     const { mtimeMs } = await stat(path)
@@ -436,14 +437,14 @@ export async function titleDetail(path: string, id: string): Promise<TitleDetail
 export async function stream(path: string, id: string, episode: string | null): Promise<string> {
   const atual = await obter(path)
   const registro = achar(atual, id)
-  if (!registro) throw new Error('título não encontrado')
+  if (!registro) throw new Error(t('título não encontrado'))
 
   // Guardar a URL inteira em cada item parece desperdício — o começo dela se
   // repete em todas as linhas. Foi medido: partir em
   // prefixo + sufixo custa 6 MB A MAIS, porque o objeto por item pesa mais que
   // o texto repetido. Ficou o simples.
   const url = registro.kind === 'movie' ? registro.url : episodioDe(registro, episode)
-  if (!url) throw new Error('episódio não encontrado')
+  if (!url) throw new Error(t('episódio não encontrado'))
   return url
 }
 

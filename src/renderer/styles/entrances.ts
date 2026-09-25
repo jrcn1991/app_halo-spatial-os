@@ -1,3 +1,5 @@
+import { marcar } from '@shared/i18n'
+
 /**
  * As 13 variações de entrada do handoff.
  *
@@ -46,19 +48,19 @@ export type EntranceName = keyof typeof ENTRANCES
  * partem de muito longe e do lado oposto.
  */
 export const ENTRANCE_HINTS: Record<EntranceName, string> = {
-  'Surgir da barra': 'O centro sobe do dock; os laterais saem do meio.',
-  Cascata: 'Tudo desce de cima, os laterais logo depois.',
-  Órbita: 'Os laterais chegam de muito longe, pelo lado oposto.',
-  Materializar: 'Aparece no lugar, saindo do desfoque.',
-  Dobra: 'O centro tomba para trás e se endireita.',
-  Leque: 'Os painéis abrem em leque, inclinados.',
-  Elástico: 'Sobe do dock e passa um pouco do ponto.',
-  Implodir: 'Vem grande demais e encolhe até encaixar.',
-  Persiana: 'Abre na vertical, como uma persiana.',
-  'Tela ligando': 'Estala na horizontal, como uma TV antiga.',
-  'Estalo (reunir)': 'Os painéis se reúnem de longe, devagar e desfocados.',
-  Enxame: 'Chegam espalhados, de cima e de longe.',
-  'Deslize lateral': 'Tudo desliza da esquerda.',
+  'Surgir da barra': marcar('O centro sobe do dock; os laterais saem do meio.'),
+  Cascata: marcar('Tudo desce de cima, os laterais logo depois.'),
+  Órbita: marcar('Os laterais chegam de muito longe, pelo lado oposto.'),
+  Materializar: marcar('Aparece no lugar, saindo do desfoque.'),
+  Dobra: marcar('O centro tomba para trás e se endireita.'),
+  Leque: marcar('Os painéis abrem em leque, inclinados.'),
+  Elástico: marcar('Sobe do dock e passa um pouco do ponto.'),
+  Implodir: marcar('Vem grande demais e encolhe até encaixar.'),
+  Persiana: marcar('Abre na vertical, como uma persiana.'),
+  'Tela ligando': marcar('Estala na horizontal, como uma TV antiga.'),
+  'Estalo (reunir)': marcar('Os painéis se reúnem de longe, devagar e desfocados.'),
+  Enxame: marcar('Chegam espalhados, de cima e de longe.'),
+  'Deslize lateral': marcar('Tudo desliza da esquerda.'),
 }
 
 export const ENTRANCE_NAMES = Object.keys(ENTRANCES) as EntranceName[]

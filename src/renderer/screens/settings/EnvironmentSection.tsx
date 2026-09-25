@@ -1,4 +1,5 @@
 import { ENVIRONMENTS, type EnvironmentId, environmentLabel } from '@shared/environments'
+import { t } from '@shared/i18n'
 import { useEffect, useState } from 'react'
 import { aplicarWallpaper } from '@/app/environment'
 import { useHalo } from '@/store/useHalo'
@@ -55,7 +56,7 @@ export function EnvironmentSection() {
     if (r.ok) setWallpaper(false)
     setRestauro(
       r.ok
-        ? 'Pronto: o papel de parede de antes voltou, e trocar de ambiente não o muda mais.'
+        ? t('Pronto: o papel de parede de antes voltou, e trocar de ambiente não o muda mais.')
         : r.error,
     )
   }
@@ -82,43 +83,47 @@ export function EnvironmentSection() {
   return (
     <>
       <div className={styles.header}>
-        <span className={styles.eyebrow}>Ambiente</span>
-        <span className={styles.title}>Tema e papel de parede</span>
+        <span className={styles.eyebrow}>{t('Ambiente')}</span>
+        <span className={styles.title}>{t('Tema e papel de parede')}</span>
         <span className={styles.subtitle}>
-          Cada ambiente é um tema da interface do Halo mais uma imagem de fundo. O ambiente se
-          escolhe no painel direito da Home; aqui fica o resto.
+          {t(
+            'Cada ambiente é um tema da interface do Halo mais uma imagem de fundo. O ambiente se escolhe no painel direito da Home; aqui fica o resto.',
+          )}
         </span>
       </div>
       <div className={styles.divider} />
 
       <div className={styles.section}>
-        <span className={styles.sectionLabel}>Área de trabalho</span>
+        <span className={styles.sectionLabel}>{t('Área de trabalho')}</span>
         <Toggle
-          label="Trocar o papel de parede do sistema"
+          label={t('Trocar o papel de parede do sistema')}
           checked={ambiente.wallpaper}
           onChange={setWallpaper}
         />
         <span className={styles.note}>
-          Desligado, trocar de ambiente muda só as cores do Halo e nada é escrito fora dele. Ligado,
-          o app usa o <code>plasma-apply-wallpaperimage</code>, o utilitário do KDE, e, para vídeo,
-          o próprio plasmashell — o papel de parede é a única coisa que um ambiente muda na sua
-          máquina. Antes da primeira troca, o Halo guarda o papel de parede que você tinha.
+          {t(
+            'Desligado, trocar de ambiente muda só as cores do Halo e nada é escrito fora dele. Ligado, o app usa o',
+          )}{' '}
+          <code>plasma-apply-wallpaperimage</code>
+          {t(
+            ', o utilitário do KDE, e, para vídeo, o próprio plasmashell — o papel de parede é a única coisa que um ambiente muda na sua máquina. Antes da primeira troca, o Halo guarda o papel de parede que você tinha.',
+          )}
         </span>
         {original ? (
           <button
             type="button"
             className={styles.acao}
             onClick={() => void restaurar()}
-            aria-label="Restaurar o meu papel de parede"
+            aria-label={t('Restaurar o meu papel de parede')}
           >
-            Restaurar o meu papel de parede
+            {t('Restaurar o meu papel de parede')}
           </button>
         ) : null}
         {restauro ? <span className={styles.note}>{restauro}</span> : null}
       </div>
 
       <div className={styles.section}>
-        <span className={styles.sectionLabel}>Imagem de cada ambiente</span>
+        <span className={styles.sectionLabel}>{t('Imagem de cada ambiente')}</span>
         <div className={styles.lista}>
           {ENVIRONMENTS.filter((e) => e.ready).map((e) => {
             const escolhida = ambiente.wallpapers[e.id]
@@ -133,28 +138,30 @@ export function EnvironmentSection() {
                       linha que o cartão de 246px da Home não comporta. */}
                   <span className={styles.linhaTitulo}>
                     {environmentLabel(e)}
-                    {e.id === ambiente.id ? ' · em uso' : ''}
+                    {e.id === ambiente.id ? ` · ${t('em uso')}` : ''}
                   </span>
                   <span className={styles.linhaDetalhe}>
-                    {escolhida || embutida || 'sem imagem — escolha uma'}
+                    {escolhida || embutida || t('sem imagem — escolha uma')}
                   </span>
                 </span>
                 <button
                   type="button"
                   className={styles.acao}
                   onClick={() => void escolher(e.id)}
-                  aria-label={`Escolher a imagem de ${environmentLabel(e)}`}
+                  aria-label={t('Escolher a imagem de {nome}', { nome: environmentLabel(e) })}
                 >
-                  Escolher
+                  {t('Escolher')}
                 </button>
                 {escolhida ? (
                   <button
                     type="button"
                     className={styles.acao}
                     onClick={() => setImagem(e.id, '')}
-                    aria-label={`Voltar à imagem padrão de ${environmentLabel(e)}`}
+                    aria-label={t('Voltar à imagem padrão de {nome}', {
+                      nome: environmentLabel(e),
+                    })}
                   >
-                    Padrão
+                    {t('Padrão')}
                   </button>
                 ) : null}
               </div>
@@ -162,14 +169,14 @@ export function EnvironmentSection() {
           })}
         </div>
         <span className={styles.note}>
-          Os quatro ambientes prontos já vêm com a imagem deles — arte deste projeto, que o app
-          copia para a sua pasta pessoal na primeira vez que você usa cada um. Apontar outra troca
-          só aquele ambiente, e "Padrão" devolve a que veio.
+          {t(
+            'Os quatro ambientes prontos já vêm com a imagem deles — arte deste projeto, que o app copia para a sua pasta pessoal na primeira vez que você usa cada um. Apontar outra troca só aquele ambiente, e "Padrão" devolve a que veio.',
+          )}
         </span>
       </div>
 
       <div className={styles.section}>
-        <span className={styles.sectionLabel}>Vídeo de cada ambiente</span>
+        <span className={styles.sectionLabel}>{t('Vídeo de cada ambiente')}</span>
         <div className={styles.lista}>
           {ENVIRONMENTS.filter((e) => e.ready).map((e) => {
             const video = ambiente.videos[e.id]
@@ -178,25 +185,25 @@ export function EnvironmentSection() {
                 <span className={styles.linhaTexto}>
                   <span className={styles.linhaTitulo}>{environmentLabel(e)}</span>
                   <span className={styles.linhaDetalhe}>
-                    {video || 'sem vídeo — fica a imagem'}
+                    {video || t('sem vídeo — fica a imagem')}
                   </span>
                 </span>
                 <button
                   type="button"
                   className={styles.acao}
                   onClick={() => void escolherVideo(e.id)}
-                  aria-label={`Escolher o vídeo de ${environmentLabel(e)}`}
+                  aria-label={t('Escolher o vídeo de {nome}', { nome: environmentLabel(e) })}
                 >
-                  Escolher
+                  {t('Escolher')}
                 </button>
                 {video ? (
                   <button
                     type="button"
                     className={styles.acao}
                     onClick={() => trocarVideo(e.id, '')}
-                    aria-label={`Tirar o vídeo de ${environmentLabel(e)}`}
+                    aria-label={t('Tirar o vídeo de {nome}', { nome: environmentLabel(e) })}
                   >
-                    Tirar
+                    {t('Tirar')}
                   </button>
                 ) : null}
               </div>
@@ -211,15 +218,20 @@ export function EnvironmentSection() {
         <span className={styles.note}>
           {plugin === false ? (
             <>
-              O plugin de vídeo do Plasma (<code>org.local.videowallpaper</code>) não está instalado
-              nesta máquina: o vídeo fica guardado, mas quem aparece é a imagem.
+              {t('O plugin de vídeo do Plasma')} (<code>org.local.videowallpaper</code>){' '}
+              {t(
+                'não está instalado nesta máquina: o vídeo fica guardado, mas quem aparece é a imagem.',
+              )}
             </>
           ) : (
             <>
-              Com um vídeo, o ambiente o toca em loop e sem som, pelo plugin "Vídeo" do Plasma (
-              <code>org.local.videowallpaper</code>). A imagem continua sendo a capa: é ela que
-              aparece na Home, e ela fica no lugar se o vídeo não tocar. Vale só com o interruptor
-              de cima ligado.
+              {t(
+                'Com um vídeo, o ambiente o toca em loop e sem som, pelo plugin "Vídeo" do Plasma',
+              )}{' '}
+              (<code>org.local.videowallpaper</code>).{' '}
+              {t(
+                'A imagem continua sendo a capa: é ela que aparece na Home, e ela fica no lugar se o vídeo não tocar. Vale só com o interruptor de cima ligado.',
+              )}
             </>
           )}
         </span>

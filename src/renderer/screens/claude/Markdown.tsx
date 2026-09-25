@@ -1,5 +1,6 @@
 import { Check } from '@phosphor-icons/react/dist/icons/Check'
 import { Copy } from '@phosphor-icons/react/dist/icons/Copy'
+import { t } from '@shared/i18n'
 import { useState } from 'react'
 import styles from './claude.module.css'
 
@@ -83,15 +84,15 @@ function Codigo({ lingua, texto }: { lingua: string; texto: string }) {
   return (
     <div className={styles.bloco}>
       <div className={styles.blocoTopo}>
-        <span className={styles.blocoLingua}>{lingua || 'texto'}</span>
+        <span className={styles.blocoLingua}>{lingua || t('texto')}</span>
         <button
           type="button"
           className={styles.blocoCopiar}
-          aria-label={copiado ? 'Copiado' : 'Copiar código'}
+          aria-label={copiado ? t('Copiado') : t('Copiar código')}
           onClick={() => void copiar()}
         >
           {copiado ? <Check size={12} weight="bold" /> : <Copy size={12} />}
-          {copiado ? 'Copiado' : 'Copiar'}
+          {copiado ? t('Copiado') : t('Copiar')}
         </button>
       </div>
       <pre className={styles.blocoCodigo}>

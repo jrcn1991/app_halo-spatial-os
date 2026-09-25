@@ -1,2 +1,49 @@
 /** Inglês da área `launcher`. A chave é o texto em português, exatamente como está no código. */
-export const EN_LAUNCHER: Record<string, string> = {}
+export const EN_LAUNCHER: Record<string, string> = {
+  // Comandos do motor (também aparecem no lançador da ilha)
+  Cafeína: 'Caffeine',
+  'Não perturbe': 'Do not disturb',
+  Mudo: 'Mute',
+  'Silenciar o microfone': 'Mute the microphone',
+  'Bloquear a tela': 'Lock the screen',
+  'Capturar a tela': 'Take a screenshot',
+  'Ler texto da tela (OCR)': 'Read text on screen (OCR)',
+  'Conta-gotas': 'Eyedropper',
+  'Mostrar a área de trabalho': 'Show the desktop',
+  'Guardar a janela ativa': 'Stash the active window',
+  Cronômetro: 'Stopwatch',
+  'Parar o temporizador': 'Stop the timer',
+  'Trocar a saída de áudio': 'Switch audio output',
+  'Fazer o celular tocar': 'Ring the phone',
+  'Tocar ou pausar': 'Play or pause',
+  'Próxima faixa': 'Next track',
+  'Temporizador de {min} min': '{min} min timer',
+  'Temporizador de {min} min · {rotulo}': '{min} min timer · {rotulo}',
+  'Cafeína por {min} min': 'Caffeine for {min} min',
+  'Perguntar ao Claude: {pergunta}': 'Ask Claude: {pergunta}',
+
+  // A carcaça de Meta+V
+  Recentes: 'Recent',
+  Respostas: 'Answers',
+  Comandos: 'Commands',
+  Aplicativos: 'Apps',
+  Cópias: 'Clipboard items',
+  Janelas: 'Windows',
+  'App, comando, cópia, janela, conta, g busca, :emoji — ou ? pergunta ao Claude':
+    'App, command, clipboard item, window, math, g search, :emoji — or ? ask Claude',
+  'Buscar no lançador': 'Search the launcher',
+  Resultados: 'Results',
+  'Digite para procurar.': 'Type to search.',
+  'Nada com esse nome.': 'Nothing by that name.',
+  '2+2 · 10 km em mi · g halo · :fogo · cafeina 30 · ? pergunta':
+    '2+2 · 10 km in mi · g halo · :fire · caffeine 30 · ? question',
+  Navegar: 'Navigate',
+  '{n}× · aplicativo': '{n}× · app',
+  '{n}× · comando': '{n}× · command',
+  '{n} caracteres': '{n} characters',
+  cor: 'color',
+  Abrir: 'Open',
+  Executar: 'Run',
+  Copiar: 'Copy',
+  Focar: 'Focus',
+}

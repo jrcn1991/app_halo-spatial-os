@@ -10,10 +10,12 @@ import { MusicNotes } from '@phosphor-icons/react/dist/icons/MusicNotes'
 import { Palette } from '@phosphor-icons/react/dist/icons/Palette'
 import { Pulse } from '@phosphor-icons/react/dist/icons/Pulse'
 import { Sparkle } from '@phosphor-icons/react/dist/icons/Sparkle'
+import { marcar, t } from '@shared/i18n'
 import { type Screen, useHalo } from '@/store/useHalo'
 import { cx } from './cx'
 import styles from './Dock.module.css'
 
+/** `label` é a chave em português: quem desenha passa por `t(label)`. */
 export type DockItem = { screen: Screen; icon: Icon; label: string; size?: number }
 
 /** A ordem do dock. Exportada porque Configurações lista as mesmas telas. */
@@ -23,15 +25,15 @@ export const DOCK_ITEMS: DockItem[] = [
   // ou mostrou esta tela, na baseline do layout e em quatro ferramentas. O que
   // virou "Social Arte" é o rótulo, e o ícone acompanha: a área agrega
   // referências criativas, não pessoas.
-  { screen: 'social', icon: Palette, label: 'Social Arte' },
+  { screen: 'social', icon: Palette, label: marcar('Social Arte') },
   { screen: 'claude', icon: Sparkle, label: 'Claude' },
-  { screen: 'files', icon: Folders, label: 'Arquivos' },
+  { screen: 'files', icon: Folders, label: marcar('Arquivos') },
   { screen: 'lab', icon: Pulse, label: 'Home Lab' },
   { screen: 'media', icon: MonitorPlay, label: 'Media' },
   // O protótipo usa 25px só neste ícone.
-  { screen: 'music', icon: MusicNotes, label: 'Música', size: 25 },
+  { screen: 'music', icon: MusicNotes, label: marcar('Música'), size: 25 },
   // Divergência do protótipo: no lugar do avatar, a entrada de Configurações.
-  { screen: 'settings', icon: Gear, label: 'Configurações' },
+  { screen: 'settings', icon: Gear, label: marcar('Configurações') },
 ]
 
 /**
@@ -64,7 +66,9 @@ export function Dock() {
   return (
     <nav
       className={`${styles.dock} ${styles[position]}`}
-      aria-label="Telas"
+      aria-label={t('Telas')}
+      // Âncora neutra para `useWindowHandle`: o aria-label muda com o idioma.
+      data-halo-nav
       data-halo-in={vertical ? 'dock-vertical' : 'dock'}
     >
       {items.map(({ screen: target, icon: Glyph, label, size }) => {
@@ -73,11 +77,11 @@ export function Dock() {
           <button
             key={target}
             type="button"
-            aria-label={label}
+            aria-label={t(label)}
             // O leitor de tela já tinha o nome pelo `aria-label`; quem enxerga
             // não tinha nada — oito ícones sem legenda, e três deles (o leque,
             // o pulso, a faísca) não dizem sozinhos que tela são.
-            title={label}
+            title={t(label)}
             aria-current={active ? 'page' : undefined}
             // Atributo NEUTRO, para um tema saber QUAL tela é este botão sem
             // depender do rótulo em português nem do nome que o CSS Modules
@@ -91,7 +95,7 @@ export function Dock() {
           </button>
         )
       })}
-      <span className={styles.handle} data-window-handle title="Arraste para mover a janela" />
+      <span className={styles.handle} data-window-handle title={t('Arraste para mover a janela')} />
     </nav>
   )
 }
@@ -115,16 +119,21 @@ export function DockRail() {
   const Caret = expanded ? CaretDoubleLeft : CaretDoubleRight
 
   return (
-    <nav className={cx(styles.rail, expanded && styles.railExpanded)} aria-label="Telas">
+    <nav
+      className={cx(styles.rail, expanded && styles.railExpanded)}
+      aria-label={t('Telas')}
+      // Âncora neutra para `useWindowHandle`: o aria-label muda com o idioma.
+      data-halo-nav
+    >
       {items.map(({ screen: target, icon: Glyph, label, size }) => {
         const active = screen === target
         return (
           <button
             key={target}
             type="button"
-            aria-label={label}
+            aria-label={t(label)}
             // Recolhida, o nome só existe no tooltip.
-            title={expanded ? undefined : label}
+            title={expanded ? undefined : t(label)}
             aria-current={active ? 'page' : undefined}
             data-halo-tela={target}
             className={cx(styles.railItem, active && styles.railActive)}
@@ -134,20 +143,24 @@ export function DockRail() {
               <Glyph size={size ?? 26} weight={active ? 'fill' : 'regular'} color="currentColor" />
             </span>
             <span className={styles.railLabel} aria-hidden="true">
-              {label}
+              {t(label)}
             </span>
           </button>
         )
       })}
-      <span className={styles.railHandle} data-window-handle title="Arraste para mover a janela" />
+      <span
+        className={styles.railHandle}
+        data-window-handle
+        title={t('Arraste para mover a janela')}
+      />
       {/* Depois dos itens de propósito: as ferramentas de verificação (e os
           atalhos numéricos) contam os botões do dock pela ordem. */}
       <button
         type="button"
         className={styles.railToggle}
         aria-expanded={expanded}
-        aria-label={expanded ? 'Recolher a navegação' : 'Expandir a navegação'}
-        title={expanded ? 'Recolher' : 'Expandir'}
+        aria-label={expanded ? t('Recolher a navegação') : t('Expandir a navegação')}
+        title={expanded ? t('Recolher') : t('Expandir')}
         onClick={toggle}
       >
         <Caret size={18} color="currentColor" />

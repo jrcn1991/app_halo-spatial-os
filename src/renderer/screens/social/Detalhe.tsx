@@ -5,6 +5,7 @@ import { LinkSimple } from '@phosphor-icons/react/dist/icons/LinkSimple'
 import { X } from '@phosphor-icons/react/dist/icons/X'
 import type { CreativeCollection, CreativeItem } from '@shared/creative'
 import { CREATIVE_KIND_LABEL } from '@shared/creative'
+import { localeDoIdioma, t } from '@shared/i18n'
 import { useEffect, useRef, useState } from 'react'
 import { Capa } from './Capa'
 import styles from './social.module.css'
@@ -66,9 +67,9 @@ export function Detalhe({
   }
 
   const metricas = [
-    ['Curtidas', item.likes],
-    ['Visualizações', item.views],
-    ['Downloads', item.downloads],
+    [t('Curtidas'), item.likes],
+    [t('Visualizações'), item.views],
+    [t('Downloads'), item.downloads],
   ].filter(([, v]) => v !== null) as [string, number][]
 
   return (
@@ -76,7 +77,7 @@ export function Detalhe({
       <button
         type="button"
         className={styles.modalVeu}
-        aria-label="Fechar"
+        aria-label={t('Fechar')}
         aria-hidden="true"
         tabIndex={-1}
         onClick={aoFechar}
@@ -86,7 +87,7 @@ export function Detalhe({
         className={styles.modal}
         role="dialog"
         aria-modal="true"
-        aria-label={item.title || 'Referência'}
+        aria-label={item.title || t('Referência')}
       >
         <div className={styles.modalTopo}>
           <div className={styles.modalTitulos}>
@@ -94,15 +95,15 @@ export function Detalhe({
                 do DeviantArt, e é o que separa uma fonte da outra numa tela
                 que agrega. */}
             <span className={styles.modalEyebrow}>
-              {item.provider.toUpperCase()} · {CREATIVE_KIND_LABEL[item.kind].toUpperCase()}
+              {item.provider.toUpperCase()} · {t(CREATIVE_KIND_LABEL[item.kind]).toUpperCase()}
             </span>
-            <span className={styles.modalNome}>{item.title || 'Sem título'}</span>
+            <span className={styles.modalNome}>{item.title || t('Sem título')}</span>
           </div>
           <button
             ref={fechar}
             type="button"
             className={styles.modalFechar}
-            aria-label="Fechar"
+            aria-label={t('Fechar')}
             onClick={aoFechar}
           >
             <X size={13} />
@@ -121,7 +122,7 @@ export function Detalhe({
                   className={
                     g === imagem ? `${styles.miniatura} ${styles.miniaturaOn}` : styles.miniatura
                   }
-                  aria-label="Ver esta imagem"
+                  aria-label={t('Ver esta imagem')}
                   aria-pressed={g === imagem}
                   onClick={() => setImagem(g)}
                 >
@@ -140,9 +141,9 @@ export function Detalhe({
 
           {item.tags.length > 0 ? (
             <div className={styles.tags}>
-              {item.tags.slice(0, 20).map((t) => (
-                <span key={t} className={styles.tag}>
-                  {t}
+              {item.tags.slice(0, 20).map((tag) => (
+                <span key={tag} className={styles.tag}>
+                  {tag}
                 </span>
               ))}
             </div>
@@ -154,7 +155,7 @@ export function Detalhe({
               Marcar uma coleção guarda o item se ele ainda não estava. */}
           {colecoes.length > 0 ? (
             <div className={styles.campo}>
-              <span className={styles.campoRotulo}>Coleções</span>
+              <span className={styles.campoRotulo}>{t('Coleções')}</span>
               <div className={styles.filtros}>
                 {colecoes.map((c) => {
                   const dentro = emColecoes.includes(c.id)
@@ -184,7 +185,9 @@ export function Detalhe({
             <div className={styles.metricas}>
               {metricas.map(([rotulo, valor]) => (
                 <span key={rotulo} className={styles.metrica}>
-                  <span className={styles.metricaValor}>{valor.toLocaleString('pt-BR')}</span>
+                  <span className={styles.metricaValor}>
+                    {valor.toLocaleString(localeDoIdioma())}
+                  </span>
                   <span className={styles.metricaRotulo}>{rotulo}</span>
                 </span>
               ))}
@@ -200,15 +203,15 @@ export function Detalhe({
             onClick={aoFavoritar}
           >
             <Heart size={16} weight={favorito ? 'fill' : 'regular'} />
-            {favorito ? 'Favorito' : 'Favoritar'}
+            {favorito ? t('Favorito') : t('Favoritar')}
           </button>
           <button type="button" className={styles.acao} aria-pressed={salvo} onClick={aoSalvar}>
             <BookmarkSimple size={16} weight={salvo ? 'fill' : 'regular'} />
-            {salvo ? 'Na biblioteca' : 'Salvar'}
+            {salvo ? t('Na biblioteca') : t('Salvar')}
           </button>
           <button type="button" className={styles.acao} onClick={copiar}>
             <LinkSimple size={16} />
-            {copiado ? 'Copiado' : 'Copiar link'}
+            {copiado ? t('Copiado') : t('Copiar link')}
           </button>
           {/* `noopener noreferrer`: a aba nova não recebe referência a esta
               janela nem o endereço de onde veio. */}
@@ -219,7 +222,7 @@ export function Detalhe({
             rel="noopener noreferrer"
           >
             <ArrowSquareOut size={16} />
-            Abrir original
+            {t('Abrir original')}
           </a>
         </div>
       </div>

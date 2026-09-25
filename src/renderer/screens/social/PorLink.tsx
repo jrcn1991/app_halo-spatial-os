@@ -1,6 +1,7 @@
 import { X } from '@phosphor-icons/react/dist/icons/X'
 import type { CreativeCollection, CreativeItem } from '@shared/creative'
 import { CREATIVE_KIND_LABEL, CREATIVE_KINDS } from '@shared/creative'
+import { t } from '@shared/i18n'
 import { useEffect, useRef, useState } from 'react'
 import { useCreativePreview } from '@/hooks/useCreative'
 import { cx } from '@/ui/cx'
@@ -105,7 +106,7 @@ export function PorLink({
       collections: escolhidas,
       tags: tags
         .split(',')
-        .map((t) => t.trim())
+        .map((tag) => tag.trim())
         .filter(Boolean),
       note: nota.trim(),
     })
@@ -117,23 +118,28 @@ export function PorLink({
       <button
         type="button"
         className={styles.modalVeu}
-        aria-label="Fechar"
+        aria-label={t('Fechar')}
         aria-hidden="true"
         tabIndex={-1}
         onClick={aoFechar}
       />
 
-      <div className={styles.modal} role="dialog" aria-modal="true" aria-label="Salvar por link">
+      <div
+        className={styles.modal}
+        role="dialog"
+        aria-modal="true"
+        aria-label={t('Salvar por link')}
+      >
         <div className={styles.modalTopo}>
           <div className={styles.modalTitulos}>
-            <span className={styles.modalEyebrow}>BIBLIOTECA</span>
-            <span className={styles.modalNome}>Salvar por link</span>
+            <span className={styles.modalEyebrow}>{t('BIBLIOTECA')}</span>
+            <span className={styles.modalNome}>{t('Salvar por link')}</span>
           </div>
           <button
             ref={fechar}
             type="button"
             className={styles.modalFechar}
-            aria-label="Fechar"
+            aria-label={t('Fechar')}
             onClick={aoFechar}
           >
             <X size={13} />
@@ -142,24 +148,26 @@ export function PorLink({
 
         <div className={styles.modalCorpo}>
           <label className={styles.campo}>
-            <span className={styles.campoRotulo}>Endereço</span>
+            <span className={styles.campoRotulo}>{t('Endereço')}</span>
             <input
               className={styles.campoEntrada}
               type="url"
               value={url}
               placeholder="https://…"
-              aria-label="Endereço da referência"
+              aria-label={t('Endereço da referência')}
               onChange={(e) => setUrl(e.target.value)}
               onBlur={() => url.trim() && ler(url.trim())}
               onKeyDown={(e) => e.key === 'Enter' && url.trim() && ler(url.trim())}
             />
           </label>
 
-          {lendo ? <span className={styles.vazioCorpo}>Lendo a página…</span> : null}
+          {lendo ? <span className={styles.vazioCorpo}>{t('Lendo a página…')}</span> : null}
 
           {previa && !previa.ok ? (
             <span className={styles.aviso}>
-              {previa.error}. Dá para salvar assim mesmo: escreva um título abaixo.
+              {t('{erro}. Dá para salvar assim mesmo: escreva um título abaixo.', {
+                erro: previa.error,
+              })}
             </span>
           ) : null}
 
@@ -176,18 +184,18 @@ export function PorLink({
           ) : null}
 
           <label className={styles.campo}>
-            <span className={styles.campoRotulo}>Título</span>
+            <span className={styles.campoRotulo}>{t('Título')}</span>
             <input
               className={styles.campoEntrada}
               value={titulo}
-              placeholder="Como você quer encontrar isto depois"
-              aria-label="Título da referência"
+              placeholder={t('Como você quer encontrar isto depois')}
+              aria-label={t('Título da referência')}
               onChange={(e) => setTitulo(e.target.value)}
             />
           </label>
 
           <div className={styles.campo}>
-            <span className={styles.campoRotulo}>Tipo</span>
+            <span className={styles.campoRotulo}>{t('Tipo')}</span>
             <div className={styles.filtros}>
               {CREATIVE_KINDS.map((k) => (
                 <button
@@ -197,7 +205,7 @@ export function PorLink({
                   className={cx(styles.chip, tipo === k && styles.chipOn)}
                   onClick={() => setTipo(k)}
                 >
-                  {CREATIVE_KIND_LABEL[k]}
+                  {t(CREATIVE_KIND_LABEL[k])}
                 </button>
               ))}
             </div>
@@ -205,7 +213,7 @@ export function PorLink({
 
           {colecoes.length > 0 ? (
             <div className={styles.campo}>
-              <span className={styles.campoRotulo}>Coleções</span>
+              <span className={styles.campoRotulo}>{t('Coleções')}</span>
               <div className={styles.filtros}>
                 {colecoes.map((c) => (
                   <button
@@ -227,23 +235,23 @@ export function PorLink({
           ) : null}
 
           <label className={styles.campo}>
-            <span className={styles.campoRotulo}>Tags</span>
+            <span className={styles.campoRotulo}>{t('Tags')}</span>
             <input
               className={styles.campoEntrada}
               value={tags}
-              placeholder="separadas por vírgula"
-              aria-label="Tags pessoais"
+              placeholder={t('separadas por vírgula')}
+              aria-label={t('Tags pessoais')}
               onChange={(e) => setTags(e.target.value)}
             />
           </label>
 
           <label className={styles.campo}>
-            <span className={styles.campoRotulo}>Nota</span>
+            <span className={styles.campoRotulo}>{t('Nota')}</span>
             <textarea
               className={styles.campoTexto}
               value={nota}
-              placeholder="Por que isto importa para você"
-              aria-label="Nota pessoal"
+              placeholder={t('Por que isto importa para você')}
+              aria-label={t('Nota pessoal')}
               onChange={(e) => setNota(e.target.value)}
             />
           </label>
@@ -251,7 +259,7 @@ export function PorLink({
 
         <div className={styles.modalAcoes}>
           <button type="button" className={styles.acao} onClick={aoFechar}>
-            Cancelar
+            {t('Cancelar')}
           </button>
           <button
             type="button"
@@ -259,7 +267,7 @@ export function PorLink({
             disabled={!podeSalvar}
             onClick={salvar}
           >
-            Salvar na biblioteca
+            {t('Salvar na biblioteca')}
           </button>
         </div>
       </div>

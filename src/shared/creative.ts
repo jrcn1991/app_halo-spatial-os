@@ -1,3 +1,5 @@
+import { marcar } from './i18n'
+
 /**
  * Social Arte — o vocabulário comum das fontes criativas.
  *
@@ -64,20 +66,25 @@ export const CREATIVE_KINDS: readonly CreativeKind[] = [
   'outro',
 ]
 
-/** Rótulo de tela para cada tipo. A tela não traduz enum à mão. */
+/**
+ * Rótulo de tela para cada tipo. A tela não traduz enum à mão.
+ *
+ * Marcado, não traduzido: a tabela nasce na importação, antes de o idioma ser
+ * conhecido. Quem desenha chama `t(CREATIVE_KIND_LABEL[tipo])`.
+ */
 export const CREATIVE_KIND_LABEL: Record<CreativeKind, string> = {
-  'arte-digital': 'Arte digital',
-  ilustracao: 'Ilustração',
-  fotografia: 'Fotografia',
-  design: 'Design',
-  conceito: 'Conceito',
-  'modelo-3d': 'Modelo 3D',
-  'impressao-3d': 'Impressão 3D',
-  decoracao: 'Decoração',
-  'action-figure': 'Action figure',
-  pinball: 'Pinball',
-  interface: 'Interface e HUD',
-  outro: 'Outra referência',
+  'arte-digital': marcar('Arte digital'),
+  ilustracao: marcar('Ilustração'),
+  fotografia: marcar('Fotografia'),
+  design: marcar('Design'),
+  conceito: marcar('Conceito'),
+  'modelo-3d': marcar('Modelo 3D'),
+  'impressao-3d': marcar('Impressão 3D'),
+  decoracao: marcar('Decoração'),
+  'action-figure': marcar('Action figure'),
+  pinball: marcar('Pinball'),
+  interface: marcar('Interface e HUD'),
+  outro: marcar('Outra referência'),
 }
 
 /** Uma referência, já normalizada — de qualquer fonte. */

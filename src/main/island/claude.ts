@@ -1,6 +1,7 @@
 import { homedir } from 'node:os'
 import { basename } from 'node:path'
 import type { Agent, Attachment } from '@shared/agents'
+import { t } from '@shared/i18n'
 import { IPC } from '@shared/ipc-contract'
 import type { IslandClaude, Reading } from '@shared/island'
 import {
@@ -97,21 +98,21 @@ export type ContextoDaIlha = 'clip' | 'avisos' | 'tocando' | 'nenhum'
 async function contexto(qual: ContextoDaIlha): Promise<string> {
   if (qual === 'clip') {
     const texto = clipUltimoTexto().trim()
-    if (!texto) throw new Error('nada copiado ainda')
+    if (!texto) throw new Error(t('nada copiado ainda'))
     return `Texto copiado pelo usuário:\n\n\`\`\`\n${texto.slice(0, 20_000)}\n\`\`\``
   }
   if (qual === 'avisos') {
     const lista = recentNotices()
-    if (lista.length === 0) throw new Error('nenhuma notificação desde que a ilha subiu')
+    if (lista.length === 0) throw new Error(t('nenhuma notificação desde que a ilha subiu'))
     return `Notificações recentes (mais nova primeiro):\n${lista
       .slice(0, 20)
       .map((n) => `- [${n.app}] ${n.title}${n.body ? ` — ${n.body}` : ''}`)
       .join('\n')}`
   }
   if (qual === 'tocando') {
-    const t = await nowPlaying().catch(() => null)
-    if (!t?.title) throw new Error('nada tocando')
-    return `Tocando agora: "${t.title}" de ${t.artist || 'artista desconhecido'}${t.album ? ` (álbum ${t.album})` : ''}, no ${t.player}.`
+    const faixa = await nowPlaying().catch(() => null)
+    if (!faixa?.title) throw new Error(t('nada tocando'))
+    return `Tocando agora: "${faixa.title}" de ${faixa.artist || 'artista desconhecido'}${faixa.album ? ` (álbum ${faixa.album})` : ''}, no ${faixa.player}.`
   }
   return ''
 }
@@ -144,11 +145,11 @@ export async function perguntar(arg: string): Promise<void> {
   const anexos: Attachment[] = []
   if (pedido.anexo) {
     const lido = await readAttachment(pedido.anexo)
-    if (!lido) throw new Error('não consegui ler o anexo')
+    if (!lido) throw new Error(t('não consegui ler o anexo'))
     anexos.push(lido)
   }
   const texto = pedido.texto.trim()
-  if (!texto && partes.length === 0 && anexos.length === 0) throw new Error('pergunta vazia')
+  if (!texto && partes.length === 0 && anexos.length === 0) throw new Error(t('pergunta vazia'))
   if (texto) partes.push(texto)
   const a = garantirAgente()
   sendToAgent(a.id, partes.join('\n\n'), anexos)
@@ -157,7 +158,7 @@ export async function perguntar(arg: string): Promise<void> {
 
 /** Responde ao pedido de permissão parado — `sim` deixa a ferramenta rodar. */
 export function aprovar(resposta: string): void {
-  if (!agenteId) throw new Error('não há Claude da ilha aberto')
+  if (!agenteId) throw new Error(t('não há Claude da ilha aberto'))
   resolveApproval(agenteId, /^(sim|s|yes|allow|permitir)$/i.test(resposta.trim()))
   publicarClaude()
 }
@@ -174,7 +175,8 @@ export function encerrar(): void {
 /** Troca o projeto onde o PRÓXIMO agente roda; o de pé continua onde está. */
 export function definirProjeto(caminho: string): void {
   const permitidos = [homedir(), ...currentSettings().claude.projects]
-  if (!permitidos.includes(caminho)) throw new Error('escolha um projeto fixado em Configurações')
+  if (!permitidos.includes(caminho))
+    throw new Error(t('escolha um projeto fixado em Configurações'))
   projeto = caminho
   publicarClaude()
 }
@@ -193,7 +195,7 @@ export function agentesMudaram(): void {
     pedidoVisto = pedido.id
     announceToIslands({
       icon: 'Sparkle',
-      text: `Claude quer usar ${pedido.tool}`,
+      text: t('Claude quer usar {ferramenta}', { ferramenta: pedido.tool }),
       detail: pedido.description.slice(0, 40),
       level: 'alerta',
       kind: 'aviso',
@@ -208,7 +210,7 @@ export function agentesMudaram(): void {
     announceToIslands({
       icon: 'Sparkle',
       text: primeiraLinha(ultima.text),
-      detail: 'Claude · abra a ilha para ler',
+      detail: t('Claude · abra a ilha para ler'),
       level: 'ok',
       kind: 'aviso',
       ttlMs: 6000,
@@ -232,45 +234,50 @@ export async function claude(): Promise<Reading[]> {
   return [
     {
       id: 'claude-estado',
-      label: 'Claude da ilha',
+      label: t('Claude da ilha'),
       value: vivo
         ? vivo.state === 'pensando'
-          ? 'pensando'
+          ? t('pensando')
           : vivo.state === 'ferramenta'
-            ? `usando ${vivo.activity || 'ferramenta'}`
+            ? t('usando {ferramenta}', { ferramenta: vivo.activity || t('ferramenta') })
             : vivo.state === 'erro'
-              ? 'erro'
+              ? t('erro')
               : pedido
-                ? 'esperando permissão'
-                : 'pronto'
-        : 'fechado',
+                ? t('esperando permissão')
+                : t('pronto')
+        : t('fechado'),
       detail: vivo
-        ? `${vivo.turns} ${vivo.turns === 1 ? 'turno' : 'turnos'}${vivo.error ? ` · ${vivo.error.slice(0, 40)}` : ''}`
-        : 'pergunte algo na aba Claude ou com "?" no lançador',
+        ? `${t(vivo.turns === 1 ? '{n} turno' : '{n} turnos', { n: vivo.turns })}${vivo.error ? ` · ${vivo.error.slice(0, 40)}` : ''}`
+        : t('pergunte algo na aba Claude ou com "?" no lançador'),
       ratio: null,
       level: vivo?.state === 'erro' ? 'erro' : pedido ? 'alerta' : 'ok',
     },
     {
       id: 'claude-projeto',
-      label: 'Projeto',
+      label: t('Projeto'),
       value: basename(projetoAtual()) || projetoAtual(),
-      detail: `${projetoAtual()} · modo ${currentSettings().claude.mode}`,
+      detail: t('{caminho} · modo {modo}', {
+        caminho: projetoAtual(),
+        modo: currentSettings().claude.mode,
+      }),
       ratio: null,
       level: 'ok',
     },
     {
       id: 'claude-aprovacao',
-      label: 'Pedido de permissão',
-      value: pedido ? pedido.tool : 'nenhum',
-      detail: pedido ? pedido.description : 'o CLI pergunta antes de mexer; a pílula responde',
+      label: t('Pedido de permissão'),
+      value: pedido ? pedido.tool : t('nenhum'),
+      detail: pedido ? pedido.description : t('o CLI pergunta antes de mexer; a pílula responde'),
       ratio: null,
       level: pedido ? 'alerta' : 'ok',
     },
     {
       id: 'claude-resposta',
-      label: 'Última resposta',
+      label: t('Última resposta'),
       value: ultimaResposta ? primeiraLinha(ultimaResposta) || '…' : '—',
-      detail: ultimaResposta ? `${ultimaResposta.length} caracteres` : 'nenhuma ainda',
+      detail: ultimaResposta
+        ? t('{n} caracteres', { n: ultimaResposta.length })
+        : t('nenhuma ainda'),
       ratio: null,
       level: 'ok',
     },

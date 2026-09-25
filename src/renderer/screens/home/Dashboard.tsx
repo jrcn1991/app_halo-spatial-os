@@ -4,12 +4,8 @@ import { GridFour } from '@phosphor-icons/react/dist/icons/GridFour'
 import { Info } from '@phosphor-icons/react/dist/icons/Info'
 import { Sparkle } from '@phosphor-icons/react/dist/icons/Sparkle'
 import { Warning } from '@phosphor-icons/react/dist/icons/Warning'
-import {
-  ENVIRONMENTS,
-  type Environment,
-  type EnvironmentId,
-  environmentLabel,
-} from '@shared/environments'
+import { ENVIRONMENTS, type Environment, type EnvironmentId } from '@shared/environments'
+import { localeDoIdioma, t } from '@shared/i18n'
 import { type CSSProperties, useEffect, useState } from 'react'
 import { aplicarWallpaper } from '@/app/environment'
 import { repositories } from '@/data'
@@ -54,26 +50,27 @@ export function Dashboard() {
     <>
       <div className={styles.head}>
         <div>
-          <div className={styles.greeting}>
-            {greeting()}, {host ? userName(host.hostname) : 'você'}
-          </div>
+          <div className={styles.greeting}>{greeting(host ? userName(host.hostname) : null)}</div>
           <div className={styles.summary}>
-            {running} {running === 1 ? 'container ativo' : 'containers ativos'} ·{' '}
-            {dirty === 0 ? 'nenhum projeto' : dirty === 1 ? '1 projeto' : `${dirty} projetos`} com
-            alterações
+            {t(running === 1 ? '{n} container ativo' : '{n} containers ativos', { n: running })} ·{' '}
+            {dirty === 0
+              ? t('nenhum projeto com alterações')
+              : dirty === 1
+                ? t('1 projeto com alterações')
+                : t('{n} projetos com alterações', { n: dirty })}
           </div>
         </div>
         <div className={styles.spacer} />
         <button type="button" className={styles.appsButton} onClick={toggleDrawer}>
           <GridFour size={16} weight="fill" />
-          Apps
+          {t('Apps')}
           <CaretDown size={13} />
         </button>
       </div>
 
       {drawer && <AppsDrawer />}
 
-      <span className={styles.label}>CONTINUAR</span>
+      <span className={styles.label}>{t('CONTINUAR')}</span>
       <div className={styles.continueRow}>
         {(projects ?? []).slice(0, 3).map((project) => (
           <button
@@ -88,13 +85,15 @@ export function Dashboard() {
             // ação — é a única coisa que um cartão de "Continuar" pode
             // razoavelmente abrir, e a escolha do projeto acontece lá dentro.
             onClick={() => setScreen('claude')}
-            title={`${project.name}: abrir na tela do Claude`}
+            title={t('{nome}: abrir na tela do Claude', { nome: project.name })}
           >
             <div className={styles.continueHead}>
               <Sparkle size={15} weight="fill" color="var(--accent-gold)" />
               <span className={styles.continueTitle}>{project.name}</span>
             </div>
-            <div className={styles.continueBody}>{project.lastCommit || 'sem commits ainda'}</div>
+            <div className={styles.continueBody}>
+              {project.lastCommit || t('sem commits ainda')}
+            </div>
             <div className={styles.continueMeta}>
               <span className={styles.added}>+{project.insertions}</span>
               <span className={styles.removed}>−{project.deletions}</span>
@@ -102,7 +101,7 @@ export function Dashboard() {
           </button>
         ))}
         {(projects ?? []).length === 0 && (
-          <span className={styles.continueBody}>Nenhum projeto git por aqui.</span>
+          <span className={styles.continueBody}>{t('Nenhum projeto git por aqui.')}</span>
         )}
       </div>
 
@@ -113,23 +112,23 @@ export function Dashboard() {
           {/* Sem "· EXEMPLO": dentro do app estas são as notificações do
               SISTEMA, pelo vigia do D-Bus da ilha. Fora dele (o navegador dos
               guarda-fidelidade) o mock avisa por outro caminho. */}
-          <span className={styles.label}>NOTIFICAÇÕES</span>
+          <span className={styles.label}>{t('NOTIFICAÇÕES')}</span>
 
           {/* Coluna vazia tem DUAS causas, e mostrá-las iguais seria mentir.
               Sem vigia, a tela diz onde ligar — que é a regra do projeto para
               integração que falta configurar. */}
           {avisos && !avisos.listening ? (
             <span className={styles.feedEmpty}>
-              As notificações do sistema chegam pela ilha dinâmica. Ligue-a em{' '}
+              {t('As notificações do sistema chegam pela ilha dinâmica. Ligue-a em')}{' '}
               <button type="button" onClick={abrirIlha}>
-                Configurações → Ilha
+                {t('Configurações → Ilha')}
               </button>
               .
             </span>
           ) : null}
 
           {avisos?.listening && avisos.items.length === 0 ? (
-            <span className={styles.feedEmpty}>Nada por aqui ainda.</span>
+            <span className={styles.feedEmpty}>{t('Nada por aqui ainda.')}</span>
           ) : null}
 
           {(avisos?.items ?? []).map((item, i) => (
@@ -221,34 +220,42 @@ function NewsColumn() {
     // leitura —, e o elemento certo para isso já existe no HTML.
     <section
       className={styles.column}
-      aria-label="Leitura"
+      aria-label={t('Leitura')}
       onMouseEnter={() => setPausado(true)}
       onMouseLeave={() => setPausado(false)}
       onFocus={() => setPausado(true)}
       onBlur={() => setPausado(false)}
     >
-      <span className={styles.label}>LEITURA · RSS{data?.demo ? ' · EXEMPLO' : ''}</span>
+      <span className={styles.label}>
+        {t('LEITURA · RSS')}
+        {data?.demo ? ` · ${t('EXEMPLO')}` : ''}
+      </span>
 
       {feeds.length === 0 ? (
         <span className={styles.feedEmpty}>
-          Nenhum feed configurado. Adicione um em{' '}
+          {t('Nenhum feed configurado. Adicione um em')}{' '}
           <button type="button" onClick={abrirConfiguracoes}>
-            Configurações → Notícias
+            {t('Configurações → Notícias')}
           </button>
           .
         </span>
       ) : error ? (
-        <span className={styles.feedEmpty}>Não consegui buscar as manchetes: {error.message}</span>
+        <span className={styles.feedEmpty}>
+          {t('Não consegui buscar as manchetes: {erro}', { erro: error.message })}
+        </span>
       ) : !data && loading ? (
-        <span className={styles.feedEmpty}>Buscando manchetes…</span>
+        <span className={styles.feedEmpty}>{t('Buscando manchetes…')}</span>
       ) : pool.length === 0 ? (
         <span className={styles.feedEmpty}>
           {falhas.length > 0
-            ? `${nomeDoFeed(falhas[0])} não respondeu: ${falhas[0]?.error}. `
-            : 'Os feeds não trouxeram nenhuma manchete. '}
-          Confira em{' '}
+            ? t('{feed} não respondeu: {erro}.', {
+                feed: nomeDoFeed(falhas[0]),
+                erro: falhas[0]?.error ?? '',
+              })
+            : t('Os feeds não trouxeram nenhuma manchete.')}{' '}
+          {t('Confira em')}{' '}
           <button type="button" onClick={abrirConfiguracoes}>
-            Configurações → Notícias
+            {t('Configurações → Notícias')}
           </button>
           .
         </span>
@@ -269,7 +276,10 @@ function NewsColumn() {
 
       {pool.length > 0 && falhas.length > 0 ? (
         <span className={styles.feedWarn}>
-          {nomeDoFeed(falhas[0]).toUpperCase()} NÃO RESPONDEU: {falhas[0]?.error}
+          {t('{feed} NÃO RESPONDEU: {erro}', {
+            feed: nomeDoFeed(falhas[0]).toUpperCase(),
+            erro: falhas[0]?.error ?? '',
+          })}
         </span>
       ) : null}
     </section>
@@ -310,7 +320,7 @@ function Manchete({ item, delayMs }: { item: NewsItem; delayMs: number }) {
 
 /** O nome que o feed deu de si, ou o host — o que der para reconhecer. */
 function nomeDoFeed(status: NewsFeedStatus | undefined): string {
-  if (!status) return 'o feed'
+  if (!status) return t('o feed')
   if (status.name) return status.name
   try {
     return new URL(status.url).hostname.replace(/^www\./, '')
@@ -323,15 +333,15 @@ function nomeDoFeed(status: NewsFeedStatus | undefined): string {
 function idade(iso: string | null): string {
   if (!iso) return ''
   const min = Math.round((Date.now() - Date.parse(iso)) / 60_000)
-  if (!Number.isFinite(min) || min < 1) return 'AGORA'
-  if (min < 60) return `${min} MIN`
+  if (!Number.isFinite(min) || min < 1) return t('AGORA')
+  if (min < 60) return t('{n} MIN', { n: min })
   const horas = Math.round(min / 60)
-  if (horas < 24) return `${horas} H`
+  if (horas < 24) return t('{n} H', { n: horas })
   const dias = Math.round(horas / 24)
-  if (dias === 1) return 'ONTEM'
-  if (dias < 7) return `${dias} D`
+  if (dias === 1) return t('ONTEM')
+  if (dias < 7) return t('{n} D', { n: dias })
   return new Date(iso)
-    .toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })
+    .toLocaleDateString(localeDoIdioma(), { day: 'numeric', month: 'short' })
     .replace('.', '')
     .toUpperCase()
 }
@@ -349,7 +359,12 @@ function AppsDrawer() {
   return (
     <div className={styles.drawer}>
       <span className={styles.label}>
-        APLICATIVOS · {(apps ?? []).length} {(apps ?? []).length === 1 ? 'INSTALADO' : 'INSTALADOS'}
+        {t(
+          (apps ?? []).length === 1
+            ? 'APLICATIVOS · {n} INSTALADO'
+            : 'APLICATIVOS · {n} INSTALADOS',
+          { n: (apps ?? []).length },
+        )}
       </span>
       <div className={styles.drawerGrid} style={{ marginTop: 12 }}>
         {/* Sem corte: o rótulo acima anuncia o total real (passa de cem numa máquina comum) e a
@@ -373,10 +388,27 @@ function AppsDrawer() {
   )
 }
 
-function greeting(): string {
+/**
+ * A saudação inteira é a chave: em inglês "você" não cabe depois da vírgula
+ * ("Good morning, you"), então sem nome a frase é outra, e não um buraco vazio.
+ */
+function greeting(nome: string | null): string {
   const hour = new Date().getHours()
-  if (hour < 12) return 'Bom dia'
-  return hour < 19 ? 'Boa tarde' : 'Boa noite'
+  if (nome === null) {
+    if (hour < 12) return t('Bom dia, você')
+    return hour < 19 ? t('Boa tarde, você') : t('Boa noite, você')
+  }
+  if (hour < 12) return t('Bom dia, {nome}', { nome })
+  return hour < 19 ? t('Boa tarde, {nome}', { nome }) : t('Boa noite, {nome}', { nome })
+}
+
+/**
+ * O nome do ambiente com a segunda linha dele, traduzida. `environmentLabel`
+ * (em `shared/`) monta a mesma frase em português; aqui a descrição passa por
+ * `t()` na hora de desenhar. O NOME não se traduz — é nome próprio.
+ */
+function rotuloDoAmbiente(ambiente: Environment): string {
+  return ambiente.description ? `${ambiente.name} — ${t(ambiente.description)}` : ambiente.name
 }
 
 /** O hostname costuma trazer o nome de quem usa a máquina. */
@@ -433,12 +465,12 @@ export function Environments() {
 
   return (
     <>
-      <span className={styles.label}>AMBIENTES</span>
+      <span className={styles.label}>{t('AMBIENTES')}</span>
       {/* `fieldset` traria moldura e margens próprias, e esta é uma coluna com
           medidas do handoff. O papel e o rótulo estão declarados, e cada
           ambiente informa `aria-pressed`. */}
       {/* biome-ignore lint/a11y/useSemanticElements: ver acima */}
-      <div className={styles.envGrid} role="group" aria-label="Ambientes">
+      <div className={styles.envGrid} role="group" aria-label={t('Ambientes')}>
         {ENVIRONMENTS.map((ambiente) => {
           const ativo = ambiente.id === atual
           return (
@@ -460,10 +492,10 @@ export function Environments() {
               // junto com a imagem — é a única largura que há aqui.
               title={
                 ambiente.ready
-                  ? `${environmentLabel(ambiente)}\nPapel de parede: ${nomeDaImagem(
-                      imagens[ambiente.id] || ambiente.wallpaper,
-                    )}`
-                  : `${environmentLabel(ambiente)}: tema em breve`
+                  ? `${rotuloDoAmbiente(ambiente)}\n${t('Papel de parede: {arquivo}', {
+                      arquivo: nomeDaImagem(imagens[ambiente.id] || ambiente.wallpaper),
+                    })}`
+                  : t('{ambiente}: tema em breve', { ambiente: rotuloDoAmbiente(ambiente) })
               }
               onClick={() => escolher(ambiente)}
             >
@@ -486,7 +518,7 @@ export function Environments() {
                   ))}
                 </span>
               ) : (
-                <span className={styles.envSoonTag}>EM BREVE</span>
+                <span className={styles.envSoonTag}>{t('EM BREVE')}</span>
               )}
               {ativo && (
                 <Check
@@ -500,7 +532,11 @@ export function Environments() {
           )
         })}
       </div>
-      {erro && <span className={styles.envErro}>Não troquei o papel de parede: {erro}</span>}
+      {erro && (
+        <span className={styles.envErro}>
+          {t('Não troquei o papel de parede: {erro}', { erro })}
+        </span>
+      )}
     </>
   )
 }

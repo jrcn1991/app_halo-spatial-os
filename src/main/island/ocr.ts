@@ -2,6 +2,7 @@ import { execFile } from 'node:child_process'
 import { unlink } from 'node:fs/promises'
 import { join } from 'node:path'
 import { promisify } from 'node:util'
+import { t } from '@shared/i18n'
 import { app } from 'electron'
 
 /**
@@ -37,14 +38,14 @@ export async function idiomasDoOcr(): Promise<string> {
 }
 
 export async function lerTextoDaImagem(imagem: string): Promise<string> {
-  if (!imagem.startsWith('/')) throw new Error('a imagem precisa de um caminho absoluto')
+  if (!imagem.startsWith('/')) throw new Error(t('a imagem precisa de um caminho absoluto'))
   const lang = await idiomasDoOcr()
   const { stdout } = await run('tesseract', [imagem, 'stdout', '-l', lang], {
     timeout: TIMEOUT_MS,
     maxBuffer: 4 * 1024 * 1024,
   })
   const texto = stdout.replace(/\f/g, '').trim()
-  if (!texto) throw new Error('nenhum texto reconhecido na imagem')
+  if (!texto) throw new Error(t('nenhum texto reconhecido na imagem'))
   return texto
 }
 

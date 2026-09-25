@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs'
 import { mkdir, unlink, writeFile } from 'node:fs/promises'
 import { basename, join } from 'node:path'
+import { t } from '@shared/i18n'
 import { IPC } from '@shared/ipc-contract'
 import type { IslandEvent, ShelfItem } from '@shared/island'
 import { app, type BrowserWindow } from 'electron'
@@ -74,15 +75,16 @@ export function shelfAdd(path: string): void {
     const atual = currentSettings().island.shelf
     if (atual.includes(path)) return
     saveIslandShelf([path, ...atual])
-    avisar({ icon: 'Link', text: nomeDe(path), detail: 'guardado na gaveta', level: 'ok' })
+    avisar({ icon: 'Link', text: nomeDe(path), detail: t('guardado na gaveta'), level: 'ok' })
     return
   }
-  if (!path.startsWith('/')) throw new Error('a gaveta só guarda caminhos absolutos ou endereços')
-  if (!existsSync(path)) throw new Error('esse arquivo não existe')
+  if (!path.startsWith('/'))
+    throw new Error(t('a gaveta só guarda caminhos absolutos ou endereços'))
+  if (!existsSync(path)) throw new Error(t('esse arquivo não existe'))
   const atual = currentSettings().island.shelf
   if (atual.includes(path)) return
   saveIslandShelf([path, ...atual])
-  avisar({ icon: 'Tray', text: basename(path), detail: 'guardado na gaveta', level: 'ok' })
+  avisar({ icon: 'Tray', text: basename(path), detail: t('guardado na gaveta'), level: 'ok' })
 }
 
 /**
@@ -93,7 +95,7 @@ export function shelfAdd(path: string): void {
  */
 export async function shelfAddText(texto: string): Promise<void> {
   const limpo = texto.trim()
-  if (!limpo) throw new Error('nada para guardar')
+  if (!limpo) throw new Error(t('nada para guardar'))
   const cabeca = limpo
     .slice(0, 32)
     .replace(/[^\p{L}\p{N}]+/gu, '-')
@@ -103,7 +105,7 @@ export async function shelfAddText(texto: string): Promise<void> {
   await mkdir(PASTA_TEXTOS, { recursive: true })
   await writeFile(arquivo, `${limpo}\n`, 'utf8')
   saveIslandShelf([arquivo, ...currentSettings().island.shelf])
-  avisar({ icon: 'TextT', text: limpo.slice(0, 48), detail: 'guardado na gaveta', level: 'ok' })
+  avisar({ icon: 'TextT', text: limpo.slice(0, 48), detail: t('guardado na gaveta'), level: 'ok' })
 }
 
 export function shelfRemove(path: string): void {

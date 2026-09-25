@@ -1,3 +1,4 @@
+import { marcar, t } from '@shared/i18n'
 import { abrirLogin, navegarEColher, temSessao } from './navegador'
 import {
   buscaPinterest,
@@ -61,7 +62,7 @@ let termoColhido = ''
 export const pinterest: Provedor = {
   id: 'pinterest',
   nome: 'Pinterest',
-  descricao: 'Pins e pastas do seu feed.',
+  descricao: marcar('Pins e pastas do seu feed.'),
 
   capacidades: async () =>
     (await temSessao(SESSAO.dominio, SESSAO.cookies)) ? ['search', 'trending', 'item'] : ['item'],
@@ -72,11 +73,14 @@ export const pinterest: Provedor = {
       conectado: sessao,
       erro: sessao
         ? ''
-        : 'o Pinterest não mostra nada sem conta — nem a home, nem a busca. Entre para usar esta fonte.',
+        : t(
+            'o Pinterest não mostra nada sem conta — nem a home, nem a busca. Entre para usar esta fonte.',
+          ),
     }
   },
 
-  entrar: () => abrirLogin(HOME_PINTEREST, 'Entrar no Pinterest', SESSAO),
+  entrar: () =>
+    abrirLogin(HOME_PINTEREST, t('Entrar no {plataforma}', { plataforma: 'Pinterest' }), SESSAO),
   sessao: SESSAO,
 
   /** O feed do usuário. Rola para carregar mais, como o do DeviantArt. */

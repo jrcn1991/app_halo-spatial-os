@@ -1,6 +1,7 @@
 import { execFile } from 'node:child_process'
 import { readFile } from 'node:fs/promises'
 import { promisify } from 'node:util'
+import { marcar, t } from '@shared/i18n'
 import type { Reading } from '@shared/island'
 import { gpuStats } from '../services/gpu'
 
@@ -81,29 +82,29 @@ export async function sistema(): Promise<Reading[]> {
   return [
     ler(
       'cpu',
-      'Processador',
+      t('Processador'),
       `${uso.toFixed(0)}%`,
-      `${nucleos} núcleos`,
+      t('{n} núcleos', { n: nucleos }),
       uso / 100,
       nivel(uso / 100),
     ),
     ler(
       'memoria',
-      'Memória',
+      t('Memória'),
       `${usadaGb.toFixed(1)} GB`,
-      `de ${totalGb.toFixed(0)} GB`,
+      t('de {total}', { total: `${totalGb.toFixed(0)} GB` }),
       razaoMem,
       nivel(razaoMem),
     ),
     ler(
       'carga',
-      'Carga',
+      t('Carga'),
       carga.toFixed(2),
-      `${nucleos} núcleos`,
+      t('{n} núcleos', { n: nucleos }),
       pct(carga, nucleos),
       nivel(pct(carga, nucleos)),
     ),
-    ler('uptime', 'Ligado há', dias > 0 ? `${dias}d ${horas}h` : `${horas}h`),
+    ler('uptime', t('Ligado há'), dias > 0 ? `${dias}d ${horas}h` : `${horas}h`),
   ]
 }
 
@@ -116,9 +117,9 @@ export async function processoTopo(): Promise<Reading[]> {
   return [
     ler(
       'processo-topo',
-      'Mais pesado',
+      t('Mais pesado'),
       nome,
-      `${cpu.toFixed(0)}% de CPU`,
+      t('{n}% de CPU', { n: cpu.toFixed(0) }),
       cpu / 100,
       nivel(cpu / 100),
     ),
@@ -149,9 +150,9 @@ export async function temperaturas(): Promise<Reading[]> {
     leituras.push(
       ler(
         'temp-cpu',
-        'Temperatura',
+        t('Temperatura'),
         `${cpu.toFixed(0)}°C`,
-        'processador',
+        t('processador'),
         pct(cpu, 100),
         nivel(pct(cpu, 100), 0.75, 0.9),
       ),
@@ -160,7 +161,7 @@ export async function temperaturas(): Promise<Reading[]> {
   for (const [i, o] of outras.entries()) {
     leituras.push(ler(`temp-${i}`, o.nome.slice(0, 22), `${o.valor.toFixed(0)}°C`))
   }
-  if (leituras.length === 0) throw new Error('nenhum sensor de temperatura')
+  if (leituras.length === 0) throw new Error(t('nenhum sensor de temperatura'))
   return leituras
 }
 
@@ -168,7 +169,7 @@ export async function gpu(): Promise<Reading[]> {
   // A MESMA leitura do amostrador do host (`services/gpu.ts`, com cache): eram
   // dois `nvidia-smi` por dois caminhos a cada 3s (DESEMPENHO.md, P1-8).
   const g = await gpuStats()
-  if (!g) throw new Error('sem placa de vídeo legível')
+  if (!g) throw new Error(t('sem placa de vídeo legível'))
   const nome = g.name
   const uso = String(g.usagePercent)
   const temp = String(g.temperatureC ?? 0)
@@ -179,7 +180,7 @@ export async function gpu(): Promise<Reading[]> {
   return [
     ler(
       'gpu-uso',
-      'Placa de vídeo',
+      t('Placa de vídeo'),
       `${uso}%`,
       (nome ?? '').replace('NVIDIA ', ''),
       razaoUso,
@@ -187,7 +188,7 @@ export async function gpu(): Promise<Reading[]> {
     ),
     ler(
       'gpu-temp',
-      'Temperatura',
+      t('Temperatura'),
       `${temp}°C`,
       'GPU',
       pct(Number(temp), 100),
@@ -195,9 +196,9 @@ export async function gpu(): Promise<Reading[]> {
     ),
     ler(
       'gpu-memoria',
-      'Memória de vídeo',
+      t('Memória de vídeo'),
       `${(Number(usada) / 1024).toFixed(1)} GB`,
-      `de ${(Number(total) / 1024).toFixed(0)} GB`,
+      t('de {total}', { total: `${(Number(total) / 1024).toFixed(0)} GB` }),
       razaoMem,
       nivel(razaoMem),
     ),
@@ -220,13 +221,13 @@ export async function audio(): Promise<Reading[]> {
   return [
     ler(
       'volume',
-      'Volume',
-      estaMudo ? 'mudo' : `${nivelVolume}%`,
+      t('Volume'),
+      estaMudo ? marcar('mudo') : `${nivelVolume}%`,
       nomeSaida.slice(0, 26),
       nivelVolume / 100,
       estaMudo ? 'alerta' : 'ok',
     ),
-    ler('saida-audio', 'Saída', nomeSaida.slice(0, 26)),
+    ler('saida-audio', t('Saída'), nomeSaida.slice(0, 26)),
   ]
 }
 
@@ -274,8 +275,8 @@ export async function rede(): Promise<Reading[]> {
   const leituras: Reading[] = [
     ler(
       'rede-conexao',
-      'Rede',
-      ativo?.[2] ?? 'desconectado',
+      t('Rede'),
+      ativo?.[2] ?? t('desconectado'),
       ativo?.[0] ?? '',
       null,
       ativo ? 'ok' : 'erro',
@@ -283,13 +284,20 @@ export async function rede(): Promise<Reading[]> {
   ]
   if (ativaWifi) {
     leituras.push(
-      ler('wifi-sinal', 'Sinal', `${sinal}%`, 'Wi-Fi', sinal / 100, sinal < 35 ? 'alerta' : 'ok'),
+      ler(
+        'wifi-sinal',
+        t('Sinal'),
+        `${sinal}%`,
+        'Wi-Fi',
+        sinal / 100,
+        sinal < 35 ? 'alerta' : 'ok',
+      ),
     )
   }
 
   const ip = await cmd('hostname', ['-I']).catch(() => '')
   const primeiro = ip.trim().split(/\s+/)[0]
-  if (primeiro) leituras.push(ler('rede-ip', 'Endereço', primeiro))
+  if (primeiro) leituras.push(ler('rede-ip', t('Endereço'), primeiro))
 
   return leituras
 }
@@ -318,8 +326,8 @@ export async function vazao(): Promise<Reading[]> {
     return kbps > 1024 ? `${(kbps / 1024).toFixed(1)} MB/s` : `${kbps.toFixed(0)} KB/s`
   }
   return [
-    ler('rede-baixando', 'Baixando', taxa(depois.rx - antes.rx)),
-    ler('rede-enviando', 'Enviando', taxa(depois.tx - antes.tx)),
+    ler('rede-baixando', t('Baixando'), taxa(depois.rx - antes.rx)),
+    ler('rede-enviando', t('Enviando'), taxa(depois.tx - antes.tx)),
   ]
 }
 
@@ -338,12 +346,17 @@ export async function bluetooth(): Promise<Reading[]> {
     ler(
       'bluetooth',
       'Bluetooth',
-      ligado ? 'ligado' : 'desligado',
-      nomes.length ? nomes[0] : ligado ? 'nada conectado' : '',
+      ligado ? marcar('ligado') : marcar('desligado'),
+      nomes.length ? nomes[0] : ligado ? t('nada conectado') : '',
       null,
       ligado ? 'ok' : 'alerta',
     ),
-    ler('bluetooth-conectados', 'Conectados', String(nomes.length), nomes.slice(0, 2).join(', ')),
+    ler(
+      'bluetooth-conectados',
+      t('Conectados'),
+      String(nomes.length),
+      nomes.slice(0, 2).join(', '),
+    ),
   ]
 }
 
@@ -380,14 +393,14 @@ export async function bluetoothBateria(): Promise<Reading[]> {
   return [
     ler(
       'bluetooth-bateria',
-      'Bateria Bluetooth',
+      t('Bateria Bluetooth'),
       pior ? `${pior.carga}%` : '—',
       pior
         ? comBateria
             .map((d) => `${d.nome} ${d.carga}%`)
             .join(' · ')
             .slice(0, 60)
-        : 'nenhum dispositivo conectado informa',
+        : t('nenhum dispositivo conectado informa'),
       pior ? pior.carga / 100 : null,
       pior && pior.carga < 20 ? 'alerta' : 'ok',
     ),
@@ -406,9 +419,9 @@ export async function disco(): Promise<Reading[]> {
   return [
     ler(
       'disco-raiz',
-      'Disco',
+      t('Disco'),
       `${gb(usado)} GB`,
-      `de ${gb(total)} GB`,
+      t('de {total}', { total: `${gb(total)} GB` }),
       razao,
       nivel(razao, 0.85, 0.95),
     ),
@@ -423,9 +436,9 @@ export async function servicos(): Promise<Reading[]> {
   return [
     ler(
       'systemd-falhas',
-      'Serviços com falha',
+      t('Serviços com falha'),
       String(lista.length),
-      lista[0]?.split(/\s+/)[0] ?? 'tudo certo',
+      lista[0]?.split(/\s+/)[0] ?? t('tudo certo'),
       null,
       lista.length > 0 ? 'alerta' : 'ok',
     ),
@@ -435,7 +448,7 @@ export async function servicos(): Promise<Reading[]> {
 /** Área de trabalho virtual do KDE. */
 export async function areaDeTrabalho(): Promise<Reading[]> {
   const atual = await cmd('qdbus6', ['org.kde.KWin', '/KWin', 'currentDesktop'])
-  return [ler('kde-desktop', 'Área de trabalho', atual.trim())]
+  return [ler('kde-desktop', t('Área de trabalho'), atual.trim())]
 }
 
 /* ——— Microfone ——————————————————————————————————————————— */
@@ -456,17 +469,17 @@ export async function microfone(): Promise<Reading[]> {
   return [
     ler(
       'mic-mudo',
-      'Microfone',
-      estaMudo ? 'mudo' : 'aberto',
-      estaMudo ? 'ninguém te ouve' : '',
+      t('Microfone'),
+      estaMudo ? marcar('mudo') : marcar('aberto'),
+      estaMudo ? t('ninguém te ouve') : '',
       null,
       estaMudo ? 'alerta' : 'ok',
     ),
     ler(
       'mic-em-uso',
-      'Gravando do microfone',
+      t('Gravando do microfone'),
       String(gravando.length),
-      gravando.slice(0, 2).join(', ') || 'nenhum aplicativo',
+      gravando.slice(0, 2).join(', ') || t('nenhum aplicativo'),
       null,
       gravando.length > 0 ? 'erro' : 'ok',
     ),
@@ -523,5 +536,5 @@ export async function portas(): Promise<Reading[]> {
     .slice(0, 4)
     .map(([p, quem]) => (quem ? `${p} ${quem}` : String(p)))
     .join(' · ')
-  return [ler('portas-escuta', 'Portas em escuta', String(ordenadas.length), resumo)]
+  return [ler('portas-escuta', t('Portas em escuta'), String(ordenadas.length), resumo)]
 }

@@ -13,6 +13,7 @@ import type {
   Attachment,
   PermissionMode,
 } from '@shared/agents'
+import { t } from '@shared/i18n'
 import { currentSettings } from '../settings'
 
 /**
@@ -112,10 +113,8 @@ function emVersoesDeNode(raiz: string, sufixo: string): string[] {
  */
 function explicarFalha(erro: NodeJS.ErrnoException): string {
   if (erro.code !== 'ENOENT') return erro.message
-  return (
-    'O Claude Code (comando `claude`) não foi encontrado nesta máquina. ' +
-    'Instale-o e reabra o agente, ou aponte o caminho do programa em ' +
-    'Configurações → Claude.'
+  return t(
+    'O Claude Code (comando `claude`) não foi encontrado nesta máquina. Instale-o e reabra o agente, ou aponte o caminho do programa em Configurações → Claude.',
   )
 }
 
@@ -203,7 +202,7 @@ function processarEvento(vivo: Vivo, evento: Record<string, unknown>): void {
     vivo.agent = {
       ...vivo.agent,
       turns: vivo.agent.turns + 1,
-      error: falhou ? String(evento.result ?? 'erro sem descrição') : null,
+      error: falhou ? String(evento.result ?? t('erro sem descrição')) : null,
       approval: null,
     }
     estado(vivo, falhou ? 'erro' : 'ocioso')
@@ -224,13 +223,20 @@ function processarEvento(vivo: Vivo, evento: Record<string, unknown>): void {
     const entrada = (pedido.input ?? {}) as Record<string, unknown>
     const aprovacao: AgentApproval = {
       id: requestId,
-      tool: String(pedido.display_name ?? pedido.tool_name ?? 'ferramenta'),
+      tool: String(pedido.display_name ?? pedido.tool_name ?? t('ferramenta')),
       description: String(pedido.description ?? resumirEntrada(entrada)).slice(0, 160),
       input: resumirEntrada(entrada).slice(0, 600),
       at: Date.now(),
     }
     vivo.agent = { ...vivo.agent, approval: aprovacao }
-    anotar(vivo, 'system', `pede permissão: ${aprovacao.tool} — ${aprovacao.description}`)
+    anotar(
+      vivo,
+      'system',
+      t('pede permissão: {ferramenta} — {descricao}', {
+        ferramenta: aprovacao.tool,
+        descricao: aprovacao.description,
+      }),
+    )
     mudou()
   }
 }
@@ -272,14 +278,20 @@ function responderControle(vivo: Vivo, requestId: string, resposta: Record<strin
 export function resolveApproval(id: string, allow: boolean, motivo = ''): void {
   const vivo = agentes.get(id)
   const pedido = vivo?.agent.approval
-  if (!vivo || !pedido) throw new Error('não há pedido de permissão esperando')
+  if (!vivo || !pedido) throw new Error(t('não há pedido de permissão esperando'))
   responderControle(vivo, pedido.id, {
     subtype: 'success',
     response: allow
       ? { behavior: 'allow' }
       : { behavior: 'deny', message: motivo || 'negado pelo usuário na ilha' },
   })
-  anotar(vivo, 'system', allow ? `permitido: ${pedido.tool}` : `negado: ${pedido.tool}`)
+  anotar(
+    vivo,
+    'system',
+    allow
+      ? t('permitido: {ferramenta}', { ferramenta: pedido.tool })
+      : t('negado: {ferramenta}', { ferramenta: pedido.tool }),
+  )
   vivo.agent = { ...vivo.agent, approval: null }
   mudou()
 }
@@ -369,7 +381,10 @@ export function createAgent(
     if (vivo.agent.state === 'encerrado') return
     vivo.agent = {
       ...vivo.agent,
-      error: codigo && codigo !== 0 ? `o processo saiu com código ${codigo}` : vivo.agent.error,
+      error:
+        codigo && codigo !== 0
+          ? t('o processo saiu com código {codigo}', { codigo })
+          : vivo.agent.error,
     }
     // Quem morreu por erro fica em erro: "encerrado" pareceria fim normal.
     estado(vivo, vivo.agent.state === 'erro' ? 'erro' : 'encerrado')

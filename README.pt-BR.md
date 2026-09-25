@@ -162,6 +162,7 @@ Electron precisa no Ubuntu. O AppImage também é gerado, mas exige
   traz o app, e o campo da ilha abre apps e comandos.
 - **Ligue o lançador** em Configurações → Lançador para usar o **Meta+V**.
 - **Escolha a cidade do clima** em Configurações → Widgets.
+- **Troque o idioma** em Configurações → Idioma: português (padrão) ou inglês.
 
 ## Configurações
 
@@ -293,7 +294,7 @@ verificar uma mudança — está em **[DOCUMENTACAO.md](DOCUMENTACAO.md)**
 - [x] Quatro ambientes, com papel de parede (imagem ou vídeo)
 - [x] Ilha dinâmica, lançador no Meta+V e balões de notificação do tema
 - [x] Agentes do Claude Code, Spotify, biblioteca M3U e Social Arte
-- [ ] Opção de interface em inglês (o português continua o padrão)
+- [x] Opção de interface em inglês (o português continua o padrão)
 - [ ] Os ambientes Estúdio, Espaço e Costa
 - [ ] Busca no catálogo do Spotify
 - [ ] Medidor de GPU para AMD e Intel

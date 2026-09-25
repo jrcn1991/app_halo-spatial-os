@@ -1,5 +1,6 @@
 import { lookup } from 'node:dns/promises'
 import { isIP } from 'node:net'
+import { t } from '@shared/i18n'
 
 /**
  * A busca externa da Social Arte — e a trava contra SSRF.
@@ -75,7 +76,7 @@ function privado(ip: string): boolean {
 /** Rejeita o que não pode ser buscado, com a frase pronta para a tela. */
 async function conferir(url: URL): Promise<void> {
   if (url.protocol !== 'http:' && url.protocol !== 'https:') {
-    throw new RedeError('só endereços http:// ou https://')
+    throw new RedeError(t('só endereços http:// ou https://'))
   }
   // `lookup` com `all` porque um nome pode ter vários endereços: basta UM
   // privado para o pedido não sair daqui.
@@ -88,11 +89,11 @@ async function conferir(url: URL): Promise<void> {
   try {
     enderecos = isIP(host) ? [{ address: host }] : await lookup(host, { all: true })
   } catch {
-    throw new RedeError('não consegui resolver esse endereço')
+    throw new RedeError(t('não consegui resolver esse endereço'))
   }
-  if (enderecos.length === 0) throw new RedeError('endereço sem IP')
+  if (enderecos.length === 0) throw new RedeError(t('endereço sem IP'))
   if (enderecos.some((e) => privado(e.address))) {
-    throw new RedeError('esse endereço aponta para a rede local, e o app não a alcança por link')
+    throw new RedeError(t('esse endereço aponta para a rede local, e o app não a alcança por link'))
   }
 }
 
@@ -107,7 +108,7 @@ export async function buscarPagina(bruta: string): Promise<{ texto: string; url:
   try {
     url = new URL(bruta.trim())
   } catch {
-    throw new RedeError('isso não parece um endereço')
+    throw new RedeError(t('isso não parece um endereço'))
   }
 
   const controller = new AbortController()
@@ -134,19 +135,20 @@ export async function buscarPagina(bruta: string): Promise<{ texto: string; url:
 
       if (resposta.status >= 300 && resposta.status < 400) {
         const destino = resposta.headers.get('location')
-        if (!destino) throw new RedeError('o servidor redirecionou sem dizer para onde')
+        if (!destino) throw new RedeError(t('o servidor redirecionou sem dizer para onde'))
         url = new URL(destino, url)
         continue
       }
-      if (!resposta.ok) throw new RedeError(`o servidor respondeu HTTP ${resposta.status}`)
+      if (!resposta.ok)
+        throw new RedeError(t('o servidor respondeu HTTP {status}', { status: resposta.status }))
 
       return { texto: await lerAteOTeto(resposta), url: url.toString() }
     }
-    throw new RedeError('redirecionamentos demais')
+    throw new RedeError(t('redirecionamentos demais'))
   } catch (erro) {
     if (erro instanceof RedeError) throw erro
-    if (controller.signal.aborted) throw new RedeError('o servidor demorou demais')
-    throw new RedeError('não consegui abrir esse endereço')
+    if (controller.signal.aborted) throw new RedeError(t('o servidor demorou demais'))
+    throw new RedeError(t('não consegui abrir esse endereço'))
   } finally {
     clearTimeout(timer)
   }
@@ -160,7 +162,7 @@ async function lerAteOTeto(resposta: Response): Promise<string> {
   let total = 0
   for await (const pedaco of corpo as unknown as AsyncIterable<Uint8Array>) {
     total += pedaco.byteLength
-    if (total > MAX_BYTES) throw new RedeError('a página é grande demais')
+    if (total > MAX_BYTES) throw new RedeError(t('a página é grande demais'))
     pedacos.push(pedaco)
   }
   return Buffer.concat(pedacos).toString('utf8')
@@ -187,13 +189,14 @@ export async function buscarJson<T>(bruta: string, cabecalhos: Record<string, st
       headers: { Accept: 'application/json', ...cabecalhos },
     })
     if (resposta.status === 429)
-      throw new RedeError('a plataforma pediu para esperar (limite de uso)')
-    if (!resposta.ok) throw new RedeError(`a plataforma respondeu HTTP ${resposta.status}`)
+      throw new RedeError(t('a plataforma pediu para esperar (limite de uso)'))
+    if (!resposta.ok)
+      throw new RedeError(t('a plataforma respondeu HTTP {status}', { status: resposta.status }))
     return JSON.parse(await lerAteOTeto(resposta)) as T
   } catch (erro) {
     if (erro instanceof RedeError) throw erro
-    if (controller.signal.aborted) throw new RedeError('a plataforma demorou demais')
-    throw new RedeError('não consegui falar com a plataforma')
+    if (controller.signal.aborted) throw new RedeError(t('a plataforma demorou demais'))
+    throw new RedeError(t('não consegui falar com a plataforma'))
   } finally {
     clearTimeout(timer)
   }

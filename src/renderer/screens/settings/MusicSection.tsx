@@ -1,3 +1,4 @@
+import { t } from '@shared/i18n'
 import {
   redirectValido,
   SPOTIFY_DASHBOARD,
@@ -33,12 +34,12 @@ export function MusicSection() {
   return (
     <>
       <div className={styles.header}>
-        <span className={styles.eyebrow}>Música · Spotify</span>
-        <span className={styles.title}>Sua conta</span>
+        <span className={styles.eyebrow}>{t('Música · Spotify')}</span>
+        <span className={styles.title}>{t('Sua conta')}</span>
         <span className={styles.subtitle}>
-          A tela de Música mostra as suas playlists, álbuns salvos e artistas, e comanda a
-          reprodução. O áudio toca no aplicativo do Spotify ou em outro aparelho seu — não dentro do
-          Halo.
+          {t(
+            'A tela de Música mostra as suas playlists, álbuns salvos e artistas, e comanda a reprodução. O áudio toca no aplicativo do Spotify ou em outro aparelho seu — não dentro do Halo.',
+          )}
         </span>
       </div>
       <div className={styles.divider} />
@@ -49,52 +50,56 @@ export function MusicSection() {
           className={styles.campo}
           type="password"
           value={clientId}
-          placeholder="Client ID do seu app — cole aqui"
-          aria-label="Client ID do Spotify"
+          placeholder={t('Client ID do seu app — cole aqui')}
+          aria-label={t('Client ID do Spotify')}
           spellCheck={false}
           onChange={(e) => setClientId(e.target.value)}
         />
         <span className={styles.note}>
-          Crie um app gratuito em {SPOTIFY_DASHBOARD} (menu do seu perfil → Dashboard → Create app),
-          marque "Web API" e copie o Client ID. Ele fica só neste computador, no seu arquivo de
-          configurações, e nunca vai para o repositório.
+          {t(
+            'Crie um app gratuito em {url} (menu do seu perfil → Dashboard → Create app), marque "Web API" e copie o Client ID. Ele fica só neste computador, no seu arquivo de configurações, e nunca vai para o repositório.',
+            { url: SPOTIFY_DASHBOARD },
+          )}
         </span>
       </div>
 
       <div className={styles.section}>
-        <span className={styles.sectionLabel}>Endereço de retorno</span>
+        <span className={styles.sectionLabel}>{t('Endereço de retorno')}</span>
         <input
           className={styles.campo}
           type="text"
           value={redirect}
           placeholder={SPOTIFY_REDIRECT_PADRAO}
-          aria-label="Endereço de retorno do Spotify"
+          aria-label={t('Endereço de retorno do Spotify')}
           spellCheck={false}
           onChange={(e) => setRedirect(e.target.value.trim())}
         />
         <span className={styles.note}>
           {recusado
-            ? 'Este endereço o app não consegue atender. Ele precisa ser HTTP num endereço de ' +
-              'loopback — o padrão continua valendo até você corrigir.'
-            : `Em uso: ${emUso}`}
+            ? t(
+                'Este endereço o app não consegue atender. Ele precisa ser HTTP num endereço de loopback — o padrão continua valendo até você corrigir.',
+              )
+            : t('Em uso: {endereco}', { endereco: emUso })}
         </span>
         <span className={styles.note}>
-          Este endereço precisa estar registrado em <em>Redirect URIs</em>, no mesmo formulário do
-          app, escrito exatamente igual — é ali que o Spotify devolve a autorização. Sem isso a
-          página de consentimento recusa com "INVALID_CLIENT: Invalid redirect URI".
+          {t('Este endereço precisa estar registrado em')} <em>Redirect URIs</em>
+          {t(
+            ', no mesmo formulário do app, escrito exatamente igual — é ali que o Spotify devolve a autorização. Sem isso a página de consentimento recusa com "INVALID_CLIENT: Invalid redirect URI".',
+          )}
         </span>
         <span className={styles.note}>
-          Tem de ser <strong>http</strong> em <strong>127.0.0.1</strong> (ou <code>[::1]</code>). É
-          a regra do próprio Spotify: "Use HTTPS for your redirect URI, unless you are using a
-          loopback address, when HTTP is permitted" — e "localhost is not allowed". HTTPS aqui
-          exigiria um certificado para um servidor dentro do seu computador, o que só renderia aviso
-          vermelho no navegador. Se você registrou um <code>https://127.0.0.1:…</code>, troque o{' '}
-          <code>https</code> por <code>http</code> no painel: é a única mudança necessária.
+          {t('Tem de ser')} <strong>http</strong> {t('em')} <strong>127.0.0.1</strong> ({t('ou')}{' '}
+          <code>[::1]</code>).{' '}
+          {t(
+            'É a regra do próprio Spotify: "Use HTTPS for your redirect URI, unless you are using a loopback address, when HTTP is permitted" — e "localhost is not allowed". HTTPS aqui exigiria um certificado para um servidor dentro do seu computador, o que só renderia aviso vermelho no navegador. Se você registrou um',
+          )}{' '}
+          <code>https://127.0.0.1:…</code>, {t('troque o')} <code>https</code> {t('por')}{' '}
+          <code>http</code> {t('no painel: é a única mudança necessária.')}
         </span>
       </div>
 
       <div className={styles.section}>
-        <span className={styles.sectionLabel}>Conexão</span>
+        <span className={styles.sectionLabel}>{t('Conexão')}</span>
         <span className={styles.note}>{descrever(auth, conectando)}</span>
         <div className={styles.stack}>
           <button
@@ -103,7 +108,7 @@ export function MusicSection() {
             disabled={!clientId || conectando}
             onClick={conectar}
           >
-            {conectado ? 'Conectar de novo' : 'Conectar'}
+            {conectado ? t('Conectar de novo') : t('Conectar')}
           </button>
           {conectado ? (
             <button
@@ -111,48 +116,52 @@ export function MusicSection() {
               className={`${styles.replay} ${styles.secondary}`}
               onClick={desconectar}
             >
-              Desconectar
+              {t('Desconectar')}
             </button>
           ) : null}
         </div>
         <span className={styles.note}>
-          Conectar abre a página de autorização no seu navegador — nunca dentro do Halo: pedir a
-          senha do Spotify numa janela nossa seria exatamente o que uma tela falsa faria. O app não
-          vê a sua senha; o Spotify devolve só uma autorização, guardada aqui neste computador.
+          {t(
+            'Conectar abre a página de autorização no seu navegador — nunca dentro do Halo: pedir a senha do Spotify numa janela nossa seria exatamente o que uma tela falsa faria. O app não vê a sua senha; o Spotify devolve só uma autorização, guardada aqui neste computador.',
+          )}
         </span>
       </div>
 
       <div className={styles.section}>
-        <span className={styles.sectionLabel}>Permissões pedidas</span>
+        <span className={styles.sectionLabel}>{t('Permissões pedidas')}</span>
         <span className={styles.note}>
-          O app pede exatamente estes escopos, e cada um existe por causa de uma parte da tela.
-          Autorizar menos não quebra o resto: o que faltar aparece como aviso, e o que veio continua
-          funcionando.
+          {t(
+            'O app pede exatamente estes escopos, e cada um existe por causa de uma parte da tela. Autorizar menos não quebra o resto: o que faltar aparece como aviso, e o que veio continua funcionando.',
+          )}
         </span>
         <span className={styles.note}>
           <code>{SPOTIFY_SCOPES.join(' ')}</code>
         </span>
         <span className={styles.note}>
-          Só reprodução (<code>user-read-playback-state</code> e{' '}
-          <code>user-modify-playback-state</code>) dá o transporte, mas <strong>não</strong> lista
-          playlists, álbuns salvos, artistas nem recentes — cada uma dessas depende de um escopo
-          próprio da lista acima.
+          {t('Só reprodução')} (<code>user-read-playback-state</code> {t('e')}{' '}
+          <code>user-modify-playback-state</code>) {t('dá o transporte, mas')}{' '}
+          <strong>{t('não')}</strong>{' '}
+          {t(
+            'lista playlists, álbuns salvos, artistas nem recentes — cada uma dessas depende de um escopo próprio da lista acima.',
+          )}
         </span>
       </div>
 
       <div className={styles.section}>
-        <span className={styles.sectionLabel}>O que dá e o que não dá</span>
+        <span className={styles.sectionLabel}>{t('O que dá e o que não dá')}</span>
         <span className={styles.note}>
-          Comandar a reprodução (tocar, pausar, pular, escolher uma playlist) exige{' '}
-          <strong>Premium</strong> quando o comando vai para outro aparelho pela internet. Com o
-          aplicativo do Spotify aberto neste computador, o Halo fala direto com ele pelo D-Bus e nem
-          passa pela internet.
+          {t('Comandar a reprodução (tocar, pausar, pular, escolher uma playlist) exige')}{' '}
+          <strong>Premium</strong>{' '}
+          {t(
+            'quando o comando vai para outro aparelho pela internet. Com o aplicativo do Spotify aberto neste computador, o Halo fala direto com ele pelo D-Bus e nem passa pela internet.',
+          )}
         </span>
         <span className={styles.note}>
-          O áudio não pode tocar dentro do Halo: o Spotify entrega mídia protegida por DRM
-          (Widevine), e o Electron não distribui esse módulo — medido neste app, onde
-          <code>com.widevine.alpha</code> responde "Unsupported keySystem". Não é escolha de
-          projeto, é o binário.
+          {t(
+            'O áudio não pode tocar dentro do Halo: o Spotify entrega mídia protegida por DRM (Widevine), e o Electron não distribui esse módulo — medido neste app, onde',
+          )}{' '}
+          <code>com.widevine.alpha</code>{' '}
+          {t('responde "Unsupported keySystem". Não é escolha de projeto, é o binário.')}
         </span>
       </div>
     </>
@@ -163,19 +172,21 @@ function descrever(
   auth: ReturnType<typeof useSpotifyAccount>['auth'],
   conectando: boolean,
 ): string {
-  if (conectando) return 'Autorize no navegador que acabou de abrir e volte para cá.'
-  if (!auth) return 'Verificando…'
+  if (conectando) return t('Autorize no navegador que acabou de abrir e volte para cá.')
+  if (!auth) return t('Verificando…')
   switch (auth.state) {
     case 'no-client-id':
-      return 'Informe o Client ID acima para poder conectar.'
+      return t('Informe o Client ID acima para poder conectar.')
     case 'signed-out':
-      return 'Client ID informado. Falta você autorizar o acesso à sua conta.'
+      return t('Client ID informado. Falta você autorizar o acesso à sua conta.')
     case 'signed-in':
-      return (
-        `Conectado como ${auth.user.displayName || 'você'}` +
-        (auth.user.product ? ` (${auth.user.product}).` : '.')
-      )
+      return auth.user.product
+        ? t('Conectado como {nome} ({plano}).', {
+            nome: auth.user.displayName || t('você'),
+            plano: auth.user.product,
+          })
+        : t('Conectado como {nome}.', { nome: auth.user.displayName || t('você') })
     case 'error':
-      return `Não deu: ${auth.message}`
+      return t('Não deu: {erro}', { erro: auth.message })
   }
 }

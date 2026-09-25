@@ -5,6 +5,7 @@ import { CloudLightning } from '@phosphor-icons/react/dist/icons/CloudLightning'
 import { CloudRain } from '@phosphor-icons/react/dist/icons/CloudRain'
 import { CloudSnow } from '@phosphor-icons/react/dist/icons/CloudSnow'
 import { Sun } from '@phosphor-icons/react/dist/icons/Sun'
+import { marcar, t } from '@shared/i18n'
 import type { WeatherCondition } from '@/domain/types'
 import { SemCidade, useWeather } from '@/hooks/useWeather'
 import { useHalo } from '@/store/useHalo'
@@ -14,12 +15,12 @@ import styles from './widgets.module.css'
 
 /** Ícone e rótulo por condição. O handoff mostra neblina, em `ph-fill`. */
 const CONDITIONS: Record<WeatherCondition, { icon: Icon; label: string }> = {
-  clear: { icon: Sun, label: 'LIMPO' },
-  clouds: { icon: Cloud, label: 'NUBLADO' },
-  fog: { icon: CloudFog, label: 'NEBLINA' },
-  rain: { icon: CloudRain, label: 'CHUVA' },
-  snow: { icon: CloudSnow, label: 'NEVE' },
-  storm: { icon: CloudLightning, label: 'TEMPESTADE' },
+  clear: { icon: Sun, label: marcar('LIMPO') },
+  clouds: { icon: Cloud, label: marcar('NUBLADO') },
+  fog: { icon: CloudFog, label: marcar('NEBLINA') },
+  rain: { icon: CloudRain, label: marcar('CHUVA') },
+  snow: { icon: CloudSnow, label: marcar('NEVE') },
+  storm: { icon: CloudLightning, label: marcar('TEMPESTADE') },
 }
 
 /**
@@ -62,10 +63,10 @@ export function WeatherWidget() {
         </div>
         <div className={styles.weatherLine}>
           {data
-            ? `${condition.label} · ${data.place.toUpperCase()}`
+            ? `${t(condition.label)} · ${data.place.toUpperCase()}`
             : error instanceof SemCidade
-              ? 'ESCOLHA A CIDADE EM CONFIGURAÇÕES → WIDGETS'
-              : `${error ? 'SEM DADOS' : '···'} · ${place.toUpperCase()}`}
+              ? t('ESCOLHA A CIDADE EM CONFIGURAÇÕES → WIDGETS')
+              : `${error ? t('SEM DADOS') : '···'} · ${place.toUpperCase()}`}
         </div>
       </div>
     </div>

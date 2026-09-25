@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
+import { t } from '@shared/i18n'
 import type { AcaoDoAviso, Aviso, UrgenciaDoAviso } from '@shared/notificacoes'
 import dbus from 'dbus-next'
 import { iconeDoDesktop, iconeDoNome, imagemDoCaminho, imagemDosPixels } from './icones'
@@ -370,7 +371,7 @@ export async function inibir(): Promise<boolean> {
       fdo,
       'Inhibit',
       'halo-spatial-os',
-      'O Halo desenha as notificações no estilo do ambiente',
+      t('O Halo desenha as notificações no estilo do ambiente'),
       {},
     ),
   )
@@ -463,9 +464,11 @@ export async function mandarExemplo(ambiente: string): Promise<void> {
       'Halo',
       0,
       'halo-spatial-os',
-      `Assim chegam os avisos no ${ambiente}`,
-      'Cada notificação do sistema passa a vestir o tema do ambiente. Troque de ambiente na home e mande outro exemplo.',
-      ['default', 'Abrir', 'ok', 'Entendi'],
+      t('Assim chegam os avisos no {ambiente}', { ambiente }),
+      t(
+        'Cada notificação do sistema passa a vestir o tema do ambiente. Troque de ambiente na home e mande outro exemplo.',
+      ),
+      ['default', t('Abrir'), 'ok', t('Entendi')],
       {
         urgency: new dbus.Variant('y', 1),
         'desktop-entry': new dbus.Variant('s', 'halo-spatial-os'),

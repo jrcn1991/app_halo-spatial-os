@@ -1,4 +1,5 @@
 import type { CreativeItem, CreativeKind, CreativeProviderId, CreativeSort } from '@shared/creative'
+import { t } from '@shared/i18n'
 import { useState } from 'react'
 import {
   useCreativeConnections,
@@ -102,7 +103,7 @@ export function SocialScreen() {
     grupo === 'tudo'
       ? ''
       : grupo === 'favoritos'
-        ? 'Favoritos'
+        ? t('Favoritos')
         : (colecoes.find((c) => c.id === grupo)?.name ?? '')
 
   return (

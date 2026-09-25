@@ -1,3 +1,4 @@
+import { t } from '@shared/i18n'
 import type { IslandClip } from '@shared/island'
 import dbus from 'dbus-next'
 import { clipboard } from 'electron'
@@ -170,7 +171,7 @@ export const clipsList = (): IslandClip[] => itens.map(({ texto: _texto, ...rest
 /** Põe um item de volta na área de transferência. */
 export async function clipCopiar(id: number): Promise<void> {
   const item = itens.find((i) => i.id === id)
-  if (!item) throw new Error('item não está mais no histórico')
+  if (!item) throw new Error(t('item não está mais no histórico'))
   ultimo = item.texto
   await escreverTexto(item.texto)
 }
@@ -183,7 +184,7 @@ export async function clipEscrever(texto: string): Promise<void> {
 
 export function clipFixar(id: number): void {
   const item = itens.find((i) => i.id === id)
-  if (!item) throw new Error('item não está mais no histórico')
+  if (!item) throw new Error(t('item não está mais no histórico'))
   item.pinned = !item.pinned
 }
 

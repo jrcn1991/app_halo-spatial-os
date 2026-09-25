@@ -1,3 +1,4 @@
+import { t } from '@shared/i18n'
 import {
   feedUrlValida,
   MAX_FEEDS,
@@ -87,8 +88,8 @@ export async function headlines(feeds: unknown): Promise<NewsResult> {
             fetchedAt: null,
             parsed: null,
             error: url
-              ? 'endereço inválido — precisa começar com http:// ou https://'
-              : 'endereço vazio',
+              ? t('endereço inválido — precisa começar com http:// ou https://')
+              : t('endereço vazio'),
           } satisfies Cached,
         }
       }
@@ -225,15 +226,16 @@ async function refresh(url: string): Promise<Cached> {
 function descreverErro(error: unknown): string {
   if (error instanceof FeedError) return error.message
   const e = error as { name?: string; message?: string; cause?: { code?: string } }
-  if (e?.name === 'AbortError') return `demorou mais de ${TIMEOUT_MS / 1000} s para responder`
+  if (e?.name === 'AbortError')
+    return t('demorou mais de {n} s para responder', { n: TIMEOUT_MS / 1000 })
   const code = e?.cause?.code
-  if (code === 'ENOTFOUND' || code === 'EAI_AGAIN') return 'sem rede, ou o endereço não existe'
-  if (code === 'ECONNREFUSED') return 'o servidor recusou a conexão'
+  if (code === 'ENOTFOUND' || code === 'EAI_AGAIN') return t('sem rede, ou o endereço não existe')
+  if (code === 'ECONNREFUSED') return t('o servidor recusou a conexão')
   if (code === 'CERT_HAS_EXPIRED' || code?.startsWith('ERR_TLS')) {
-    return 'o certificado do servidor não é válido'
+    return t('o certificado do servidor não é válido')
   }
-  if (code) return `sem resposta (${code})`
-  return `não consegui buscar: ${e?.message ?? String(error)}`
+  if (code) return t('sem resposta ({codigo})', { codigo: code })
+  return t('não consegui buscar: {motivo}', { motivo: e?.message ?? String(error) })
 }
 
 /** Erro com frase pronta para a tela, para distinguir do erro de rede. */
@@ -251,11 +253,12 @@ async function getText(url: string): Promise<string> {
         'User-Agent': 'Halo (leitor de RSS)',
       },
     })
-    if (!response.ok) throw new FeedError(`o servidor respondeu HTTP ${response.status}`)
+    if (!response.ok)
+      throw new FeedError(t('o servidor respondeu HTTP {status}', { status: response.status }))
     const tamanho = Number(response.headers.get('content-length') ?? 0)
-    if (tamanho > MAX_BYTES) throw new FeedError('feed grande demais (mais de 4 MB)')
+    if (tamanho > MAX_BYTES) throw new FeedError(t('feed grande demais (mais de 4 MB)'))
     const text = await response.text()
-    if (text.length > MAX_BYTES) throw new FeedError('feed grande demais (mais de 4 MB)')
+    if (text.length > MAX_BYTES) throw new FeedError(t('feed grande demais (mais de 4 MB)'))
     return text
   } finally {
     clearTimeout(timer)
@@ -273,7 +276,9 @@ export function parseFeed(xml: string, url: string): Parsed {
   const cabeca = corpo.slice(0, 4096).toLowerCase()
 
   if (/^\s*<!doctype html|<html[\s>]/.test(cabeca)) {
-    throw new FeedError('esse endereço é uma página, não um feed — procure o link do RSS no site')
+    throw new FeedError(
+      t('esse endereço é uma página, não um feed — procure o link do RSS no site'),
+    )
   }
 
   const atom = /<feed[\s>]/.test(cabeca) && /<entry[\s>]/.test(corpo)
@@ -283,7 +288,7 @@ export function parseFeed(xml: string, url: string): Parsed {
     if (/<(rss|rdf:RDF|channel|feed)[\s>]/.test(cabeca)) {
       return { name: canalNome(corpo, url), items: [] }
     }
-    throw new FeedError('não é um feed RSS nem Atom')
+    throw new FeedError(t('não é um feed RSS nem Atom'))
   }
 
   const name = canalNome(corpo, url)

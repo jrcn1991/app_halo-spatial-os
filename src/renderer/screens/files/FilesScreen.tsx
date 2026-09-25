@@ -13,6 +13,7 @@ import { House } from '@phosphor-icons/react/dist/icons/House'
 import { Image as ImageIcon } from '@phosphor-icons/react/dist/icons/Image'
 import { MagnifyingGlass } from '@phosphor-icons/react/dist/icons/MagnifyingGlass'
 import { Star } from '@phosphor-icons/react/dist/icons/Star'
+import { localeDoIdioma, t } from '@shared/i18n'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { FileEntry, FileKind } from '@/domain/types'
 import { useDirectory, useFavorites, useMounts, useStorage } from '@/hooks/useFiles'
@@ -100,14 +101,14 @@ export function FilesScreen() {
           <div className={styles.nav}>
             <button
               type="button"
-              aria-label="Voltar"
+              aria-label={t('Voltar')}
               className={styles.navButton}
               onClick={back}
               disabled={!data?.parent && history.length === 0}
             >
               <CaretLeft size={16} />
             </button>
-            <button type="button" aria-label="Avançar" className={styles.navButton} disabled>
+            <button type="button" aria-label={t('Avançar')} className={styles.navButton} disabled>
               <CaretRight size={16} />
             </button>
           </div>
@@ -121,8 +122,8 @@ export function FilesScreen() {
             <input
               className={styles.searchInput}
               value={query}
-              placeholder="Buscar aqui"
-              aria-label="Buscar arquivos"
+              placeholder={t('Buscar aqui')}
+              aria-label={t('Buscar arquivos')}
               onChange={(e) => setQuery(e.target.value)}
             />
           </div>
@@ -131,10 +132,10 @@ export function FilesScreen() {
         <FavoritesCarousel favorites={favorites} onOpen={navigate} />
 
         <div className={styles.columns}>
-          <div className={styles.colName}>NOME</div>
-          <div className={styles.colModified}>MODIFICADO</div>
-          <div className={styles.colSize}>TAMANHO</div>
-          <div className={styles.colOwner}>DONO</div>
+          <div className={styles.colName}>{t('NOME')}</div>
+          <div className={styles.colModified}>{t('MODIFICADO')}</div>
+          <div className={styles.colSize}>{t('TAMANHO')}</div>
+          <div className={styles.colOwner}>{t('DONO')}</div>
         </div>
 
         <div className={styles.rows}>
@@ -146,7 +147,9 @@ export function FilesScreen() {
                 type="button"
                 className={styles.rowMain}
                 onClick={() => entry.kind === 'folder' && navigate(entry.path)}
-                title={entry.kind === 'folder' ? `Abrir ${entry.name}` : entry.path}
+                title={
+                  entry.kind === 'folder' ? t('Abrir {nome}', { nome: entry.name }) : entry.path
+                }
               >
                 <FileGlyph kind={entry.kind} />
                 <span className={styles.rowNameText}>{entry.name}</span>
@@ -159,8 +162,8 @@ export function FilesScreen() {
                   aria-pressed={favorites.includes(entry.path)}
                   aria-label={
                     favorites.includes(entry.path)
-                      ? `Desfavoritar ${entry.name}`
-                      : `Favoritar ${entry.name}`
+                      ? t('Desfavoritar {nome}', { nome: entry.name })
+                      : t('Favoritar {nome}', { nome: entry.name })
                   }
                   onClick={() => toggleFavorite(entry.path)}
                 >
@@ -181,7 +184,7 @@ export function FilesScreen() {
                 {entry.kind === 'folder'
                   ? entry.childCount === null
                     ? '—'
-                    : `${entry.childCount} itens`
+                    : t(entry.childCount === 1 ? '{n} item' : '{n} itens', { n: entry.childCount })
                   : formatSize(entry.sizeBytes)}
               </span>
               <span className={`${styles.cell} ${styles.colOwner}`}>{entry.owner}</span>
@@ -200,20 +203,18 @@ export function FilesScreen() {
               title={error ? error.message : undefined}
             >
               {error
-                ? 'NÃO CONSEGUI ABRIR ESTA PASTA'
+                ? t('NÃO CONSEGUI ABRIR ESTA PASTA')
                 : query
-                  ? 'NADA COM ESSE NOME'
-                  : 'PASTA VAZIA'}
+                  ? t('NADA COM ESSE NOME')
+                  : t('PASTA VAZIA')}
             </span>
           )}
         </div>
 
         <div className={styles.footer}>
-          <span>
-            {entries.length} {entries.length === 1 ? 'ITEM' : 'ITENS'}
-          </span>
+          <span>{t(entries.length === 1 ? '{n} ITEM' : '{n} ITENS', { n: entries.length })}</span>
           <div className={styles.spacer} />
-          <span>SOMENTE LEITURA</span>
+          <span>{t('SOMENTE LEITURA')}</span>
         </div>
       </Panel>
 
@@ -332,12 +333,12 @@ function FavoritesCarousel({
   return (
     <>
       <div className={styles.carouselHead}>
-        <span className={styles.sideLabel}>FAVORITAS · {favorites.length}</span>
+        <span className={styles.sideLabel}>{t('FAVORITAS · {n}', { n: favorites.length })}</span>
         {favorites.length > PAGE && (
           <div className={styles.arrows}>
             <button
               type="button"
-              aria-label="Favoritas anteriores"
+              aria-label={t('Favoritas anteriores')}
               className={styles.arrow}
               onClick={() => page(-1)}
               disabled={edges.start}
@@ -346,7 +347,7 @@ function FavoritesCarousel({
             </button>
             <button
               type="button"
-              aria-label="Próximas favoritas"
+              aria-label={t('Próximas favoritas')}
               className={styles.arrow}
               onClick={() => page(1)}
               disabled={edges.end}
@@ -379,7 +380,7 @@ function FavoritesCarousel({
           ))}
           {favorites.length === 0 && (
             <span className={styles.folderMeta}>
-              NENHUMA FAVORITA — USE A ESTRELA NAS PASTAS ABAIXO
+              {t('NENHUMA FAVORITA — USE A ESTRELA NAS PASTAS ABAIXO')}
             </span>
           )}
         </div>
@@ -414,24 +415,24 @@ function ShortcutsPanel({
 
   return (
     <>
-      <span className={styles.sideLabel}>AQUI</span>
+      <span className={styles.sideLabel}>{t('AQUI')}</span>
       <div className={styles.sideList}>
         <div className={styles.sideItem}>
           <Folder size={17} weight="fill" color="var(--accent-violet)" />
           <span className={styles.rowNameText}>
-            {folders.length} {folders.length === 1 ? 'pasta' : 'pastas'}
+            {t(folders.length === 1 ? '{n} pasta' : '{n} pastas', { n: folders.length })}
           </span>
         </div>
         <div className={styles.sideItem}>
           <FileGlyph kind="file" />
           <span className={styles.rowNameText}>
-            {files.length} {files.length === 1 ? 'arquivo' : 'arquivos'}
+            {t(files.length === 1 ? '{n} arquivo' : '{n} arquivos', { n: files.length })}
           </span>
           <span className={styles.sideMeta}>{weight > 0 ? formatSize(weight) : '—'}</span>
         </div>
       </div>
 
-      <span className={styles.sideLabel}>RECENTES AQUI</span>
+      <span className={styles.sideLabel}>{t('RECENTES AQUI')}</span>
       <div className={styles.sideList}>
         {recent.map((entry) => (
           <div key={entry.path} className={styles.sideItem} title={entry.path}>
@@ -440,24 +441,29 @@ function ShortcutsPanel({
             <span className={styles.sideMeta}>{formatSize(entry.sizeBytes)}</span>
           </div>
         ))}
-        {recent.length === 0 && <span className={styles.folderMeta}>NENHUM ARQUIVO AQUI</span>}
+        {recent.length === 0 && (
+          <span className={styles.folderMeta}>{t('NENHUM ARQUIVO AQUI')}</span>
+        )}
       </div>
 
       {current && (
         <button type="button" className={styles.sideItem} onClick={() => onOpen(current)}>
           <ArrowsClockwise size={16} color="var(--text-secondary)" />
-          Recarregar
+          {t('Recarregar')}
         </button>
       )}
 
       <div className={styles.storage}>
         <div className={styles.storageValue}>
           {storage
-            ? `${formatSize(storage.usedBytes)} de ${formatSize(storage.totalBytes)}`
-            : 'Medindo…'}
+            ? t('{usado} de {total}', {
+                usado: formatSize(storage.usedBytes),
+                total: formatSize(storage.totalBytes),
+              })
+            : t('Medindo…')}
         </div>
         <div className={styles.sideLabel} style={{ marginTop: 4 }}>
-          DISCO ATUAL
+          {t('DISCO ATUAL')}
         </div>
         <div className={styles.bar}>
           <div className={styles.barFill} style={{ width: `${percent}%` }} />
@@ -496,7 +502,9 @@ function DisksPanel({
       >
         <HardDrives size={19} weight="fill" color="var(--accent-mint)" />
         <span className={styles.sideLabel}>
-          DISCOS · {disks.length} {disks.length === 1 ? 'MONTADO' : 'MONTADOS'}
+          {t(disks.length === 1 ? 'DISCOS · {n} MONTADO' : 'DISCOS · {n} MONTADOS', {
+            n: disks.length,
+          })}
         </span>
       </div>
 
@@ -532,16 +540,21 @@ function DisksPanel({
               )}
               <span className={styles.diskSize}>
                 {disk.usedBytes !== null && disk.totalBytes
-                  ? `${formatSize(disk.usedBytes)} de ${formatSize(disk.totalBytes)}`
+                  ? t('{usado} de {total}', {
+                      usado: formatSize(disk.usedBytes),
+                      total: formatSize(disk.totalBytes),
+                    })
                   : disk.path}
               </span>
             </button>
           )
         })}
-        {disks.length === 0 && <span className={styles.folderMeta}>NENHUM DISCO LISTADO</span>}
+        {disks.length === 0 && (
+          <span className={styles.folderMeta}>{t('NENHUM DISCO LISTADO')}</span>
+        )}
       </div>
 
-      <span className={styles.sideLabel}>ONDE VOCÊ ESTÁ</span>
+      <span className={styles.sideLabel}>{t('ONDE VOCÊ ESTÁ')}</span>
       <div className={styles.trail}>
         {trail(current, here?.path ?? '/').map((step) => (
           <button
@@ -594,7 +607,7 @@ function breadcrumb(path: string): string {
 
 function formatDate(iso: string): string {
   return new Date(iso)
-    .toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: '2-digit' })
+    .toLocaleDateString(localeDoIdioma(), { day: '2-digit', month: 'short', year: '2-digit' })
     .replace('.', '')
     .toUpperCase()
 }

@@ -1,3 +1,4 @@
+import { marcar } from '@shared/i18n'
 import { navegarELer } from './navegador'
 import type { Provedor } from './provedor'
 import {
@@ -40,7 +41,7 @@ import {
 export const thingiverse: Provedor = {
   id: 'thingiverse',
   nome: 'Thingiverse',
-  descricao: 'Modelos 3D da comunidade, para imprimir.',
+  descricao: marcar('Modelos 3D da comunidade, para imprimir.'),
 
   // Sem conta e sem configuração: a página é pública.
   capacidades: async () => ['search', 'trending', 'item'],

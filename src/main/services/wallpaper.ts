@@ -5,6 +5,7 @@ import { dirname, extname, isAbsolute, join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { promisify } from 'node:util'
 import { ENVIRONMENTS, type EnvironmentId, environmentById } from '@shared/environments'
+import { t } from '@shared/i18n'
 import type { WallpaperResult } from '@shared/ipc-contract'
 import { app, nativeImage } from 'electron'
 import { currentSettings } from '../settings'
@@ -144,7 +145,7 @@ export function pluginDeVideoInstalado(): boolean {
 
 export async function applyWallpaper(id: EnvironmentId): Promise<WallpaperResult> {
   const ambiente = environmentById(id)
-  if (!ambiente) return { ok: false, error: `ambiente desconhecido: ${id}` }
+  if (!ambiente) return { ok: false, error: t('ambiente desconhecido: {id}', { id }) }
 
   // Antes da PRIMEIRA troca, o fundo que a pessoa tinha fica guardado — é a
   // volta de "Restaurar o meu papel de parede" (ver `papel-original.ts`).
@@ -159,24 +160,32 @@ export async function applyWallpaper(id: EnvironmentId): Promise<WallpaperResult
   // vídeo não o escreve. O custo é a imagem aparecer por um instante antes do vídeo.
   const resultado = await aplicarVideo(video)
   if (resultado.ok || !imagem.ok) return resultado
-  return { ok: false, error: `${resultado.error} — ficou a imagem do ambiente` }
+  return {
+    ok: false,
+    error: t('{erro} — ficou a imagem do ambiente', { erro: resultado.error }),
+  }
 }
 
 async function aplicarVideo(caminho: string): Promise<WallpaperResult> {
-  if (!isAbsolute(caminho)) return { ok: false, error: `caminho não é absoluto: ${caminho}` }
+  if (!isAbsolute(caminho))
+    return { ok: false, error: t('caminho não é absoluto: {caminho}', { caminho }) }
   const extensao = extname(caminho).slice(1).toLowerCase()
   if (!(EXTENSOES_DE_VIDEO as readonly string[]).includes(extensao)) {
-    return { ok: false, error: `não parece um vídeo: ${caminho}` }
+    return { ok: false, error: t('não parece um vídeo: {caminho}', { caminho }) }
   }
   try {
-    if (!statSync(caminho).isFile()) return { ok: false, error: `não é um arquivo: ${caminho}` }
+    if (!statSync(caminho).isFile())
+      return { ok: false, error: t('não é um arquivo: {caminho}', { caminho }) }
   } catch {
-    return { ok: false, error: `vídeo não encontrado: ${caminho}` }
+    return { ok: false, error: t('vídeo não encontrado: {caminho}', { caminho }) }
   }
   if (!pluginDeVideoInstalado()) {
     return {
       ok: false,
-      error: `o vídeo precisa do plugin "Vídeo" do Plasma (${PLUGIN_DE_VIDEO}), que não está nesta máquina`,
+      error: t(
+        'o vídeo precisa do plugin "Vídeo" do Plasma ({plugin}), que não está nesta máquina',
+        { plugin: PLUGIN_DE_VIDEO },
+      ),
     }
   }
 
@@ -247,17 +256,19 @@ async function aplicarImagem(nome: string, caminho: string): Promise<WallpaperRe
   if (!caminho) {
     return {
       ok: false,
-      error: `${nome} ainda não tem imagem — escolha uma em Configurações → Ambiente.`,
+      error: t('{nome} ainda não tem imagem — escolha uma em Configurações → Ambiente.', { nome }),
     }
   }
 
   // Absoluto e existente ANTES de chamar o utilitário: assim o erro na tela
   // diz o que houve, em vez de repetir a mensagem genérica dele.
-  if (!isAbsolute(caminho)) return { ok: false, error: `caminho não é absoluto: ${caminho}` }
+  if (!isAbsolute(caminho))
+    return { ok: false, error: t('caminho não é absoluto: {caminho}', { caminho }) }
   try {
-    if (!statSync(caminho).isFile()) return { ok: false, error: `não é um arquivo: ${caminho}` }
+    if (!statSync(caminho).isFile())
+      return { ok: false, error: t('não é um arquivo: {caminho}', { caminho }) }
   } catch {
-    return { ok: false, error: `imagem não encontrada: ${caminho}` }
+    return { ok: false, error: t('imagem não encontrada: {caminho}', { caminho }) }
   }
 
   await pararVideo()
@@ -273,14 +284,14 @@ async function aplicarImagem(nome: string, caminho: string): Promise<WallpaperRe
 function motivo(error: unknown, caminho: string, comando: string = COMANDO): string {
   const e = error as NodeJS.ErrnoException & { stdout?: string; stderr?: string }
   if (e.code === 'ENOENT') {
-    const origem = comando === COMANDO ? 'o KDE Plasma' : 'o pacote qdbus-qt6'
-    return `${comando} não está nesta máquina (ele vem com ${origem})`
+    const origem = comando === COMANDO ? t('o KDE Plasma') : t('o pacote qdbus-qt6')
+    return t('{comando} não está nesta máquina (ele vem com {origem})', { comando, origem })
   }
   const saida = `${e.stdout ?? ''}\n${e.stderr ?? ''}`
     .split('\n')
     .map((l) => l.trim())
     .find((l) => l)
-  return saida || `não consegui aplicar ${caminho}`
+  return saida || t('não consegui aplicar {caminho}', { caminho })
 }
 
 /**

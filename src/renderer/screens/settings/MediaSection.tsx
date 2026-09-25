@@ -1,3 +1,4 @@
+import { localeDoIdioma, t } from '@shared/i18n'
 import { useCatalogStatus } from '@/hooks/useCatalog'
 import { useHalo } from '@/store/useHalo'
 import styles from '../SettingsScreen.module.css'
@@ -19,30 +20,31 @@ export function MediaSection() {
     if (caminho) setPlaylist(caminho)
   }
 
-  const numero = (valor: number) => valor.toLocaleString('pt-BR')
+  const numero = (valor: number) => valor.toLocaleString(localeDoIdioma())
 
   return (
     <>
       <div className={styles.header}>
-        <span className={styles.eyebrow}>Mídia · Biblioteca</span>
-        <span className={styles.title}>Lista de reprodução</span>
+        <span className={styles.eyebrow}>{t('Mídia · Biblioteca')}</span>
+        <span className={styles.title}>{t('Lista de reprodução')}</span>
         <span className={styles.subtitle}>
-          A biblioteca da tela de Mídia sai de um arquivo M3U do seu disco. Ele é lido de onde está
-          — nada é copiado, baixado ou alterado.
+          {t(
+            'A biblioteca da tela de Mídia sai de um arquivo M3U do seu disco. Ele é lido de onde está — nada é copiado, baixado ou alterado.',
+          )}
         </span>
       </div>
       <div className={styles.divider} />
 
       <div className={styles.section}>
-        <span className={styles.sectionLabel}>Arquivo</span>
-        <span className={styles.note}>{playlist || 'Nenhuma lista escolhida.'}</span>
+        <span className={styles.sectionLabel}>{t('Arquivo')}</span>
+        <span className={styles.note}>{playlist || t('Nenhuma lista escolhida.')}</span>
         <div className={styles.stack}>
           <button
             type="button"
             className={`${styles.replay} ${styles.secondary}`}
             onClick={() => void escolher()}
           >
-            {playlist ? 'Trocar lista' : 'Escolher lista'}
+            {playlist ? t('Trocar lista') : t('Escolher lista')}
           </button>
           {playlist ? (
             <button
@@ -50,7 +52,7 @@ export function MediaSection() {
               className={`${styles.replay} ${styles.secondary}`}
               onClick={() => setPlaylist('')}
             >
-              Remover
+              {t('Remover')}
             </button>
           ) : null}
         </div>
@@ -60,20 +62,24 @@ export function MediaSection() {
 
       {playlist ? (
         <div className={styles.section}>
-          <span className={styles.sectionLabel}>O que foi encontrado</span>
+          <span className={styles.sectionLabel}>{t('O que foi encontrado')}</span>
           <span className={styles.note}>
             {status.loading
-              ? 'Lendo a lista…'
+              ? t('Lendo a lista…')
               : status.data?.error
                 ? status.data.error
                 : status.data
-                  ? `${numero(status.data.movies)} filmes e ${numero(status.data.series)} séries ` +
-                    `(${numero(status.data.episodes)} episódios agrupados).`
+                  ? t('{filmes} filmes e {series} séries ({episodios} episódios agrupados).', {
+                      filmes: numero(status.data.movies),
+                      series: numero(status.data.series),
+                      episodios: numero(status.data.episodes),
+                    })
                   : '—'}
           </span>
           <span className={styles.note}>
-            Episódios do mesmo título entram agrupados em temporadas — uma lista real traz dezenas
-            de milhares deles, e listá-los soltos não seria navegável.
+            {t(
+              'Episódios do mesmo título entram agrupados em temporadas — uma lista real traz dezenas de milhares deles, e listá-los soltos não seria navegável.',
+            )}
           </span>
         </div>
       ) : null}
@@ -97,29 +103,32 @@ function ChaveTmdb() {
 
   return (
     <div className={styles.section}>
-      <span className={styles.sectionLabel}>Metadados (TMDB)</span>
+      <span className={styles.sectionLabel}>{t('Metadados (TMDB)')}</span>
       <input
         className={styles.campo}
         type="password"
         value={tmdbKey}
-        placeholder="Chave da API — cole aqui"
-        aria-label="Chave da API do TMDB"
+        placeholder={t('Chave da API — cole aqui')}
+        aria-label={t('Chave da API do TMDB')}
         spellCheck={false}
         onChange={(e) => setTmdbKey(e.target.value)}
       />
       <span className={styles.note}>
         {tmdbKey
-          ? 'Configurada. Sinopse, nota, gêneros, duração e elenco aparecem ao escolher um título.'
-          : 'Sem chave, a tela mostra só o que a lista traz: nome, ano, categoria e capa.'}
+          ? t(
+              'Configurada. Sinopse, nota, gêneros, duração e elenco aparecem ao escolher um título.',
+            )
+          : t('Sem chave, a tela mostra só o que a lista traz: nome, ano, categoria e capa.')}
       </span>
       <span className={styles.note}>
-        A chave é gratuita: crie uma conta em themoviedb.org, vá em Configurações → API e copie a
-        "API Key (v3 auth)" ou o "API Read Access Token" — o app aceita as duas. Ela fica só neste
-        computador, no seu arquivo de configurações, e nunca vai para o repositório.
+        {t(
+          'A chave é gratuita: crie uma conta em themoviedb.org, vá em Configurações → API e copie a "API Key (v3 auth)" ou o "API Read Access Token" — o app aceita as duas. Ela fica só neste computador, no seu arquivo de configurações, e nunca vai para o repositório.',
+        )}
       </span>
       <span className={styles.note}>
-        Este produto usa a API do TMDB, mas não é endossado nem certificado por eles. A atribuição é
-        condição dos termos de uso, e aparece também junto dos dados na tela de Mídia.
+        {t(
+          'Este produto usa a API do TMDB, mas não é endossado nem certificado por eles. A atribuição é condição dos termos de uso, e aparece também junto dos dados na tela de Mídia.',
+        )}
       </span>
     </div>
   )

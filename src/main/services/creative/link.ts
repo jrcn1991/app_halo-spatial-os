@@ -1,4 +1,5 @@
 import type { CreativeItem } from '@shared/creative'
+import { marcar } from '@shared/i18n'
 import { itemDaPagina } from './metadados'
 import type { Provedor } from './provedor'
 import { buscarPagina } from './rede'
@@ -17,8 +18,8 @@ import { buscarPagina } from './rede'
  */
 export const link: Provedor = {
   id: 'link',
-  nome: 'Qualquer endereço',
-  descricao: 'Salva de qualquer site pelo que a própria página publica sobre si.',
+  nome: marcar('Qualquer endereço'),
+  descricao: marcar('Salva de qualquer site pelo que a própria página publica sobre si.'),
 
   // Nunca busca: não há o que buscar num provedor que é "a web inteira".
   capacidades: async () => ['item'],

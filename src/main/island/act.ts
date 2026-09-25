@@ -1,4 +1,5 @@
 import { homedir } from 'node:os'
+import { t } from '@shared/i18n'
 import { vooDaJanelaDeVerdade } from '@shared/island'
 import { BrowserWindow } from 'electron'
 import { seafileUpload } from '../services/seafile'
@@ -65,7 +66,7 @@ const MAPA: Record<string, (arg: string | null) => Promise<unknown>> = {
   'kde-mostrar-desktop': () => acoes.mostrarAreaDeTrabalho(true),
   'kde-bloquear': () => acoes.bloquearTela(),
   'kde-captura': () => acoes.capturarTela(),
-  'kde-notificar': (arg) => acoes.avisar('Halo', arg ?? 'aviso da ilha'),
+  'kde-notificar': (arg) => acoes.avisar('Halo', arg ?? t('aviso da ilha')),
 
   // ——— Conta-gotas e OCR: o resultado vai para a área de transferência e
   // é anunciado — a amostra de cor na pílula, o tamanho do texto lido.
@@ -75,7 +76,7 @@ const MAPA: Record<string, (arg: string | null) => Promise<unknown>> = {
     announceToIslands({
       icon: 'Eyedropper',
       text: cor,
-      detail: 'copiada',
+      detail: t('copiada'),
       level: 'ok',
       color: cor,
       ttlMs: 3000,
@@ -124,7 +125,12 @@ const MAPA: Record<string, (arg: string | null) => Promise<unknown>> = {
   // ——— O celular (KDE Connect) ——————————————————————————
   'celular-tocar': async () => {
     const c = await tocarCelular()
-    announceToIslands({ icon: 'Vibrate', text: `${c.name} tocando`, detail: '', level: 'ok' })
+    announceToIslands({
+      icon: 'Vibrate',
+      text: t('{nome} tocando', { nome: c.name }),
+      detail: '',
+      level: 'ok',
+    })
   },
   'celular-ping': async () => {
     await pingCelular()
@@ -133,7 +139,7 @@ const MAPA: Record<string, (arg: string | null) => Promise<unknown>> = {
     const c = await enviarAoCelular(arg ?? '')
     announceToIslands({
       icon: 'PaperPlaneTilt',
-      text: `Enviado para ${c.name}`,
+      text: t('Enviado para {nome}', { nome: c.name }),
       detail: (arg ?? '').split('/').at(-1)?.slice(0, 40) ?? '',
       level: 'ok',
       kind: 'aviso',
@@ -144,7 +150,7 @@ const MAPA: Record<string, (arg: string | null) => Promise<unknown>> = {
     const c = await enviarTextoAoCelular(arg ?? '')
     announceToIslands({
       icon: 'PaperPlaneTilt',
-      text: `Texto enviado para ${c.name}`,
+      text: t('Texto enviado para {nome}', { nome: c.name }),
       detail: '',
       level: 'ok',
     })
@@ -200,7 +206,8 @@ const MAPA: Record<string, (arg: string | null) => Promise<unknown>> = {
       return
     }
     const principal = BrowserWindow.getAllWindows().find((w) => w.getTitle() === 'Halo')
-    if (!principal || principal.isDestroyed()) throw new Error('a janela do Halo não está aberta')
+    if (!principal || principal.isDestroyed())
+      throw new Error(t('a janela do Halo não está aberta'))
     if (principal.isMinimized()) {
       principal.restore()
       principal.show()
@@ -208,8 +215,8 @@ const MAPA: Record<string, (arg: string | null) => Promise<unknown>> = {
     }
     announceToIslands({
       icon: 'Halo',
-      text: 'O Halo já está à vista',
-      detail: 'ele fica na camada do papel de parede',
+      text: t('O Halo já está à vista'),
+      detail: t('ele fica na camada do papel de parede'),
       level: 'ok',
     })
   },
@@ -228,8 +235,11 @@ async function copiarTextoLido(texto: string): Promise<void> {
   await clipEscrever(texto)
   announceToIslands({
     icon: 'TextAa',
-    text: 'Texto copiado',
-    detail: `${texto.length} caracteres · ${texto.split('\n')[0]?.slice(0, 30) ?? ''}`,
+    text: t('Texto copiado'),
+    detail: t('{n} caracteres · {inicio}', {
+      n: texto.length,
+      inicio: texto.split('\n')[0]?.slice(0, 30) ?? '',
+    }),
     level: 'ok',
     kind: 'aviso',
     ttlMs: 4000,
@@ -259,7 +269,7 @@ export async function guardarComVoo(id: string | null): Promise<void> {
     announceToIslands({
       key: 'gaveta',
       icon: 'Tray',
-      text: 'Guardada na gaveta',
+      text: t('Guardada na gaveta'),
       detail: janela.title.slice(0, 40),
       level: 'ok',
       ttlMs: 2600,

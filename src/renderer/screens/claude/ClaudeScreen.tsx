@@ -14,6 +14,7 @@ import { PencilSimple } from '@phosphor-icons/react/dist/icons/PencilSimple'
 import { Plus } from '@phosphor-icons/react/dist/icons/Plus'
 import { X } from '@phosphor-icons/react/dist/icons/X'
 import type { Agent, AgentMessage, AgentState, Attachment } from '@shared/agents'
+import { localeDoIdioma, t } from '@shared/i18n'
 import { useEffect, useRef, useState } from 'react'
 import { useAgentMessages, useAgents, useSessions } from '@/hooks/useAgents'
 import { useProjectInfos, useProjects } from '@/hooks/useProjects'
@@ -265,7 +266,7 @@ function ProjetosPanel({
           <button
             type="button"
             className={styles.project}
-            title={`Abrir um agente em ${caminho}`}
+            title={t('Abrir um agente em {caminho}', { caminho })}
             onClick={() => aoAbrir(caminho)}
             draggable
             onDragStart={(e) => {
@@ -292,7 +293,7 @@ function ProjetosPanel({
                       info.dirtyFiles > 0 ? styles.tagDirty : styles.tagClean,
                     )}
                   >
-                    {info.dirtyFiles > 0 ? `${info.dirtyFiles} alterados` : 'limpo'}
+                    {info.dirtyFiles > 0 ? t('{n} alterados', { n: info.dirtyFiles }) : t('limpo')}
                   </span>
                 </div>
                 {info.insertions > 0 || info.deletions > 0 ? (
@@ -310,9 +311,9 @@ function ProjetosPanel({
           <button
             type="button"
             className={styles.projectMove}
-            aria-label={`Mover ${nome} para um grupo`}
+            aria-label={t('Mover {nome} para um grupo', { nome })}
             aria-expanded={movendo === caminho}
-            title="Mover para um grupo"
+            title={t('Mover para um grupo')}
             onClick={() => setMovendo((atual) => (atual === caminho ? null : caminho))}
           >
             <FolderSimple size={12} color="var(--text-tertiary)" />
@@ -320,8 +321,8 @@ function ProjetosPanel({
           <button
             type="button"
             className={styles.projectResume}
-            aria-label={`Conversas antigas de ${nome}`}
-            title="Conversas antigas"
+            aria-label={t('Conversas antigas de {nome}', { nome })}
+            title={t('Conversas antigas')}
             onClick={() => aoVerConversas(caminho)}
           >
             <ClockCounterClockwise size={12} color="var(--text-tertiary)" />
@@ -329,7 +330,7 @@ function ProjetosPanel({
           <button
             type="button"
             className={styles.projectRemove}
-            aria-label={`Tirar ${nome} da lista`}
+            aria-label={t('Tirar {nome} da lista', { nome })}
             onClick={() => remover(caminho)}
           >
             <X size={11} color="var(--text-tertiary)" />
@@ -340,8 +341,8 @@ function ProjetosPanel({
           <button
             type="button"
             className={styles.projectAbrir}
-            aria-label={`Abrir a pasta de ${nome} no gerenciador de arquivos`}
-            title="Abrir a pasta"
+            aria-label={t('Abrir a pasta de {nome} no gerenciador de arquivos', { nome })}
+            title={t('Abrir a pasta')}
             onClick={() => void window.halo?.agents.openProject(caminho)}
           >
             <FolderOpen size={12} color="var(--text-tertiary)" />
@@ -349,8 +350,8 @@ function ProjetosPanel({
           <button
             type="button"
             className={styles.projectCopiar}
-            aria-label={`Copiar o caminho de ${nome}`}
-            title={copiado === caminho ? 'Copiado' : `Copiar ${caminho}`}
+            aria-label={t('Copiar o caminho de {nome}', { nome })}
+            title={copiado === caminho ? t('Copiado') : t('Copiar {caminho}', { caminho })}
             data-copiado={copiado === caminho || undefined}
             onClick={() => void copiar(caminho)}
           >
@@ -384,13 +385,15 @@ function ProjetosPanel({
     <>
       <div className={styles.projetosTopo}>
         <span className={styles.sideLabel}>
-          PROJETOS · {projetos.length} {projetos.length === 1 ? 'REPOSITÓRIO' : 'REPOSITÓRIOS'}
+          {t(projetos.length === 1 ? 'PROJETOS · {n} REPOSITÓRIO' : 'PROJETOS · {n} REPOSITÓRIOS', {
+            n: projetos.length,
+          })}
         </span>
         <button
           type="button"
           className={styles.novoGrupo}
-          aria-label="Novo grupo"
-          title="Novo grupo"
+          aria-label={t('Novo grupo')}
+          title={t('Novo grupo')}
           onClick={() => setCriando(true)}
         >
           <FolderSimplePlus size={15} />
@@ -400,7 +403,7 @@ function ProjetosPanel({
       <div className={styles.projects}>
         {criando ? (
           <CampoDeGrupo
-            rotulo="Nome do novo grupo"
+            rotulo={t('Nome do novo grupo')}
             aoTerminar={(nome) => {
               if (nome) criarGrupo(nome)
               setCriando(false)
@@ -422,7 +425,7 @@ function ProjetosPanel({
               >
                 {renomeando === grupo.id ? (
                   <CampoDeGrupo
-                    rotulo={`Renomear ${grupo.name}`}
+                    rotulo={t('Renomear {nome}', { nome: grupo.name })}
                     inicial={grupo.name}
                     aoTerminar={(nome) => {
                       if (nome) renomearGrupo(grupo.id, nome)
@@ -436,7 +439,11 @@ function ProjetosPanel({
                       className={styles.grupoBotao}
                       aria-expanded={!grupo.collapsed}
                       data-grupo-id={grupo.id}
-                      title={`${grupo.collapsed ? 'Expandir' : 'Recolher'} · arraste para reordenar (Alt+↑↓)`}
+                      title={t(
+                        grupo.collapsed
+                          ? 'Expandir · arraste para reordenar (Alt+↑↓)'
+                          : 'Recolher · arraste para reordenar (Alt+↑↓)',
+                      )}
                       onClick={() => alternarGrupo(grupo.id)}
                       draggable
                       onDragStart={(e) => {
@@ -478,7 +485,9 @@ function ProjetosPanel({
                       {vivos > 0 ? (
                         <span
                           className={styles.projectAgents}
-                          title={`${vivos} ${vivos === 1 ? 'agente aberto' : 'agentes abertos'}`}
+                          title={t(vivos === 1 ? '{n} agente aberto' : '{n} agentes abertos', {
+                            n: vivos,
+                          })}
                         >
                           {vivos}
                         </span>
@@ -487,8 +496,8 @@ function ProjetosPanel({
                     <button
                       type="button"
                       className={styles.grupoAcao}
-                      aria-label={`Renomear o grupo ${grupo.name}`}
-                      title="Renomear"
+                      aria-label={t('Renomear o grupo {nome}', { nome: grupo.name })}
+                      title={t('Renomear')}
                       onClick={() => setRenomeando(grupo.id)}
                     >
                       <PencilSimple size={11} color="var(--text-tertiary)" />
@@ -498,13 +507,13 @@ function ProjetosPanel({
                       className={cx(styles.grupoAcao, armado && styles.grupoAcaoArmada)}
                       aria-label={
                         armado
-                          ? `Confirmar: apagar o grupo ${grupo.name}`
-                          : `Apagar o grupo ${grupo.name}`
+                          ? t('Confirmar: apagar o grupo {nome}', { nome: grupo.name })
+                          : t('Apagar o grupo {nome}', { nome: grupo.name })
                       }
                       title={
                         armado
-                          ? 'Clique de novo — os projetos voltam para "Sem grupo"'
-                          : 'Apagar o grupo'
+                          ? t('Clique de novo — os projetos voltam para "Sem grupo"')
+                          : t('Apagar o grupo')
                       }
                       onMouseLeave={() => setConfirmando(null)}
                       onBlur={() => setConfirmando(null)}
@@ -518,7 +527,7 @@ function ProjetosPanel({
                       }}
                     >
                       {armado ? (
-                        <span className={styles.grupoConfirmar}>APAGAR?</span>
+                        <span className={styles.grupoConfirmar}>{t('APAGAR?')}</span>
                       ) : (
                         <X size={11} color="var(--text-tertiary)" />
                       )}
@@ -536,7 +545,7 @@ function ProjetosPanel({
                   className={cx(styles.grupoVazio, sobre === grupo.id && styles.grupoDrop)}
                   {...receber(grupo.id, grupo.id)}
                 >
-                  Arraste um projeto para cá, ou use a pasta no cartão dele.
+                  {t('Arraste um projeto para cá, ou use a pasta no cartão dele.')}
                 </div>
               )}
             </div>
@@ -555,7 +564,7 @@ function ProjetosPanel({
             {...receber(SEM_GRUPO, null, undefined, null)}
           >
             <span className={styles.grupoSolto}>
-              <span className={styles.grupoNome}>Sem grupo</span>
+              <span className={styles.grupoNome}>{t('Sem grupo')}</span>
               <span className={styles.grupoConta}>{soltos.length}</span>
             </span>
           </div>
@@ -565,10 +574,10 @@ function ProjetosPanel({
 
       <button type="button" className={styles.action} onClick={() => void escolher()}>
         <FolderPlus size={16} />
-        Adicionar projeto
+        {t('Adicionar projeto')}
       </button>
       <span className={styles.hint}>
-        Um clique no projeto abre um agente nele. Arraste cartões e grupos para organizar.
+        {t('Um clique no projeto abre um agente nele. Arraste cartões e grupos para organizar.')}
       </span>
     </>
   )
@@ -597,7 +606,7 @@ function CampoDeGrupo({
     <input
       className={styles.grupoCampo}
       value={nome}
-      placeholder="Nome do grupo — Jogos, Trabalho…"
+      placeholder={t('Nome do grupo — Jogos, Trabalho…')}
       aria-label={rotulo}
       maxLength={32}
       // biome-ignore lint/a11y/noAutofocus: o campo só existe depois do clique que o pediu
@@ -634,7 +643,7 @@ function MoverPara({
   const [criando, setCriando] = useState(false)
 
   return (
-    <fieldset className={styles.moverPara} aria-label={`Mover ${nome} para`}>
+    <fieldset className={styles.moverPara} aria-label={t('Mover {nome} para', { nome })}>
       {grupos.map((g) => (
         <button
           key={g.id}
@@ -648,12 +657,12 @@ function MoverPara({
       ))}
       {grupo !== null ? (
         <button type="button" className={styles.etiqueta} onClick={() => aoMover(null)}>
-          Sem grupo
+          {t('Sem grupo')}
         </button>
       ) : null}
       {criando ? (
         <CampoDeGrupo
-          rotulo="Nome do novo grupo"
+          rotulo={t('Nome do novo grupo')}
           aoTerminar={(novo) => {
             if (novo) aoCriar(novo)
             else setCriando(false)
@@ -662,7 +671,7 @@ function MoverPara({
       ) : (
         <button type="button" className={styles.etiqueta} onClick={() => setCriando(true)}>
           <Plus size={10} />
-          Novo grupo
+          {t('Novo grupo')}
         </button>
       )}
     </fieldset>
@@ -699,10 +708,11 @@ function ConversaPanel({
   if (!agente) {
     return (
       <div className={styles.vazio}>
-        <p className={styles.vazioTitulo}>Nenhum agente aberto</p>
+        <p className={styles.vazioTitulo}>{t('Nenhum agente aberto')}</p>
         <p className={styles.vazioTexto}>
-          Clique num projeto à esquerda para abrir um. Cada agente é um Claude rodando dentro
-          daquele repositório, e você conversa com ele aqui.
+          {t(
+            'Clique num projeto à esquerda para abrir um. Cada agente é um Claude rodando dentro daquele repositório, e você conversa com ele aqui.',
+          )}
         </p>
       </div>
     )
@@ -751,7 +761,7 @@ function ConversaPanel({
           <p className={styles.erroTexto}>{agente.error}</p>
         ) : mensagens.length === 0 ? (
           <p className={styles.vazioTexto}>
-            Agente pronto. Peça alguma coisa — ele enxerga os arquivos deste projeto.
+            {t('Agente pronto. Peça alguma coisa — ele enxerga os arquivos deste projeto.')}
           </p>
         ) : (
           mensagens.map((mensagem) => <Mensagem key={mensagem.id} mensagem={mensagem} />)
@@ -767,7 +777,7 @@ function ConversaPanel({
               <button
                 type="button"
                 className={styles.anexoTirar}
-                aria-label={`Tirar ${anexo.name}`}
+                aria-label={t('Tirar {nome}', { nome: anexo.name })}
                 onClick={() => setAnexos((a) => a.filter((x) => x.path !== anexo.path))}
               >
                 <X size={9} />
@@ -781,8 +791,8 @@ function ConversaPanel({
         <button
           type="button"
           className={styles.anexar}
-          aria-label="Anexar arquivo"
-          title="Anexar arquivo — ou cole uma imagem no campo"
+          aria-label={t('Anexar arquivo')}
+          title={t('Anexar arquivo — ou cole uma imagem no campo')}
           disabled={agente.state === 'encerrado'}
           onClick={() => {
             void aoAnexar().then((lidos) => setAnexos((a) => [...a, ...lidos]))
@@ -793,8 +803,8 @@ function ConversaPanel({
         <input
           className={styles.campo}
           value={texto}
-          placeholder="Peça alguma coisa ao agente"
-          aria-label="Mensagem para o agente"
+          placeholder={t('Peça alguma coisa ao agente')}
+          aria-label={t('Mensagem para o agente')}
           disabled={agente.state === 'encerrado'}
           onChange={(e) => setTexto(e.target.value)}
           onPaste={(e) => void colar(e)}
@@ -805,7 +815,7 @@ function ConversaPanel({
         <button
           type="button"
           className={styles.enviar}
-          aria-label="Enviar"
+          aria-label={t('Enviar')}
           disabled={(!texto.trim() && anexos.length === 0) || agente.state === 'encerrado'}
           onClick={enviar}
         >
@@ -827,7 +837,11 @@ function Mensagem({ mensagem }: { mensagem: AgentMessage }) {
   return (
     <div className={cx(styles.mensagem, styles[mensagem.role])}>
       <span className={styles.mensagemQuem}>
-        {mensagem.role === 'user' ? 'VOCÊ' : mensagem.role === 'assistant' ? 'CLAUDE' : 'SISTEMA'}
+        {mensagem.role === 'user'
+          ? t('VOCÊ')
+          : mensagem.role === 'assistant'
+            ? 'CLAUDE'
+            : t('SISTEMA')}
       </span>
       {/* Só a resposta do agente é formatada: o que o usuário digitou é
           mostrado como ele escreveu. */}
@@ -868,17 +882,19 @@ function AgentesPanel({
         <div className={styles.assistantName}>Claude</div>
         <div className={styles.assistantRole}>
           {agentes.length === 0
-            ? 'NENHUM AGENTE'
+            ? t('NENHUM AGENTE')
             : trabalhando.length > 0
-              ? `${trabalhando.length} TRABALHANDO`
-              : `${agentes.length} ${agentes.length === 1 ? 'AGENTE' : 'AGENTES'}`}
+              ? t('{n} TRABALHANDO', { n: trabalhando.length })
+              : t(agentes.length === 1 ? '{n} AGENTE' : '{n} AGENTES', { n: agentes.length })}
         </div>
       </div>
 
       <div className={styles.agentes}>
         {agentes.length === 0 ? (
           <span className={styles.hint}>
-            Abra um agente clicando num projeto. Cada um é um terminal seu, com um Claude dentro.
+            {t(
+              'Abra um agente clicando num projeto. Cada um é um terminal seu, com um Claude dentro.',
+            )}
           </span>
         ) : (
           agentes.map((agente) => (
@@ -897,7 +913,7 @@ function AgentesPanel({
               <button
                 type="button"
                 className={styles.projectRemove}
-                aria-label={`Encerrar ${agente.name}`}
+                aria-label={t('Encerrar {nome}', { nome: agente.name })}
                 onClick={() => aoFechar(agente.id)}
               >
                 <X size={11} color="var(--text-tertiary)" />
@@ -918,8 +934,8 @@ function NovoAgente() {
   return (
     <span className={styles.hint}>
       {projetos.length === 0
-        ? 'Adicione um projeto à esquerda para começar.'
-        : 'Clique num projeto para abrir outro agente nele.'}
+        ? t('Adicione um projeto à esquerda para começar.')
+        : t('Clique num projeto para abrir outro agente nele.')}
     </span>
   )
 }
@@ -936,12 +952,14 @@ function Estado({ agente }: { agente: Agent }) {
 /** O status em uma frase curta. Vem dos eventos do CLI, não de suposição. */
 function rotulo(agente: Agent): string {
   const nomes: Record<AgentState, string> = {
-    iniciando: 'iniciando',
-    ocioso: 'pronto',
-    pensando: 'pensando',
-    ferramenta: agente.activity ? `usando ${agente.activity}` : 'usando ferramenta',
-    erro: 'erro',
-    encerrado: 'encerrado',
+    iniciando: t('iniciando'),
+    ocioso: t('pronto'),
+    pensando: t('pensando'),
+    ferramenta: agente.activity
+      ? t('usando {ferramenta}', { ferramenta: agente.activity })
+      : t('usando ferramenta'),
+    erro: t('erro'),
+    encerrado: t('encerrado'),
   }
   return nomes[agente.state]
 }
@@ -1000,7 +1018,7 @@ function SessoesModal({
       <button
         type="button"
         className={styles.modalVeu}
-        aria-label="Fechar"
+        aria-label={t('Fechar')}
         aria-hidden="true"
         tabIndex={-1}
         onClick={aoFechar}
@@ -1010,18 +1028,18 @@ function SessoesModal({
         className={styles.modal}
         role="dialog"
         aria-modal="true"
-        aria-label={`Conversas antigas de ${nome}`}
+        aria-label={t('Conversas antigas de {nome}', { nome })}
       >
         <div className={styles.modalTopo}>
           <div className={styles.modalTitulos}>
-            <span className={styles.modalEyebrow}>CONVERSAS ANTIGAS</span>
+            <span className={styles.modalEyebrow}>{t('CONVERSAS ANTIGAS')}</span>
             <span className={styles.modalNome}>{nome}</span>
           </div>
           <button
             type="button"
             ref={fechar}
             className={styles.modalFechar}
-            aria-label="Fechar"
+            aria-label={t('Fechar')}
             onClick={aoFechar}
           >
             <X size={13} />
@@ -1031,8 +1049,9 @@ function SessoesModal({
         <div className={styles.modalCorpo}>
           {sessoes.length === 0 ? (
             <p className={styles.modalVazio}>
-              Nenhuma conversa neste projeto ainda. Abra um agente e converse — ela aparece aqui
-              depois.
+              {t(
+                'Nenhuma conversa neste projeto ainda. Abra um agente e converse — ela aparece aqui depois.',
+              )}
             </p>
           ) : (
             sessoes.map((sessao) => (
@@ -1044,7 +1063,7 @@ function SessoesModal({
               >
                 <span className={styles.sessaoTitulo}>{sessao.title}</span>
                 <span className={styles.sessaoMeta}>
-                  {new Date(sessao.at).toLocaleDateString('pt-BR', {
+                  {new Date(sessao.at).toLocaleDateString(localeDoIdioma(), {
                     day: '2-digit',
                     month: 'short',
                     year: 'numeric',
@@ -1052,7 +1071,7 @@ function SessoesModal({
                     minute: '2-digit',
                   })}
                   {' · '}
-                  {sessao.messages} linhas
+                  {t('{n} linhas', { n: sessao.messages })}
                 </span>
               </button>
             ))
@@ -1061,7 +1080,7 @@ function SessoesModal({
 
         {sessoes.length > 0 ? (
           <span className={styles.modalRodape}>
-            Clicar numa conversa abre um agente retomando de onde ela parou.
+            {t('Clicar numa conversa abre um agente retomando de onde ela parou.')}
           </span>
         ) : null}
       </div>

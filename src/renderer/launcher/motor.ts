@@ -1,4 +1,5 @@
 import type { DesktopApp } from '@shared/apps'
+import { marcar, t } from '@shared/i18n'
 import type { IslandClip, IslandWindow } from '@shared/island'
 import type { RecenteDoLancador } from '@shared/settings'
 import { type Achado, atalhoDoTexto, contaDoTexto, emojisDoTexto } from '../island/lancador'
@@ -30,69 +31,89 @@ export const perguntaJson = (texto: string, contexto?: string, anexo?: string) =
 export type Comando = { id: string; nome: string; chaves: string; icone: string; arg?: string }
 
 export const COMANDOS: Comando[] = [
-  { id: 'cafeina-alternar', nome: 'Cafeína', chaves: 'acordada tela dormir', icone: 'Coffee' },
+  {
+    id: 'cafeina-alternar',
+    nome: marcar('Cafeína'),
+    chaves: 'acordada tela dormir',
+    icone: 'Coffee',
+  },
   {
     id: 'silencio-alternar',
-    nome: 'Não perturbe',
+    nome: marcar('Não perturbe'),
     chaves: 'silencio notificacoes dnd',
     icone: 'BellSlash',
   },
-  { id: 'volume-mudo', nome: 'Mudo', chaves: 'som volume mute', icone: 'SpeakerSlash' },
+  { id: 'volume-mudo', nome: marcar('Mudo'), chaves: 'som volume mute', icone: 'SpeakerSlash' },
   {
     id: 'mic-mudo-alternar',
-    nome: 'Silenciar o microfone',
+    nome: marcar('Silenciar o microfone'),
     chaves: 'mic',
     icone: 'MicrophoneSlash',
   },
-  { id: 'kde-bloquear', nome: 'Bloquear a tela', chaves: 'lock trancar', icone: 'Lock' },
+  { id: 'kde-bloquear', nome: marcar('Bloquear a tela'), chaves: 'lock trancar', icone: 'Lock' },
   {
     id: 'kde-captura',
-    nome: 'Capturar a tela',
+    nome: marcar('Capturar a tela'),
     chaves: 'screenshot print spectacle',
     icone: 'Camera',
   },
-  { id: 'texto-da-tela', nome: 'Ler texto da tela (OCR)', chaves: 'ocr copiar', icone: 'TextAa' },
+  {
+    id: 'texto-da-tela',
+    nome: marcar('Ler texto da tela (OCR)'),
+    chaves: 'ocr copiar',
+    icone: 'TextAa',
+  },
   {
     id: 'cor-capturar',
-    nome: 'Conta-gotas',
+    nome: marcar('Conta-gotas'),
     chaves: 'cor pipeta hex eyedropper',
     icone: 'Eyedropper',
   },
   {
     id: 'kde-mostrar-desktop',
-    nome: 'Mostrar a área de trabalho',
+    nome: marcar('Mostrar a área de trabalho'),
     chaves: 'desktop',
     icone: 'Desktop',
   },
   {
     id: 'janela-guardar',
-    nome: 'Guardar a janela ativa',
+    nome: marcar('Guardar a janela ativa'),
     chaves: 'gaveta minimizar',
     icone: 'Tray',
   },
-  { id: 'timer-cronometro', nome: 'Cronômetro', chaves: 'stopwatch', icone: 'Hourglass' },
-  { id: 'timer-parar', nome: 'Parar o temporizador', chaves: 'timer', icone: 'Stop' },
+  { id: 'timer-cronometro', nome: marcar('Cronômetro'), chaves: 'stopwatch', icone: 'Hourglass' },
+  { id: 'timer-parar', nome: marcar('Parar o temporizador'), chaves: 'timer', icone: 'Stop' },
   { id: 'wifi-alternar', nome: 'Wi-Fi', chaves: 'rede', icone: 'WifiHigh' },
   { id: 'bluetooth-alternar', nome: 'Bluetooth', chaves: '', icone: 'Bluetooth' },
   {
     id: 'audio-trocar-saida',
-    nome: 'Trocar a saída de áudio',
+    nome: marcar('Trocar a saída de áudio'),
     chaves: 'fone hdmi',
     icone: 'ArrowsLeftRight',
   },
   {
     id: 'celular-tocar',
-    nome: 'Fazer o celular tocar',
+    nome: marcar('Fazer o celular tocar'),
     chaves: 'telefone achar',
     icone: 'Vibrate',
   },
-  { id: 'midia-alternar', nome: 'Tocar ou pausar', chaves: 'play pause musica', icone: 'Play' },
-  { id: 'midia-proxima', nome: 'Próxima faixa', chaves: 'next musica', icone: 'SkipForward' },
+  {
+    id: 'midia-alternar',
+    nome: marcar('Tocar ou pausar'),
+    chaves: 'play pause musica',
+    icone: 'Play',
+  },
+  {
+    id: 'midia-proxima',
+    nome: marcar('Próxima faixa'),
+    chaves: 'next musica',
+    icone: 'SkipForward',
+  },
 ]
 
 /** "25", "timer 15 foco", "cafeína 60": números viram temporizador ou cafeína por tempo. */
 export function comandosDoTexto(termo: string): Comando[] {
-  const t = simples(termo)
+  const norm = simples(termo)
   /*
    * O temporizador exige a PALAVRA ou a unidade — não basta um número.
    *
@@ -106,7 +127,7 @@ export function comandosDoTexto(termo: string): Comando[] {
    */
   const timer =
     /^(?:(?:timer|temporizador|foco)\s*(\d{1,3})|(\d{1,3})\s*(?:min|m)\b)\s*([^\d+\-*/%^]*)$/.exec(
-      t,
+      norm,
     )
   const lista: Comando[] = []
   if (timer && Number(timer[1] ?? timer[2]) > 0) {
@@ -114,17 +135,19 @@ export function comandosDoTexto(termo: string): Comando[] {
     const rotulo = (timer[3] ?? '').trim()
     lista.push({
       id: 'timer-iniciar',
-      nome: `Temporizador de ${min} min${rotulo ? ` · ${rotulo}` : ''}`,
+      nome: rotulo
+        ? t('Temporizador de {min} min · {rotulo}', { min, rotulo })
+        : t('Temporizador de {min} min', { min }),
       chaves: '',
       icone: 'Timer',
       arg: `${min} ${rotulo}`.trim(),
     })
   }
-  const cafe = /^cafe(?:ina)?\s+(\d{1,3})\s*(?:min|m)?$/.exec(t)
+  const cafe = /^cafe(?:ina)?\s+(\d{1,3})\s*(?:min|m)?$/.exec(norm)
   if (cafe) {
     lista.push({
       id: 'cafeina-alternar',
-      nome: `Cafeína por ${cafe[1]} min`,
+      nome: t('Cafeína por {min} min', { min: cafe[1] ?? '' }),
       chaves: '',
       icone: 'Coffee',
       arg: cafe[1] ?? '',
@@ -218,7 +241,7 @@ export function resolver(termo: string, fontes: Fontes): Resultado {
         ? [
             {
               id: 'claude-perguntar',
-              nome: `Perguntar ao Claude: ${pergunta}`,
+              nome: t('Perguntar ao Claude: {pergunta}', { pergunta }),
               chaves: '',
               icone: 'Sparkle',
               arg: perguntaJson(pergunta),
@@ -235,7 +258,8 @@ export function resolver(termo: string, fontes: Fontes): Resultado {
   const comandos = porUso(
     [
       ...comandosDoTexto(texto),
-      ...COMANDOS.filter((c) => simples(`${c.nome} ${c.chaves}`).includes(chave)),
+      // O nome traduzido também casa: quem usa o app em inglês digita em inglês.
+      ...COMANDOS.filter((c) => simples(`${c.nome} ${t(c.nome)} ${c.chaves}`).includes(chave)),
     ],
     (c) => chaveDeUso('comando', c.id, c.arg),
     recentes,

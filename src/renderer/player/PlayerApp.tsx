@@ -7,6 +7,7 @@ import { PushPin } from '@phosphor-icons/react/dist/icons/PushPin'
 import { SpeakerHigh } from '@phosphor-icons/react/dist/icons/SpeakerHigh'
 import { SpeakerSlash } from '@phosphor-icons/react/dist/icons/SpeakerSlash'
 import { X } from '@phosphor-icons/react/dist/icons/X'
+import { t } from '@shared/i18n'
 import type { PlayRequest } from '@shared/ipc-contract'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -251,7 +252,9 @@ export function PlayerApp() {
           setVolume(e.currentTarget.volume)
           setMudo(e.currentTarget.muted)
         }}
-        onError={() => setErro('Não consegui abrir este stream. O servidor pode estar fora do ar.')}
+        onError={() =>
+          setErro(t('Não consegui abrir este stream. O servidor pode estar fora do ar.'))
+        }
       >
         {/* Faixa vazia: sem ela o Biome cobra legendas, e a lista não traz nenhuma. */}
         <track kind="captions" />
@@ -259,7 +262,7 @@ export function PlayerApp() {
 
       {carregando && !erro ? <div className="girando" /> : null}
       {erro ? <p className="erro">{erro}</p> : null}
-      {!midia && !erro ? <p className="vazio">Nada tocando.</p> : null}
+      {!midia && !erro ? <p className="vazio">{t('Nada tocando.')}</p> : null}
 
       <header className="topo">
         <div className="titulo">
@@ -271,9 +274,9 @@ export function PlayerApp() {
             rotulo={
               podeFixar
                 ? fixado
-                  ? 'Desafixar'
-                  : 'Manter por cima'
-                : 'Manter por cima só existe no X11, e o app está em Wayland'
+                  ? t('Desafixar')
+                  : t('Manter por cima')
+                : t('Manter por cima só existe no X11, e o app está em Wayland')
             }
             ativo={fixado}
             desabilitado={!podeFixar}
@@ -286,14 +289,14 @@ export function PlayerApp() {
             <PushPin size={16} weight={fixado ? 'fill' : 'regular'} />
           </Botao>
           <Botao
-            rotulo="Mini janela"
+            rotulo={t('Mini janela')}
             aoClicar={async () => {
               await window.halo?.player.mini()
             }}
           >
             <CornersIn size={16} />
           </Botao>
-          <Botao rotulo="Fechar" aoClicar={fechar}>
+          <Botao rotulo={t('Fechar')} aoClicar={fechar}>
             <X size={16} />
           </Botao>
         </div>
@@ -303,7 +306,7 @@ export function PlayerApp() {
         <button
           type="button"
           className="barra"
-          aria-label="Posição"
+          aria-label={t('Posição')}
           onClick={(e) => {
             const caixa = e.currentTarget.getBoundingClientRect()
             const elemento = video.current
@@ -321,7 +324,7 @@ export function PlayerApp() {
         </button>
 
         <div className="linha">
-          <Botao rotulo={tocando ? 'Pausar' : 'Tocar'} aoClicar={alternar}>
+          <Botao rotulo={tocando ? t('Pausar') : t('Tocar')} aoClicar={alternar}>
             {tocando ? <Pause size={18} weight="fill" /> : <Play size={18} weight="fill" />}
           </Botao>
           <span className="tempo">
@@ -330,7 +333,7 @@ export function PlayerApp() {
 
           <div className="volume">
             <Botao
-              rotulo={mudo ? 'Ativar som' : 'Silenciar'}
+              rotulo={mudo ? t('Ativar som') : t('Silenciar')}
               aoClicar={() => ajustarVolume(mudo ? 1 : 0)}
             >
               {mudo || volume === 0 ? <SpeakerSlash size={18} /> : <SpeakerHigh size={18} />}
@@ -342,13 +345,13 @@ export function PlayerApp() {
               max={1}
               step={0.01}
               value={mudo ? 0 : volume}
-              aria-label="Volume"
+              aria-label={t('Volume')}
               onChange={(e) => ajustarVolume(Number(e.target.value))}
             />
           </div>
 
           <Botao
-            rotulo={cheia ? 'Sair da tela cheia' : 'Tela cheia'}
+            rotulo={cheia ? t('Sair da tela cheia') : t('Tela cheia')}
             aoClicar={() => void telaCheia()}
           >
             {cheia ? <ArrowsIn size={18} /> : <ArrowsOut size={18} />}

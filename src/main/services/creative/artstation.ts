@@ -1,3 +1,4 @@
+import { marcar } from '@shared/i18n'
 import {
   buscaArtStation,
   type CruArtStation,
@@ -39,7 +40,7 @@ let termoColhido = ''
 export const artstation: Provedor = {
   id: 'artstation',
   nome: 'ArtStation',
-  descricao: 'Arte de concept, 3D e ilustração profissional.',
+  descricao: marcar('Arte de concept, 3D e ilustração profissional.'),
 
   capacidades: async () => ['search', 'trending', 'item'],
   estado: async () => ({ conectado: true, erro: '' }),

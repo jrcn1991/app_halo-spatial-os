@@ -4,6 +4,7 @@ import { homedir, userInfo } from 'node:os'
 import { basename, join, resolve } from 'node:path'
 import { promisify } from 'node:util'
 import type { DirectoryListing, Favorite, FileEntry, Mount, StorageInfo } from '@shared/files'
+import { marcar, t } from '@shared/i18n'
 
 /**
  * Sistema de arquivos real.
@@ -97,11 +98,11 @@ async function countChildren(dir: string): Promise<number | null> {
  */
 export async function favorites(): Promise<Favorite[]> {
   const wanted = [
-    ['XDG_DOCUMENTS_DIR', 'Documentos'],
-    ['XDG_DOWNLOAD_DIR', 'Downloads'],
-    ['XDG_PICTURES_DIR', 'Imagens'],
-    ['XDG_VIDEOS_DIR', 'Vídeos'],
-    ['XDG_MUSIC_DIR', 'Música'],
+    ['XDG_DOCUMENTS_DIR', marcar('Documentos')],
+    ['XDG_DOWNLOAD_DIR', marcar('Downloads')],
+    ['XDG_PICTURES_DIR', marcar('Imagens')],
+    ['XDG_VIDEOS_DIR', marcar('Vídeos')],
+    ['XDG_MUSIC_DIR', marcar('Música')],
   ] as const
 
   let config = ''
@@ -116,7 +117,7 @@ export async function favorites(): Promise<Favorite[]> {
     const raw = new RegExp(`^${key}="([^"]+)"`, 'm').exec(config)?.[1]
     const path = raw ? raw.replace('$HOME', ROOT) : join(ROOT, label)
     try {
-      if ((await stat(path)).isDirectory()) found.push({ name: label, path, kind: 'folder' })
+      if ((await stat(path)).isDirectory()) found.push({ name: t(label), path, kind: 'folder' })
     } catch {
       // Pasta não existe nesta máquina: some da lista em vez de dar erro.
     }

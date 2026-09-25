@@ -1,6 +1,7 @@
 import { execFile } from 'node:child_process'
 import { readFile } from 'node:fs/promises'
 import { promisify } from 'node:util'
+import { t } from '@shared/i18n'
 import { HOST_HISTORY_MAX, type HostHistory, type HostStats, type Machine } from '@shared/lab'
 import { gpuStats } from './gpu'
 
@@ -201,7 +202,7 @@ export async function machines(): Promise<Machine[]> {
   return [
     {
       name: stats.hostname,
-      role: 'Esta máquina',
+      role: t('Esta máquina'),
       cpuPercent: stats.cpuPercent,
       memoryPercent: Math.round((stats.memory.usedMb / stats.memory.totalMb) * 100),
       temperatureC: stats.temperatureC,

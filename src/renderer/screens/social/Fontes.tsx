@@ -10,6 +10,7 @@ import type {
   CreativeSort,
 } from '@shared/creative'
 import { CREATIVE_KIND_LABEL, CREATIVE_KINDS } from '@shared/creative'
+import { marcar, t } from '@shared/i18n'
 import { cx } from '@/ui/cx'
 import styles from './social.module.css'
 
@@ -41,12 +42,12 @@ export function Fontes({
   aoTrocarOrdem: (ordem: CreativeSort) => void
 }) {
   const alternar = (tipo: CreativeKind) =>
-    aoTrocarTipos(tipos.includes(tipo) ? tipos.filter((t) => t !== tipo) : [...tipos, tipo])
+    aoTrocarTipos(tipos.includes(tipo) ? tipos.filter((x) => x !== tipo) : [...tipos, tipo])
 
   return (
     <div className={styles.colunaFontes}>
       <div className={styles.header}>
-        <span className={styles.title}>Fontes conectadas</span>
+        <span className={styles.title}>{t('Fontes conectadas')}</span>
       </div>
 
       <div className={styles.fontes}>
@@ -60,7 +61,10 @@ export function Fontes({
               )}
               <span className={styles.fonteNome}>{fonte.name}</span>
               {fonte.lastSyncAt ? (
-                <span className={styles.fonteQuando} title={`Última busca: ${fonte.lastSyncAt}`}>
+                <span
+                  className={styles.fonteQuando}
+                  title={t('Última busca: {quando}', { quando: fonte.lastSyncAt })}
+                >
                   <ArrowClockwise size={11} />
                 </span>
               ) : null}
@@ -75,6 +79,7 @@ export function Fontes({
                 {fonte.capabilities
                   .map((c) => CAPACIDADE[c])
                   .filter(Boolean)
+                  .map((c) => t(c as string))
                   .join(' · ')}
               </span>
             ) : null}
@@ -97,13 +102,13 @@ export function Fontes({
               <span className={styles.fonteConta}>
                 {fonte.signedIn ? (
                   <>
-                    <span className={styles.fonteContaOk}>conta conectada</span>
+                    <span className={styles.fonteContaOk}>{t('conta conectada')}</span>
                     <button
                       type="button"
                       className={styles.fonteSair}
                       onClick={() => aoSair(fonte.provider)}
                     >
-                      Sair
+                      {t('Sair')}
                     </button>
                   </>
                 ) : (
@@ -113,7 +118,7 @@ export function Fontes({
                     onClick={() => aoEntrar(fonte.provider)}
                   >
                     <SignIn size={12} />
-                    Entrar na minha conta
+                    {t('Entrar na minha conta')}
                   </button>
                 )}
               </span>
@@ -131,7 +136,7 @@ export function Fontes({
                 rel="noopener noreferrer"
               >
                 <ArrowSquareOut size={11} />
-                Procurar no site
+                {t('Procurar no site')}
               </a>
             ) : null}
           </div>
@@ -139,7 +144,7 @@ export function Fontes({
       </div>
 
       <div className={styles.header}>
-        <span className={styles.subtitulo}>Tipo</span>
+        <span className={styles.subtitulo}>{t('Tipo')}</span>
       </div>
       <div className={styles.tipos}>
         {CREATIVE_KINDS.map((tipo) => (
@@ -150,13 +155,13 @@ export function Fontes({
             className={cx(styles.chip, tipos.includes(tipo) && styles.chipOn)}
             onClick={() => alternar(tipo)}
           >
-            {CREATIVE_KIND_LABEL[tipo]}
+            {t(CREATIVE_KIND_LABEL[tipo])}
           </button>
         ))}
       </div>
 
       <div className={styles.rodapeFiltros}>
-        <span className={styles.subtitulo}>Ordenar</span>
+        <span className={styles.subtitulo}>{t('Ordenar')}</span>
         <div className={styles.ordens}>
           {(['relevancia', 'recentes', 'populares'] as CreativeSort[]).map((o) => (
             <button
@@ -166,13 +171,13 @@ export function Fontes({
               className={cx(styles.chip, ordem === o && styles.chipOn)}
               onClick={() => aoTrocarOrdem(o)}
             >
-              {ORDEM[o]}
+              {t(ORDEM[o])}
             </button>
           ))}
         </div>
         {tipos.length > 0 ? (
           <button type="button" className={styles.limpar} onClick={() => aoTrocarTipos([])}>
-            Limpar {tipos.length} filtro{tipos.length > 1 ? 's' : ''}
+            {t(tipos.length > 1 ? 'Limpar {n} filtros' : 'Limpar {n} filtro', { n: tipos.length })}
           </button>
         ) : null}
       </div>
@@ -181,14 +186,14 @@ export function Fontes({
 }
 
 const CAPACIDADE: Record<string, string> = {
-  search: 'busca',
-  trending: 'destaques',
-  item: 'lê um link colado',
-  collections: 'coleções',
+  search: marcar('busca'),
+  trending: marcar('destaques'),
+  item: marcar('lê um link colado'),
+  collections: marcar('coleções'),
 }
 
 const ORDEM: Record<CreativeSort, string> = {
-  relevancia: 'Relevância',
-  recentes: 'Recentes',
-  populares: 'Populares',
+  relevancia: marcar('Relevância'),
+  recentes: marcar('Recentes'),
+  populares: marcar('Populares'),
 }

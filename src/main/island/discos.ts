@@ -1,5 +1,6 @@
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
+import { marcar, t } from '@shared/i18n'
 import type { Reading } from '@shared/island'
 import { announceToIslands } from './window'
 
@@ -121,7 +122,7 @@ export async function discos(): Promise<Reading[]> {
       if (vistos.has(device)) continue
       announceToIslands({
         icon: 'Usb',
-        text: 'Dispositivo conectado',
+        text: t('Dispositivo conectado'),
         detail: nome.slice(0, 40),
         level: 'ok',
         kind: 'aviso',
@@ -132,7 +133,7 @@ export async function discos(): Promise<Reading[]> {
       if (agora.has(device)) continue
       announceToIslands({
         icon: 'Usb',
-        text: 'Dispositivo removido',
+        text: t('Dispositivo removido'),
         detail: nome.slice(0, 40),
         level: 'alerta',
         kind: 'aviso',
@@ -147,23 +148,26 @@ export async function discos(): Promise<Reading[]> {
   return [
     {
       id: 'discos-removiveis',
-      label: 'Removíveis',
+      label: t('Removíveis'),
       value: String(lista.length),
       detail: lista[0]
-        ? `${lista[0].name}${lista[0].size > 0 ? ` · ${legivel(lista[0].size)}` : ' · sem mídia'}`
-        : 'nenhum pendrive ou disco externo',
+        ? `${lista[0].name} · ${lista[0].size > 0 ? legivel(lista[0].size) : t('sem mídia')}`
+        : t('nenhum pendrive ou disco externo'),
       ratio: null,
       level: 'ok',
     },
     {
       id: 'discos-montados',
-      label: 'Montados',
+      label: t('Montados'),
       value: String(montados.length),
       detail: montados[0]
-        ? `${montados[0].label} em ${montados[0].mountpoint}`.slice(0, 48)
+        ? t('{rotulo} em {ponto}', {
+            rotulo: montados[0].label,
+            ponto: montados[0].mountpoint ?? '',
+          }).slice(0, 48)
         : comMidia.length > 0
-          ? 'há mídia sem montar'
-          : 'nada montado',
+          ? t('há mídia sem montar')
+          : t('nada montado'),
       ratio: null,
       level: 'ok',
     },
@@ -171,7 +175,7 @@ export async function discos(): Promise<Reading[]> {
     // o painel desenha, no mesmo regime das saídas de áudio: sem canal novo.
     {
       id: 'discos-lista',
-      label: 'Volumes',
+      label: t('Volumes'),
       value: String(lista.reduce((n, d) => n + d.volumes.length, 0)),
       detail: lista
         .flatMap((d) =>
@@ -188,9 +192,15 @@ export async function discos(): Promise<Reading[]> {
                 ].join('|'),
               )
             : [
-                [d.device, d.name, d.size > 0 ? legivel(d.size) : 'sem mídia', '', '', '', ''].join(
-                  '|',
-                ),
+                [
+                  d.device,
+                  d.name,
+                  d.size > 0 ? legivel(d.size) : marcar('sem mídia'),
+                  '',
+                  '',
+                  '',
+                  '',
+                ].join('|'),
               ],
         )
         .join(';'),
@@ -213,14 +223,14 @@ async function udisks(...args: string[]): Promise<string> {
  */
 export async function ejetarDisco(device: string): Promise<void> {
   const disco = (await removiveis()).find((d) => d.device === device)
-  if (!disco) throw new Error('esse dispositivo não está mais aqui')
+  if (!disco) throw new Error(t('esse dispositivo não está mais aqui'))
   for (const v of disco.volumes) {
     if (v.mountpoint) await udisks('unmount', '-b', v.device)
   }
   await udisks('power-off', '-b', device)
   announceToIslands({
     icon: 'Eject',
-    text: 'Pode tirar',
+    text: t('Pode tirar'),
     detail: disco.name.slice(0, 40),
     level: 'ok',
     kind: 'aviso',
@@ -231,14 +241,14 @@ export async function ejetarDisco(device: string): Promise<void> {
 /** Monta uma partição de um removível e anuncia onde ela ficou. */
 export async function montarDisco(device: string): Promise<string> {
   const volume = (await removiveis()).flatMap((d) => d.volumes).find((v) => v.device === device)
-  if (!volume) throw new Error('essa partição não é de um removível')
+  if (!volume) throw new Error(t('essa partição não é de um removível'))
   if (volume.mountpoint) return volume.mountpoint
   const saida = await udisks('mount', '-b', device)
   // "Mounted /dev/sdg1 at /media/usuario/PENDRIVE" (ou traduzido — o caminho é o que vale)
   const ponto = /\s(\/\S+)\.?\s*$/.exec(saida.trim())?.[1] ?? ''
   announceToIslands({
     icon: 'Usb',
-    text: 'Montado',
+    text: t('Montado'),
     detail: (ponto || volume.label).slice(0, 40),
     level: 'ok',
     kind: 'aviso',

@@ -1,3 +1,4 @@
+import { t } from '@shared/i18n'
 import type { IslandEvent, IslandTimer } from '@shared/island'
 import { avisar } from './actions'
 import { registrarFoco } from './foco'
@@ -25,7 +26,7 @@ export function bindTimer(aoAnunciar: (evento: IslandEvent) => void): void {
 /** Começa (ou recomeça) a contagem. Minutos fora do razoável são recusados. */
 export function startTimer(minutos: number, label = ''): IslandTimer {
   if (!Number.isFinite(minutos) || minutos <= 0 || minutos > 24 * 60) {
-    throw new Error('minutos entre 1 e 1440')
+    throw new Error(t('minutos entre 1 e 1440'))
   }
   clearTimeout(relogio)
   const ms = Math.round(minutos * 60_000)
@@ -60,11 +61,11 @@ function terminou(): void {
   const detalhe = acabado.label || `${acabado.minutes} min`
   anunciar?.({
     icon: 'Timer',
-    text: 'Tempo esgotado',
+    text: t('Tempo esgotado'),
     detail: detalhe,
     level: 'alerta',
     kind: 'aviso',
     ttlMs: 6000,
   })
-  void avisar('Tempo esgotado', detalhe).catch(() => {})
+  void avisar(t('Tempo esgotado'), detalhe).catch(() => {})
 }

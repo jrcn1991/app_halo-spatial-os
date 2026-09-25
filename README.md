@@ -32,8 +32,9 @@ launcher one shortcut away. And each **environment** switches the app's theme
 and your session wallpaper in one go.
 
 > [!NOTE]
-> The interface is in **Brazilian Portuguese** for now. An English option in
-> Settings is on the way (Portuguese stays the default).
+> The interface speaks **Brazilian Portuguese** by default and **English** as
+> an option: Configurações → Idioma (Settings → Language). The switch applies
+> right away, in every window.
 
 <p align="center">
   <a href="https://jrcn1991.github.io/halo-spatial-os/#passeio"><img src="site/assets/ambientes.gif" alt="Halo's four environments" width="860"></a>
@@ -168,6 +169,8 @@ and may hit Ubuntu's user-namespace restriction — prefer the `.deb`.
 - **Turn the launcher on** in Configurações → Lançador (Launcher) to use
   **Meta+V**.
 - **Pick the weather city** in Configurações → Widgets.
+- **Switch the language** in Configurações → Idioma (Language): Portuguese
+  (default) or English.
 
 ## Settings
 
@@ -301,7 +304,7 @@ a change — is in **[DOCUMENTATION.md](DOCUMENTATION.md)**
 - [x] Four environments, with wallpaper (image or video)
 - [x] Dynamic island, Meta+V launcher and themed notification bubbles
 - [x] Claude Code agents, Spotify, M3U library and Social Arte
-- [ ] English interface option (Portuguese stays the default)
+- [x] English interface option (Portuguese stays the default)
 - [ ] The Estúdio, Espaço and Costa environments
 - [ ] Spotify catalog search
 - [ ] GPU meter for AMD and Intel

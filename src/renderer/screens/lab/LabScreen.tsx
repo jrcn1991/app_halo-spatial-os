@@ -3,6 +3,7 @@ import { CaretRight } from '@phosphor-icons/react/dist/icons/CaretRight'
 import { Cpu } from '@phosphor-icons/react/dist/icons/Cpu'
 import { Pulse } from '@phosphor-icons/react/dist/icons/Pulse'
 import { TerminalWindow } from '@phosphor-icons/react/dist/icons/TerminalWindow'
+import { t } from '@shared/i18n'
 import type { Container, Monitor } from '@/domain/types'
 import { useContainers, useHost, useMachines, useMonitors } from '@/hooks/useLab'
 import { useLatencyHistory } from '@/hooks/useLatencyHistory'
@@ -71,12 +72,14 @@ function MonitorsPanel() {
       <div>
         <div className={styles.panelTitle}>
           <Pulse size={21} weight="fill" color="var(--accent-green)" />
-          <span className={styles.panelTitleText}>Monitores</span>
+          <span className={styles.panelTitleText}>{t('Monitores')}</span>
         </div>
         <div className={styles.headline}>
           <span className={styles.headlineValue}>{rate}%</span>
           <span className={styles.mono}>
-            AGORA · {list.length} {list.length === 1 ? 'SERVIÇO' : 'SERVIÇOS'}
+            {t(list.length === 1 ? 'AGORA · {n} SERVIÇO' : 'AGORA · {n} SERVIÇOS', {
+              n: list.length,
+            })}
           </span>
         </div>
       </div>
@@ -103,7 +106,7 @@ function MonitorsPanel() {
 
         {list.length === 0 && (
           <span className={styles.empty}>
-            Nenhum container com porta publicada. Suba um serviço e ele aparece aqui.
+            {t('Nenhum container com porta publicada. Suba um serviço e ele aparece aqui.')}
           </span>
         )}
       </div>
@@ -166,7 +169,7 @@ function MachinesPanel() {
           <div className={styles.subtitle}>
             {host
               ? `${host.hostname.toUpperCase()} · DOCKER ${host.dockerVersion ?? '—'} · UPTIME ${host.uptimeDays} D`
-              : 'LENDO A MÁQUINA…'}
+              : t('LENDO A MÁQUINA…')}
           </div>
         </div>
         <div className={styles.spacer} />
@@ -175,23 +178,25 @@ function MachinesPanel() {
             ação que não existe. Ele FICA, porque é o desenho do handoff;
             ligá-lo pediria escolher terminal, host e credencial, que é
             funcionalidade nova e escolha do usuário. */}
-        <button type="button" className={styles.action} disabled title="Em breve">
+        <button type="button" className={styles.action} disabled title={t('Em breve')}>
           <TerminalWindow size={15} />
           SSH
-          <span className={styles.emBreve}>EM BREVE</span>
+          <span className={styles.emBreve}>{t('EM BREVE')}</span>
         </button>
       </div>
 
       <div className={styles.section}>
         <div className={styles.sectionHead}>
           <span className={styles.sectionLabel}>
-            MÁQUINAS · {nodes.length} {nodes.length === 1 ? 'NÓ' : 'NÓS'}
+            {t(nodes.length === 1 ? 'MÁQUINAS · {n} NÓ' : 'MÁQUINAS · {n} NÓS', {
+              n: nodes.length,
+            })}
           </span>
           <div className={styles.spacer} />
           <div className={styles.arrows}>
             <button
               type="button"
-              aria-label="Anterior"
+              aria-label={t('Anterior')}
               className={styles.arrow}
               onClick={() => setLab(Math.max(0, index - 1) as 0 | 1 | 2)}
             >
@@ -199,7 +204,7 @@ function MachinesPanel() {
             </button>
             <button
               type="button"
-              aria-label="Próxima"
+              aria-label={t('Próxima')}
               className={cx(styles.arrow, styles.arrowActive)}
               onClick={() => setLab(Math.min(nodes.length - 1, index + 1) as 0 | 1 | 2)}
             >
@@ -216,7 +221,7 @@ function MachinesPanel() {
                   <Cpu size={18} weight="fill" color="var(--accent-green)" />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div className={styles.machineName}>{machine.name}</div>
-                    <div className={styles.machineRole}>{machine.role.toUpperCase()}</div>
+                    <div className={styles.machineRole}>{t(machine.role).toUpperCase()}</div>
                   </div>
                 </div>
                 <div className={styles.machineStats}>
@@ -257,10 +262,10 @@ function MachinesPanel() {
           // Quem distingue é a versão do Docker, que o `useHost` já traz.
           <span className={styles.empty}>
             {!host
-              ? 'Lendo a máquina…'
+              ? t('Lendo a máquina…')
               : host.dockerVersion === null
-                ? 'Docker não respondeu — daemon parado ou ausente.'
-                : 'Nenhum container por aqui.'}
+                ? t('Docker não respondeu — daemon parado ou ausente.')
+                : t('Nenhum container por aqui.')}
           </span>
         )}
       </div>
@@ -271,9 +276,7 @@ function MachinesPanel() {
           {host ? host.network.upMbs.toFixed(1) : '—'} MB/S
         </span>
         <div className={styles.spacer} />
-        <span>
-          {list.length} CONTAINERS · {running} ATIVOS
-        </span>
+        <span>{t('{n} CONTAINERS · {ativos} ATIVOS', { n: list.length, ativos: running })}</span>
       </div>
     </>
   )
@@ -294,14 +297,14 @@ function ServicesPanel() {
   return (
     <>
       <div className={styles.card} data-halo-cartao="mini">
-        <div className={styles.cardTitle}>{host?.hostname ?? 'Esta máquina'}</div>
+        <div className={styles.cardTitle}>{host?.hostname ?? t('Esta máquina')}</div>
         <div className={styles.mono} style={{ marginTop: 6 }}>
-          {list.filter((m) => m.up).length} DE {list.length} NO AR
+          {t('{no} DE {total} NO AR', { no: list.filter((m) => m.up).length, total: list.length })}
         </div>
       </div>
 
       <div className={styles.list}>
-        <span className={styles.sectionLabel}>SERVIÇOS</span>
+        <span className={styles.sectionLabel}>{t('SERVIÇOS')}</span>
         {list.map((monitor) => (
           <a
             key={monitor.name}

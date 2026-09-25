@@ -1,4 +1,5 @@
 import type { CreativeItem } from '@shared/creative'
+import { marcar, t } from '@shared/i18n'
 import {
   buscaDeviantArt,
   type CruDeviantArt,
@@ -121,7 +122,7 @@ function paraItem(dados: OEmbed, url: string): CreativeItem {
 export const deviantart: Provedor = {
   id: 'deviantart',
   nome: 'DeviantArt',
-  descricao: 'Arte digital, ilustração e fotografia da comunidade.',
+  descricao: marcar('Arte digital, ilustração e fotografia da comunidade.'),
 
   // As três funcionam sem o usuário configurar nada: o oEmbed é público, e a
   // home e a busca são as páginas públicas do site. A sessão muda o QUE a home
@@ -134,11 +135,12 @@ export const deviantart: Provedor = {
       conectado: true,
       erro: sessao
         ? ''
-        : 'sem sessão: a home mostra o feed público. Entre na sua conta para ver o seu.',
+        : t('sem sessão: a home mostra o feed público. Entre na sua conta para ver o seu.'),
     }
   },
 
-  entrar: () => abrirLogin(HOME_DEVIANTART, 'Entrar no DeviantArt', SESSAO),
+  entrar: () =>
+    abrirLogin(HOME_DEVIANTART, t('Entrar no {plataforma}', { plataforma: 'DeviantArt' }), SESSAO),
   sessao: SESSAO,
 
   /**

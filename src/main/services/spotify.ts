@@ -1,5 +1,6 @@
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
+import { localeDoIdioma, marcar, t } from '@shared/i18n'
 import type {
   SpotifyAuth,
   SpotifyCommand,
@@ -200,10 +201,11 @@ async function api<T>(caminho: string, init?: RequestInit): Promise<T | null> {
     }
     if (resposta.status === 429) {
       const espera = resposta.headers.get('retry-after') ?? '?'
-      throw new Error(`limite de chamadas do Spotify atingido (tente em ${espera}s)`)
+      throw new Error(t('limite de chamadas do Spotify atingido (tente em {n}s)', { n: espera }))
     }
     if (resposta.status === 404) return null
-    if (!resposta.ok) throw new Error(`Spotify respondeu HTTP ${resposta.status}`)
+    if (!resposta.ok)
+      throw new Error(t('Spotify respondeu HTTP {status}', { status: resposta.status }))
 
     const corpo = await resposta.text()
     return corpo ? (JSON.parse(corpo) as T) : null
@@ -226,8 +228,8 @@ async function detalhe403(resposta: Response): Promise<string> {
   } | null
   const dito = corpo?.error?.message?.trim()
   return dito
-    ? `o Spotify recusou: ${dito}`
-    : 'o Spotify recusou (escopo não autorizado ou conta sem Premium)'
+    ? t('o Spotify recusou: {motivo}', { motivo: dito })
+    : t('o Spotify recusou (escopo não autorizado ou conta sem Premium)')
 }
 
 function pedir(
@@ -326,7 +328,7 @@ type FaixaBruta = {
 }
 
 function milhar(valor: number): string {
-  return valor.toLocaleString('pt-BR')
+  return valor.toLocaleString(localeDoIdioma())
 }
 
 function comoItem(bruto: PlaylistBruta): SpotifyItem {
@@ -335,7 +337,9 @@ function comoItem(bruto: PlaylistBruta): SpotifyItem {
     id: bruto.id ?? '',
     kind: 'playlist',
     name: bruto.name ?? '',
-    meta: bruto.owner?.display_name ? `por ${bruto.owner.display_name}` : 'playlist',
+    meta: bruto.owner?.display_name
+      ? t('por {nome}', { nome: bruto.owner.display_name })
+      : t('playlist'),
     image: capa(bruto.images),
     tracks: bruto.items?.total ?? bruto.tracks?.total ?? 0,
   }
@@ -361,7 +365,9 @@ function artistaComoItem(bruto: ArtistaCompleto): SpotifyItem {
     id: bruto.id ?? '',
     kind: 'artist',
     name: bruto.name ?? '',
-    meta: seguidores ? `${milhar(seguidores)} seguidores` : ((bruto.genres ?? [])[0] ?? 'artista'),
+    meta: seguidores
+      ? t('{n} seguidores', { n: milhar(seguidores) })
+      : ((bruto.genres ?? [])[0] ?? t('artista')),
     image: capa(bruto.images),
     tracks: 0,
   }
@@ -484,8 +490,10 @@ export function library(): Promise<SpotifyResult<SpotifyLibrary>> {
         .map((i) => faixa(i.track, '', i.played_at ?? null))
         .filter((t): t is SpotifyTrack => t !== null),
       notice: faltando.length
-        ? `Faltou autorizar ${faltando.join(', ')} — reconecte em Configurações → Música ` +
-          'para ver o que está faltando.'
+        ? t(
+            'Faltou autorizar {escopos} — reconecte em Configurações → Música para ver o que está faltando.',
+            { escopos: faltando.join(', ') },
+          )
         : '',
     }
 
@@ -541,11 +549,12 @@ export function detail(uri: string): Promise<SpotifyResult<SpotifyDetail>> {
  * - playlist editorial do Spotify: 404 (essas saíram do alcance de apps novos).
  * - `/artists/{id}/top-tracks`: 403, e aí a discografia entra no lugar.
  */
-const AVISO_DE_OUTRO =
-  'O Spotify não deixa este app abrir as faixas de playlists de outras pessoas. ' +
-  'Dá para tocar direto pelo botão, ou abrir no Spotify.'
-const AVISO_GENERICO =
-  'O Spotify não devolveu as faixas desta lista. Dá para tocar direto pelo botão.'
+const AVISO_DE_OUTRO = marcar(
+  'O Spotify não deixa este app abrir as faixas de playlists de outras pessoas. Dá para tocar direto pelo botão, ou abrir no Spotify.',
+)
+const AVISO_GENERICO = marcar(
+  'O Spotify não devolveu as faixas desta lista. Dá para tocar direto pelo botão.',
+)
 
 /** Quem está logado, para saber se a playlist é dele. */
 let donoAtual: string | null = null
@@ -567,7 +576,7 @@ async function detalhePlaylist(id: string): Promise<SpotifyDetail> {
   // recusada, e derrubar o cabeçalho junto deixava o clique sem NENHUM efeito
   // visível — foi o defeito que o usuário viu.
   const bruta = await api<PlaylistBruta>(`/playlists/${id}`)
-  if (!bruta) throw new Error('playlist não encontrada')
+  if (!bruta) throw new Error(t('playlist não encontrada'))
   const item = comoItem(bruta)
 
   /**
@@ -595,13 +604,13 @@ async function detalhePlaylist(id: string): Promise<SpotifyDetail> {
     item,
     tracks,
     albums: [],
-    notice: faixas === null ? (deOutraPessoa ? AVISO_DE_OUTRO : AVISO_GENERICO) : '',
+    notice: faixas === null ? t(deOutraPessoa ? AVISO_DE_OUTRO : AVISO_GENERICO) : '',
   }
 }
 
 async function detalheAlbum(id: string): Promise<SpotifyDetail> {
   const bruto = await api<AlbumBruto & { tracks?: { items?: FaixaBruta[] } }>(`/albums/${id}`)
-  if (!bruto) throw new Error('álbum não encontrado')
+  if (!bruto) throw new Error(t('álbum não encontrado'))
   const item = albumComoItem(bruto)
   return {
     item,
@@ -616,7 +625,7 @@ async function detalheAlbum(id: string): Promise<SpotifyDetail> {
 
 async function detalheArtista(id: string): Promise<SpotifyDetail> {
   const bruto = await api<ArtistaCompleto>(`/artists/${id}`)
-  if (!bruto) throw new Error('artista não encontrado')
+  if (!bruto) throw new Error(t('artista não encontrado'))
   const item = artistaComoItem(bruto)
 
   const top = await tentar(api<{ tracks?: FaixaBruta[] }>(`/artists/${id}/top-tracks`))
@@ -642,7 +651,7 @@ async function detalheArtista(id: string): Promise<SpotifyDetail> {
     item,
     tracks,
     albums: (discos?.items ?? []).map(albumComoItem),
-    notice: top === null && (discos?.items?.length ?? 0) === 0 ? AVISO_GENERICO : '',
+    notice: top === null && (discos?.items?.length ?? 0) === 0 ? t(AVISO_GENERICO) : '',
   }
 }
 
@@ -738,8 +747,8 @@ async function alternarAleatorio(): Promise<SpotifyControlResult> {
 }
 
 async function connectControl(comando: SpotifyCommand): Promise<SpotifyControlResult> {
-  if (!clientId()) return { done: false, source: 'none', message: 'Spotify não configurado' }
-  if (!conectado()) return { done: false, source: 'none', message: 'Spotify não conectado' }
+  if (!clientId()) return { done: false, source: 'none', message: t('Spotify não configurado') }
+  if (!conectado()) return { done: false, source: 'none', message: t('Spotify não conectado') }
 
   try {
     const estado = comando === 'shuffle' ? await playback() : null
@@ -779,7 +788,7 @@ async function connectControl(comando: SpotifyCommand): Promise<SpotifyControlRe
  */
 export async function play(uri: string): Promise<SpotifyControlResult> {
   if (!uri.startsWith('spotify:')) {
-    return { done: false, source: 'none', message: 'URI do Spotify inválida' }
+    return { done: false, source: 'none', message: t('URI do Spotify inválida') }
   }
 
   if (clientId() && conectado()) {
@@ -799,7 +808,7 @@ export async function play(uri: string): Promise<SpotifyControlResult> {
   return {
     done: false,
     source: 'none',
-    message: 'abra o aplicativo do Spotify, ou conecte a conta em Configurações',
+    message: t('abra o aplicativo do Spotify, ou conecte a conta em Configurações'),
   }
 }
 
@@ -809,6 +818,6 @@ export async function raise(): Promise<SpotifyControlResult> {
     await busctl(['call', BUS, '/org/mpris/MediaPlayer2', 'org.mpris.MediaPlayer2', 'Raise'])
     return { done: true, source: 'mpris', message: '' }
   } catch {
-    return { done: false, source: 'none', message: 'o aplicativo do Spotify não está aberto' }
+    return { done: false, source: 'none', message: t('o aplicativo do Spotify não está aberto') }
   }
 }

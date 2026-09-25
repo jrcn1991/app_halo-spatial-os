@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from '
 import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { promisify } from 'node:util'
+import { t } from '@shared/i18n'
 import type { WallpaperResult } from '@shared/ipc-contract'
 
 const exec = promisify(execFile)
@@ -109,7 +110,7 @@ export async function restaurarPapelOriginal(): Promise<WallpaperResult> {
   } catch {
     // ausente ou ilegível: cai na frase abaixo
   }
-  if (!telas) return { ok: false, error: 'não há papel de parede original guardado' }
+  if (!telas) return { ok: false, error: t('não há papel de parede original guardado') }
 
   const script =
     `var telas = ${JSON.stringify(telas)};` +
@@ -127,8 +128,8 @@ export async function restaurarPapelOriginal(): Promise<WallpaperResult> {
       ok: false,
       error:
         e.code === 'ENOENT'
-          ? 'qdbus6 não está nesta máquina (ele vem com o pacote qdbus-qt6)'
-          : 'o plasmashell não respondeu',
+          ? t('qdbus6 não está nesta máquina (ele vem com o pacote qdbus-qt6)')
+          : t('o plasmashell não respondeu'),
     }
   }
 }

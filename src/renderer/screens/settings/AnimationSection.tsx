@@ -1,3 +1,4 @@
+import { t } from '@shared/i18n'
 import { PRESETS_DO_AMBIENTE, useValoresDoAmbiente } from '@/app/environment'
 import { useHalo } from '@/store/useHalo'
 import { ENTRANCE_NAMES, type EntranceName } from '@/styles/entrances'
@@ -20,13 +21,17 @@ export function AnimationSection() {
   return (
     <>
       <div className={styles.header}>
-        <span className={styles.eyebrow}>Animação · Entrada</span>
-        <span className={styles.title}>Como as telas entram</span>
+        <span className={styles.eyebrow}>{t('Animação · Entrada')}</span>
+        <span className={styles.title}>{t('Como as telas entram')}</span>
         <span className={styles.subtitle}>
-          13 variações do handoff. Escolher uma aplica na hora e repete a entrada nesta tela
           {preset
-            ? ` — e vale NESTE ambiente, por cima do preset dele, que é ${preset}.`
-            : '. Este ambiente não traz preset: vale a do handoff.'}
+            ? t(
+                '13 variações do handoff. Escolher uma aplica na hora e repete a entrada nesta tela — e vale NESTE ambiente, por cima do preset dele, que é {preset}.',
+                { preset: t(preset) },
+              )
+            : t(
+                '13 variações do handoff. Escolher uma aplica na hora e repete a entrada nesta tela. Este ambiente não traz preset: vale a do handoff.',
+              )}
         </span>
       </div>
       <div className={styles.divider} />
@@ -42,7 +47,7 @@ export function AnimationSection() {
               onClick={() => setEntrance(name)}
             >
               <span className={styles.index}>{String(i + 1).padStart(2, '0')}</span>
-              {name}
+              {t(name)}
               {name === preset && <span className={styles.presetTag}>PRESET</span>}
               {active && <span className={styles.dot} />}
             </button>

@@ -1,6 +1,7 @@
 import { randomBytes } from 'node:crypto'
 import { unlink, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import { t } from '@shared/i18n'
 import { IPC } from '@shared/ipc-contract'
 import type { IslandWindow } from '@shared/island'
 import dbus from 'dbus-next'
@@ -110,7 +111,7 @@ ${trecho}
     const resposta = new Promise<string>((resolve, reject) => {
       const relogio = setTimeout(() => {
         esperas.delete(nonce)
-        reject(new Error('o KWin não respondeu ao script'))
+        reject(new Error(t('o KWin não respondeu ao script')))
       }, TIMEOUT_MS)
       esperas.set(nonce, (json) => {
         clearTimeout(relogio)
@@ -231,7 +232,7 @@ if (!alvo || !alvo.normalWindow || alvo.skipTaskbar) entregar({ erro: 'nenhuma j
 else entregar(resumo(alvo))
 `)
   const resultado = JSON.parse(json) as IslandWindow | { erro: string }
-  if ('erro' in resultado) throw new Error(resultado.erro)
+  if ('erro' in resultado) throw new Error(t(resultado.erro))
   return resultado
 }
 
@@ -260,7 +261,7 @@ else {
 }
 `)
   const resultado = JSON.parse(json) as { erro?: string }
-  if (resultado.erro) throw new Error(resultado.erro)
+  if (resultado.erro) throw new Error(t(resultado.erro))
   invalidarCache()
   if (!guardadas.some((j) => j.id === janela.id)) {
     guardadas.push({ ...janela, minimized: true, active: false })
@@ -315,7 +316,7 @@ else {
 }
 `)
   const resultado = JSON.parse(json) as { erro?: string }
-  if (resultado.erro) throw new Error(resultado.erro)
+  if (resultado.erro) throw new Error(t(resultado.erro))
   invalidarCache()
 }
 
@@ -338,7 +339,7 @@ else {
 }
 `)
   const resultado = JSON.parse(json) as { erro?: string }
-  if (resultado.erro) throw new Error(resultado.erro)
+  if (resultado.erro) throw new Error(t(resultado.erro))
   invalidarCache()
 }
 
@@ -353,7 +354,7 @@ for (var i = 0; i < lista.length && !achou; i++) {
 entregar(achou ? { ok: true } : { erro: 'ilha não encontrada' })
 `)
   const resultado = JSON.parse(json) as { erro?: string }
-  if (resultado.erro) throw new Error(resultado.erro)
+  if (resultado.erro) throw new Error(t(resultado.erro))
 }
 
 /**
@@ -403,7 +404,7 @@ if (!alvo) {
   if (posicao >= 0) guardadas.splice(posicao, 1)
   invalidarCache()
   avisarGuardadas()
-  if (resultado.erro) throw new Error(resultado.erro)
+  if (resultado.erro) throw new Error(t(resultado.erro))
 }
 
 /** A janela devolvida volta à barra de tarefas e ao Alt+Tab. */
@@ -444,7 +445,7 @@ if (!alvo) {
   if (posicao >= 0) guardadas.splice(posicao, 1)
   invalidarCache()
   avisarGuardadas()
-  if (resultado.erro) throw new Error(resultado.erro)
+  if (resultado.erro) throw new Error(t(resultado.erro))
 }
 
 /**
@@ -482,7 +483,7 @@ if (!alvo) {
 `)
   const resultado = JSON.parse(json) as { erro?: string }
   invalidarCache()
-  if (resultado.erro) throw new Error(resultado.erro)
+  if (resultado.erro) throw new Error(t(resultado.erro))
 }
 
 /**
@@ -523,7 +524,7 @@ if (!alvo) {
 `)
   const resultado = JSON.parse(json) as { erro?: string }
   invalidarCache()
-  if (resultado.erro) throw new Error(resultado.erro)
+  if (resultado.erro) throw new Error(t(resultado.erro))
 }
 
 /* ——— O vigia: um script que fica ————————————————————————
@@ -756,7 +757,7 @@ for (var i = 0; i < lista.length && !achou; i++) {
 entregar(achou ? { ok: true } : { erro: 'janela não encontrada' })
 `)
   const resultado = JSON.parse(json) as { erro?: string }
-  if (resultado.erro) throw new Error(resultado.erro)
+  if (resultado.erro) throw new Error(t(resultado.erro))
 }
 
 /** Tira a linha do atalho do `kglobalshortcutsrc` — só a nossa, uma por vez. */

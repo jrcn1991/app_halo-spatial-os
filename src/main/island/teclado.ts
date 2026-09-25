@@ -1,5 +1,6 @@
 import { readdir, readFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import { marcar, t } from '@shared/i18n'
 import type { IslandEvent, Reading } from '@shared/island'
 
 /**
@@ -62,7 +63,7 @@ async function olhar(): Promise<void> {
     if (capsVisto !== null && caps !== capsVisto) {
       anunciar?.({
         icon: 'Keyboard',
-        text: caps ? 'Caps Lock ligado' : 'Caps Lock desligado',
+        text: caps ? t('Caps Lock ligado') : t('Caps Lock desligado'),
         detail: '',
         level: caps ? 'alerta' : 'ok',
         kind: 'hud',
@@ -77,7 +78,7 @@ async function olhar(): Promise<void> {
     if (numVisto !== null && num !== numVisto) {
       anunciar?.({
         icon: 'Keyboard',
-        text: num ? 'Num Lock ligado' : 'Num Lock desligado',
+        text: num ? t('Num Lock ligado') : t('Num Lock desligado'),
         detail: '',
         level: 'ok',
         kind: 'hud',
@@ -108,7 +109,8 @@ export const tecladoVigiado = (): boolean => relogio !== undefined
 /** As leituras do módulo: o estado de cada trava e se o vigia está de pé. */
 export async function teclado(): Promise<Reading[]> {
   const { caps, num } = await travas()
-  const estado = (v: boolean | null) => (v === null ? 'sem LED' : v ? 'ligado' : 'desligado')
+  const estado = (v: boolean | null) =>
+    v === null ? t('sem LED') : v ? marcar('ligado') : marcar('desligado')
   return [
     {
       id: 'teclado-capslock',
@@ -116,10 +118,10 @@ export async function teclado(): Promise<Reading[]> {
       value: estado(caps),
       detail:
         caps === null
-          ? 'nenhum LED de Caps Lock em /sys/class/leds'
+          ? t('nenhum LED de Caps Lock em /sys/class/leds')
           : caps
-            ? 'as maiúsculas estão presas'
-            : 'maiúsculas soltas',
+            ? t('as maiúsculas estão presas')
+            : t('maiúsculas soltas'),
       ratio: null,
       level: caps ? 'alerta' : 'ok',
     },
@@ -127,17 +129,17 @@ export async function teclado(): Promise<Reading[]> {
       id: 'teclado-numlock',
       label: 'Num Lock',
       value: estado(num),
-      detail: num === null ? 'nenhum LED de Num Lock em /sys/class/leds' : '',
+      detail: num === null ? t('nenhum LED de Num Lock em /sys/class/leds') : '',
       ratio: null,
       level: 'ok',
     },
     {
       id: 'teclado-vigia',
-      label: 'HUD das travas',
-      value: tecladoVigiado() ? 'ouvindo' : 'parado',
+      label: t('HUD das travas'),
+      value: tecladoVigiado() ? marcar('ouvindo') : marcar('parado'),
       detail: tecladoVigiado()
-        ? 'LEDs do teclado a cada 200ms'
-        : 'ligue o HUD em Configurações → Ilha',
+        ? t('LEDs do teclado a cada 200ms')
+        : t('ligue o HUD em Configurações → Ilha'),
       ratio: null,
       level: tecladoVigiado() ? 'ok' : 'alerta',
     },

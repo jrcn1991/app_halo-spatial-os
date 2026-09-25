@@ -1,3 +1,4 @@
+import { t } from '@shared/i18n'
 import { type IslandWindow, vooDaJanelaDeVerdade } from '@shared/island'
 import { BrowserWindow } from 'electron'
 import { reaplicarSkipTaskbar, setDesktopLayer } from '../services/desktop-layer'
@@ -139,7 +140,7 @@ function comoJanela(geometry: {
  */
 export async function recolherHalo(): Promise<void> {
   const win = janelaDoHalo()
-  if (!win) throw new Error('a janela do Halo não está aberta')
+  if (!win) throw new Error(t('a janela do Halo não está aberta'))
   if (recolhido) return
   lugar = win.getBounds()
   const modo = comoVoar()
@@ -188,8 +189,8 @@ function anunciar(): void {
     announceToIslands({
       key: 'halo',
       icon: 'House',
-      text: 'Halo na ilha',
-      detail: 'Meta+Space traz de volta',
+      text: t('Halo na ilha'),
+      detail: t('Meta+Space traz de volta'),
       level: 'ok',
       ttlMs: 2600,
     })
@@ -207,7 +208,7 @@ function anunciar(): void {
  */
 export async function trazerHalo(): Promise<void> {
   const win = janelaDoHalo()
-  if (!win) throw new Error('a janela do Halo não está aberta')
+  if (!win) throw new Error(t('a janela do Halo não está aberta'))
   if (!recolhido || !lugar) return
   const destino = lugar
 

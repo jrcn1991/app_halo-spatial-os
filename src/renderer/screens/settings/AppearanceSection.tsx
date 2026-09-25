@@ -1,4 +1,5 @@
 import { hexToRgb, hueToRgb, rgbToHex, rgbToHue } from '@shared/color'
+import { marcar, t } from '@shared/i18n'
 import { useEffect, useState } from 'react'
 import { PRESETS_DO_AMBIENTE, useValoresDoAmbiente } from '@/app/environment'
 import {
@@ -14,16 +15,16 @@ import { Toggle } from '@/ui/Toggle'
 import styles from '../SettingsScreen.module.css'
 
 export const DOCK: readonly { value: DockPosition; label: string }[] = [
-  { value: 'top', label: 'Topo' },
-  { value: 'bottom', label: 'Base' },
-  { value: 'left', label: 'Esquerda' },
-  { value: 'right', label: 'Direita' },
+  { value: 'top', label: marcar('Topo') },
+  { value: 'bottom', label: marcar('Base') },
+  { value: 'left', label: marcar('Esquerda') },
+  { value: 'right', label: marcar('Direita') },
 ]
 
 /** `short` é o que cabe na linha de resumo do painel direito. */
 export const NAVIGATION: readonly { value: NavigationMode; label: string; short: string }[] = [
-  { value: 'floating', label: 'Flutuante', short: 'Flutuante' },
-  { value: 'embedded', label: 'Embutida na janela', short: 'Embutida' },
+  { value: 'floating', label: marcar('Flutuante'), short: marcar('Flutuante') },
+  { value: 'embedded', label: marcar('Embutida na janela'), short: marcar('Embutida') },
 ]
 
 /**
@@ -32,19 +33,39 @@ export const NAVIGATION: readonly { value: NavigationMode; label: string; short:
  */
 export const CONTENT_ENTRANCE: readonly { value: ContentEntrance; label: string; hint: string }[] =
   [
-    { value: 'surgir', label: 'Surgir', hint: 'esmaece e sobe, sem passar do ponto' },
-    { value: 'elastico', label: 'Elástico', hint: 'sobe e passa um pouco do ponto' },
-    { value: 'recarregar', label: 'Recarregar', hint: 'clarão curto, como um refresh' },
-    { value: 'materializar', label: 'Materializar', hint: 'aparece no lugar, saindo do desfoque' },
-    { value: 'deslize', label: 'Deslize lateral', hint: 'vem do lado da coluna' },
-    { value: 'dobra', label: 'Dobra', hint: 'tomba para trás e se endireita' },
-    { value: 'implodir', label: 'Implodir', hint: 'vem grande demais e encolhe até encaixar' },
+    {
+      value: 'surgir',
+      label: marcar('Surgir'),
+      hint: marcar('esmaece e sobe, sem passar do ponto'),
+    },
+    {
+      value: 'elastico',
+      label: marcar('Elástico'),
+      hint: marcar('sobe e passa um pouco do ponto'),
+    },
+    {
+      value: 'recarregar',
+      label: marcar('Recarregar'),
+      hint: marcar('clarão curto, como um refresh'),
+    },
+    {
+      value: 'materializar',
+      label: marcar('Materializar'),
+      hint: marcar('aparece no lugar, saindo do desfoque'),
+    },
+    { value: 'deslize', label: marcar('Deslize lateral'), hint: marcar('vem do lado da coluna') },
+    { value: 'dobra', label: marcar('Dobra'), hint: marcar('tomba para trás e se endireita') },
+    {
+      value: 'implodir',
+      label: marcar('Implodir'),
+      hint: marcar('vem grande demais e encolhe até encaixar'),
+    },
     {
       value: 'datamosh',
       label: 'Datamosh',
-      hint: 'faixas escorregam com franja vermelha e ciano, como quadro perdido',
+      hint: marcar('faixas escorregam com franja vermelha e ciano, como quadro perdido'),
     },
-    { value: 'nenhuma', label: 'Nenhuma', hint: 'troca seca' },
+    { value: 'nenhuma', label: marcar('Nenhuma'), hint: marcar('troca seca') },
   ]
 
 /** Aparência. Os quatro ajustes valem na hora. */
@@ -62,40 +83,45 @@ export function AppearanceSection() {
   return (
     <>
       <div className={styles.header}>
-        <span className={styles.eyebrow}>Aparência · Vidro e janela</span>
-        <span className={styles.title}>Aparência</span>
+        <span className={styles.eyebrow}>{t('Aparência · Vidro e janela')}</span>
+        <span className={styles.title}>{t('Aparência')}</span>
         <span className={styles.subtitle}>
-          O padrão reproduz o protótipo do handoff. Cada ajuste vale na hora.
+          {t('O padrão reproduz o protótipo do handoff. Cada ajuste vale na hora.')}
         </span>
       </div>
       <div className={styles.divider} />
 
       <div className={styles.section}>
-        <span className={styles.sectionLabel}>Vidro</span>
+        <span className={styles.sectionLabel}>{t('Vidro')}</span>
         {presetVidro?.transparencia === undefined && presetVidro?.claridade === undefined ? null : (
           <span className={styles.note}>
-            Este ambiente pede{' '}
-            {[
-              presetVidro.transparencia === undefined
-                ? ''
-                : `transparência ${presetVidro.transparencia}%`,
-              presetVidro.claridade === undefined ? '' : `claridade ${presetVidro.claridade}%`,
-            ]
-              .filter(Boolean)
-              .join(' e ')}
-            . Arrastar aqui vale por cima do preset, e "Restaurar padrão" devolve ele.
+            {t(
+              'Este ambiente pede {pedido}. Arrastar aqui vale por cima do preset, e "Restaurar padrão" devolve ele.',
+              {
+                pedido: [
+                  presetVidro.transparencia === undefined
+                    ? ''
+                    : t('transparência {n}%', { n: presetVidro.transparencia }),
+                  presetVidro.claridade === undefined
+                    ? ''
+                    : t('claridade {n}%', { n: presetVidro.claridade }),
+                ]
+                  .filter(Boolean)
+                  .join(t(' e ')),
+              },
+            )}
           </span>
         )}
         <div className={styles.stack}>
           <Slider
             // O slider mostra o que VALE: nulo é "automático", e um slider sem
             // número não teria onde parar.
-            label="Transparência"
+            label={t('Transparência')}
             value={transparencia}
             onChange={(transparency) => setAjuste({ transparency })}
           />
           <Slider
-            label="Claridade"
+            label={t('Claridade')}
             value={claridade}
             onChange={(clarity) => setAjuste({ clarity })}
           />
@@ -103,25 +129,27 @@ export function AppearanceSection() {
       </div>
 
       <div className={styles.section}>
-        <span className={styles.sectionLabel}>Cor do vidro</span>
+        <span className={styles.sectionLabel}>{t('Cor do vidro')}</span>
         <TintPicker />
         <span className={styles.note}>
-          Uma gradação da cor escolhida atravessa o vidro, do canto superior para o centro.
-          Desligada, o vidro fica exatamente como no handoff.
+          {t(
+            'Uma gradação da cor escolhida atravessa o vidro, do canto superior para o centro. Desligada, o vidro fica exatamente como no handoff.',
+          )}
         </span>
       </div>
 
       <div className={styles.section}>
-        <span className={styles.sectionLabel}>Posição da navegação</span>
+        <span className={styles.sectionLabel}>{t('Posição da navegação')}</span>
         <Tabs
-          label="Posição da navegação"
-          options={NAVIGATION}
+          label={t('Posição da navegação')}
+          options={NAVIGATION.map((o) => ({ ...o, label: t(o.label) }))}
           value={appearance.navigation}
           onChange={(navigation) => setAppearance({ navigation })}
         />
         <span className={styles.note}>
-          Flutuante é o dock do handoff, sobre a tela. Embutida, a navegação vira uma coluna dentro
-          do painel central: recolhida mostra só os ícones, e a seta no rodapé abre os nomes.
+          {t(
+            'Flutuante é o dock do handoff, sobre a tela. Embutida, a navegação vira uma coluna dentro do painel central: recolhida mostra só os ícones, e a seta no rodapé abre os nomes.',
+          )}
         </span>
       </div>
 
@@ -129,10 +157,10 @@ export function AppearanceSection() {
           variação da seção Animação — não há "miolo" para transicionar. */}
       {embedded ? (
         <div className={styles.section}>
-          <span className={styles.sectionLabel}>Transição do conteúdo</span>
+          <span className={styles.sectionLabel}>{t('Transição do conteúdo')}</span>
           <Tabs
-            label="Transição do conteúdo"
-            options={CONTENT_ENTRANCE}
+            label={t('Transição do conteúdo')}
+            options={CONTENT_ENTRANCE.map((o) => ({ ...o, label: t(o.label) }))}
             // O que fica ACESO é a transição que vale, e não a escolha crua:
             // vazia, quem manda é o preset do ambiente.
             value={transicao}
@@ -140,27 +168,30 @@ export function AppearanceSection() {
             wrap
           />
           <span className={styles.note}>
-            Como o conteúdo do painel central entra a cada tela clicada — a moldura e a coluna ficam
-            paradas.{' '}
+            {t(
+              'Como o conteúdo do painel central entra a cada tela clicada — a moldura e a coluna ficam paradas.',
+            )}{' '}
             {presetTransicao
-              ? `Este ambiente traz a ${CONTENT_ENTRANCE.find((o) => o.value === presetTransicao)?.label}; escolher aqui vale por cima dela, e "Restaurar padrão" devolve o preset. `
+              ? `${t('Este ambiente traz a {nome}; escolher aqui vale por cima dela, e "Restaurar padrão" devolve o preset.', { nome: t(CONTENT_ENTRANCE.find((o) => o.value === presetTransicao)?.label ?? '') })} `
               : ''}
-            {CONTENT_ENTRANCE.map((o) => `${o.label}: ${o.hint}`).join('. ')}.
+            {CONTENT_ENTRANCE.map((o) => `${t(o.label)}: ${t(o.hint)}`).join('. ')}.
           </span>
         </div>
       ) : null}
 
       <div className={styles.section}>
-        <span className={styles.sectionLabel}>Posição do dock</span>
+        <span className={styles.sectionLabel}>{t('Posição do dock')}</span>
         <Tabs
-          label="Posição do dock"
+          label={t('Posição do dock')}
           // A posição é do dock flutuante; embutida, a coluna tem lado fixo. A
           // escolha fica guardada e volta a valer ao voltar para Flutuante.
-          options={DOCK.map((o) => ({ ...o, disabled: embedded }))}
+          options={DOCK.map((o) => ({ ...o, label: t(o.label), disabled: embedded }))}
           value={appearance.dock}
           onChange={(dock) => setAppearance({ dock })}
         />
-        {embedded ? <span className={styles.note}>Vale para a navegação flutuante.</span> : null}
+        {embedded ? (
+          <span className={styles.note}>{t('Vale para a navegação flutuante.')}</span>
+        ) : null}
       </div>
     </>
   )
@@ -197,15 +228,15 @@ function TintPicker() {
     return (
       <div className={styles.stack}>
         <Toggle
-          label="Aplicar cor no vidro"
+          label={t('Aplicar cor no vidro')}
           checked={tint.on}
           disabled
           onChange={(on) => setAppearance({ tint: { ...tint, on } })}
         />
         <span className={styles.note}>
-          A cor do vidro é da Floresta. Os outros ambientes trazem a atmosfera deles no próprio
-          vidro, e somar um matiz por cima suja o tema. Sua cor continua guardada — ela volta a
-          valer ao voltar para a Floresta.
+          {t(
+            'A cor do vidro é da Floresta. Os outros ambientes trazem a atmosfera deles no próprio vidro, e somar um matiz por cima suja o tema. Sua cor continua guardada — ela volta a valer ao voltar para a Floresta.',
+          )}
         </span>
       </div>
     )
@@ -214,12 +245,12 @@ function TintPicker() {
   return (
     <div className={styles.stack}>
       <Toggle
-        label="Aplicar cor no vidro"
+        label={t('Aplicar cor no vidro')}
         checked={tint.on}
         onChange={(on) => setAppearance({ tint: { ...tint, on } })}
       />
       <Slider
-        label="Matiz"
+        label={t('Matiz')}
         value={rgbToHue(tint.rgb)}
         max={360}
         format={(v) => `${Math.round(v)}°`}
@@ -232,7 +263,7 @@ function TintPicker() {
           className={styles.hexInput}
           value={draft}
           spellCheck={false}
-          aria-label="Cor em hexadecimal"
+          aria-label={t('Cor em hexadecimal')}
           onChange={(e) => setDraft(e.target.value)}
           onBlur={(e) => commit(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && commit(e.currentTarget.value)}

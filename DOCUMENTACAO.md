@@ -102,6 +102,28 @@ existe no traço do dock (o Chromium não registra arraste sob `transform`,
 linha de painéis: ela tem `perspective`, e ali a ordem de pintura sai da
 profundidade, não do `z-index`.
 
+### Idioma
+
+Português é o padrão e é a **língua do código**: o texto é escrito em
+português no próprio componente, e ele é a chave da tradução —
+`t('Configurações')`, de `@shared/i18n`. O inglês mora em
+`src/shared/i18n/en/`, um arquivo por área. Regras:
+
+- **Todo texto que alguém lê passa por `t()`** — rótulos, avisos, estados
+  vazios, `aria-label`, erros que chegam à tela, textos do main (bandeja,
+  leituras da ilha). `npm run i18n`, dentro do `check`, falha se um texto
+  marcado não tiver inglês.
+- **O que varia entra por `{nome}`**: `t('{n} títulos', { n })`. Nada de
+  `${…}` dentro da chave: a ordem das palavras muda de uma língua para a outra.
+- **`t()` na hora de desenhar, nunca no topo do módulo** — senão a língua do
+  arranque fica congelada. Tabela de dados usa `marcar('…')` e é traduzida
+  com `t(rotulo)` onde aparece.
+- **Valor não é texto.** O que é comparado, gravado ou usado como id fica em
+  português (e, se aparece na tela, é traduzido só ao mostrar).
+- **Datas e números** seguem a língua: `localeDoIdioma()`.
+- A troca vale na hora em todas as janelas: o main avisa todas
+  (`IPC.idiomaMudou`), e cada uma remonta pela `ComIdioma`.
+
 ### Configurações
 
 Toda preferência segue o mesmo caminho: campo e validação em

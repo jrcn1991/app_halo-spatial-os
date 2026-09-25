@@ -4,6 +4,7 @@ import { Play } from '@phosphor-icons/react/dist/icons/Play'
 import { Shuffle } from '@phosphor-icons/react/dist/icons/Shuffle'
 import { SkipBack } from '@phosphor-icons/react/dist/icons/SkipBack'
 import { SkipForward } from '@phosphor-icons/react/dist/icons/SkipForward'
+import { marcar, t } from '@shared/i18n'
 import type {
   SpotifyDetail,
   SpotifyItem,
@@ -145,29 +146,29 @@ function situacao(
   if (comConteudo(resultado)) return null
   if (!resultado) {
     return carregando
-      ? { titulo: 'Carregando…', texto: 'Falando com o Spotify.', acao: null }
-      : { titulo: 'Sem resposta', texto: 'O Spotify não respondeu.', acao: null }
+      ? { titulo: t('Carregando…'), texto: t('Falando com o Spotify.'), acao: null }
+      : { titulo: t('Sem resposta'), texto: t('O Spotify não respondeu.'), acao: null }
   }
 
   switch (resultado.state) {
     case 'no-client-id':
       return {
-        titulo: 'Conecte o seu Spotify',
-        texto:
-          'O Halo não embute credencial nenhuma: o Client ID é seu, criado de graça no painel ' +
-          'de desenvolvedor do Spotify. Configurações → Música explica o passo a passo.',
+        titulo: t('Conecte o seu Spotify'),
+        texto: t(
+          'O Halo não embute credencial nenhuma: o Client ID é seu, criado de graça no painel de desenvolvedor do Spotify. Configurações → Música explica o passo a passo.',
+        ),
         acao: 'configurar',
       }
     case 'signed-out':
       return {
-        titulo: 'Falta autorizar',
-        texto:
-          'O Client ID já está aqui. Falta você autorizar o acesso à sua conta — a página abre ' +
-          'no seu navegador, nunca dentro do Halo.',
+        titulo: t('Falta autorizar'),
+        texto: t(
+          'O Client ID já está aqui. Falta você autorizar o acesso à sua conta — a página abre no seu navegador, nunca dentro do Halo.',
+        ),
         acao: 'conectar',
       }
     case 'error':
-      return { titulo: 'Não deu', texto: resultado.message, acao: 'configurar' }
+      return { titulo: t('Não deu'), texto: resultado.message, acao: 'configurar' }
     default:
       return null
   }
@@ -199,7 +200,7 @@ function Aviso({
             setScreen('settings')
           }}
         >
-          Abrir Configurações → Música
+          {t('Abrir Configurações → Música')}
         </button>
       ) : s.acao === 'conectar' ? (
         <button
@@ -208,7 +209,7 @@ function Aviso({
           disabled={conta.conectando}
           onClick={conta.conectar}
         >
-          {conta.conectando ? 'Autorize no navegador…' : 'Conectar ao Spotify'}
+          {conta.conectando ? t('Autorize no navegador…') : t('Conectar ao Spotify')}
         </button>
       ) : null}
     </div>
@@ -218,9 +219,9 @@ function Aviso({
 type Conta = ReturnType<typeof useSpotifyAccount>
 
 const ABAS: readonly { value: LibTab; label: string }[] = [
-  { value: 'Playlists', label: 'Playlists' },
-  { value: 'Álbuns', label: 'Álbuns' },
-  { value: 'Artistas', label: 'Artistas' },
+  { value: 'Playlists', label: marcar('Playlists') },
+  { value: 'Álbuns', label: marcar('Álbuns') },
+  { value: 'Artistas', label: marcar('Artistas') },
 ]
 
 function PainelBiblioteca({
@@ -256,7 +257,7 @@ function PainelBiblioteca({
         {/* Conteúdo de exemplo NUNCA passa sem etiqueta: é a regra do projeto,
             e este estado só existe fora do Electron (ver MOCKS.md). */}
         {resultado?.state === 'demo' ? (
-          <span className={styles.demoTag}>CONTEÚDO DE EXEMPLO</span>
+          <span className={styles.demoTag}>{t('CONTEÚDO DE EXEMPLO')}</span>
         ) : null}
       </div>
       <span className={styles.contaNome}>{nomeDaConta(conta)}</span>
@@ -268,10 +269,15 @@ function PainelBiblioteca({
         <Aviso situacao={pendencia} conta={conta} compacto />
       ) : (
         <>
-          <Tabs options={ABAS} value={aba} onChange={(v) => setTab('lib', v)} label="Biblioteca" />
+          <Tabs
+            options={ABAS.map((opcao) => ({ ...opcao, label: t(opcao.label) }))}
+            value={aba}
+            onChange={(v) => setTab('lib', v)}
+            label={t('Biblioteca')}
+          />
           <div className={styles.playlists}>
             {itens.length === 0 ? (
-              <span className={styles.vazio}>Nada por aqui na sua conta.</span>
+              <span className={styles.vazio}>{t('Nada por aqui na sua conta.')}</span>
             ) : (
               itens.map((item) => (
                 <button
@@ -302,16 +308,16 @@ function PainelBiblioteca({
 
 function nomeDaConta(conta: Conta): string {
   const auth = conta.auth
-  if (conta.conectando) return 'autorizando no navegador…'
-  if (!auth) return 'verificando…'
+  if (conta.conectando) return t('autorizando no navegador…')
+  if (!auth) return t('verificando…')
   if (auth.state === 'signed-in') {
-    return auth.user.displayName || 'conectado'
+    return auth.user.displayName || t('conectado')
   }
   return auth.state === 'no-client-id'
-    ? 'não configurado'
+    ? t('não configurado')
     : auth.state === 'signed-out'
-      ? 'não conectado'
-      : 'com problema'
+      ? t('não conectado')
+      : t('com problema')
 }
 
 function PainelCentral({
@@ -361,11 +367,16 @@ function PainelCentral({
       <div className={styles.hero}>
         <Capa url={item?.image ?? ''} alt="" className={styles.heroArte} />
         <div className={styles.heroVeil}>
-          <span className={styles.verified}>{item ? ROTULO[item.kind] : 'BIBLIOTECA'}</span>
-          <span className={styles.artistName}>{item?.name ?? 'Escolha algo à esquerda'}</span>
+          <span className={styles.verified}>{item ? t(ROTULO[item.kind]) : t('BIBLIOTECA')}</span>
+          <span className={styles.artistName}>{item?.name ?? t('Escolha algo à esquerda')}</span>
           <span className={styles.listeners}>
             {item
-              ? [item.meta, item.tracks ? `${item.tracks} FAIXAS` : '']
+              ? [
+                  item.meta,
+                  item.tracks
+                    ? t(item.tracks === 1 ? '{n} FAIXA' : '{n} FAIXAS', { n: item.tracks })
+                    : '',
+                ]
                   .filter(Boolean)
                   .join(' · ')
                   .toUpperCase()
@@ -378,14 +389,14 @@ function PainelCentral({
         <button
           type="button"
           className={styles.playBig}
-          aria-label="Tocar"
+          aria-label={t('Tocar')}
           disabled={!item}
           onClick={() => item && controle.tocar(item.uri)}
         >
           <Play size={22} weight="fill" />
         </button>
         <button type="button" className={styles.follow} onClick={controle.abrirSpotify}>
-          Abrir no Spotify
+          {t('Abrir no Spotify')}
         </button>
         {/* O comando pode não ter para onde ir (Spotify fechado, sem aparelho
             ativo). Engolir isso deixaria o botão parecendo quebrado. */}
@@ -395,7 +406,7 @@ function PainelCentral({
       <div className={styles.columns}>
         <div className={styles.column}>
           <span className={styles.sideLabel}>
-            {faixas.length === 0 && discos.length > 0 ? 'ÁLBUNS' : 'FAIXAS'}
+            {faixas.length === 0 && discos.length > 0 ? t('ÁLBUNS') : t('FAIXAS')}
           </span>
 
           {/* O aviso vem ANTES da lista: um painel que abre vazio sem
@@ -452,9 +463,9 @@ function PainelCentral({
         </div>
 
         <div className={styles.column}>
-          <span className={styles.sideLabel}>OUVIDOS RECENTEMENTE</span>
+          <span className={styles.sideLabel}>{t('OUVIDOS RECENTEMENTE')}</span>
           {(acervo?.recent ?? []).length === 0 ? (
-            <span className={styles.vazio}>Nada ainda.</span>
+            <span className={styles.vazio}>{t('Nada ainda.')}</span>
           ) : (
             (acervo?.recent ?? []).slice(0, 12).map((faixa, i) => (
               <button
@@ -480,9 +491,9 @@ function PainelCentral({
 }
 
 const ROTULO: Record<SpotifyItem['kind'], string> = {
-  playlist: 'PLAYLIST',
-  album: 'ÁLBUM',
-  artist: 'ARTISTA',
+  playlist: marcar('PLAYLIST'),
+  album: marcar('ÁLBUM'),
+  artist: marcar('ARTISTA'),
 }
 
 function PainelDireito({
@@ -512,11 +523,11 @@ function PainelDireito({
         <Capa url={faixa?.image ?? ''} alt="" className={styles.agoraArte} />
         <div className={styles.agoraVeil}>
           <span className={styles.sideLabel}>
-            {faixa ? (tocando?.playing ? 'TOCANDO AGORA' : 'PAUSADO') : 'NADA TOCANDO'}
+            {faixa ? (tocando?.playing ? t('TOCANDO AGORA') : t('PAUSADO')) : t('NADA TOCANDO')}
           </span>
           <span className={styles.agoraTitulo}>{faixa?.name ?? '—'}</span>
           <span className={styles.agoraArtista}>
-            {faixa?.artists ?? 'Abra o Spotify e toque algo'}
+            {faixa?.artists ?? t('Abra o Spotify e toque algo')}
           </span>
           <div className={styles.progresso} data-halo-medidor="faixa">
             <div className={styles.progressoFill} style={{ width: `${pct}%` }} />
@@ -526,7 +537,7 @@ function PainelDireito({
       </div>
 
       <div className={styles.likesCard}>
-        <span className={styles.sideLabel}>SEUS ARTISTAS</span>
+        <span className={styles.sideLabel}>{t('SEUS ARTISTAS')}</span>
         <div className={styles.likesList}>
           {(acervo?.artists ?? []).length === 0 ? (
             <span className={styles.vazio}>—</span>
@@ -578,7 +589,7 @@ function Transport({
       <button
         type="button"
         className={cx(styles.transportButton, tocando?.shuffle && styles.transportOn)}
-        aria-label="Aleatório"
+        aria-label={t('Aleatório')}
         onClick={() => controle.comando('shuffle')}
       >
         <Shuffle size={21} />
@@ -586,7 +597,7 @@ function Transport({
       <button
         type="button"
         className={styles.transportButton}
-        aria-label="Anterior"
+        aria-label={t('Anterior')}
         onClick={() => controle.comando('previous')}
       >
         <SkipBack size={22} weight="fill" />
@@ -594,7 +605,7 @@ function Transport({
       <button
         type="button"
         className={cx(styles.transportButton, styles.transportPlay)}
-        aria-label={playing ? 'Pausar' : 'Tocar'}
+        aria-label={playing ? t('Pausar') : t('Tocar')}
         onClick={() => controle.comando(playing ? 'pause' : 'play')}
       >
         {playing ? <Pause size={20} weight="fill" /> : <Play size={20} weight="fill" />}
@@ -602,7 +613,7 @@ function Transport({
       <button
         type="button"
         className={styles.transportButton}
-        aria-label="Próxima"
+        aria-label={t('Próxima')}
         onClick={() => controle.comando('next')}
       >
         <SkipForward size={22} weight="fill" />
@@ -613,8 +624,8 @@ function Transport({
       <button
         type="button"
         className={styles.transportButton}
-        aria-label="Abrir o Spotify"
-        title={faixa ? `${faixa.name} — ${faixa.artists}` : 'Abrir o aplicativo do Spotify'}
+        aria-label={t('Abrir o Spotify')}
+        title={faixa ? `${faixa.name} — ${faixa.artists}` : t('Abrir o aplicativo do Spotify')}
         onClick={controle.abrirSpotify}
       >
         <ArrowSquareOut size={21} />

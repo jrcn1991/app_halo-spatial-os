@@ -1,3 +1,4 @@
+import { marcar, t } from '@shared/i18n'
 import {
   buscaBehance,
   type CruBehance,
@@ -33,12 +34,12 @@ let termoColhido = ''
 export const behance: Provedor = {
   id: 'behance',
   nome: 'Behance',
-  descricao: 'Portfólios de design, ilustração e direção de arte.',
+  descricao: marcar('Portfólios de design, ilustração e direção de arte.'),
 
   capacidades: async () => ['search', 'trending', 'item'],
   estado: async () => ({ conectado: true, erro: '' }),
 
-  entrar: () => abrirLogin(HOME_BEHANCE, 'Entrar no Behance'),
+  entrar: () => abrirLogin(HOME_BEHANCE, t('Entrar no {plataforma}', { plataforma: 'Behance' })),
 
   destaques: async (limite, cursor) => {
     const entregues = Number(cursor) > 0 ? Number(cursor) : 0

@@ -1,6 +1,7 @@
 import { execFile } from 'node:child_process'
 import { pathToFileURL } from 'node:url'
 import { promisify } from 'node:util'
+import { marcar, t } from '@shared/i18n'
 import type { Reading } from '@shared/island'
 import { announceToIslands } from './window'
 
@@ -81,9 +82,10 @@ export async function celulares(): Promise<Celular[]> {
 export async function celularAtivo(): Promise<Celular> {
   const lista = await celulares()
   const pareados = lista.filter((c) => c.paired)
-  if (pareados.length === 0) throw new Error('nenhum celular pareado — abra o KDE Connect')
+  if (pareados.length === 0) throw new Error(t('nenhum celular pareado — abra o KDE Connect'))
   const perto = pareados.find((c) => c.reachable)
-  if (!perto) throw new Error(`${pareados[0]?.name ?? 'o celular'} está fora de alcance`)
+  if (!perto)
+    throw new Error(t('{nome} está fora de alcance', { nome: pareados[0]?.name ?? t('o celular') }))
   return perto
 }
 
@@ -113,7 +115,7 @@ export const pingCelular = () => plugin('ping', 'ping', 'sendPing')
 export async function enviarAoCelular(alvo: string): Promise<Celular> {
   const url = /^https?:\/\//.test(alvo) ? alvo : pathToFileURL(alvo).href
   if (!url.startsWith('file://') && !/^https?:\/\//.test(url)) {
-    throw new Error('só arquivo (caminho absoluto) ou endereço http(s)')
+    throw new Error(t('só arquivo (caminho absoluto) ou endereço http(s)'))
   }
   return plugin('share', 'share', 'shareUrl', 's', url)
 }
@@ -121,7 +123,7 @@ export async function enviarAoCelular(alvo: string): Promise<Celular> {
 /** Manda um trecho de texto: cai na área de transferência do celular. */
 export async function enviarTextoAoCelular(texto: string): Promise<Celular> {
   const limpo = texto.trim()
-  if (!limpo) throw new Error('nada para enviar')
+  if (!limpo) throw new Error(t('nada para enviar'))
   return plugin('share', 'share', 'shareText', 's', limpo.slice(0, 20_000))
 }
 
@@ -148,10 +150,10 @@ export async function celular(): Promise<Reading[]> {
     for (const [id, perto] of agora) {
       const antes = alcanceVisto.get(id)
       if (antes === undefined || antes === perto) continue
-      const nome = lista.find((c) => c.id === id)?.name ?? 'Celular'
+      const nome = lista.find((c) => c.id === id)?.name ?? t('Celular')
       announceToIslands({
         icon: 'DeviceMobile',
-        text: perto ? `${nome} por perto` : `${nome} saiu do alcance`,
+        text: perto ? t('{nome} por perto', { nome }) : t('{nome} saiu do alcance', { nome }),
         detail: perto ? 'KDE Connect' : '',
         level: perto ? 'ok' : 'alerta',
         kind: 'aviso',
@@ -165,29 +167,29 @@ export async function celular(): Promise<Reading[]> {
   return [
     ler(
       'celular-dispositivo',
-      'Celular',
-      principal?.name ?? 'nenhum',
+      t('Celular'),
+      principal?.name ?? marcar('nenhum'),
       principal
         ? principal.reachable
-          ? 'ao alcance · KDE Connect'
-          : 'fora de alcance'
+          ? t('ao alcance · KDE Connect')
+          : t('fora de alcance')
         : pareados === 0
-          ? 'nenhum pareado — abra o KDE Connect'
+          ? t('nenhum pareado — abra o KDE Connect')
           : '',
       null,
       principal?.reachable ? 'ok' : 'alerta',
     ),
     ler(
       'celular-bateria',
-      'Bateria do celular',
+      t('Bateria do celular'),
       principal?.reachable && principal.battery !== null ? `${principal.battery}%` : '—',
       principal?.reachable
         ? principal.battery === null
-          ? 'o celular não informa'
+          ? t('o celular não informa')
           : principal.charging
-            ? 'carregando'
-            : 'na bateria'
-        : 'sem celular ao alcance',
+            ? marcar('carregando')
+            : t('na bateria')
+        : t('sem celular ao alcance'),
       principal?.reachable && principal.battery !== null ? principal.battery / 100 : null,
       principal?.reachable && principal.battery !== null && principal.battery < 20
         ? 'alerta'

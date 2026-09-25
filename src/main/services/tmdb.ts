@@ -1,3 +1,4 @@
+import { t } from '@shared/i18n'
 import type { ExtraResult, MediaKind, TitleExtra } from '@shared/media'
 
 /**
@@ -48,7 +49,7 @@ async function getJson(url: string, key: string): Promise<unknown> {
       signal: controller.signal,
       ...(ehTokenV4(key) ? { headers: { Authorization: `Bearer ${key}` } } : {}),
     })
-    if (response.status === 401) throw new Error('chave do TMDB recusada')
+    if (response.status === 401) throw new Error(t('chave do TMDB recusada'))
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
     return await response.json()
   } finally {

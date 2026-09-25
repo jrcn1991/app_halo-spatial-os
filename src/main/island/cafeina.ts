@@ -1,5 +1,6 @@
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
+import { t } from '@shared/i18n'
 import dbus from 'dbus-next'
 
 /**
@@ -48,7 +49,7 @@ export async function alternarCafeina(minutos?: number): Promise<boolean> {
     return false
   }
   if (cookie === null) {
-    cookie = Number(await (await metodo('Inhibit'))('halo-spatial-os', 'Cafeína pedida na ilha'))
+    cookie = Number(await (await metodo('Inhibit'))('halo-spatial-os', t('Cafeína pedida na ilha')))
   }
   if (minutos && minutos > 0) {
     ate = Date.now() + minutos * 60_000

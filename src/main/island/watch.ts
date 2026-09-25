@@ -1,5 +1,6 @@
 import { type ChildProcess, execFile, spawn } from 'node:child_process'
 import { promisify } from 'node:util'
+import { t } from '@shared/i18n'
 import { IPC } from '@shared/ipc-contract'
 import type { IslandEvent, IslandNotice, IslandSettings } from '@shared/island'
 import { BrowserWindow } from 'electron'
@@ -84,7 +85,7 @@ function sinkMudou(): void {
         if (!antes || (antes.nivel === agora.nivel && antes.mudo === agora.mudo)) return
         anunciar?.({
           icon: agora.mudo ? 'SpeakerSlash' : agora.nivel > 50 ? 'SpeakerHigh' : 'SpeakerLow',
-          text: agora.mudo ? 'Mudo' : 'Volume',
+          text: agora.mudo ? t('Mudo') : t('Volume'),
           detail: agora.mudo ? '' : `${agora.nivel}%`,
           level: agora.mudo ? 'alerta' : 'ok',
           kind: 'hud',
@@ -113,7 +114,7 @@ function servidorMudou(): void {
       if (antes === null || antes === nome) return
       anunciar?.({
         icon: 'SpeakerHigh',
-        text: 'Saída de áudio',
+        text: t('Saída de áudio'),
         detail: (nome.split('.').at(-1) ?? nome).replace(/[-_]/g, ' ').slice(0, 30),
         level: 'ok',
         kind: 'hud',
@@ -147,7 +148,7 @@ function microfoneMudou(): void {
         if (antes === null || antes === mudo) return
         anunciar?.({
           icon: mudo ? 'MicrophoneSlash' : 'Microphone',
-          text: mudo ? 'Microfone mudo' : 'Microfone aberto',
+          text: mudo ? t('Microfone mudo') : t('Microfone aberto'),
           detail: '',
           level: mudo ? 'alerta' : 'ok',
           kind: 'hud',
@@ -167,7 +168,7 @@ function microfoneMudou(): void {
           if (antes.has(nome)) continue
           anunciar?.({
             icon: 'Microphone',
-            text: 'Microfone em uso',
+            text: t('Microfone em uso'),
             detail: nome.slice(0, 40),
             level: 'erro',
             kind: 'aviso',

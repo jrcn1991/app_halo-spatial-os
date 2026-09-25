@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import type { Attachment } from '@shared/agents'
 import type { CreativeItem, CreativeProviderId, CreativeQuery } from '@shared/creative'
 import type { EnvironmentId } from '@shared/environments'
-import { definirIdioma, ehIdioma } from '@shared/i18n'
+import { definirIdioma, ehIdioma, t } from '@shared/i18n'
 import type { AppInfo, DesktopModeResult, WindowSize } from '@shared/ipc-contract'
 import { IPC } from '@shared/ipc-contract'
 import type { IslandSettings, NoticesResult } from '@shared/island'
@@ -252,6 +252,8 @@ function avisarIdioma(antes: HaloSettings, depois: unknown): void {
   const novo = (depois as Partial<HaloSettings> | null)?.language
   if (!ehIdioma(novo) || novo === antes.language) return
   definirIdioma(novo)
+  // As leituras da ilha guardadas na memória estão no idioma antigo.
+  esquecerMemoria()
   for (const win of BrowserWindow.getAllWindows()) {
     if (!win.isDestroyed()) win.webContents.send(IPC.idiomaMudou, novo)
   }
@@ -400,20 +402,20 @@ function registerIpc(): void {
     const opcoes = {
       title,
       properties: ['openFile' as const],
-      filters: [filtro, { name: 'Todos os arquivos', extensions: ['*'] }],
+      filters: [filtro, { name: t('Todos os arquivos'), extensions: ['*'] }],
     }
     const escolha = await (win ? dialog.showOpenDialog(win, opcoes) : dialog.showOpenDialog(opcoes))
     return escolha.canceled ? null : (escolha.filePaths[0] ?? null)
   }
   ipcMain.handle(IPC.wallpaperChoose, (e) =>
-    escolherArquivo(e, 'Escolher a imagem deste ambiente', {
-      name: 'Imagens',
+    escolherArquivo(e, t('Escolher a imagem deste ambiente'), {
+      name: t('Imagens'),
       extensions: ['jpg', 'jpeg', 'png', 'webp', 'avif'],
     }),
   )
   ipcMain.handle(IPC.wallpaperChooseVideo, (e) =>
-    escolherArquivo(e, 'Escolher o vídeo deste ambiente', {
-      name: 'Vídeos',
+    escolherArquivo(e, t('Escolher o vídeo deste ambiente'), {
+      name: t('Vídeos'),
       extensions: [...EXTENSOES_DE_VIDEO],
     }),
   )
@@ -455,14 +457,14 @@ function registerMediaIpc(): void {
   ipcMain.handle(IPC.mediaChoose, async (e): Promise<string | null> => {
     const win = BrowserWindow.fromWebContents(e.sender)
     const escolha = await (win
-      ? dialog.showOpenDialog(win, DIALOGO)
-      : dialog.showOpenDialog(DIALOGO))
+      ? dialog.showOpenDialog(win, dialogoDaLista())
+      : dialog.showOpenDialog(dialogoDaLista()))
     return escolha.canceled ? null : (escolha.filePaths[0] ?? null)
   })
 
   ipcMain.handle(IPC.mediaPlay, async (_e, id: string, episode: string | null, startAt: number) => {
     const detalhe = await titleDetail(lista(), id)
-    if (!detalhe) throw new Error('título não encontrado')
+    if (!detalhe) throw new Error(t('título não encontrado'))
 
     const escolhido = episode ? detalhe.list[Number(episode)] : null
     const subtitle = escolhido
@@ -576,14 +578,14 @@ function registerAgentsIpc(): void {
         announceToIslands({
           icon: 'Sparkle',
           text: agente.name,
-          detail: 'terminou o trabalho',
+          detail: t('terminou o trabalho'),
           level: 'ok',
         })
       } else if (antes && antes !== 'erro' && agente.state === 'erro') {
         announceToIslands({
           icon: 'WarningCircle',
           text: agente.name,
-          detail: (agente.error ?? 'deu erro').slice(0, 60),
+          detail: (agente.error ?? t('deu erro')).slice(0, 60),
           level: 'erro',
         })
       }
@@ -616,7 +618,7 @@ function registerAgentsIpc(): void {
     if (!escolhidos) {
       const win = BrowserWindow.fromWebContents(e.sender)
       const opcoes = {
-        title: 'Anexar arquivos',
+        title: t('Anexar arquivos'),
         properties: ['openFile' as const, 'multiSelections' as const],
       }
       const escolha = await (win
@@ -633,7 +635,7 @@ function registerAgentsIpc(): void {
   // Escolher pasta é leitura: o diálogo não cria nem sobrescreve nada.
   ipcMain.handle(IPC.claudeProjectAdd, async (e): Promise<string | null> => {
     const win = BrowserWindow.fromWebContents(e.sender)
-    const opcoes = { title: 'Escolher um projeto', properties: ['openDirectory' as const] }
+    const opcoes = { title: t('Escolher um projeto'), properties: ['openDirectory' as const] }
     const escolha = await (win ? dialog.showOpenDialog(win, opcoes) : dialog.showOpenDialog(opcoes))
     return escolha.canceled ? null : (escolha.filePaths[0] ?? null)
   })
@@ -659,7 +661,7 @@ function registerAgentsIpc(): void {
   ipcMain.handle(IPC.claudeChooseCli, async (e): Promise<string | null> => {
     const win = BrowserWindow.fromWebContents(e.sender)
     const opcoes = {
-      title: 'Onde está o programa claude',
+      title: t('Onde está o programa claude'),
       // Começa em `~/.local/bin`, que é onde o instalador oficial o põe.
       defaultPath: join(homedir(), '.local/bin'),
       properties: ['openFile' as const],
@@ -678,11 +680,11 @@ function registerMascotIpc(): void {
   ipcMain.handle(IPC.mascotChoose, async (e): Promise<string | null> => {
     const win = BrowserWindow.fromWebContents(e.sender)
     const opcoes = {
-      title: 'Escolher um personagem',
+      title: t('Escolher um personagem'),
       properties: ['openFile' as const],
       filters: [
-        { name: 'Personagens do Microsoft Agent', extensions: ['acs'] },
-        { name: 'Todos os arquivos', extensions: ['*'] },
+        { name: t('Personagens do Microsoft Agent'), extensions: ['acs'] },
+        { name: t('Todos os arquivos'), extensions: ['*'] },
       ],
     }
     const escolha = await (win ? dialog.showOpenDialog(win, opcoes) : dialog.showOpenDialog(opcoes))
@@ -721,7 +723,7 @@ function registerSeafileIpc(): void {
           announceToIslands({
             icon: 'WarningCircle',
             text: envio.name,
-            detail: 'já existe no Seafile',
+            detail: t('já existe no Seafile'),
             level: 'alerta',
             kind: 'aviso',
           })
@@ -732,8 +734,10 @@ function registerSeafileIpc(): void {
           text: envio.name,
           detail:
             envio.state === 'pronto'
-              ? 'enviado ao Seafile'
-              : `o envio falhou · ${envio.error ?? ''}`.replace(/ · $/, ''),
+              ? t('enviado ao Seafile')
+              : envio.error
+                ? t('o envio falhou · {motivo}', { motivo: envio.error })
+                : t('o envio falhou'),
           level: envio.state === 'pronto' ? 'ok' : 'erro',
         })
       }
@@ -854,15 +858,18 @@ function registerIslandIpc(): void {
   ipcMain.handle(IPC.islandClaude, () => estadoDoClaude())
 }
 
-/** Só listas: apontar um vídeo solto aqui não construiria biblioteca nenhuma. */
-const DIALOGO = {
-  title: 'Escolher a lista da biblioteca',
+/**
+ * Só listas: apontar um vídeo solto aqui não construiria biblioteca nenhuma.
+ * Função, e não constante, para os textos seguirem o idioma do momento.
+ */
+const dialogoDaLista = () => ({
+  title: t('Escolher a lista da biblioteca'),
   properties: ['openFile' as const],
   filters: [
-    { name: 'Listas de reprodução', extensions: ['m3u', 'm3u8'] },
-    { name: 'Todos os arquivos', extensions: ['*'] },
+    { name: t('Listas de reprodução'), extensions: ['m3u', 'm3u8'] },
+    { name: t('Todos os arquivos'), extensions: ['*'] },
   ],
-}
+})
 
 /**
  * O app nasce recolhido na ilha?
@@ -1095,7 +1102,7 @@ function ritmoDaIlha(): void {
           if (agora.has(nome)) continue
           announceToIslands({
             icon: 'DownloadSimple',
-            text: 'Download concluído',
+            text: t('Download concluído'),
             detail: nome.slice(0, 40),
             level: 'ok',
             kind: 'aviso',
@@ -1118,7 +1125,7 @@ function ritmoDaIlha(): void {
           }
           announceToIslands({
             icon: 'Camera',
-            text: 'Captura salva na gaveta',
+            text: t('Captura salva na gaveta'),
             detail: captura.name.slice(0, 40),
             level: 'ok',
             kind: 'aviso',

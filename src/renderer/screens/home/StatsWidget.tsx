@@ -2,6 +2,7 @@ import { Cpu } from '@phosphor-icons/react/dist/icons/Cpu'
 import { GraphicsCard } from '@phosphor-icons/react/dist/icons/GraphicsCard'
 import { Memory } from '@phosphor-icons/react/dist/icons/Memory'
 import { Thermometer } from '@phosphor-icons/react/dist/icons/Thermometer'
+import { t } from '@shared/i18n'
 import type { StatGraphs } from '@shared/settings'
 import { useValoresDoAmbiente } from '@/app/environment'
 import { useHost } from '@/hooks/useLab'
@@ -60,7 +61,9 @@ export function StatsWidget() {
         <Memory size={18} color="var(--stat-tone)" />
         <div className={styles.statValue}>{host ? `${ramPercent}%` : '—'}</div>
         <div className={styles.statLabel}>
-          {host ? `${(host.memory.usedMb / 1024).toFixed(1)} GB EM USO` : 'MEMÓRIA'}
+          {host
+            ? t('{gb} GB EM USO', { gb: (host.memory.usedMb / 1024).toFixed(1) })
+            : t('MEMÓRIA')}
         </div>
         <Grafico modo={graficos} valores={historico?.memory ?? []} />
       </div>
@@ -71,7 +74,11 @@ export function StatsWidget() {
             a temperatura dela, que é o que muda, e o nome inteiro fica no
             `title`. Sem placa legível o rótulo DIZ isso — ver `gpu.ts`. */}
         <div className={styles.statLabel} title={gpu?.name}>
-          {!gpu ? 'SEM LEITURA' : gpu.temperatureC == null ? 'GPU' : `GPU · ${gpu.temperatureC}°`}
+          {!gpu
+            ? t('SEM LEITURA')
+            : gpu.temperatureC == null
+              ? 'GPU'
+              : `GPU · ${gpu.temperatureC}°`}
         </div>
         <Grafico modo={graficos} valores={historico?.gpu ?? []} />
       </div>
@@ -85,7 +92,7 @@ export function StatsWidget() {
           {host?.temperatureC == null ? '—' : `${host.temperatureC}°`}
         </div>
         <div className={styles.statLabel}>
-          {host?.temperatureC == null ? 'SEM SENSOR' : 'TEMPERATURA'}
+          {host?.temperatureC == null ? t('SEM SENSOR') : t('TEMPERATURA')}
         </div>
         <Grafico modo={graficos} valores={historico?.temperature ?? []} />
       </div>

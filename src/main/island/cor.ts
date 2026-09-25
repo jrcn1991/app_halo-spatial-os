@@ -1,5 +1,6 @@
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
+import { t } from '@shared/i18n'
 
 /**
  * O conta-gotas: a cor de um ponto da tela.
@@ -33,6 +34,6 @@ export async function pegarCor(): Promise<string> {
   // A assinatura é `(u)`: uma struct com um uint32 — o JSON vem `[[n]]`.
   const dados = (JSON.parse(stdout) as { data: unknown[] }).data.flat(2)
   const argb = Number(dados[0])
-  if (!Number.isFinite(argb)) throw new Error('o KWin não devolveu uma cor')
+  if (!Number.isFinite(argb)) throw new Error(t('o KWin não devolveu uma cor'))
   return `#${(argb & 0xffffff).toString(16).padStart(6, '0')}`
 }

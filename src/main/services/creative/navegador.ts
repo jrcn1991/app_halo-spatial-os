@@ -1,3 +1,4 @@
+import { t } from '@shared/i18n'
 import { BrowserWindow, session, shell } from 'electron'
 import { RedeError } from './rede'
 
@@ -333,7 +334,7 @@ async function carregar(win: BrowserWindow, url: string): Promise<void> {
     await Promise.race([
       win.loadURL(url),
       dormir(TIMEOUT_MS).then(() => {
-        throw new RedeError('a página demorou demais')
+        throw new RedeError(t('a página demorou demais'))
       }),
     ]).catch((erro: Error) => {
       // `loadURL` rejeita quando a navegação é interrompida por um
@@ -347,8 +348,8 @@ async function carregar(win: BrowserWindow, url: string): Promise<void> {
   if (status >= 400) {
     throw new RedeError(
       status === 429 || status === 503
-        ? `o site pediu para esperar (HTTP ${status})`
-        : `o site respondeu HTTP ${status}`,
+        ? t('o site pediu para esperar (HTTP {status})', { status })
+        : t('o site respondeu HTTP {status}', { status }),
     )
   }
 }
@@ -363,7 +364,7 @@ export function navegarELer<T>(url: string, script: string, chave = 'geral'): Pr
   const aba = pegarAba(chave)
   const meu = aba.fila.then(async () => {
     if (login && !login.isDestroyed()) {
-      throw new Error('termine o login antes — a janela de acesso está aberta')
+      throw new Error(t('termine o login antes — a janela de acesso está aberta'))
     }
     const desde = Date.now() - aba.ultima
     if (desde < INTERVALO_MS) await dormir(INTERVALO_MS - desde)
@@ -397,7 +398,7 @@ export function navegarEColher<T extends { url: string }>(
   const aba = pegarAba(chave)
   const meu = aba.fila.then(async () => {
     if (login && !login.isDestroyed()) {
-      throw new Error('termine o login antes — a janela de acesso está aberta')
+      throw new Error(t('termine o login antes — a janela de acesso está aberta'))
     }
     const desde = Date.now() - aba.ultima
     if (desde < INTERVALO_MS) await dormir(INTERVALO_MS - desde)

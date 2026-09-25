@@ -1,3 +1,4 @@
+import { localeDoIdioma } from '@shared/i18n'
 import { useEffect, useState } from 'react'
 import { useHalo } from '@/store/useHalo'
 import styles from './widgets.module.css'
@@ -49,7 +50,7 @@ function useNow(seconds: boolean): Date {
 }
 
 function formatTime(now: Date, hour12: boolean, seconds: boolean): string {
-  const time = now.toLocaleTimeString('pt-BR', {
+  const time = now.toLocaleTimeString(localeDoIdioma(), {
     hour: 'numeric',
     minute: '2-digit',
     ...(seconds ? { second: '2-digit' } : {}),
@@ -62,11 +63,14 @@ function formatTime(now: Date, hour12: boolean, seconds: boolean): string {
 /** "QUINTA · 28 AGO", como no protótipo. */
 function formatDate(now: Date): string {
   const weekday = now
-    .toLocaleDateString('pt-BR', { weekday: 'long' })
+    .toLocaleDateString(localeDoIdioma(), { weekday: 'long' })
     .replace(/-feira$/, '')
     .toUpperCase()
   const day = now.getDate()
-  const month = now.toLocaleDateString('pt-BR', { month: 'short' }).replace(/\.$/, '').toUpperCase()
+  const month = now
+    .toLocaleDateString(localeDoIdioma(), { month: 'short' })
+    .replace(/\.$/, '')
+    .toUpperCase()
 
   return `${weekday} · ${day} ${month}`
 }

@@ -1,4 +1,5 @@
 import type { DesktopApp } from '@shared/apps'
+import { marcar, t } from '@shared/i18n'
 import type { IslandClip, IslandWindow } from '@shared/island'
 import type { RecenteDoLancador } from '@shared/settings'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -31,12 +32,12 @@ type Linha =
   | { tipo: 'recente'; item: RecenteDoLancador }
 
 const SECOES: { tipo: Linha['tipo']; titulo: string }[] = [
-  { tipo: 'recente', titulo: 'Recentes' },
-  { tipo: 'resposta', titulo: 'Respostas' },
-  { tipo: 'comando', titulo: 'Comandos' },
-  { tipo: 'app', titulo: 'Aplicativos' },
-  { tipo: 'clip', titulo: 'Cópias' },
-  { tipo: 'janela', titulo: 'Janelas' },
+  { tipo: 'recente', titulo: marcar('Recentes') },
+  { tipo: 'resposta', titulo: marcar('Respostas') },
+  { tipo: 'comando', titulo: marcar('Comandos') },
+  { tipo: 'app', titulo: marcar('Aplicativos') },
+  { tipo: 'clip', titulo: marcar('Cópias') },
+  { tipo: 'janela', titulo: marcar('Janelas') },
 ]
 
 export function LauncherApp() {
@@ -230,8 +231,10 @@ export function LauncherApp() {
           type="search"
           // biome-ignore lint/a11y/noAutofocus: a janela só existe para receber este texto
           autoFocus
-          placeholder="App, comando, cópia, janela, conta, g busca, :emoji — ou ? pergunta ao Claude"
-          aria-label="Buscar no lançador"
+          placeholder={t(
+            'App, comando, cópia, janela, conta, g busca, :emoji — ou ? pergunta ao Claude',
+          )}
+          aria-label={t('Buscar no lançador')}
           value={busca}
           onChange={(e) => {
             setBusca(e.target.value)
@@ -242,13 +245,13 @@ export function LauncherApp() {
         <kbd className="tecla">Esc</kbd>
       </label>
 
-      <div className="lista" role="listbox" aria-label="Resultados">
+      <div className="lista" role="listbox" aria-label={t('Resultados')}>
         {linhas.length === 0 ? (
           <p className="vazio">
-            {resultado.chave === '' ? 'Digite para procurar.' : 'Nada com esse nome.'}
+            {resultado.chave === '' ? t('Digite para procurar.') : t('Nada com esse nome.')}
             {resultado.chave === '' ? (
               <span className="dica">
-                2+2 · 10 km em mi · g halo · :fogo · cafeina 30 · ? pergunta
+                {t('2+2 · 10 km em mi · g halo · :fogo · cafeina 30 · ? pergunta')}
               </span>
             ) : null}
           </p>
@@ -258,7 +261,7 @@ export function LauncherApp() {
             if (doTipo.length === 0) return null
             return (
               <section key={tipo} className="secao">
-                <h2 className="secaoTitulo">{titulo}</h2>
+                <h2 className="secaoTitulo">{t(titulo)}</h2>
                 {doTipo.map((linha) => {
                   const posicao = linhas.indexOf(linha)
                   return (
@@ -302,7 +305,7 @@ export function LauncherApp() {
               <kbd className="tecla">↵</kbd>
             </>
           ) : null}
-          <span>Navegar</span>
+          <span>{t('Navegar')}</span>
           <kbd className="tecla">↑↓</kbd>
         </span>
       </footer>
@@ -347,11 +350,12 @@ function glifoDe(l: Linha): string {
 function tituloDe(l: Linha): string {
   switch (l.tipo) {
     case 'recente':
-      return l.item.titulo
+      // Comando guardado com o nome em português volta traduzido; app fica como está.
+      return l.item.tipo === 'comando' ? t(l.item.titulo) : l.item.titulo
     case 'resposta':
       return l.item.titulo
     case 'comando':
-      return l.item.nome
+      return t(l.item.nome)
     case 'app':
       return l.item.name
     case 'clip':
@@ -364,7 +368,9 @@ function tituloDe(l: Linha): string {
 function detalheDe(l: Linha): string {
   switch (l.tipo) {
     case 'recente':
-      return `${l.item.n}× · ${l.item.tipo === 'app' ? 'aplicativo' : 'comando'}`
+      return l.item.tipo === 'app'
+        ? t('{n}× · aplicativo', { n: l.item.n })
+        : t('{n}× · comando', { n: l.item.n })
     case 'resposta':
       return l.item.detalhe ?? ''
     case 'comando':
@@ -372,7 +378,8 @@ function detalheDe(l: Linha): string {
     case 'app':
       return l.item.comment ?? ''
     case 'clip':
-      return l.item.kind === 'texto' ? `${l.item.length} caracteres` : l.item.kind
+      if (l.item.kind === 'texto') return t('{n} caracteres', { n: l.item.length })
+      return l.item.kind === 'cor' ? t('cor') : l.item.kind
     case 'janela':
       return l.item.appClass
   }
@@ -382,16 +389,16 @@ function detalheDe(l: Linha): string {
 function rotuloDaAcao(l: Linha): string {
   switch (l.tipo) {
     case 'recente':
-      return l.item.tipo === 'app' ? 'Abrir' : 'Executar'
+      return l.item.tipo === 'app' ? t('Abrir') : t('Executar')
     case 'resposta':
-      return l.item.abrir ? 'Abrir' : 'Copiar'
+      return l.item.abrir ? t('Abrir') : t('Copiar')
     case 'comando':
-      return 'Executar'
+      return t('Executar')
     case 'app':
-      return 'Abrir'
+      return t('Abrir')
     case 'clip':
-      return 'Copiar'
+      return t('Copiar')
     case 'janela':
-      return 'Focar'
+      return t('Focar')
   }
 }

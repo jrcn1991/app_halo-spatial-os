@@ -1,3 +1,4 @@
+import { t } from '@shared/i18n'
 import type { Weather, WeatherCondition } from '@shared/weather'
 
 /**
@@ -50,7 +51,7 @@ async function geocode(place: string): Promise<GeoResult> {
   const url = `${GEOCODE}?name=${encodeURIComponent(place)}&count=1&language=pt&format=json`
   const data = (await getJson(url)) as { results?: GeoResult[] }
   const first = data.results?.[0]
-  if (!first) throw new Error(`lugar não encontrado: ${place}`)
+  if (!first) throw new Error(t('lugar não encontrado: {lugar}', { lugar: place }))
   return first
 }
 
@@ -66,7 +67,7 @@ export async function currentWeather(place: string): Promise<Weather> {
   const data = (await getJson(url)) as {
     current?: { temperature_2m: number; weather_code: number; time: string }
   }
-  if (!data.current) throw new Error('resposta sem o tempo atual')
+  if (!data.current) throw new Error(t('resposta sem o tempo atual'))
 
   const weather: Weather = {
     temperatureC: data.current.temperature_2m,

@@ -3,6 +3,7 @@ import { Heart } from '@phosphor-icons/react/dist/icons/Heart'
 import { LinkSimple } from '@phosphor-icons/react/dist/icons/LinkSimple'
 import { Trash } from '@phosphor-icons/react/dist/icons/Trash'
 import type { CreativeCollection, CreativeItem, CreativeSaved } from '@shared/creative'
+import { marcar, t } from '@shared/i18n'
 import { useEffect, useRef, useState } from 'react'
 import { cx } from '@/ui/cx'
 import { Capa } from './Capa'
@@ -26,12 +27,12 @@ import styles from './social.module.css'
  * nenhum. Grupo que nunca recebe nada é grupo que não existe.
  */
 const SUGESTOES = [
-  'Inspirações',
-  'Paletas',
-  'Interfaces e HUDs',
-  'Tipografia',
-  'Ilustração',
-  'Ideias para depois',
+  marcar('Inspirações'),
+  marcar('Paletas'),
+  marcar('Interfaces e HUDs'),
+  marcar('Tipografia'),
+  marcar('Ilustração'),
+  marcar('Ideias para depois'),
 ]
 
 export function Biblioteca({
@@ -86,7 +87,7 @@ export function Biblioteca({
         !termo ||
         s.item.title.toLowerCase().includes(termo) ||
         s.item.author.toLowerCase().includes(termo) ||
-        s.tags.some((t) => t.toLowerCase().includes(termo)),
+        s.tags.some((tag) => tag.toLowerCase().includes(termo)),
     )
 
   const criar = () => {
@@ -100,14 +101,14 @@ export function Biblioteca({
   return (
     <>
       <div className={styles.header}>
-        <span className={styles.title}>Biblioteca</span>
+        <span className={styles.title}>{t('Biblioteca')}</span>
         {/* Guardar por link é ação DA BIBLIOTECA, e é aqui que ela mora. No
             campo de busca ela dividia espaço com procurar — dois verbos
             diferentes na mesma caixa, e o de guardar não tem nada a ver com o
             que se digita ali. */}
         <button type="button" className={styles.porLink} onClick={aoSalvarPorLink}>
           <LinkSimple size={13} />
-          Por link
+          {t('Por link')}
         </button>
         <span className={styles.contador}>{salvos.length}</span>
       </div>
@@ -119,7 +120,7 @@ export function Biblioteca({
           className={cx(styles.chip, filtro === 'tudo' && styles.chipOn)}
           onClick={() => aoFiltrar('tudo')}
         >
-          Tudo
+          {t('Tudo')}
         </button>
         <button
           type="button"
@@ -127,7 +128,7 @@ export function Biblioteca({
           className={cx(styles.chip, filtro === 'favoritos' && styles.chipOn)}
           onClick={() => aoFiltrar('favoritos')}
         >
-          <Heart size={11} weight="fill" /> Favoritos
+          <Heart size={11} weight="fill" /> {t('Favoritos')}
         </button>
         {colecoes.map((c) => (
           <span key={c.id} className={styles.colecaoLinha}>
@@ -143,9 +144,11 @@ export function Biblioteca({
               type="button"
               className={cx(styles.colecaoTirar, confirmando === c.id && styles.colecaoArmado)}
               aria-label={
-                confirmando === c.id ? `Confirmar: apagar ${c.name}` : `Apagar a coleção ${c.name}`
+                confirmando === c.id
+                  ? t('Confirmar: apagar {nome}', { nome: c.name })
+                  : t('Apagar a coleção {nome}', { nome: c.name })
               }
-              title={confirmando === c.id ? 'Clique de novo para apagar' : undefined}
+              title={confirmando === c.id ? t('Clique de novo para apagar') : undefined}
               onMouseLeave={() => setConfirmando(null)}
               onClick={() => {
                 // Dois cliques, como apagar uma lista de mídia: uma coleção é
@@ -160,7 +163,7 @@ export function Biblioteca({
                 aoApagarColecao(c.id)
               }}
             >
-              {confirmando === c.id ? 'APAGAR?' : <Trash size={11} />}
+              {confirmando === c.id ? t('APAGAR?') : <Trash size={11} />}
             </button>
           </span>
         ))}
@@ -170,8 +173,8 @@ export function Biblioteca({
             ref={campoNome}
             className={styles.colecaoCampo}
             value={nome}
-            placeholder="Nome da coleção"
-            aria-label="Nome da nova coleção"
+            placeholder={t('Nome da coleção')}
+            aria-label={t('Nome da nova coleção')}
             onChange={(e) => setNome(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') criar()
@@ -181,23 +184,23 @@ export function Biblioteca({
           />
         ) : (
           <button type="button" className={styles.chip} onClick={() => setCriando(true)}>
-            <FolderSimplePlus size={12} /> Nova
+            <FolderSimplePlus size={12} /> {t('Nova')}
           </button>
         )}
       </div>
 
       {colecoes.length === 0 ? (
         <div className={styles.sugestoes}>
-          <span className={styles.sugestoesRotulo}>Sugestões de coleção</span>
+          <span className={styles.sugestoesRotulo}>{t('Sugestões de coleção')}</span>
           <div className={styles.filtros}>
             {SUGESTOES.map((s) => (
               <button
                 key={s}
                 type="button"
                 className={styles.chipFraco}
-                onClick={() => aoCriarColecao(s)}
+                onClick={() => aoCriarColecao(t(s))}
               >
-                {s}
+                {t(s)}
               </button>
             ))}
           </div>
@@ -209,8 +212,8 @@ export function Biblioteca({
           className={styles.buscaSalvos}
           type="search"
           value={busca}
-          placeholder="Procurar no que você salvou…"
-          aria-label="Procurar nos itens salvos"
+          placeholder={t('Procurar no que você salvou…')}
+          aria-label={t('Procurar nos itens salvos')}
           onChange={(e) => setBusca(e.target.value)}
         />
       ) : null}
@@ -222,18 +225,18 @@ export function Biblioteca({
               type="button"
               className={styles.salvoAbrir}
               onClick={() => aoAbrir(s.item)}
-              aria-label={`Ver ${s.item.title || 'referência'}`}
+              aria-label={t('Ver {titulo}', { titulo: s.item.title || t('referência') })}
             >
               <Capa url={s.item.cover} alt="" className={styles.capaPequena} />
               <span className={styles.salvoTexto}>
-                <span className={styles.salvoTitulo}>{s.item.title || 'Sem título'}</span>
+                <span className={styles.salvoTitulo}>{s.item.title || t('Sem título')}</span>
                 <span className={styles.salvoOrigem}>{s.item.provider}</span>
               </span>
             </button>
             <button
               type="button"
               className={styles.cartaoBotao}
-              aria-label={s.favorite ? 'Desfavoritar' : 'Favoritar'}
+              aria-label={s.favorite ? t('Desfavoritar') : t('Favoritar')}
               aria-pressed={s.favorite}
               onClick={() => aoFavoritar(s.item)}
             >
@@ -242,7 +245,7 @@ export function Biblioteca({
             <button
               type="button"
               className={styles.cartaoBotao}
-              aria-label="Tirar da biblioteca"
+              aria-label={t('Tirar da biblioteca')}
               onClick={() => aoRemover(s.item.id)}
             >
               <Trash size={13} />
@@ -251,7 +254,7 @@ export function Biblioteca({
         ))}
 
         {salvos.length > 0 && lista.length === 0 ? (
-          <span className={styles.vazioCorpo}>Nada com esse filtro.</span>
+          <span className={styles.vazioCorpo}>{t('Nada com esse filtro.')}</span>
         ) : null}
       </div>
     </>

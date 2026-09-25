@@ -7,6 +7,7 @@ import type {
   CreativeQuery,
   CreativeSearchResult,
 } from '@shared/creative'
+import { t } from '@shared/i18n'
 import { IPC } from '@shared/ipc-contract'
 import { BrowserWindow } from 'electron'
 import { artstation } from './artstation'
@@ -173,7 +174,9 @@ function frase(erro: unknown): string {
   if (erro instanceof RedeError) return erro.message
   const msg = erro instanceof Error ? erro.message : ''
   // Frase curta e sem caminho de arquivo: é nossa, e serve para o usuário.
-  return msg && msg.length <= 120 && !msg.includes('/') ? msg : 'não consegui falar com essa fonte'
+  return msg && msg.length <= 120 && !msg.includes('/')
+    ? msg
+    : t('não consegui falar com essa fonte')
 }
 
 /**
@@ -189,8 +192,8 @@ export async function creativeConnections(): Promise<CreativeConnection[]> {
         const [estado, capacidades] = await Promise.all([p.estado(), p.capacidades()])
         return {
           provider: p.id,
-          name: p.nome,
-          description: p.descricao,
+          name: t(p.nome),
+          description: t(p.descricao),
           connected: estado.conectado,
           capabilities: capacidades,
           lastSyncAt: ultimaBusca.get(p.id) ?? null,
@@ -202,8 +205,8 @@ export async function creativeConnections(): Promise<CreativeConnection[]> {
       } catch (erro) {
         return {
           provider: p.id,
-          name: p.nome,
-          description: p.descricao,
+          name: t(p.nome),
+          description: t(p.descricao),
           connected: false,
           capabilities: [],
           lastSyncAt: ultimaBusca.get(p.id) ?? null,
@@ -538,7 +541,7 @@ export async function creativePreview(url: string): Promise<CreativePreview> {
     if (item) return { ok: true, error: '', item }
     return {
       ok: false,
-      error: 'essa página não publica título nem imagem — dá para salvar preenchendo à mão',
+      error: t('essa página não publica título nem imagem — dá para salvar preenchendo à mão'),
       item: null,
     }
   } catch (erro) {

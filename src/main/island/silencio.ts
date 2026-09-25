@@ -1,3 +1,4 @@
+import { t } from '@shared/i18n'
 import dbus from 'dbus-next'
 import {
   alternarSilencioDosAvisos,
@@ -63,10 +64,10 @@ export async function alternarSilencio(): Promise<boolean> {
   }
   if (await estaEmSilencio()) {
     // Foi o applet que ligou: não temos cookie, e desligar o dele não é nosso.
-    throw new Error('o KDE já está em "não perturbe" — desligue pelo applet')
+    throw new Error(t('o KDE já está em "não perturbe" — desligue pelo applet'))
   }
   const inhibit = await metodo(SERVICO, 'Inhibit')
-  cookie = Number(await inhibit('halo-spatial-os', 'Foco pedido na ilha', {}))
+  cookie = Number(await inhibit('halo-spatial-os', t('Foco pedido na ilha'), {}))
   return true
 }
 

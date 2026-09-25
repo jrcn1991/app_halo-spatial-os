@@ -1,5 +1,6 @@
 import { createHash, randomBytes } from 'node:crypto'
 import { createServer, type Server } from 'node:http'
+import { localeDoIdioma, t } from '@shared/i18n'
 import { redirectValido, SPOTIFY_REDIRECT_PADRAO, SPOTIFY_SCOPES } from '@shared/spotify'
 import { shell } from 'electron'
 import { currentSettings, saveSpotifyToken } from '../settings'
@@ -44,13 +45,13 @@ const EXPIRY_SLACK_MS = 60_000
 /** Falta o Client ID: nem dá para começar o consentimento. */
 export class SemClientId extends Error {
   constructor() {
-    super('sem Client ID do Spotify')
+    super(t('sem Client ID do Spotify'))
   }
 }
 
 /** Tem Client ID, mas ninguém conectou (ou o refresh token foi recusado). */
 export class SemConexao extends Error {
-  constructor(message = 'não conectado ao Spotify') {
+  constructor(message = t('não conectado ao Spotify')) {
     super(message)
   }
 }
@@ -128,9 +129,11 @@ export async function accessToken(): Promise<string> {
     // leitura só renderia 400 para sempre.
     if (resposta.status === 400 || resposta.status === 401) {
       saveSpotifyToken('')
-      throw new SemConexao('o Spotify recusou a conexão salva — conecte de novo')
+      throw new SemConexao(t('o Spotify recusou a conexão salva — conecte de novo'))
     }
-    throw new Error(`Spotify recusou renovar o acesso (HTTP ${resposta.status})`)
+    throw new Error(
+      t('Spotify recusou renovar o acesso (HTTP {status})', { status: resposta.status }),
+    )
   }
 
   const dados = (await resposta.json()) as {
@@ -184,9 +187,10 @@ async function executarConsentimento(): Promise<{ ok: boolean; message: string }
   } catch (erro) {
     return {
       ok: false,
-      message:
-        `não consegui escutar em ${alvo.href} (${(erro as Error).message}). ` +
-        'Feche o que estiver usando essa porta, ou mude o endereço de retorno em Configurações.',
+      message: t(
+        'não consegui escutar em {endereco} ({motivo}). Feche o que estiver usando essa porta, ou mude o endereço de retorno em Configurações.',
+        { endereco: alvo.href, motivo: (erro as Error).message },
+      ),
     }
   }
 
@@ -220,7 +224,7 @@ async function executarConsentimento(): Promise<{ ok: boolean; message: string }
 
   try {
     await trocarCodigo(resultado.code, verifier, id, redirect)
-    return { ok: true, message: 'conectado' }
+    return { ok: true, message: t('conectado') }
   } catch (erro) {
     return { ok: false, message: (erro as Error).message }
   }
@@ -241,7 +245,7 @@ function escutar(alvo: URL): Promise<Server> {
 /** A resposta que o navegador mostra quando o consentimento termina. */
 function pagina(titulo: string, texto: string): string {
   return (
-    '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">' +
+    `<!doctype html><html lang="${localeDoIdioma()}"><head><meta charset="utf-8">` +
     `<title>${titulo}</title></head><body style="font-family:system-ui;background:#0e1512;` +
     `color:#f2f0f5;display:grid;place-items:center;height:100vh;margin:0;text-align:center">` +
     `<div><h1 style="font-weight:600">${titulo}</h1><p>${texto}</p></div></body></html>`
@@ -253,7 +257,7 @@ type Retorno = { code: string } | { erro: string }
 function esperarRetorno(servidor: Server, state: string, caminho: string): Promise<Retorno> {
   return new Promise((resolve) => {
     const prazo = setTimeout(() => {
-      resolve({ erro: 'o consentimento demorou demais — tente de novo' })
+      resolve({ erro: t('o consentimento demorou demais — tente de novo') })
     }, TIMEOUT_MS)
 
     const terminar = (resultado: Retorno, titulo: string, texto: string) => {
@@ -277,19 +281,23 @@ function esperarRetorno(servidor: Server, state: string, caminho: string): Promi
       // conferir, qualquer página aberta no navegador poderia empurrar um
       // código de autorização de outra conta para dentro do app.
       const resposta = negado
-        ? terminar({ erro: `o Spotify recusou: ${negado}` }, 'Não deu', 'Pode fechar esta aba.')
+        ? terminar(
+            { erro: t('o Spotify recusou: {motivo}', { motivo: negado }) },
+            t('Não deu'),
+            t('Pode fechar esta aba.'),
+          )
         : devolvido !== state
           ? terminar(
-              { erro: 'a resposta do Spotify não bateu com o pedido' },
-              'Não deu',
-              'A resposta não bateu com o pedido. Pode fechar esta aba.',
+              { erro: t('a resposta do Spotify não bateu com o pedido') },
+              t('Não deu'),
+              t('A resposta não bateu com o pedido. Pode fechar esta aba.'),
             )
           : code
-            ? terminar({ code }, 'Pronto', 'Pode fechar esta aba e voltar ao Halo.')
+            ? terminar({ code }, t('Pronto'), t('Pode fechar esta aba e voltar ao Halo.'))
             : terminar(
-                { erro: 'o Spotify não devolveu código' },
-                'Não deu',
-                'Pode fechar esta aba.',
+                { erro: t('o Spotify não devolveu código') },
+                t('Não deu'),
+                t('Pode fechar esta aba.'),
               )
 
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' })
@@ -328,7 +336,7 @@ async function trocarCodigo(
     // A mensagem do Spotify é útil aqui: "Invalid redirect URI" é o engano
     // mais comum, e traduzi-lo para "deu erro" esconderia a única pista.
     const detalhe = dados.error_description ?? dados.error ?? `HTTP ${resposta.status}`
-    throw new Error(`o Spotify recusou a troca do código: ${detalhe}`)
+    throw new Error(t('o Spotify recusou a troca do código: {detalhe}', { detalhe }))
   }
 
   saveSpotifyToken(dados.refresh_token)

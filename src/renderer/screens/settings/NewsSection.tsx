@@ -1,4 +1,5 @@
 import { X } from '@phosphor-icons/react/dist/icons/X'
+import { t } from '@shared/i18n'
 import { feedUrlValida, MAX_FEEDS } from '@shared/news'
 import { useState } from 'react'
 import { useNews } from '@/hooks/useNews'
@@ -34,24 +35,25 @@ export function NewsSection() {
   return (
     <>
       <div className={styles.header}>
-        <span className={styles.eyebrow}>Notícias · RSS</span>
-        <span className={styles.title}>Seus feeds</span>
+        <span className={styles.eyebrow}>{t('Notícias · RSS')}</span>
+        <span className={styles.title}>{t('Seus feeds')}</span>
         <span className={styles.subtitle}>
-          As manchetes aparecem na coluna de leitura da Home, misturadas e da mais nova para a mais
-          antiga, alternando com o tempo. Clicar numa abre a matéria no seu navegador.
+          {t(
+            'As manchetes aparecem na coluna de leitura da Home, misturadas e da mais nova para a mais antiga, alternando com o tempo. Clicar numa abre a matéria no seu navegador.',
+          )}
         </span>
       </div>
       <div className={styles.divider} />
 
       <div className={styles.section}>
-        <span className={styles.sectionLabel}>Adicionar feed</span>
+        <span className={styles.sectionLabel}>{t('Adicionar feed')}</span>
         <div className={styles.hexRow}>
           <input
             className={styles.campo}
             type="url"
             value={rascunho}
-            placeholder="https://exemplo.com/feed"
-            aria-label="Endereço do feed"
+            placeholder={t('https://exemplo.com/feed')}
+            aria-label={t('Endereço do feed')}
             spellCheck={false}
             onChange={(e) => setRascunho(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && adicionar()}
@@ -63,30 +65,35 @@ export function NewsSection() {
             disabled={!valido || repetido || cheio}
             onClick={adicionar}
           >
-            Adicionar
+            {t('Adicionar')}
           </button>
         </div>
         <span className={styles.note}>
           {limpo && !valido
-            ? 'O endereço precisa começar com http:// ou https://.'
+            ? t('O endereço precisa começar com http:// ou https://.')
             : repetido
-              ? 'Esse feed já está na lista.'
+              ? t('Esse feed já está na lista.')
               : cheio
-                ? `Já são ${MAX_FEEDS} feeds — tire um para pôr outro.`
-                : 'RSS 2.0 e Atom. Cole o endereço do feed, não o da página: costuma terminar em /feed ou .xml.'}
+                ? t('Já são {n} feeds — tire um para pôr outro.', { n: MAX_FEEDS })
+                : t(
+                    'RSS 2.0 e Atom. Cole o endereço do feed, não o da página: costuma terminar em /feed ou .xml.',
+                  )}
         </span>
       </div>
 
       <div className={styles.section}>
         <span className={styles.sectionLabel}>
           {feeds.length === 0
-            ? 'Nenhum feed'
-            : `${feeds.length} ${feeds.length === 1 ? 'feed' : 'feeds'}, na sua ordem`}
+            ? t('Nenhum feed')
+            : t(feeds.length === 1 ? '{n} feed, na sua ordem' : '{n} feeds, na sua ordem', {
+                n: feeds.length,
+              })}
         </span>
         {feeds.length === 0 ? (
           <span className={styles.note}>
-            Sem feed a coluna de leitura da Home fica vazia — e diz isso, em vez de inventar
-            manchete.
+            {t(
+              'Sem feed a coluna de leitura da Home fica vazia — e diz isso, em vez de inventar manchete.',
+            )}
           </span>
         ) : (
           <div className={styles.lista}>
@@ -104,8 +111,8 @@ export function NewsSection() {
                   <button
                     type="button"
                     className={styles.linhaRemover}
-                    aria-label={`Remover ${estado?.name ?? url}`}
-                    title="Remover"
+                    aria-label={t('Remover {nome}', { nome: estado?.name ?? url })}
+                    title={t('Remover')}
                     onClick={() => remove(url)}
                   >
                     <X size={13} weight="bold" />
@@ -116,9 +123,9 @@ export function NewsSection() {
           </div>
         )}
         <span className={styles.note}>
-          A busca acontece no processo principal, fica em cache por 15 minutos e desiste depois de
-          10 segundos sem resposta. Um feed fora do ar não derruba os outros: ele fica marcado aqui
-          e na Home.
+          {t(
+            'A busca acontece no processo principal, fica em cache por 15 minutos e desiste depois de 10 segundos sem resposta. Um feed fora do ar não derruba os outros: ele fica marcado aqui e na Home.',
+          )}
         </span>
       </div>
     </>
@@ -126,11 +133,11 @@ export function NewsSection() {
 }
 
 function descrever(estado: { count: number; error: string | null } | undefined): string {
-  if (!estado) return 'buscando…'
+  if (!estado) return t('buscando…')
   if (estado.error) {
     return estado.count > 0
-      ? `${estado.error} — mostrando a leitura anterior`
-      : `não respondeu: ${estado.error}`
+      ? t('{erro} — mostrando a leitura anterior', { erro: estado.error })
+      : t('não respondeu: {erro}', { erro: estado.error })
   }
-  return estado.count === 1 ? '1 manchete' : `${estado.count} manchetes`
+  return t(estado.count === 1 ? '{n} manchete' : '{n} manchetes', { n: estado.count })
 }

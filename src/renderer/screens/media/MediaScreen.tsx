@@ -10,6 +10,7 @@ import { Plus } from '@phosphor-icons/react/dist/icons/Plus'
 import { Star } from '@phosphor-icons/react/dist/icons/Star'
 import { Television } from '@phosphor-icons/react/dist/icons/Television'
 import { X } from '@phosphor-icons/react/dist/icons/X'
+import { localeDoIdioma, marcar, t } from '@shared/i18n'
 import type { ExtraResult, Title } from '@shared/media'
 import { useDeferredValue, useState } from 'react'
 import { repositories } from '@/data'
@@ -35,9 +36,9 @@ import styles from './media.module.css'
 type Aba = 'movie' | 'series' | 'favorites'
 
 const ABAS: readonly (readonly [Aba, string])[] = [
-  ['movie', 'Filmes'],
-  ['series', 'Séries'],
-  ['favorites', 'Favoritos'],
+  ['movie', marcar('Filmes')],
+  ['series', marcar('Séries')],
+  ['favorites', marcar('Favoritos')],
 ]
 
 /**
@@ -161,7 +162,7 @@ function CategoriasPanel({
   aoEscolherGrupo: (grupo: string | null) => void
   aoEscolherAba: (aba: Aba) => void
 }) {
-  const numero = (valor: number) => valor.toLocaleString('pt-BR')
+  const numero = (valor: number) => valor.toLocaleString(localeDoIdioma())
 
   return (
     <>
@@ -169,10 +170,10 @@ function CategoriasPanel({
         <MonitorPlay size={21} weight="fill" color="var(--accent-mint)" />
         <span className={styles.statusText}>
           {carregando
-            ? 'LENDO A LISTA…'
+            ? t('LENDO A LISTA…')
             : status?.ready
-              ? `${numero(status.movies)} ${status.movies === 1 ? 'FILME' : 'FILMES'} · ${numero(status.series)} ${status.series === 1 ? 'SÉRIE' : 'SÉRIES'}`
-              : 'SEM LISTA'}
+              ? `${t(status.movies === 1 ? '{n} FILME' : '{n} FILMES', { n: numero(status.movies) })} · ${t(status.series === 1 ? '{n} SÉRIE' : '{n} SÉRIES', { n: numero(status.series) })}`
+              : t('SEM LISTA')}
         </span>
       </div>
 
@@ -185,7 +186,7 @@ function CategoriasPanel({
             aria-pressed={aba === valor}
             onClick={() => aoEscolherAba(valor)}
           >
-            {rotulo}
+            {t(rotulo)}
             {valor === 'favorites' && favoritos > 0 ? (
               <span className={styles.tipoCount}>{favoritos}</span>
             ) : null}
@@ -199,7 +200,7 @@ function CategoriasPanel({
         <ListasPanel total={favoritos} lista={lista} aoEscolher={aoEscolherLista} />
       ) : (
         <>
-          <span className={styles.label}>CATEGORIAS</span>
+          <span className={styles.label}>{t('CATEGORIAS')}</span>
           <div className={styles.libraries}>
             <button
               type="button"
@@ -207,7 +208,7 @@ function CategoriasPanel({
               onClick={() => aoEscolherGrupo(null)}
             >
               <FilmSlate size={17} color="var(--text-secondary)" />
-              Todas
+              {t('Todas')}
               <span className={styles.libraryCount}>{categorias.length}</span>
             </button>
             {categorias.map((categoria) => (
@@ -268,14 +269,16 @@ function CatalogoPanel({
       <div className={styles.vazio}>
         <MonitorPlay size={34} color="var(--text-tertiary)" />
         <p className={styles.vazioTitulo}>
-          {erro ? 'Não consegui ler a lista' : 'Nenhuma lista escolhida'}
+          {erro ? t('Não consegui ler a lista') : t('Nenhuma lista escolhida')}
         </p>
         <p className={styles.vazioTexto}>
           {erro ??
-            'Aponte um arquivo M3U do seu disco para montar a biblioteca. Nada é baixado — a lista é lida de onde ela já está.'}
+            t(
+              'Aponte um arquivo M3U do seu disco para montar a biblioteca. Nada é baixado — a lista é lida de onde ela já está.',
+            )}
         </p>
         <button type="button" className={styles.vazioBotao} onClick={() => void escolherLista()}>
-          Escolher lista
+          {t('Escolher lista')}
         </button>
       </div>
     )
@@ -288,12 +291,14 @@ function CatalogoPanel({
         <input
           className={styles.busca}
           value={busca}
-          placeholder="Buscar por título"
-          aria-label="Buscar na biblioteca"
+          placeholder={t('Buscar por título')}
+          aria-label={t('Buscar na biblioteca')}
           onChange={(e) => aoBuscar(e.target.value)}
         />
         <span className={styles.total}>
-          {pagina.total.toLocaleString('pt-BR')} {pagina.total === 1 ? 'título' : 'títulos'}
+          {t(pagina.total === 1 ? '{n} título' : '{n} títulos', {
+            n: pagina.total.toLocaleString(localeDoIdioma()),
+          })}
         </span>
       </div>
 
@@ -316,15 +321,15 @@ function CatalogoPanel({
           // arrasto, e só os Favoritos e as listas o têm.
           <p className={styles.semResultado}>
             {reordenavel
-              ? 'Nenhum favorito ainda. A estrela no canto de cada capa marca um título.'
-              : 'Nada encontrado.'}
+              ? t('Nenhum favorito ainda. A estrela no canto de cada capa marca um título.')
+              : t('Nada encontrado.')}
           </p>
         ) : null}
 
         {pagina.more ? (
           <button type="button" className={styles.maisBotao} onClick={pagina.loadMore}>
             <CaretDown size={15} />
-            Carregar mais
+            {t('Carregar mais')}
           </button>
         ) : null}
       </div>
@@ -403,7 +408,10 @@ function Capa({
         <span className={styles.capaNome}>{titulo.name}</span>
         <span className={styles.capaMeta}>
           {titulo.kind === 'series'
-            ? `${titulo.seasons} temp · ${titulo.episodes} ep`
+            ? t('{temporadas} temp · {episodios} ep', {
+                temporadas: titulo.seasons,
+                episodios: titulo.episodes,
+              })
             : (titulo.year ?? titulo.group)}
         </span>
       </button>
@@ -412,7 +420,11 @@ function Capa({
         type="button"
         className={cx(styles.estrela, favorito && styles.estrelaOn)}
         aria-pressed={favorito}
-        aria-label={favorito ? `Desfavoritar ${titulo.name}` : `Favoritar ${titulo.name}`}
+        aria-label={
+          favorito
+            ? t('Desfavoritar {nome}', { nome: titulo.name })
+            : t('Favoritar {nome}', { nome: titulo.name })
+        }
         onClick={() => alternar(titulo.id)}
       >
         <Star
@@ -441,8 +453,8 @@ function DetalhePanel({ id, aoVoltar }: { id: string | null; aoVoltar: () => voi
   if (!titulo) {
     return (
       <>
-        <span className={styles.label}>DETALHES</span>
-        <p className={styles.vazioTexto}>Carregando…</p>
+        <span className={styles.label}>{t('DETALHES')}</span>
+        <p className={styles.vazioTexto}>{t('Carregando…')}</p>
       </>
     )
   }
@@ -457,7 +469,7 @@ function DetalhePanel({ id, aoVoltar }: { id: string | null; aoVoltar: () => voi
 
       <button type="button" className={styles.voltar} onClick={aoVoltar}>
         <CaretLeft size={12} />
-        Continuar assistindo
+        {t('Continuar assistindo')}
       </button>
 
       <div className={styles.detalheTopo}>
@@ -475,7 +487,12 @@ function DetalhePanel({ id, aoVoltar }: { id: string | null; aoVoltar: () => voi
         onClick={() => void repositories.catalog.play(titulo.id, episodios[0]?.id)}
       >
         <Play size={16} weight="fill" />
-        {titulo.kind === 'series' ? `Tocar T${atual}E${episodios[0]?.number ?? 1}` : 'Tocar'}
+        {titulo.kind === 'series'
+          ? t('Tocar T{temporada}E{episodio}', {
+              temporada: atual,
+              episodio: episodios[0]?.number ?? 1,
+            })
+          : t('Tocar')}
       </button>
 
       <ListasDoTitulo id={titulo.id} />
@@ -490,7 +507,7 @@ function DetalhePanel({ id, aoVoltar }: { id: string | null; aoVoltar: () => voi
                 className={cx(styles.temporada, numero === atual && styles.temporadaOn)}
                 onClick={() => setTemporada(numero)}
               >
-                T{numero}
+                {t('T{n}', { n: numero })}
               </button>
             ))}
           </div>
@@ -504,7 +521,7 @@ function DetalhePanel({ id, aoVoltar }: { id: string | null; aoVoltar: () => voi
                 onClick={() => void repositories.catalog.play(titulo.id, episodio.id)}
               >
                 <span className={styles.episodioNumero}>E{episodio.number}</span>
-                <span className={styles.episodioNome}>{episodio.title || 'Episódio'}</span>
+                <span className={styles.episodioNome}>{episodio.title || t('Episódio')}</span>
                 <Play size={13} weight="fill" color="var(--text-tertiary)" />
               </button>
             ))}
@@ -522,9 +539,9 @@ function RecentesPanel() {
   if (recentes.length === 0) {
     return (
       <>
-        <span className={styles.label}>CONTINUAR ASSISTINDO</span>
+        <span className={styles.label}>{t('CONTINUAR ASSISTINDO')}</span>
         <p className={styles.vazioTexto}>
-          Nada começado ainda. O que você assistir aparece aqui, no minuto em que parou.
+          {t('Nada começado ainda. O que você assistir aparece aqui, no minuto em que parou.')}
         </p>
       </>
     )
@@ -532,7 +549,7 @@ function RecentesPanel() {
 
   return (
     <>
-      <span className={styles.label}>CONTINUAR ASSISTINDO</span>
+      <span className={styles.label}>{t('CONTINUAR ASSISTINDO')}</span>
       <div className={styles.recentes}>
         {recentes.map((item) => (
           <div className={styles.recente} key={`${item.id}|${item.episode ?? ''}`}>
@@ -549,7 +566,10 @@ function RecentesPanel() {
               <span className={styles.recenteTexto}>
                 <span className={styles.recenteNome}>{item.name}</span>
                 <span className={styles.recenteMeta}>
-                  {formatarTempo(item.seconds)} de {formatarTempo(item.duration)}
+                  {t('{atual} de {total}', {
+                    atual: formatarTempo(item.seconds),
+                    total: formatarTempo(item.duration),
+                  })}
                 </span>
                 <span className={styles.recenteBarra}>
                   <span
@@ -565,7 +585,7 @@ function RecentesPanel() {
             <button
               type="button"
               className={styles.recenteTirar}
-              aria-label={`Tirar ${item.name} de continuar assistindo`}
+              aria-label={t('Tirar {nome} de continuar assistindo', { nome: item.name })}
               onClick={() => repositories.catalog.forget(item.id, item.episode)}
             >
               <X size={11} color="var(--text-tertiary)" />
@@ -604,7 +624,7 @@ function Metadados({
   const setSection = useHalo((s) => s.setSettingsSection)
   const setScreen = useHalo((s) => s.setScreen)
 
-  if (carregando) return <span className={styles.detalheMeta}>Buscando no TMDB…</span>
+  if (carregando) return <span className={styles.detalheMeta}>{t('Buscando no TMDB…')}</span>
   if (!resultado) return null
 
   if (resultado.state === 'no-key') {
@@ -617,15 +637,19 @@ function Metadados({
           setSection('media')
         }}
       >
-        Sinopse, nota e elenco: configure a chave do TMDB
+        {t('Sinopse, nota e elenco: configure a chave do TMDB')}
       </button>
     )
   }
   if (resultado.state === 'not-found') {
-    return <span className={styles.detalheMeta}>O TMDB não achou este título.</span>
+    return <span className={styles.detalheMeta}>{t('O TMDB não achou este título.')}</span>
   }
   if (resultado.state === 'error') {
-    return <span className={styles.detalheMeta}>TMDB indisponível: {resultado.message}</span>
+    return (
+      <span className={styles.detalheMeta}>
+        {t('TMDB indisponível: {erro}', { erro: resultado.message })}
+      </span>
+    )
   }
 
   const { overview, rating, votes, runtimeMin, genres, cast } = resultado.extra
@@ -643,8 +667,9 @@ function Metadados({
       {/* Atribuição exigida pelos termos da API do TMDB, junto dos dados que
           vieram dela. Não é enfeite: é condição de uso. */}
       <span className={styles.credito}>
-        Dados e imagens: TMDB. Este produto usa a API do TMDB, mas não é endossado nem certificado
-        por eles.
+        {t(
+          'Dados e imagens: TMDB. Este produto usa a API do TMDB, mas não é endossado nem certificado por eles.',
+        )}
       </span>
     </>
   )
@@ -719,7 +744,7 @@ function ListasPanel({
 
   return (
     <>
-      <span className={styles.label}>LISTAS</span>
+      <span className={styles.label}>{t('LISTAS')}</span>
       <div className={styles.libraries}>
         <button
           type="button"
@@ -732,7 +757,7 @@ function ListasPanel({
           {...receber(null)}
         >
           <Star size={16} color="var(--text-secondary)" />
-          Todos
+          {t('Todos')}
           <span className={styles.libraryCount}>{total}</span>
         </button>
 
@@ -742,7 +767,7 @@ function ListasPanel({
               <input
                 className={styles.listaCampo}
                 defaultValue={grupo.name}
-                aria-label={`Renomear ${grupo.name}`}
+                aria-label={t('Renomear {nome}', { nome: grupo.name })}
                 // biome-ignore lint/a11y/noAutofocus: o campo só existe depois do clique em renomear
                 autoFocus
                 onBlur={(e) => {
@@ -780,10 +805,10 @@ function ListasPanel({
                   }
                   aria-label={
                     confirmando === grupo.id
-                      ? `Confirmar: apagar a lista ${grupo.name}`
-                      : `Apagar a lista ${grupo.name}`
+                      ? t('Confirmar: apagar a lista {nome}', { nome: grupo.name })
+                      : t('Apagar a lista {nome}', { nome: grupo.name })
                   }
-                  title={confirmando === grupo.id ? 'Clique de novo para apagar' : undefined}
+                  title={confirmando === grupo.id ? t('Clique de novo para apagar') : undefined}
                   onMouseLeave={() => setConfirmando(null)}
                   onClick={() => {
                     if (confirmando !== grupo.id) {
@@ -796,7 +821,7 @@ function ListasPanel({
                   }}
                 >
                   {confirmando === grupo.id ? (
-                    <span className={styles.listaConfirmar}>APAGAR?</span>
+                    <span className={styles.listaConfirmar}>{t('APAGAR?')}</span>
                   ) : (
                     <X size={11} color="var(--text-tertiary)" />
                   )}
@@ -810,8 +835,8 @@ function ListasPanel({
           <input
             className={styles.listaCampo}
             value={nome}
-            placeholder="Nome da lista"
-            aria-label="Nome da nova lista"
+            placeholder={t('Nome da lista')}
+            aria-label={t('Nome da nova lista')}
             // biome-ignore lint/a11y/noAutofocus: o campo só existe depois do clique em nova lista
             autoFocus
             onChange={(e) => setNome(e.target.value)}
@@ -827,14 +852,15 @@ function ListasPanel({
         ) : (
           <button type="button" className={styles.novaLista} onClick={() => setCriando(true)}>
             <Plus size={13} />
-            Nova lista
+            {t('Nova lista')}
           </button>
         )}
       </div>
 
       <span className={styles.note}>
-        Arraste uma capa até uma lista para pôr o título nela. Dentro da lista, arrastar reordena.
-        Clique duas vezes no nome para renomear.
+        {t(
+          'Arraste uma capa até uma lista para pôr o título nela. Dentro da lista, arrastar reordena. Clique duas vezes no nome para renomear.',
+        )}
       </span>
     </>
   )
@@ -858,7 +884,7 @@ function ListasDoTitulo({ id }: { id: string }) {
     <>
       {/* Sem este rótulo as etiquetas viravam botõezinhos sem sentido abaixo
           do "Tocar" — ninguém adivinha que ali se organiza o filme. */}
-      <span className={styles.label}>ADICIONAR A UMA LISTA</span>
+      <span className={styles.label}>{t('ADICIONAR A UMA LISTA')}</span>
       <div className={styles.listas}>
         {grupos.map((grupo) => {
           const dentro = grupo.titles.includes(id)
@@ -880,8 +906,8 @@ function ListasDoTitulo({ id }: { id: string }) {
           <input
             className={styles.listaCampo}
             value={nome}
-            placeholder="Nome da lista"
-            aria-label="Nome da nova lista"
+            placeholder={t('Nome da lista')}
+            aria-label={t('Nome da nova lista')}
             // biome-ignore lint/a11y/noAutofocus: o campo só existe depois do clique
             autoFocus
             onChange={(e) => setNome(e.target.value)}
@@ -906,7 +932,7 @@ function ListasDoTitulo({ id }: { id: string }) {
         ) : (
           <button type="button" className={styles.etiqueta} onClick={() => setCriando(true)}>
             <Plus size={11} />
-            Nova lista
+            {t('Nova lista')}
           </button>
         )}
       </div>

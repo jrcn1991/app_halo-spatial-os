@@ -1,6 +1,7 @@
 import { ArrowCounterClockwise } from '@phosphor-icons/react/dist/icons/ArrowCounterClockwise'
 import { ArrowsClockwise } from '@phosphor-icons/react/dist/icons/ArrowsClockwise'
 import { rgbToHex } from '@shared/color'
+import { marcar, t } from '@shared/i18n'
 import { DEFAULT_SETTINGS } from '@shared/settings'
 import { useAjuste, useValoresDoAmbiente } from '@/app/environment'
 import { type SettingsSection, useHalo } from '@/store/useHalo'
@@ -34,22 +35,22 @@ import { WindowSection } from './settings/WindowSection'
  */
 
 const SECTIONS: readonly { id: SettingsSection; label: string }[] = [
-  { id: 'animation', label: 'Animação' },
-  { id: 'appearance', label: 'Aparência' },
-  { id: 'language', label: 'Idioma' },
-  { id: 'environment', label: 'Ambiente' },
-  { id: 'window', label: 'Janela' },
-  { id: 'widgets', label: 'Widgets' },
-  { id: 'media', label: 'Mídia' },
+  { id: 'animation', label: marcar('Animação') },
+  { id: 'appearance', label: marcar('Aparência') },
+  { id: 'language', label: marcar('Idioma') },
+  { id: 'environment', label: marcar('Ambiente') },
+  { id: 'window', label: marcar('Janela') },
+  { id: 'widgets', label: marcar('Widgets') },
+  { id: 'media', label: marcar('Mídia') },
   { id: 'claude', label: 'Claude' },
-  { id: 'island', label: 'Ilha' },
-  { id: 'launcher', label: 'Lançador' },
-  { id: 'notificacoes', label: 'Notificações' },
+  { id: 'island', label: marcar('Ilha') },
+  { id: 'launcher', label: marcar('Lançador') },
+  { id: 'notificacoes', label: marcar('Notificações') },
   { id: 'seafile', label: 'Seafile' },
-  { id: 'music', label: 'Música' },
-  { id: 'news', label: 'Notícias' },
-  { id: 'system', label: 'Sistema' },
-  { id: 'about', label: 'Sobre' },
+  { id: 'music', label: marcar('Música') },
+  { id: 'news', label: marcar('Notícias') },
+  { id: 'system', label: marcar('Sistema') },
+  { id: 'about', label: marcar('Sobre') },
 ]
 
 export function SettingsScreen() {
@@ -70,10 +71,10 @@ export function SettingsScreen() {
       >
         <div className={styles.header}>
           <span className={styles.eyebrow}>Halo</span>
-          <span className={styles.title}>Configurações</span>
+          <span className={styles.title}>{t('Configurações')}</span>
         </div>
         <div className={styles.divider} />
-        <nav className={styles.nav} aria-label="Seções">
+        <nav className={styles.nav} aria-label={t('Seções')}>
           {SECTIONS.map(({ id, label }) => (
             <button
               key={id}
@@ -84,7 +85,7 @@ export function SettingsScreen() {
               }
               onClick={() => setSection(id)}
             >
-              {label}
+              {t(label)}
             </button>
           ))}
         </nav>
@@ -162,25 +163,30 @@ function EntrancePreview() {
   return (
     <>
       <div className={styles.header}>
-        <span className={styles.eyebrow}>{doAmbiente ? 'Preset do ambiente' : 'Selecionada'}</span>
-        <span className={styles.previewName}>{entrance}</span>
+        <span className={styles.eyebrow}>
+          {doAmbiente ? t('Preset do ambiente') : t('Selecionada')}
+        </span>
+        <span className={styles.previewName}>{t(entrance)}</span>
       </div>
-      <span className={styles.previewHint}>{ENTRANCE_HINTS[entrance]}</span>
+      <span className={styles.previewHint}>{t(ENTRANCE_HINTS[entrance])}</span>
       <div className={styles.card} data-halo-cartao="mini">
         <div className={styles.metric}>
-          Centro<span className={styles.metricValue}>{timing.centro}</span>
+          {t('Centro')}
+          <span className={styles.metricValue}>{timing.centro}</span>
         </div>
         <div className={styles.metric}>
-          Laterais<span className={styles.metricValue}>{timing.laterais}</span>
+          {t('Laterais')}
+          <span className={styles.metricValue}>{timing.laterais}</span>
         </div>
         <div className={styles.metric}>
-          Atraso<span className={styles.metricValue}>{timing.atraso}</span>
+          {t('Atraso')}
+          <span className={styles.metricValue}>{timing.atraso}</span>
         </div>
       </div>
       <div className={styles.actions}>
         <button type="button" className={styles.replay} onClick={replay}>
           <ArrowsClockwise size={17} />
-          Ver de novo
+          {t('Ver de novo')}
         </button>
         <button
           type="button"
@@ -191,12 +197,12 @@ function EntrancePreview() {
           // para quem passa o mouse, que é onde a explicação cabe.
           title={
             doAmbiente
-              ? 'Já está no preset deste ambiente'
-              : 'Volta ao preset do ambiente ativo, seja ele qual for'
+              ? t('Já está no preset deste ambiente')
+              : t('Volta ao preset do ambiente ativo, seja ele qual for')
           }
         >
           <ArrowCounterClockwise size={17} />
-          Restaurar padrão
+          {t('Restaurar padrão')}
         </button>
       </div>
     </>
@@ -223,43 +229,48 @@ function AppearanceStatus() {
   return (
     <>
       <div className={styles.header}>
-        <span className={styles.eyebrow}>Ajustes</span>
-        <span className={styles.previewName}>{isDefault ? 'No padrão' : 'Ajustado'}</span>
+        <span className={styles.eyebrow}>{t('Ajustes')}</span>
+        <span className={styles.previewName}>{isDefault ? t('No padrão') : t('Ajustado')}</span>
       </div>
       <span className={styles.previewHint}>
-        O padrão reproduz o protótipo do handoff exatamente. Sair dele é sempre um desvio consciente
-        — e o botão abaixo volta.
+        {t(
+          'O padrão reproduz o protótipo do handoff exatamente. Sair dele é sempre um desvio consciente — e o botão abaixo volta.',
+        )}
       </span>
       <div className={styles.card} data-halo-cartao="mini">
         <div className={styles.metric}>
-          Transparência<span className={styles.metricValue}>{Math.round(transparencia)}%</span>
+          {t('Transparência')}
+          <span className={styles.metricValue}>{Math.round(transparencia)}%</span>
         </div>
         <div className={styles.metric}>
-          Claridade<span className={styles.metricValue}>{Math.round(claridade)}%</span>
+          {t('Claridade')}
+          <span className={styles.metricValue}>{Math.round(claridade)}%</span>
         </div>
         <div className={styles.metric}>
-          Cor do vidro
+          {t('Cor do vidro')}
           <span className={styles.metricValue}>
-            {tint.on ? rgbToHex(tint.rgb).toUpperCase() : 'Desligada'}
+            {tint.on ? rgbToHex(tint.rgb).toUpperCase() : t('Desligada')}
           </span>
         </div>
         <div className={styles.metric}>
-          Navegação
+          {t('Navegação')}
           <span className={styles.metricValue}>
-            {NAVIGATION.find((o) => o.value === navigation)?.short}
+            {t(NAVIGATION.find((o) => o.value === navigation)?.short ?? '')}
           </span>
         </div>
         {navigation === 'embedded' ? (
           <div className={styles.metric}>
-            Conteúdo
+            {t('Conteúdo')}
             <span className={styles.metricValue}>
-              {CONTENT_ENTRANCE.find((o) => o.value === transicao)?.label}
+              {t(CONTENT_ENTRANCE.find((o) => o.value === transicao)?.label ?? '')}
             </span>
           </div>
         ) : null}
         <div className={styles.metric}>
           Dock
-          <span className={styles.metricValue}>{DOCK.find((o) => o.value === dock)?.label}</span>
+          <span className={styles.metricValue}>
+            {t(DOCK.find((o) => o.value === dock)?.label ?? '')}
+          </span>
         </div>
       </div>
       <button
@@ -269,7 +280,7 @@ function AppearanceStatus() {
         disabled={isDefault}
       >
         <ArrowCounterClockwise size={17} />
-        Restaurar padrão
+        {t('Restaurar padrão')}
       </button>
     </>
   )

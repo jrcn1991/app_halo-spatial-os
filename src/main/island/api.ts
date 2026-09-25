@@ -1,6 +1,7 @@
 import { chmod, unlink } from 'node:fs/promises'
 import { createServer, type Server, type Socket } from 'node:net'
 import { join } from 'node:path'
+import { t } from '@shared/i18n'
 import { IPC } from '@shared/ipc-contract'
 import type { IslandActivity, IslandEvent } from '@shared/island'
 import { app } from 'electron'
@@ -205,6 +206,6 @@ export function listaDeAtividades(): IslandActivity[] {
 }
 
 export function limparAtividade(id: string): void {
-  if (!atividades.delete(id)) throw new Error('essa atividade já não está na lista')
+  if (!atividades.delete(id)) throw new Error(t('essa atividade já não está na lista'))
   publicar()
 }

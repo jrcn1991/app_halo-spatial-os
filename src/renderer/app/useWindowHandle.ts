@@ -53,7 +53,8 @@ export function useWindowHandle(
 
     // O dock entra animado: medir antes de ele assentar daria a posição errada.
     // Embutido no painel central, quem anima é o painel — espera-o também.
-    const dock = document.querySelector('nav[aria-label="Telas"]')
+    // Pelo atributo neutro, não pelo aria-label: ele muda com o idioma.
+    const dock = document.querySelector('nav[data-halo-nav]')
     const host = dock?.closest('[data-halo-in]') ?? null
     if (dock) {
       const animations = [

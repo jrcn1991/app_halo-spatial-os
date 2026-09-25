@@ -1,3 +1,4 @@
+import { marcar, t } from '@shared/i18n'
 import type { DesktopModeResult, WindowSize } from '@shared/ipc-contract'
 import { HIDEABLE_SCREENS } from '@shared/settings'
 import { useEffect, useState } from 'react'
@@ -11,11 +12,11 @@ import styles from '../SettingsScreen.module.css'
 export const MAX_SCALE = 99
 
 const STEPS: readonly { value: string; label: string }[] = [
-  { value: '1', label: 'Normal' },
+  { value: '1', label: marcar('Normal') },
   { value: '1.25', label: '+25%' },
   { value: '1.5', label: '+50%' },
   { value: '1.75', label: '+75%' },
-  { value: String(MAX_SCALE), label: 'Máximo' },
+  { value: String(MAX_SCALE), label: marcar('Máximo') },
 ]
 
 /**
@@ -45,33 +46,37 @@ export function WindowSection() {
   const max = applied?.max ?? MAX_SCALE
   const options = STEPS.map((step) => ({
     ...step,
+    label: t(step.label),
     disabled: Number(step.value) !== MAX_SCALE && Number(step.value) > max + 0.001,
   }))
 
   return (
     <>
       <div className={styles.header}>
-        <span className={styles.eyebrow}>Janela · Tamanho</span>
-        <span className={styles.title}>Tamanho da janela</span>
+        <span className={styles.eyebrow}>{t('Janela · Tamanho')}</span>
+        <span className={styles.title}>{t('Tamanho da janela')}</span>
         <span className={styles.subtitle}>
-          O palco continua 1440×900 e escala inteiro — ampliar não desalinha nada do handoff.
+          {t('O palco continua 1440×900 e escala inteiro — ampliar não desalinha nada do handoff.')}
         </span>
       </div>
       <div className={styles.divider} />
 
       <div className={styles.section}>
-        <span className={styles.sectionLabel}>Ampliação</span>
+        <span className={styles.sectionLabel}>{t('Ampliação')}</span>
         <Tabs
-          label="Tamanho da janela"
+          label={t('Tamanho da janela')}
           options={options}
           value={String(scale)}
           onChange={(next) => setAppearance({ scale: Number(next) })}
         />
         <span className={styles.note}>
           {applied
-            ? `Janela em ${applied.width}×${applied.height}. Esta tela comporta até ` +
-              `+${Math.round((applied.max - 1) * 100)}%.`
-            : 'Medindo a janela…'}
+            ? t('Janela em {w}×{h}. Esta tela comporta até +{n}%.', {
+                w: applied.width,
+                h: applied.height,
+                n: Math.round((applied.max - 1) * 100),
+              })
+            : t('Medindo a janela…')}
         </span>
       </div>
 
@@ -113,27 +118,28 @@ function DesktopSection() {
 
   return (
     <div className={styles.section}>
-      <span className={styles.sectionLabel}>Camada</span>
+      <span className={styles.sectionLabel}>{t('Camada')}</span>
       <div className={styles.stack}>
-        <Toggle label="Rodar sobre o desktop" checked={on} onChange={() => alternar(!on)} />
+        <Toggle label={t('Rodar sobre o desktop')} checked={on} onChange={() => alternar(!on)} />
       </div>
       <span className={styles.note}>
-        O app fica sobre o papel de parede e nunca cobre outra janela — continua clicável, só não
-        sobe para a frente. A janela também reabre na tela e na posição onde estava. A janela do
-        player não entra nisto: ela pode ser fixada acima de tudo, pelo alfinete.
+        {t(
+          'O app fica sobre o papel de parede e nunca cobre outra janela — continua clicável, só não sobe para a frente. A janela também reabre na tela e na posição onde estava. A janela do player não entra nisto: ela pode ser fixada acima de tudo, pelo alfinete.',
+        )}
       </span>
       {precisaReabrir ? (
         <>
           <span className={styles.note}>
-            Não consegui aplicar agora: escolher a camada da janela só existe no X11, e o app está
-            em Wayland. Reabrir resolve — o Halo abre em X11 sozinho quando há um servidor X.
+            {t(
+              'Não consegui aplicar agora: escolher a camada da janela só existe no X11, e o app está em Wayland. Reabrir resolve — o Halo abre em X11 sozinho quando há um servidor X.',
+            )}
           </span>
           <button
             type="button"
             className={`${styles.replay} ${styles.secondary}`}
             onClick={() => window.halo?.window.relaunch()}
           >
-            Reabrir agora
+            {t('Reabrir agora')}
           </button>
         </>
       ) : null}
@@ -159,18 +165,22 @@ function ArranqueSection() {
 
   return (
     <div className={styles.section}>
-      <span className={styles.sectionLabel}>Arranque</span>
+      <span className={styles.sectionLabel}>{t('Arranque')}</span>
       <div className={styles.stack}>
         <Toggle
-          label="Começar recolhido na ilha"
+          label={t('Começar recolhido na ilha')}
           checked={on}
           onChange={() => setStartHidden(!on)}
         />
       </div>
       <span className={styles.note}>
         {ilha
-          ? 'Ao abrir, sobe só a ilha. A janela espera ser chamada: Meta+Espaço, o botão do Halo na pílula ou o ícone da bandeja. Ela é carregada por trás, então voltar é instantâneo.'
-          : 'Com a ilha desligada, quem traz o Halo de volta é o ícone da bandeja. Sem a ilha e sem bandeja o app abre à vista mesmo — uma opção não pode deixar você sem caminho de volta.'}
+          ? t(
+              'Ao abrir, sobe só a ilha. A janela espera ser chamada: Meta+Espaço, o botão do Halo na pílula ou o ícone da bandeja. Ela é carregada por trás, então voltar é instantâneo.',
+            )
+          : t(
+              'Com a ilha desligada, quem traz o Halo de volta é o ícone da bandeja. Sem a ilha e sem bandeja o app abre à vista mesmo — uma opção não pode deixar você sem caminho de volta.',
+            )}
       </span>
     </div>
   )
@@ -193,19 +203,21 @@ function ScreensSection() {
 
   return (
     <div className={styles.section}>
-      <span className={styles.sectionLabel}>Janelas no dock</span>
+      <span className={styles.sectionLabel}>{t('Janelas no dock')}</span>
       <div className={styles.stack}>
         {hideable.map((item) => (
           <Toggle
             key={item.screen}
-            label={item.label}
+            label={t(item.label)}
             checked={!hidden.includes(item.screen)}
             onChange={() => toggleScreen(item.screen)}
           />
         ))}
       </div>
       <span className={styles.note}>
-        Home e Configurações não podem ser desligadas — sem a engrenagem não haveria como voltar.
+        {t(
+          'Home e Configurações não podem ser desligadas — sem a engrenagem não haveria como voltar.',
+        )}
       </span>
     </div>
   )

@@ -29,6 +29,8 @@
  * lê números e operadores, e não sabe fazer mais nada.
  */
 
+import { localeDoIdioma, marcar, t } from '@shared/i18n'
+
 /** Um resultado do campo, pronto para a lista. */
 export type Achado = {
   /** O que a linha mostra. */
@@ -153,7 +155,7 @@ function avaliar(lista: Ficha[]): number | null {
 /** Número legível: até seis casas, sem zeros à toa, com separador brasileiro. */
 export function numero(n: number): string {
   const arredondado = Math.round(n * 1e6) / 1e6
-  return arredondado.toLocaleString('pt-BR', { maximumFractionDigits: 6 })
+  return arredondado.toLocaleString(localeDoIdioma(), { maximumFractionDigits: 6 })
 }
 
 /* ==========================================================================
@@ -289,23 +291,23 @@ const unidade = (u: string) => u.toLowerCase().replace(/[°]/g, '').replace(/ç/
  * "cafeina 30" de virar "30".
  */
 export function contaDoTexto(termo: string): Achado | null {
-  const t = termo.trim()
-  if (!t) return null
+  const texto = termo.trim()
+  if (!texto) return null
 
   // 15% de 240
-  const pd = PORCENTO_DE.exec(t)
+  const pd = PORCENTO_DE.exec(texto)
   if (pd) {
     const r = (limpo(pd[1] as string) / 100) * limpo(pd[2] as string)
     return {
       titulo: numero(r),
-      detalhe: `${pd[1]}% de ${pd[2]}`,
+      detalhe: t('{a}% de {b}', { a: pd[1] as string, b: pd[2] as string }),
       icone: 'Percent',
       copiar: numero(r),
     }
   }
 
   // 240 + 15%  /  240 - 15%
-  const ps = PORCENTO_SOBRE.exec(t)
+  const ps = PORCENTO_SOBRE.exec(texto)
   if (ps) {
     const base = limpo(ps[1] as string)
     const pct = limpo(ps[3] as string)
@@ -319,7 +321,7 @@ export function contaDoTexto(termo: string): Achado | null {
   }
 
   // 30 c em f  ·  2 gb em mb  ·  10 km em mi
-  const cv = CONVERSAO.exec(t)
+  const cv = CONVERSAO.exec(texto)
   if (cv) {
     const r = converter(limpo(cv[1] as string), unidade(cv[2] as string), unidade(cv[3] as string))
     if (r) {
@@ -335,12 +337,12 @@ export function contaDoTexto(termo: string): Achado | null {
 
   // A conta pura. Exige um OPERADOR: sem isso "42" sozinho viraria um
   // resultado, e o usuário que digitou 42 estava procurando outra coisa.
-  if (!/[+\-*/%^]/.test(t)) return null
-  const lista = fichas(t)
+  if (!/[+\-*/%^]/.test(texto)) return null
+  const lista = fichas(texto)
   if (!lista) return null
   const r = avaliar(lista)
   if (r === null) return null
-  return { titulo: numero(r), detalhe: t, icone: 'Equals', copiar: numero(r) }
+  return { titulo: numero(r), detalhe: texto, icone: 'Equals', copiar: numero(r) }
 }
 
 /* ==========================================================================
@@ -388,7 +390,7 @@ const ATALHOS: { chave: string; nome: string; url: string; icone: string }[] = [
   },
   {
     chave: 'tr',
-    nome: 'Tradutor',
+    nome: marcar('Tradutor'),
     url: 'https://translate.google.com/?sl=auto&tl=pt&text=%s&op=translate',
     icone: 'Translate',
   },
@@ -401,8 +403,8 @@ export function atalhoDoTexto(termo: string): Achado | null {
   if (!atalho) return null
   const busca = (m[2] as string).trim()
   return {
-    titulo: `${atalho.nome}: ${busca}`,
-    detalhe: 'abre no navegador do sistema',
+    titulo: `${t(atalho.nome)}: ${busca}`,
+    detalhe: t('abre no navegador do sistema'),
     icone: atalho.icone,
     abrir: atalho.url.replace('%s', encodeURIComponent(busca)),
   }
@@ -460,7 +462,7 @@ export function emojisDoTexto(termo: string): Achado[] {
   const lista = chave ? EMOJIS.filter((x) => x.nomes.includes(chave)) : EMOJIS
   return lista.slice(0, 6).map((x) => ({
     titulo: `${x.e}  ${(x.nomes.split(' ')[0] as string).replace(/^\w/, (c) => c.toUpperCase())}`,
-    detalhe: 'copiar',
+    detalhe: t('copiar'),
     icone: 'Copy',
     copiar: x.e,
   }))

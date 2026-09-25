@@ -1,5 +1,6 @@
 import { Pause } from '@phosphor-icons/react/dist/icons/Pause'
 import { Play } from '@phosphor-icons/react/dist/icons/Play'
+import { t } from '@shared/i18n'
 import { useNowPlaying } from '@/hooks/usePlayer'
 import { useHalo } from '@/store/useHalo'
 import { cx } from '@/ui/cx'
@@ -36,16 +37,16 @@ export function PlayingWidget() {
       data-halo-in="hud"
       data-tocando={data?.status === 'playing' ? 'sim' : undefined}
     >
-      <div className={styles.playingLabel}>TOCANDO AGORA</div>
+      <div className={styles.playingLabel}>{t('TOCANDO AGORA')}</div>
       <div className={styles.playingRow}>
         <span
           className={styles.cover}
           style={data?.artUrl ? { backgroundImage: `url(${data.artUrl})` } : undefined}
         />
         <span className={styles.playingText}>
-          <span className={styles.playingTitle}>{data ? data.title : 'Nada tocando'}</span>
+          <span className={styles.playingTitle}>{data ? data.title : t('Nada tocando')}</span>
           <span className={styles.playingArtist}>
-            {data ? data.artist || data.player : 'Abra um player'}
+            {data ? data.artist || data.player : t('Abra um player')}
           </span>
         </span>
         {data?.status === 'playing' ? (

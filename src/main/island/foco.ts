@@ -1,3 +1,4 @@
+import { t } from '@shared/i18n'
 import type { FocusSession, Reading } from '@shared/island'
 import { currentSettings, saveIslandFocus } from '../settings'
 
@@ -79,18 +80,18 @@ export async function foco(): Promise<Reading[]> {
   return [
     {
       id: 'foco-hoje',
-      label: 'Foco hoje',
+      label: t('Foco hoje'),
       value: horas(r.hojeMin),
       detail:
         r.hojeSessoes === 0
-          ? 'nenhuma sessão ainda — 25 · foco na home'
-          : `${r.hojeSessoes} ${r.hojeSessoes === 1 ? 'sessão' : 'sessões'}`,
+          ? t('nenhuma sessão ainda — 25 · foco na home')
+          : t(r.hojeSessoes === 1 ? '{n} sessão' : '{n} sessões', { n: r.hojeSessoes }),
       ratio: null,
       level: 'ok',
     },
     {
       id: 'foco-semana',
-      label: 'Últimos 7 dias',
+      label: t('Últimos 7 dias'),
       value: horas(semanaMin),
       // Minutos por dia, do mais antigo para hoje: é o gráfico da home.
       detail: r.semana.join('·'),
@@ -99,10 +100,12 @@ export async function foco(): Promise<Reading[]> {
     },
     {
       id: 'foco-sequencia',
-      label: 'Sequência',
-      value: r.sequencia === 0 ? '0 dias' : `${r.sequencia} ${r.sequencia === 1 ? 'dia' : 'dias'}`,
+      label: t('Sequência'),
+      value: t(r.sequencia === 1 ? '{n} dia' : '{n} dias', { n: r.sequencia }),
       detail:
-        r.sequencia > 0 ? 'seguidos com pelo menos uma sessão' : `${r.total} sessões no total`,
+        r.sequencia > 0
+          ? t('seguidos com pelo menos uma sessão')
+          : t('{n} sessões no total', { n: r.total }),
       ratio: null,
       level: 'ok',
     },

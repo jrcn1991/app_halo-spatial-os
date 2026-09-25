@@ -1022,6 +1022,38 @@ const SPECS = {
   ],
   settings: [
     [
+      // O idioma (24/09/2026): português é o padrão, e a troca para inglês
+      // vale na hora, sem reiniciar. Cobra-se a seção, a troca e a volta — e
+      // que a volta devolve o português, senão o resto destes testes, que
+      // procuram texto em português, falharia sem dizer por quê.
+      'o idioma troca para inglês na hora e volta ao português',
+      async (p) => {
+        await p.click('nav[aria-label="Seções"] >> text=Idioma')
+        await p.waitForTimeout(400)
+        const titulo = async () =>
+          (await p.locator('text=Interface language').count()) > 0
+            ? 'Interface language'
+            : (await p.locator('text=Idioma da interface').count()) > 0
+              ? 'Idioma da interface'
+              : 'nenhum'
+        const antes = await titulo()
+        await p.locator('button', { hasText: 'English' }).first().click()
+        await p.waitForTimeout(700)
+        const depois = await titulo()
+        const secoes = await p.locator('nav button').allTextContents()
+        await p.locator('button', { hasText: 'Português (Brasil)' }).first().click()
+        await p.waitForTimeout(700)
+        const volta = await titulo()
+        await p.click('nav[aria-label="Seções"] >> text=Animação')
+        await p.waitForTimeout(300)
+        if (antes?.trim() !== 'Idioma da interface') return `em português o título era "${antes}"`
+        if (depois?.trim() !== 'Interface language') return `em inglês o título ficou "${depois}"`
+        if (!secoes.some((s) => s.trim() === 'Appearance'))
+          return `a navegação não virou inglês: ${secoes.slice(0, 4).join(', ')}`
+        return volta?.trim() === 'Idioma da interface' ? true : `a volta deixou "${volta}"`
+      },
+    ],
+    [
       'o clima mostra condição e lugar depois de escolher a cidade',
       async (p) => {
         await p.click('nav[aria-label="Seções"] >> text=Widgets')

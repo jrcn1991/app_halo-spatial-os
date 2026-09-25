@@ -1,4 +1,5 @@
 import { PERMISSION_MODES, type PermissionMode } from '@shared/agents'
+import { marcar, t } from '@shared/i18n'
 import {
   idlePool,
   MASCOT_LIVELINESS,
@@ -25,26 +26,29 @@ import styles from '../SettingsScreen.module.css'
  */
 /** Os três níveis de agitação, na ordem do mais contido ao mais mexido. */
 const AGITACAO: Record<MascotLiveliness, string> = {
-  calmo: 'Calmo',
-  normal: 'Normal',
-  animado: 'Animado',
+  calmo: marcar('Calmo'),
+  normal: marcar('Normal'),
+  animado: marcar('Animado'),
 }
 
 const MODOS: Record<PermissionMode, { label: string; explica: string }> = {
   plan: {
-    label: 'Só ler',
-    explica:
+    label: marcar('Só ler'),
+    explica: marcar(
       'O agente lê o projeto, estuda e propõe — não altera arquivo nem roda comando. É o padrão, e o mais seguro.',
+    ),
   },
   acceptEdits: {
-    label: 'Editar',
-    explica:
+    label: marcar('Editar'),
+    explica: marcar(
       'O agente altera arquivos do projeto sem perguntar. Use em repositório versionado, onde dá para conferir o diff e voltar atrás.',
+    ),
   },
   bypassPermissions: {
-    label: 'Tudo',
-    explica:
+    label: marcar('Tudo'),
+    explica: marcar(
       'O agente altera arquivos e roda comandos sem perguntar nada. Só faz sentido em projeto descartável ou com backup — nada aqui vai perguntar antes.',
+    ),
   },
 }
 
@@ -57,29 +61,32 @@ export function ClaudeSection() {
   return (
     <>
       <div className={styles.header}>
-        <span className={styles.eyebrow}>Claude · Agentes</span>
-        <span className={styles.title}>O que os agentes podem fazer</span>
+        <span className={styles.eyebrow}>{t('Claude · Agentes')}</span>
+        <span className={styles.title}>{t('O que os agentes podem fazer')}</span>
         <span className={styles.subtitle}>
-          Cada agente é um Claude rodando dentro de um projeto seu, com acesso aos arquivos dele.
+          {t(
+            'Cada agente é um Claude rodando dentro de um projeto seu, com acesso aos arquivos dele.',
+          )}
         </span>
       </div>
       <div className={styles.divider} />
 
       <div className={styles.section}>
-        <span className={styles.sectionLabel}>Permissão</span>
+        <span className={styles.sectionLabel}>{t('Permissão')}</span>
         <Tabs
-          label="Permissão dos agentes"
+          label={t('Permissão dos agentes')}
           options={PERMISSION_MODES.map((valor) => ({
             value: valor,
-            label: MODOS[valor].label,
+            label: t(MODOS[valor].label),
           }))}
           value={mode}
           onChange={(proximo) => setMode(proximo as PermissionMode)}
         />
-        <span className={styles.note}>{MODOS[mode].explica}</span>
+        <span className={styles.note}>{t(MODOS[mode].explica)}</span>
         <span className={styles.note}>
-          Vale para agentes novos. Os que já estão abertos seguem com a permissão que receberam ao
-          nascer — o modo é dado ao processo no arranque.
+          {t(
+            'Vale para agentes novos. Os que já estão abertos seguem com a permissão que receberam ao nascer — o modo é dado ao processo no arranque.',
+          )}
         </span>
       </div>
 
@@ -88,11 +95,27 @@ export function ClaudeSection() {
       <MascoteConfig />
 
       <div className={styles.section}>
-        <span className={styles.sectionLabel}>Projetos</span>
+        <span className={styles.sectionLabel}>{t('Projetos')}</span>
         <span className={styles.note}>
           {projetos.length === 0
-            ? 'Nenhum projeto fixado. Adicione na tela do Claude.'
-            : `${projetos.length} ${projetos.length === 1 ? 'projeto fixado' : 'projetos fixados'}${grupos.length > 0 ? ` e ${grupos.length} ${grupos.length === 1 ? 'grupo' : 'grupos'}` : ''}, geridos na própria tela do Claude.`}
+            ? t('Nenhum projeto fixado. Adicione na tela do Claude.')
+            : grupos.length > 0
+              ? t(
+                  projetos.length === 1
+                    ? grupos.length === 1
+                      ? '{n} projeto fixado e {g} grupo, geridos na própria tela do Claude.'
+                      : '{n} projeto fixado e {g} grupos, geridos na própria tela do Claude.'
+                    : grupos.length === 1
+                      ? '{n} projetos fixados e {g} grupo, geridos na própria tela do Claude.'
+                      : '{n} projetos fixados e {g} grupos, geridos na própria tela do Claude.',
+                  { n: projetos.length, g: grupos.length },
+                )
+              : t(
+                  projetos.length === 1
+                    ? '{n} projeto fixado, gerido na própria tela do Claude.'
+                    : '{n} projetos fixados, geridos na própria tela do Claude.',
+                  { n: projetos.length },
+                )}
         </span>
       </div>
     </>
@@ -118,36 +141,37 @@ function ProgramaClaude() {
 
   return (
     <div className={styles.section}>
-      <span className={styles.sectionLabel}>Programa</span>
+      <span className={styles.sectionLabel}>{t('Programa')}</span>
       <div className={styles.linha}>
         <span className={styles.linhaTexto}>
-          <span className={styles.linhaTitulo}>Claude Code (comando claude)</span>
+          <span className={styles.linhaTitulo}>{t('Claude Code (comando claude)')}</span>
           <span className={styles.linhaDetalhe}>
-            {cli || 'procurando sozinho nos lugares conhecidos'}
+            {cli || t('procurando sozinho nos lugares conhecidos')}
           </span>
         </span>
         <button
           type="button"
           className={styles.acao}
           onClick={() => void escolher()}
-          aria-label="Escolher o programa claude"
+          aria-label={t('Escolher o programa claude')}
         >
-          Escolher
+          {t('Escolher')}
         </button>
         {cli ? (
           <button
             type="button"
             className={styles.acao}
             onClick={() => setCli('')}
-            aria-label="Voltar a procurar o programa claude sozinho"
+            aria-label={t('Voltar a procurar o programa claude sozinho')}
           >
-            Automático
+            {t('Automático')}
           </button>
         ) : null}
       </div>
       <span className={styles.note}>
-        Só aponte um caminho se a tela do Claude disser que não encontrou o programa. Ele vale para
-        agentes novos — os que já estão abertos seguem com o que receberam ao nascer.
+        {t(
+          'Só aponte um caminho se a tela do Claude disser que não encontrou o programa. Ele vale para agentes novos — os que já estão abertos seguem com o que receberam ao nascer.',
+        )}
       </span>
     </div>
   )
@@ -202,10 +226,10 @@ function MascoteConfig() {
 
   return (
     <div className={styles.section}>
-      <span className={styles.sectionLabel}>Mascote</span>
+      <span className={styles.sectionLabel}>{t('Mascote')}</span>
       <div className={styles.stack}>
         <Toggle
-          label="Usar um personagem no lugar do orbe"
+          label={t('Usar um personagem no lugar do orbe')}
           checked={on}
           onChange={() => setMascot({ on: !on })}
         />
@@ -233,31 +257,39 @@ function MascoteConfig() {
 
       <span className={styles.note}>
         {info?.ready
-          ? `${info.name}: ${info.animations.length} animações, ${info.width}×${info.height}.`
+          ? t('{nome}: {n} animações, {w}×{h}.', {
+              nome: info.name,
+              n: info.animations.length,
+              w: info.width,
+              h: info.height,
+            })
           : info?.error
-            ? `Não consegui ler o personagem: ${info.error}`
+            ? t('Não consegui ler o personagem: {erro}', { erro: info.error })
             : file
-              ? 'Lendo o personagem…'
-              : 'Nenhum escolhido — o orbe do handoff continua.'}
+              ? t('Lendo o personagem…')
+              : t('Nenhum escolhido — o orbe do handoff continua.')}
       </span>
 
       {info?.ready ? (
         <>
           <span className={styles.note}>
-            Pensando: {info.moods.pensando ?? '—'} · Ferramenta: {info.moods.ferramenta ?? '—'} ·
-            Erro: {info.moods.erro ?? '—'} · Turno pronto: {info.moods.comemorando ?? '—'}
+            {t('Pensando')}: {info.moods.pensando ?? '—'} · {t('Ferramenta')}:{' '}
+            {info.moods.ferramenta ?? '—'} · {t('Erro')}: {info.moods.erro ?? '—'} ·{' '}
+            {t('Turno pronto')}: {info.moods.comemorando ?? '—'}
           </span>
 
-          <span className={styles.sectionLabel}>Agitação quando está parado</span>
+          <span className={styles.sectionLabel}>{t('Agitação quando está parado')}</span>
           <Tabs
-            label="Agitação do mascote"
-            options={MASCOT_LIVELINESS.map((v) => ({ value: v, label: AGITACAO[v] }))}
+            label={t('Agitação do mascote')}
+            options={MASCOT_LIVELINESS.map((v) => ({ value: v, label: t(AGITACAO[v]) }))}
             value={liveliness}
             onChange={(proxima) => setMascot({ liveliness: proxima as MascotLiveliness })}
           />
           <span className={styles.note}>
-            Sem trabalho, ele faz alguma coisa sozinho de tempos em tempos — sorteada entre as{' '}
-            {ociosas} animações que este personagem tem e que não estão reservadas a um estado.
+            {t(
+              'Sem trabalho, ele faz alguma coisa sozinho de tempos em tempos — sorteada entre as {n} animações que este personagem tem e que não estão reservadas a um estado.',
+              { n: ociosas },
+            )}
           </span>
         </>
       ) : null}
@@ -268,12 +300,13 @@ function MascoteConfig() {
           className={`${styles.replay} ${styles.secondary}`}
           onClick={() => void adicionar()}
         >
-          Adicionar outro personagem
+          {t('Adicionar outro personagem')}
         </button>
       </div>
       <span className={styles.note}>
-        Arquivos `.acs` do Microsoft Agent. O escolhido é copiado para a sua biblioteca, e o app
-        decodifica o formato binário direto — imagens, paleta e a compressão própria da Microsoft.
+        {t(
+          'Arquivos `.acs` do Microsoft Agent. O escolhido é copiado para a sua biblioteca, e o app decodifica o formato binário direto — imagens, paleta e a compressão própria da Microsoft.',
+        )}
       </span>
     </div>
   )

@@ -110,6 +110,28 @@ under `transform`, `mask-image` or `backdrop-filter`). Any overlay (modal) goes
 OUTSIDE the panel row: the row has `perspective`, and there the paint order
 comes from depth, not from `z-index`.
 
+### Language
+
+Portuguese is the default and the **language of the code**: text is written in
+Portuguese in the component itself, and that text is the translation key —
+`t('Configurações')`, from `@shared/i18n`. English lives in
+`src/shared/i18n/en/`, one file per area. Rules:
+
+- **Every string someone reads goes through `t()`** — labels, notices, empty
+  states, `aria-label`, errors that reach the screen, main-process text (tray,
+  island readings). `npm run i18n`, part of `check`, fails if a marked string
+  has no English.
+- **What varies goes in via `{name}`**: `t('{n} títulos', { n })`. No `${…}`
+  inside the key: word order changes between languages.
+- **Call `t()` at render time, never at module top level** — otherwise the
+  startup language freezes. Data tables use `marcar('…')` and are translated
+  with `t(label)` where shown.
+- **Values are not text.** Whatever is compared, stored or used as an id stays
+  in Portuguese (and, if shown, is translated only on display).
+- **Dates and numbers** follow the language: `localeDoIdioma()`.
+- Switching applies at once in every window: main notifies all of them
+  (`IPC.idiomaMudou`), and each remounts through `ComIdioma`.
+
 ### Settings
 
 Every preference follows the same path: field and validation in

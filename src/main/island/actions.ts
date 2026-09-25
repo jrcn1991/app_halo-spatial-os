@@ -1,5 +1,6 @@
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
+import { t } from '@shared/i18n'
 import { playerModes } from '../services/player'
 import { saidasAudio } from './sources'
 
@@ -94,7 +95,7 @@ export async function playerAtivo(): Promise<string | null> {
 
 async function mpris(metodo: string): Promise<void> {
   const player = await playerAtivo()
-  if (!player) throw new Error('nenhum player aberto')
+  if (!player) throw new Error(t('nenhum player aberto'))
   await cmd('busctl', [
     '--user',
     'call',
@@ -128,7 +129,7 @@ export async function midiaModos(): Promise<{ shuffle: boolean; loop: string } |
 
 export async function midiaEmbaralhar(): Promise<void> {
   const player = await playerAtivo()
-  if (!player) throw new Error('nenhum player aberto')
+  if (!player) throw new Error(t('nenhum player aberto'))
   const atual = Boolean(await propriedade(player, 'Shuffle').catch(() => false))
   await cmd('busctl', [
     '--user',
@@ -145,7 +146,7 @@ export async function midiaEmbaralhar(): Promise<void> {
 /** Nenhuma → lista inteira → uma faixa → nenhuma, como no botão do Spotify. */
 export async function midiaRepetir(): Promise<void> {
   const player = await playerAtivo()
-  if (!player) throw new Error('nenhum player aberto')
+  if (!player) throw new Error(t('nenhum player aberto'))
   const atual = String(await propriedade(player, 'LoopStatus').catch(() => 'None'))
   const proximo = atual === 'None' ? 'Playlist' : atual === 'Playlist' ? 'Track' : 'None'
   await cmd('busctl', [
@@ -167,7 +168,7 @@ export async function midiaRepetir(): Promise<void> {
  */
 export async function midiaBuscar(segundos: number): Promise<void> {
   const player = await playerAtivo()
-  if (!player) throw new Error('nenhum player aberto')
+  if (!player) throw new Error(t('nenhum player aberto'))
   const metadata = (await propriedade(player, 'Metadata')) as Record<
     string,
     { data?: unknown } | unknown
@@ -178,7 +179,7 @@ export async function midiaBuscar(segundos: number): Promise<void> {
       ? (bruto as { data: unknown }).data
       : bruto,
   )
-  if (!trackid.startsWith('/')) throw new Error('o player não informa o id da faixa')
+  if (!trackid.startsWith('/')) throw new Error(t('o player não informa o id da faixa'))
   await cmd('busctl', [
     '--user',
     'call',
@@ -195,7 +196,7 @@ export async function midiaBuscar(segundos: number): Promise<void> {
 /** Escolhe a saída pelo nome do sink, movendo os fluxos junto (ver `trocarSaida`). */
 export async function definirSaida(nome: string): Promise<void> {
   const saidas = await saidasAudio()
-  if (!saidas.some((s) => s.nome === nome)) throw new Error('saída desconhecida')
+  if (!saidas.some((s) => s.nome === nome)) throw new Error(t('saída desconhecida'))
   await cmd('pactl', ['set-default-sink', nome])
   const fluxos = await cmd('pactl', ['-f', 'json', 'list', 'sink-inputs']).catch(() => '[]')
   for (const fluxo of JSON.parse(fluxos) as { index: number }[]) {
@@ -206,7 +207,7 @@ export async function definirSaida(nome: string): Promise<void> {
 /** O endereço da faixa (`xesam:url`), quando o player o dá — o Spotify dá. */
 export async function midiaLink(): Promise<string> {
   const player = await playerAtivo()
-  if (!player) throw new Error('nenhum player aberto')
+  if (!player) throw new Error(t('nenhum player aberto'))
   const metadata = (await propriedade(player, 'Metadata')) as Record<string, unknown>
   const bruto = metadata?.['xesam:url']
   const url = String(
@@ -214,7 +215,7 @@ export async function midiaLink(): Promise<string> {
       ? (bruto as { data: unknown }).data
       : (bruto ?? ''),
   )
-  if (!/^https?:\/\//.test(url)) throw new Error('o player não dá um link para a faixa')
+  if (!/^https?:\/\//.test(url)) throw new Error(t('o player não dá um link para a faixa'))
   return url
 }
 
@@ -225,7 +226,7 @@ export const midiaAnterior = () => mpris('Previous')
 /** Traz a janela do player para a frente. */
 export async function midiaAbrir(): Promise<void> {
   const player = await playerAtivo()
-  if (!player) throw new Error('nenhum player aberto')
+  if (!player) throw new Error(t('nenhum player aberto'))
   await cmd('busctl', [
     '--user',
     'call',

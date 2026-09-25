@@ -1,6 +1,7 @@
 import { readdir, stat } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
+import { localeDoIdioma, marcar, t } from '@shared/i18n'
 import type { IslandModule, IslandSnapshot, Reading } from '@shared/island'
 import { listAgents } from '../services/agents'
 import { apps } from '../services/apps'
@@ -149,14 +150,20 @@ async function midia(): Promise<Reading[]> {
     return [
       ler(
         'midia-tocando',
-        'Tocando',
-        'nada',
-        tocando ? `${tocando.player} parado, sem faixa` : 'nenhum player aberto',
+        t('Tocando'),
+        marcar('nada'),
+        tocando
+          ? t('{player} parado, sem faixa', { player: tocando.player })
+          : t('nenhum player aberto'),
       ),
-      ler('midia-estado', 'Estado', 'parado'),
-      ler('midia-progresso', 'Progresso', '—', 'sem faixa'),
-      ler('midia-player', 'Player', tocando ? `${tocando.player} (parado)` : 'nenhum'),
-      ler('midia-modos', 'Modos', '—', 'sem player'),
+      ler('midia-estado', t('Estado'), marcar('parado')),
+      ler('midia-progresso', t('Progresso'), '—', t('sem faixa')),
+      ler(
+        'midia-player',
+        t('Player'),
+        tocando ? t('{player} (parado)', { player: tocando.player }) : marcar('nenhum'),
+      ),
+      ler('midia-modos', t('Modos'), '—', t('sem player')),
     ]
   }
 
@@ -167,32 +174,36 @@ async function midia(): Promise<Reading[]> {
       ? tocando.positionSec / tocando.durationSec
       : null
 
-  const principal = ler('midia-tocando', 'Tocando', tocando.title || '—', tocando.artist, razao)
+  const principal = ler('midia-tocando', t('Tocando'), tocando.title || '—', tocando.artist, razao)
   // A capa já chega pronta do serviço do player (file:// vira data: lá).
   if (tocando.artUrl) principal.art = tocando.artUrl
 
   const modos = await midiaModos().catch(() => null)
   return [
     principal,
-    ler('midia-estado', 'Estado', tocando.status === 'playing' ? 'tocando' : 'pausado'),
+    ler(
+      'midia-estado',
+      t('Estado'),
+      tocando.status === 'playing' ? marcar('tocando') : marcar('pausado'),
+    ),
     ler(
       'midia-progresso',
-      'Progresso',
+      t('Progresso'),
       minutos(tocando.positionSec),
-      `de ${minutos(tocando.durationSec)}`,
+      t('de {total}', { total: minutos(tocando.durationSec) }),
       razao,
     ),
-    ler('midia-player', 'Player', tocando.player),
+    ler('midia-player', t('Player'), tocando.player),
     ler(
       'midia-modos',
-      'Embaralhar e repetir',
-      modos ? (modos.shuffle ? 'embaralhando' : 'em ordem') : '—',
+      t('Embaralhar e repetir'),
+      modos ? (modos.shuffle ? marcar('embaralhando') : marcar('em ordem')) : '—',
       modos
         ? modos.loop === 'Track'
-          ? 'repete a faixa'
+          ? marcar('repete a faixa')
           : modos.loop === 'Playlist'
-            ? 'repete a lista'
-            : 'sem repetir'
+            ? marcar('repete a lista')
+            : marcar('sem repetir')
         : '',
     ),
   ]
@@ -211,12 +222,12 @@ async function letraDaFaixa() {
 
 /** A condição em português: o serviço fala a língua do Open-Meteo. */
 const CEU: Record<string, string> = {
-  clear: 'céu limpo',
-  clouds: 'nublado',
-  fog: 'neblina',
-  rain: 'chuva',
-  snow: 'neve',
-  storm: 'tempestade',
+  clear: marcar('céu limpo'),
+  clouds: marcar('nublado'),
+  fog: marcar('neblina'),
+  rain: marcar('chuva'),
+  snow: marcar('neve'),
+  storm: marcar('tempestade'),
 }
 
 async function tempo(): Promise<Reading[]> {
@@ -235,13 +246,17 @@ async function tempo(): Promise<Reading[]> {
   const leituras = [
     ler(
       'relogio-hora',
-      'Hora',
-      agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12 }),
+      t('Hora'),
+      agora.toLocaleTimeString(localeDoIdioma(), { hour: '2-digit', minute: '2-digit', hour12 }),
     ),
     ler(
       'relogio-data',
-      'Data',
-      agora.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' }),
+      t('Data'),
+      agora.toLocaleDateString(localeDoIdioma(), {
+        weekday: 'long',
+        day: '2-digit',
+        month: 'long',
+      }),
     ),
   ]
 
@@ -251,7 +266,7 @@ async function tempo(): Promise<Reading[]> {
   const mundo = fusos.map((zona) => ({
     zona,
     nome: zona.split('/').at(-1)?.replace(/_/g, ' ') ?? zona,
-    hora: agora.toLocaleTimeString('pt-BR', {
+    hora: agora.toLocaleTimeString(localeDoIdioma(), {
       hour: '2-digit',
       minute: '2-digit',
       timeZone: zona,
@@ -261,12 +276,12 @@ async function tempo(): Promise<Reading[]> {
   leituras.push(
     ler(
       'relogio-mundo',
-      'Outros fusos',
-      mundo[0] ? `${mundo[0].nome} ${mundo[0].hora}` : 'nenhum',
+      t('Outros fusos'),
+      mundo[0] ? `${mundo[0].nome} ${mundo[0].hora}` : marcar('nenhum'),
       // `nome hora;…`: o panorama desenha daqui.
       mundo.length > 0
         ? mundo.map((m) => `${m.nome} ${m.hora}`).join(';')
-        : 'escolha fusos em Configurações → Ilha',
+        : t('escolha fusos em Configurações → Ilha'),
     ),
   )
 
@@ -274,13 +289,13 @@ async function tempo(): Promise<Reading[]> {
   leituras.push(
     ler(
       'timer-restante',
-      cronometro?.end === null ? 'Cronômetro' : 'Temporizador',
+      cronometro?.end === null ? t('Cronômetro') : t('Temporizador'),
       cronometro
         ? cronometro.end === null
           ? mmss((Date.now() - cronometro.start) / 1000)
           : mmss((cronometro.end - Date.now()) / 1000)
         : '—',
-      cronometro ? cronometro.label || `${cronometro.minutes} min` : 'nenhum em andamento',
+      cronometro ? cronometro.label || `${cronometro.minutes} min` : t('nenhum em andamento'),
       cronometro?.end
         ? Math.max(0, cronometro.end - Date.now()) / (cronometro.minutes * 60_000)
         : null,
@@ -293,12 +308,12 @@ async function tempo(): Promise<Reading[]> {
   try {
     const clima = await currentWeather(cidade)
     leituras.push(
-      ler('clima-temp', 'Lá fora', `${Math.round(clima.temperatureC)}°`, clima.place),
-      ler('clima-condicao', 'Céu', CEU[clima.condition] ?? clima.condition),
+      ler('clima-temp', t('Lá fora'), `${Math.round(clima.temperatureC)}°`, clima.place),
+      ler('clima-condicao', t('Céu'), t(CEU[clima.condition] ?? clima.condition)),
     )
   } catch {
     // Sem internet o relógio continua valendo: o clima some, o resto fica.
-    leituras.push(ler('clima-temp', 'Lá fora', '—', 'clima indisponível', null, 'alerta'))
+    leituras.push(ler('clima-temp', t('Lá fora'), '—', t('clima indisponível'), null, 'alerta'))
   }
   return leituras
 }
@@ -317,29 +332,31 @@ async function avisos(): Promise<Reading[]> {
   return [
     ler(
       'silencio',
-      'Não perturbe',
-      silencio ? 'ligado' : 'desligado',
+      t('Não perturbe'),
+      silencio ? marcar('ligado') : marcar('desligado'),
       silencio
         ? silencioNosso()
-          ? 'pela ilha'
-          : 'pelo applet do KDE'
-        : 'as notificações aparecem',
+          ? t('pela ilha')
+          : t('pelo applet do KDE')
+        : t('as notificações aparecem'),
       null,
       silencio ? 'alerta' : 'ok',
     ),
     ler(
       'avisos-recentes',
-      'Notificações',
+      t('Notificações'),
       String(lista.length),
       lista[0]
         ? `${lista[0].app}: ${lista[0].title}`.slice(0, 40)
-        : 'nenhuma desde que a ilha subiu',
+        : t('nenhuma desde que a ilha subiu'),
     ),
     ler(
       'avisos-vigia',
-      'Vigia do D-Bus',
-      vigia ? 'ouvindo' : 'parado',
-      vigia ? 'dbus-monitor em org.freedesktop.Notifications' : 'ligue em Configurações → Ilha',
+      t('Vigia do D-Bus'),
+      vigia ? marcar('ouvindo') : marcar('parado'),
+      vigia
+        ? t('dbus-monitor em org.freedesktop.Notifications')
+        : t('ligue em Configurações → Ilha'),
       null,
       vigia ? 'ok' : 'alerta',
     ),
@@ -360,27 +377,33 @@ async function halo(): Promise<Reading[]> {
   return [
     ler(
       'halo-agentes',
-      'Agentes',
+      t('Agentes'),
       String(agentes.length),
-      trabalhando.length > 0 ? `${trabalhando.length} trabalhando` : 'nenhum ocupado',
+      // "trabalhando" fica em português: a ilha procura a palavra no detalhe.
+      trabalhando.length > 0 ? `${trabalhando.length} trabalhando` : t('nenhum ocupado'),
       null,
       trabalhando.length > 0 ? 'alerta' : 'ok',
     ),
-    ler('halo-containers', 'Containers', String(ativos), `de ${lista.length}`),
+    ler(
+      'halo-containers',
+      t('Containers'),
+      String(ativos),
+      t('de {total}', { total: lista.length }),
+    ),
     ler(
       'halo-projetos',
-      'Projetos alterados',
+      t('Projetos alterados'),
       String(sujos.length),
-      sujos[0]?.name ?? 'tudo commitado',
+      sujos[0]?.name ?? t('tudo commitado'),
     ),
     // O app dentro da própria ilha. É leitura, e não só um sinal para a
     // pílula, porque é estado do sistema como qualquer outro: quem abre a
     // aba Módulos vê onde a janela está.
     ler(
       'halo-na-ilha',
-      'Janela do Halo',
-      haloRecolhido() ? 'na ilha' : 'à vista',
-      haloRecolhido() ? 'Meta+Space traz de volta' : 'Meta+Space recolhe',
+      t('Janela do Halo'),
+      haloRecolhido() ? marcar('na ilha') : marcar('à vista'),
+      haloRecolhido() ? t('Meta+Space traz de volta') : t('Meta+Space recolhe'),
     ),
   ]
 }
@@ -456,25 +479,27 @@ async function baixados(): Promise<Reading[]> {
   return [
     ler(
       'downloads-recentes',
-      'Baixados',
+      t('Baixados'),
       String(nomes.length),
-      recentes[0]?.nome.slice(0, 28) ?? 'pasta vazia',
+      recentes[0]?.nome.slice(0, 28) ?? t('pasta vazia'),
     ),
     ler(
       'capturas-recentes',
-      'Capturas de tela',
+      t('Capturas de tela'),
       String(capturas.total),
-      capturas.ultima?.name.slice(0, 28) ?? 'nenhuma na pasta do Spectacle',
+      capturas.ultima?.name.slice(0, 28) ?? t('nenhuma na pasta do Spectacle'),
     ),
     ler(
       'downloads-andamento',
-      'Baixando agora',
+      t('Baixando agora'),
       String(andamento.length),
       andamento[0]
         ? `${andamento[0].nome.slice(0, 22)} · ${legivel(andamento[0].bytes)}`
         : parados > 0
-          ? `nada em andamento · ${parados} parado${parados > 1 ? 's' : ''}`
-          : 'nada em andamento',
+          ? t(parados > 1 ? 'nada em andamento · {n} parados' : 'nada em andamento · {n} parado', {
+              n: parados,
+            })
+          : t('nada em andamento'),
       null,
       andamento.length > 0 ? 'alerta' : 'ok',
     ),
@@ -483,7 +508,7 @@ async function baixados(): Promise<Reading[]> {
 
 async function aplicativos(): Promise<Reading[]> {
   const lista = await apps()
-  return [ler('apps-buscar', 'Aplicativos', String(lista.length), 'instalados nesta máquina')]
+  return [ler('apps-buscar', t('Aplicativos'), String(lista.length), t('instalados nesta máquina'))]
 }
 
 async function desktop(): Promise<Reading[]> {
@@ -495,16 +520,25 @@ async function desktop(): Promise<Reading[]> {
   const nossa = cafeinaNossa()
   return [
     ...atual,
-    ler('kde-desktop-total', 'Áreas de trabalho', String(total)),
+    ler('kde-desktop-total', t('Áreas de trabalho'), String(total)),
     ler(
       'cafeina',
-      'Tela acordada',
-      nossa ? 'pela ilha' : segurando.length > 0 ? `por ${segurando.length}` : 'não',
+      t('Tela acordada'),
+      nossa
+        ? marcar('pela ilha')
+        : segurando.length > 0
+          ? t('por {n}', { n: segurando.length })
+          : 'não',
       nossa && cafeinaAte()
-        ? `até ${new Date(cafeinaAte() ?? 0).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
+        ? t('até {hora}', {
+            hora: new Date(cafeinaAte() ?? 0).toLocaleTimeString(localeDoIdioma(), {
+              hour: '2-digit',
+              minute: '2-digit',
+            }),
+          })
         : segurando[0]
           ? `${segurando[0].quem}: ${segurando[0].motivo}`.slice(0, 40)
-          : 'ninguém segurando',
+          : t('ninguém segurando'),
       null,
       nossa || segurando.length > 0 ? 'alerta' : 'ok',
     ),
@@ -518,10 +552,12 @@ async function transferencia(): Promise<Reading[]> {
   return [
     ler(
       'clip-recentes',
-      'Copiados',
+      t('Copiados'),
       String(lista.length),
       lista[0]?.preview.slice(0, 40) ??
-        (vigiando ? `nada copiado ainda · via ${clipboardSource()}` : 'histórico desligado'),
+        (vigiando
+          ? t('nada copiado ainda · via {fonte}', { fonte: clipboardSource() })
+          : t('histórico desligado')),
       null,
       vigiando ? 'ok' : 'alerta',
     ),
@@ -535,11 +571,11 @@ async function gaveta(): Promise<Reading[]> {
   return [
     ler(
       'gaveta-arquivos',
-      'Na gaveta',
+      t('Na gaveta'),
       String(itens.length),
       perdidos > 0
-        ? `${perdidos} sumiram do disco`
-        : (itens[0]?.name ?? 'solte arquivos na pílula'),
+        ? t('{n} sumiram do disco', { n: perdidos })
+        : (itens[0]?.name ?? t('solte arquivos na pílula')),
       null,
       perdidos > 0 ? 'alerta' : 'ok',
     ),
@@ -551,18 +587,18 @@ async function janelas(): Promise<Reading[]> {
   const [abertas, guardadas] = [await listarJanelas(), janelasGuardadas()]
   const ativa = abertas.find((j) => j.active)
   return [
-    ler('janelas-abertas', 'Janelas abertas', String(abertas.length), ativa?.title ?? ''),
+    ler('janelas-abertas', t('Janelas abertas'), String(abertas.length), ativa?.title ?? ''),
     ler(
       'janelas-guardadas',
-      'Guardadas na gaveta',
+      t('Guardadas na gaveta'),
       String(guardadas.length),
-      guardadas[0]?.title ?? 'nenhuma guardada',
+      guardadas[0]?.title ?? t('nenhuma guardada'),
     ),
     ler(
       'janelas-vigia',
-      'Vigia do KWin',
-      vigiaDePe() ? 'de pé' : 'parado',
-      vigiaDePe() ? 'ouve tela cheia e o atalho' : 'a ilha não ouve o compositor',
+      t('Vigia do KWin'),
+      vigiaDePe() ? marcar('de pé') : marcar('parado'),
+      vigiaDePe() ? t('ouve tela cheia e o atalho') : t('a ilha não ouve o compositor'),
       null,
       vigiaDePe() ? 'ok' : 'alerta',
     ),
@@ -577,22 +613,22 @@ async function api(): Promise<Reading[]> {
   return [
     ler(
       'api-socket',
-      'Socket',
-      ouvindo ? 'ouvindo' : 'parado',
+      t('Socket'),
+      ouvindo ? marcar('ouvindo') : marcar('parado'),
       // O caminho: é o que um script precisa saber, e a homologação também.
-      ouvindo ? caminhoDoSocket() : 'ligue a API local em Configurações → Ilha',
+      ouvindo ? caminhoDoSocket() : t('ligue a API local em Configurações → Ilha'),
       null,
       ouvindo ? 'ok' : 'alerta',
     ),
     ler(
       'api-atividades',
-      'Atividades',
+      t('Atividades'),
       String(lista.length),
       vivas[0]
-        ? `${vivas[0].title} · em andamento`.slice(0, 48)
+        ? t('{titulo} · em andamento', { titulo: vivas[0].title }).slice(0, 48)
         : lista[0]
           ? `${lista[0].title} · ${lista[0].state}`.slice(0, 48)
-          : 'nada publicado — ver tools/ilha-shell.sh',
+          : t('nada publicado — ver tools/ilha-shell.sh'),
       null,
       vivas.length > 0 ? 'alerta' : 'ok',
     ),
@@ -603,21 +639,21 @@ async function api(): Promise<Reading[]> {
 
 export async function islandSnapshot(): Promise<IslandSnapshot> {
   const modules = await Promise.all([
-    modulo('tempo', 'Relógio e clima', 'Clock', tempo, [
-      { id: 'timer-iniciar', label: 'Temporizador de 25 min', icon: 'Timer' },
-      { id: 'timer-cronometro', label: 'Cronômetro', icon: 'Hourglass' },
-      { id: 'timer-parar', label: 'Parar', icon: 'X' },
+    modulo('tempo', t('Relógio e clima'), 'Clock', tempo, [
+      { id: 'timer-iniciar', label: t('Temporizador de 25 min'), icon: 'Timer' },
+      { id: 'timer-cronometro', label: t('Cronômetro'), icon: 'Hourglass' },
+      { id: 'timer-parar', label: t('Parar'), icon: 'X' },
     ]),
-    modulo('midia', 'Tocando agora', 'MusicNotes', midia, [
-      { id: 'midia-anterior', label: 'Anterior', icon: 'SkipBack' },
-      { id: 'midia-alternar', label: 'Tocar ou pausar', icon: 'Play' },
-      { id: 'midia-proxima', label: 'Próxima', icon: 'SkipForward' },
-      { id: 'midia-abrir', label: 'Abrir o player', icon: 'ArrowSquareOut' },
-      { id: 'midia-embaralhar', label: 'Embaralhar', icon: 'Shuffle' },
-      { id: 'midia-repetir', label: 'Repetir', icon: 'Repeat' },
-      { id: 'midia-copiar-link', label: 'Copiar o link', icon: 'Link' },
+    modulo('midia', t('Tocando agora'), 'MusicNotes', midia, [
+      { id: 'midia-anterior', label: t('Anterior'), icon: 'SkipBack' },
+      { id: 'midia-alternar', label: t('Tocar ou pausar'), icon: 'Play' },
+      { id: 'midia-proxima', label: t('Próxima'), icon: 'SkipForward' },
+      { id: 'midia-abrir', label: t('Abrir o player'), icon: 'ArrowSquareOut' },
+      { id: 'midia-embaralhar', label: t('Embaralhar'), icon: 'Shuffle' },
+      { id: 'midia-repetir', label: t('Repetir'), icon: 'Repeat' },
+      { id: 'midia-copiar-link', label: t('Copiar o link'), icon: 'Link' },
     ]),
-    modulo('sistema', 'Sistema', 'Cpu', async () => [
+    modulo('sistema', t('Sistema'), 'Cpu', async () => [
       // CPU, memória e carga vêm do /proc: baratos, e vivos a cada batida.
       ...(await sistema()),
       ...(await memo('topo', 5000, processoTopo).catch(() => [])),
@@ -626,10 +662,10 @@ export async function islandSnapshot(): Promise<IslandSnapshot> {
       ...(await memo('servicos', 10_000, servicos).catch(() => [])),
       ...(await memo('portas', 10_000, portas).catch(() => [])),
     ]),
-    modulo('gpu', 'Placa de vídeo', 'GraphicsCard', () => memo('gpu', 3000, gpu)),
+    modulo('gpu', t('Placa de vídeo'), 'GraphicsCard', () => memo('gpu', 3000, gpu)),
     modulo(
       'audio',
-      'Áudio',
+      t('Áudio'),
       'SpeakerHigh',
       async () => {
         // A versão do sink na chave: mudou o volume, a leitura é refeita já.
@@ -642,48 +678,52 @@ export async function islandSnapshot(): Promise<IslandSnapshot> {
           ...(await memo('microfone', 5000, microfone).catch(() => [])),
           ler(
             'audio-espectro',
-            'Espectro',
-            espectro.ouvindo ? 'ouvindo' : espectro.ligado ? 'parado' : 'desligado',
+            t('Espectro'),
             espectro.ouvindo
-              ? 'parec no monitor da saída'
+              ? marcar('ouvindo')
               : espectro.ligado
-                ? 'sobe quando algo tocar'
-                : 'ligue em Configurações → Ilha',
+                ? marcar('parado')
+                : marcar('desligado'),
+            espectro.ouvindo
+              ? t('parec no monitor da saída')
+              : espectro.ligado
+                ? t('sobe quando algo tocar')
+                : t('ligue em Configurações → Ilha'),
             null,
             espectro.ligado ? 'ok' : 'alerta',
           ),
           ler(
             'saidas-audio',
-            'Saídas',
+            t('Saídas'),
             String(saidas.length),
             // `nome|descrição;…`: o seletor do player lê daqui, sem canal novo.
             saidas.map((s) => `${s.nome}|${s.descricao}`).join(';'),
           ),
           ler(
             'audio-vigia',
-            'HUD de volume',
-            vigia ? 'ouvindo' : 'parado',
-            vigia ? 'pactl subscribe' : 'ligue em Configurações → Ilha',
+            t('HUD de volume'),
+            vigia ? marcar('ouvindo') : marcar('parado'),
+            vigia ? 'pactl subscribe' : t('ligue em Configurações → Ilha'),
             null,
             vigia ? 'ok' : 'alerta',
           ),
         ]
       },
       [
-        { id: 'volume-baixar', label: 'Menos volume', icon: 'SpeakerLow' },
-        { id: 'volume-mudo', label: 'Mudo', icon: 'SpeakerSlash' },
-        { id: 'volume-subir', label: 'Mais volume', icon: 'SpeakerHigh' },
-        { id: 'mic-mudo-alternar', label: 'Silenciar o microfone', icon: 'MicrophoneSlash' },
-        { id: 'audio-trocar-saida', label: 'Trocar a saída', icon: 'ArrowsLeftRight' },
+        { id: 'volume-baixar', label: t('Menos volume'), icon: 'SpeakerLow' },
+        { id: 'volume-mudo', label: t('Mudo'), icon: 'SpeakerSlash' },
+        { id: 'volume-subir', label: t('Mais volume'), icon: 'SpeakerHigh' },
+        { id: 'mic-mudo-alternar', label: t('Silenciar o microfone'), icon: 'MicrophoneSlash' },
+        { id: 'audio-trocar-saida', label: t('Trocar a saída'), icon: 'ArrowsLeftRight' },
       ],
     ),
     modulo(
       'rede',
-      'Rede',
+      t('Rede'),
       'WifiHigh',
       // A vazão é diferença de /proc/net/dev e fica viva; o `nmcli` tem prazo.
       async () => [...(await memo('rede', 10_000, rede)), ...(await vazao().catch(() => []))],
-      [{ id: 'wifi-alternar', label: 'Ligar ou desligar o Wi-Fi', icon: 'WifiSlash' }],
+      [{ id: 'wifi-alternar', label: t('Ligar ou desligar o Wi-Fi'), icon: 'WifiSlash' }],
     ),
     modulo(
       'bluetooth',
@@ -696,71 +736,71 @@ export async function islandSnapshot(): Promise<IslandSnapshot> {
         ...(await memo('bluetooth-bateria', 30_000, bluetoothBateria).catch((erro: Error) => [
           ler(
             'bluetooth-bateria',
-            'Bateria Bluetooth',
+            t('Bateria Bluetooth'),
             '—',
-            `sem leitura: ${erro.message.slice(0, 60)}`,
+            t('sem leitura: {motivo}', { motivo: erro.message.slice(0, 60) }),
             null,
             'alerta',
           ),
         ])),
       ],
-      [{ id: 'bluetooth-alternar', label: 'Ligar ou desligar', icon: 'Power' }],
+      [{ id: 'bluetooth-alternar', label: t('Ligar ou desligar'), icon: 'Power' }],
     ),
-    modulo('desktop', 'Área de trabalho', 'SquaresFour', () => memo('desktop', 3000, desktop), [
-      { id: 'cafeina-alternar', label: 'Cafeína: manter acordada', icon: 'Coffee' },
-      { id: 'kde-desktop-anterior', label: 'Área anterior', icon: 'CaretLeft' },
-      { id: 'kde-desktop-proxima', label: 'Próxima área', icon: 'CaretRight' },
-      { id: 'kde-mostrar-desktop', label: 'Mostrar a área de trabalho', icon: 'Desktop' },
-      { id: 'kde-captura', label: 'Capturar a tela', icon: 'Camera' },
-      { id: 'cor-capturar', label: 'Conta-gotas: cor de um ponto', icon: 'Eyedropper' },
-      { id: 'kde-bloquear', label: 'Bloquear', icon: 'Lock' },
+    modulo('desktop', t('Área de trabalho'), 'SquaresFour', () => memo('desktop', 3000, desktop), [
+      { id: 'cafeina-alternar', label: t('Cafeína: manter acordada'), icon: 'Coffee' },
+      { id: 'kde-desktop-anterior', label: t('Área anterior'), icon: 'CaretLeft' },
+      { id: 'kde-desktop-proxima', label: t('Próxima área'), icon: 'CaretRight' },
+      { id: 'kde-mostrar-desktop', label: t('Mostrar a área de trabalho'), icon: 'Desktop' },
+      { id: 'kde-captura', label: t('Capturar a tela'), icon: 'Camera' },
+      { id: 'cor-capturar', label: t('Conta-gotas: cor de um ponto'), icon: 'Eyedropper' },
+      { id: 'kde-bloquear', label: t('Bloquear'), icon: 'Lock' },
     ]),
     modulo('halo', 'Halo', 'Sparkle', () => memo('halo', 30_000, halo), [
-      { id: 'halo-tela', label: 'Trazer à vista', icon: 'ArrowSquareOut' },
+      { id: 'halo-tela', label: t('Trazer à vista'), icon: 'ArrowSquareOut' },
       // O par do Meta+Space, aqui como ação do módulo: `active` acende a que
       // vale agora, do mesmo jeito que as ações que alternam.
-      { id: 'halo-recolher', label: 'Recolher para a ilha', icon: 'Halo' },
-      { id: 'halo-trazer', label: 'Trazer de volta', icon: 'Halo', active: haloRecolhido() },
+      { id: 'halo-recolher', label: t('Recolher para a ilha'), icon: 'Halo' },
+      { id: 'halo-trazer', label: t('Trazer de volta'), icon: 'Halo', active: haloRecolhido() },
     ]),
     modulo(
       'apps',
-      'Aplicativos',
+      t('Aplicativos'),
       'SquaresFour',
       async () => [
         ...(await memo('aplicativos', 15_000, aplicativos)),
         ...(await memo('baixados', 15_000, baixados).catch(() => [])),
       ],
       [
-        { id: 'abrir-caminho', label: 'Abrir a pasta pessoal', icon: 'FolderOpen' },
-        { id: 'texto-da-tela', label: 'Ler o texto de um pedaço da tela', icon: 'TextAa' },
+        { id: 'abrir-caminho', label: t('Abrir a pasta pessoal'), icon: 'FolderOpen' },
+        { id: 'texto-da-tela', label: t('Ler o texto de um pedaço da tela'), icon: 'TextAa' },
       ],
     ),
-    modulo('avisos', 'Notificações', 'BellRinging', avisos, [
-      { id: 'silencio-alternar', label: 'Não perturbe', icon: 'BellSlash' },
-      { id: 'avisos-limpar', label: 'Limpar a lista', icon: 'Broom' },
+    modulo('avisos', t('Notificações'), 'BellRinging', avisos, [
+      { id: 'silencio-alternar', label: t('Não perturbe'), icon: 'BellSlash' },
+      { id: 'avisos-limpar', label: t('Limpar a lista'), icon: 'Broom' },
     ]),
-    modulo('clips', 'Área de transferência', 'Clipboard', transferencia, [
-      { id: 'clip-limpar', label: 'Limpar o histórico', icon: 'Broom' },
+    modulo('clips', t('Área de transferência'), 'Clipboard', transferencia, [
+      { id: 'clip-limpar', label: t('Limpar o histórico'), icon: 'Broom' },
     ]),
-    modulo('gaveta', 'Gaveta', 'Tray', gaveta, [
-      { id: 'gaveta-limpar', label: 'Esvaziar a gaveta', icon: 'Broom' },
+    modulo('gaveta', t('Gaveta'), 'Tray', gaveta, [
+      { id: 'gaveta-limpar', label: t('Esvaziar a gaveta'), icon: 'Broom' },
     ]),
-    modulo('janelas', 'Janelas', 'AppWindow', janelas, [
-      { id: 'janela-guardar', label: 'Guardar a janela ativa', icon: 'DownloadSimple' },
+    modulo('janelas', t('Janelas'), 'AppWindow', janelas, [
+      { id: 'janela-guardar', label: t('Guardar a janela ativa'), icon: 'DownloadSimple' },
     ]),
-    modulo('celular', 'Celular', 'DeviceMobile', () => memo('celular', 10_000, celular), [
-      { id: 'celular-tocar', label: 'Fazer tocar', icon: 'Vibrate' },
+    modulo('celular', t('Celular'), 'DeviceMobile', () => memo('celular', 10_000, celular), [
+      { id: 'celular-tocar', label: t('Fazer tocar'), icon: 'Vibrate' },
       { id: 'celular-ping', label: 'Ping', icon: 'Broadcast' },
     ]),
-    modulo('discos', 'Removíveis', 'Usb', () => memo('discos', 15_000, discos)),
-    modulo('teclado', 'Teclado', 'Keyboard', teclado),
-    modulo('foco', 'Foco', 'Target', foco, [
-      { id: 'timer-iniciar', label: 'Sessão de 25 min', icon: 'Timer' },
-      { id: 'foco-limpar', label: 'Apagar o histórico', icon: 'Broom' },
+    modulo('discos', t('Removíveis'), 'Usb', () => memo('discos', 15_000, discos)),
+    modulo('teclado', t('Teclado'), 'Keyboard', teclado),
+    modulo('foco', t('Foco'), 'Target', foco, [
+      { id: 'timer-iniciar', label: t('Sessão de 25 min'), icon: 'Timer' },
+      { id: 'foco-limpar', label: t('Apagar o histórico'), icon: 'Broom' },
     ]),
-    modulo('api', 'API local', 'PlugsConnected', api),
+    modulo('api', t('API local'), 'PlugsConnected', api),
     modulo('claude', 'Claude', 'Sparkle', claude, [
-      { id: 'claude-parar', label: 'Encerrar a conversa', icon: 'X' },
+      { id: 'claude-parar', label: t('Encerrar a conversa'), icon: 'X' },
     ]),
   ])
 

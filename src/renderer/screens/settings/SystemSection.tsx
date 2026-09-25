@@ -3,6 +3,7 @@ import {
   type DiagnosticoDoSistema,
   type NivelDeDependencia,
 } from '@shared/dependencias'
+import { marcar, t } from '@shared/i18n'
 import { useEffect, useState } from 'react'
 import { cx } from '@/ui/cx'
 import styles from '../SettingsScreen.module.css'
@@ -25,15 +26,15 @@ import styles from '../SettingsScreen.module.css'
  */
 
 const TITULOS: Record<NivelDeDependencia, string> = {
-  essencial: 'Essenciais',
-  kde: 'Do KDE Plasma',
-  opcional: 'Opcionais',
+  essencial: marcar('Essenciais'),
+  kde: marcar('Do KDE Plasma'),
+  opcional: marcar('Opcionais'),
 }
 
 const EXPLICACOES: Record<NivelDeDependencia, string> = {
-  essencial: 'Sem isto uma função central do app para de funcionar.',
-  kde: 'Vêm com o KDE Plasma, que é o ambiente-alvo do app. Fora dele não existem.',
-  opcional: 'Cada uma custa uma leitura ou uma ação — o resto segue igual.',
+  essencial: marcar('Sem isto uma função central do app para de funcionar.'),
+  kde: marcar('Vêm com o KDE Plasma, que é o ambiente-alvo do app. Fora dele não existem.'),
+  opcional: marcar('Cada uma custa uma leitura ou uma ação — o resto segue igual.'),
 }
 
 const NIVEIS: readonly NivelDeDependencia[] = ['essencial', 'kde', 'opcional']
@@ -48,11 +49,11 @@ export function SystemSection() {
   return (
     <>
       <div className={styles.section}>
-        <span className={styles.sectionLabel}>O que o Halo chama de fora</span>
+        <span className={styles.sectionLabel}>{t('O que o Halo chama de fora')}</span>
         <span className={styles.note}>
-          O app conversa com o sistema por linha de comando e por D-Bus, e não embute nenhum desses
-          programas. Esta tela diz quais estão aqui — e o que se perde sem cada um que falta. Ela
-          não instala nada: o comando fica escrito, e rodar é você quem decide.
+          {t(
+            'O app conversa com o sistema por linha de comando e por D-Bus, e não embute nenhum desses programas. Esta tela diz quais estão aqui — e o que se perde sem cada um que falta. Ela não instala nada: o comando fica escrito, e rodar é você quem decide.',
+          )}
         </span>
       </div>
 
@@ -63,8 +64,10 @@ export function SystemSection() {
       ))}
 
       <span className={styles.note}>
-        A mesma lista roda no terminal com <code>npm run doctor</code>, que sai com erro quando
-        falta algo essencial — é o que se usa antes de empacotar uma versão.
+        {t('A mesma lista roda no terminal com')} <code>npm run doctor</code>
+        {t(
+          ', que sai com erro quando falta algo essencial — é o que se usa antes de empacotar uma versão.',
+        )}
       </span>
     </>
   )
@@ -86,7 +89,7 @@ function SessaoGrafica({ diagnostico }: { diagnostico: DiagnosticoDoSistema | nu
 
   return (
     <div className={styles.section}>
-      <span className={styles.sectionLabel}>Sessão gráfica</span>
+      <span className={styles.sectionLabel}>{t('Sessão gráfica')}</span>
       <div className={cx(styles.linha, styles.depLinha)}>
         <span className={cx(styles.depMarca, ok ? styles.depOk : styles.depFaltaGrave)}>
           {ok ? '✓' : '✗'}
@@ -95,10 +98,14 @@ function SessaoGrafica({ diagnostico }: { diagnostico: DiagnosticoDoSistema | nu
           <span className={styles.depNome}>{nativo ? 'X11' : tipo}</span>
           <span className={styles.depDetalhe}>
             {nativo
-              ? 'A camada da janela, a posição lembrada e o player por cima funcionam.'
+              ? t('A camada da janela, a posição lembrada e o player por cima funcionam.')
               : ok
-                ? 'Com XWayland de pé: o app abre como cliente X11 sobre ele, e as três coisas que precisa continuam existindo.'
-                : 'Sem XWayland: o app abre, mas o compositor vai ignorar a camada da janela, a posição e o "manter por cima" — em silêncio.'}
+                ? t(
+                    'Com XWayland de pé: o app abre como cliente X11 sobre ele, e as três coisas que precisa continuam existindo.',
+                  )
+                : t(
+                    'Sem XWayland: o app abre, mas o compositor vai ignorar a camada da janela, a posição e o "manter por cima" — em silêncio.',
+                  )}
           </span>
         </span>
       </div>
@@ -122,14 +129,14 @@ function Grupo({
   return (
     <div className={styles.section}>
       <span className={styles.sectionLabel}>
-        {TITULOS[nivel]}
+        {t(TITULOS[nivel])}
         {diagnostico
           ? faltando.length === 0
-            ? ` · os ${doNivel.length} estão aqui`
-            : ` · faltam ${faltando.length} de ${doNivel.length}`
+            ? ` · ${t('os {n} estão aqui', { n: doNivel.length })}`
+            : ` · ${t('faltam {n} de {total}', { n: faltando.length, total: doNivel.length })}`
           : ` · ${doNivel.length}`}
       </span>
-      <span className={styles.note}>{EXPLICACOES[nivel]}</span>
+      <span className={styles.note}>{t(EXPLICACOES[nivel])}</span>
       <div className={styles.lista}>
         {doNivel.map((dep) => {
           const tem = diagnostico?.presentes[dep.id]
@@ -150,7 +157,9 @@ function Grupo({
                   {/* Presente, o que interessa é PARA QUE ele serve; ausente, o
                       que se perde — que é a frase que faz alguém decidir se
                       vale instalar. */}
-                  {tem === false ? `Sem ele: ${dep.perde}.` : `Para ${dep.para}.`}
+                  {tem === false
+                    ? t('Sem ele: {perde}.', { perde: t(dep.perde) })
+                    : t('Para {para}.', { para: t(dep.para) })}
                 </span>
                 {tem === false ? (
                   <span className={styles.depComando}>

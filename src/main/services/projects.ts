@@ -3,6 +3,7 @@ import { readdir } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
 import { promisify } from 'node:util'
+import { t } from '@shared/i18n'
 import type { Project } from '@shared/projects'
 
 /**
@@ -45,7 +46,7 @@ async function git(cwd: string, args: string[]): Promise<string> {
 async function describe(path: string): Promise<Project | null> {
   try {
     const [branch, status, numstat, last] = await Promise.all([
-      git(path, ['rev-parse', '--abbrev-ref', 'HEAD']).catch(() => 'sem commits'),
+      git(path, ['rev-parse', '--abbrev-ref', 'HEAD']).catch(() => t('sem commits')),
       git(path, ['status', '--porcelain']),
       git(path, ['diff', '--numstat']).catch(() => ''),
       git(path, ['log', '-1', '--format=%s%n%cI']).catch(() => ''),

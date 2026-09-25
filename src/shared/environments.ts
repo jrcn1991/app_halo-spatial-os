@@ -19,6 +19,8 @@
  * mostra marcados como "em breve", sem clique que mude nada.
  */
 
+import { marcar, t } from './i18n'
+
 export type EnvironmentId =
   | 'floresta'
   | 'citypop'
@@ -78,7 +80,7 @@ export const ENVIRONMENTS = [
   {
     id: 'citypop',
     name: 'City Pop',
-    description: 'Noite Elétrica de Verão',
+    description: marcar('Noite Elétrica de Verão'),
     wallpaper: '.local/share/halo-spatial-os/wallpapers/citypop.jpg',
     ready: true,
   },
@@ -105,7 +107,7 @@ export const ENVIRONMENTS = [
     // O id continua `bioshock` — é ele que está gravado nas configurações de
     // quem já usa, e trocá-lo apagaria os ajustes deste ambiente.
     name: 'Shock',
-    description: 'Art Déco Subaquático',
+    description: marcar('Art Déco Subaquático'),
     wallpaper: '.local/share/halo-spatial-os/wallpapers/bioshock.jpg',
     ready: true,
   },
@@ -128,7 +130,9 @@ export const ENVIRONMENT_IDS: readonly EnvironmentId[] = ENVIRONMENTS.map((e) =>
  * e nada muda para ele.
  */
 export function environmentLabel(ambiente: Environment): string {
-  return ambiente.description ? `${ambiente.name} — ${ambiente.description}` : ambiente.name
+  // O nome não se traduz (é nome próprio); a segunda linha, sim — e na hora,
+  // porque a tabela nasce antes de o idioma ser conhecido.
+  return ambiente.description ? `${ambiente.name} — ${t(ambiente.description)}` : ambiente.name
 }
 
 export function environmentById(id: string): Environment | undefined {

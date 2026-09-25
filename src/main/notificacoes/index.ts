@@ -1,4 +1,5 @@
 import { type EnvironmentId, environmentById, environmentLabel } from '@shared/environments'
+import { t } from '@shared/i18n'
 import { IPC } from '@shared/ipc-contract'
 import type { EstadoDosAvisos, NotificacoesSettings } from '@shared/notificacoes'
 import { ipcMain } from 'electron'
@@ -70,7 +71,9 @@ async function tentarInibir(): Promise<void> {
     await inibir()
     motivo = ''
   } catch (erro) {
-    motivo = `o Plasma recusou o pedido de silêncio (${(erro as Error).message}); os balões continuam com ele`
+    motivo = t('o Plasma recusou o pedido de silêncio ({motivo}); os balões continuam com ele', {
+      motivo: (erro as Error).message,
+    })
   }
   empurrar()
 }
@@ -109,9 +112,10 @@ async function aplicar(cfg: NotificacoesSettings, env: EnvironmentId): Promise<v
   try {
     await ligarServidor(empurrar)
   } catch (erro) {
-    motivo =
-      'o servidor de notificações desta sessão não aceita vigia (só o do Plasma aceita) — ' +
-      `os balões continuam com ele (${(erro as Error).message})`
+    motivo = t(
+      'o servidor de notificações desta sessão não aceita vigia (só o do Plasma aceita) — os balões continuam com ele ({motivo})',
+      { motivo: (erro as Error).message },
+    )
     fecharJanelaDosAvisos()
     return
   }
@@ -152,8 +156,10 @@ export function estadoDasNotificacoes(): EstadoDosAvisos {
   let porque = motivo
   if (ligado && !agora && !porque) {
     porque = servidor.revogado
-      ? 'o "não perturbe" foi desligado pelo sino do KDE, e os balões voltaram a ser dele — desligue e ligue aqui para o Halo retomar'
-      : 'subindo a janela dos avisos'
+      ? t(
+          'o "não perturbe" foi desligado pelo sino do KDE, e os balões voltaram a ser dele — desligue e ligue aqui para o Halo retomar',
+        )
+      : t('subindo a janela dos avisos')
   }
   return { ligado, ativo: agora, motivo: agora ? '' : porque, silencio: servidor.silencio }
 }

@@ -1,5 +1,6 @@
 import type { AgentMessage } from '@shared/agents'
 import type { DesktopApp } from '@shared/apps'
+import { localeDoIdioma, marcar, t } from '@shared/i18n'
 import type {
   IslandActivity,
   IslandClaude,
@@ -176,14 +177,14 @@ type EventoVivo = { id: number; dado: IslandEvent; saindo: boolean }
 type Aba = 'inicio' | 'modulos' | 'claude' | 'gaveta' | 'janelas' | 'avisos' | 'clips' | 'nota'
 
 const ABAS: { id: Aba; nome: string; icone: string }[] = [
-  { id: 'inicio', nome: 'Início', icone: 'House' },
-  { id: 'modulos', nome: 'Painéis', icone: 'GridFour' },
+  { id: 'inicio', nome: marcar('Início'), icone: 'House' },
+  { id: 'modulos', nome: marcar('Painéis'), icone: 'GridFour' },
   { id: 'claude', nome: 'Claude', icone: 'Sparkle' },
-  { id: 'gaveta', nome: 'Gaveta', icone: 'Tray' },
-  { id: 'janelas', nome: 'Janelas', icone: 'AppWindow' },
-  { id: 'avisos', nome: 'Avisos', icone: 'BellRinging' },
-  { id: 'clips', nome: 'Cópias', icone: 'Clipboard' },
-  { id: 'nota', nome: 'Nota', icone: 'NotePencil' },
+  { id: 'gaveta', nome: marcar('Gaveta'), icone: 'Tray' },
+  { id: 'janelas', nome: marcar('Janelas'), icone: 'AppWindow' },
+  { id: 'avisos', nome: marcar('Avisos'), icone: 'BellRinging' },
+  { id: 'clips', nome: marcar('Cópias'), icone: 'Clipboard' },
+  { id: 'nota', nome: marcar('Nota'), icone: 'NotePencil' },
 ]
 
 /** A leitura `id` de um módulo, se houver. */
@@ -418,7 +419,7 @@ export function IslandApp() {
           const mensagem = erro instanceof Error ? erro.message : String(erro)
           anunciar({
             icon: 'WarningCircle',
-            text: 'Não deu',
+            text: t('Não deu'),
             detail: mensagem.replace(/^.*island:action': Error: /, '').slice(0, 60),
             level: 'erro',
             kind: 'aviso',
@@ -745,7 +746,7 @@ export function IslandApp() {
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: ver acima */}
       <section
         ref={gota}
-        aria-label="Ilha dinâmica"
+        aria-label={t('Ilha dinâmica')}
         className="gota"
         data-aberta={aberta ? 'sim' : 'nao'}
         data-hover={hover ? 'sim' : 'nao'}
@@ -1040,8 +1041,8 @@ function Atividade({ atividade, aoAgir }: { atividade: Atividade; aoAgir: Agir }
             type="button"
             className="aprovar"
             data-resposta="sim"
-            title="Permitir"
-            aria-label="Permitir"
+            title={t('Permitir')}
+            aria-label={t('Permitir')}
             onClick={(e) => {
               e.stopPropagation()
               aoAgir('claude-aprovar', 'sim')
@@ -1053,8 +1054,8 @@ function Atividade({ atividade, aoAgir }: { atividade: Atividade; aoAgir: Agir }
             type="button"
             className="aprovar"
             data-resposta="nao"
-            title="Negar"
-            aria-label="Negar"
+            title={t('Negar')}
+            aria-label={t('Negar')}
             onClick={(e) => {
               e.stopPropagation()
               aoAgir('claude-aprovar', 'nao')
@@ -1099,12 +1100,12 @@ function Atividade({ atividade, aoAgir }: { atividade: Atividade; aoAgir: Agir }
           </span>
           {atividade.pendente ? (
             <span className="resumoTexto" title={atividade.nome}>
-              {atividade.nome} já existe no Seafile
+              {t('{nome} já existe no Seafile', { nome: atividade.nome })}
             </span>
           ) : (
             <span className="resumoEnvio" title={atividade.nome}>
               <span className="resumoTexto">
-                {atividade.n === 1 ? atividade.nome : `${atividade.n} envios`} ·{' '}
+                {atividade.n === 1 ? atividade.nome : t('{n} envios', { n: atividade.n })} ·{' '}
                 {Math.round(atividade.progress * 100)}%
               </span>
               <span className="barra resumoBarra">
@@ -1149,7 +1150,7 @@ function Atividade({ atividade, aoAgir }: { atividade: Atividade; aoAgir: Agir }
             <Glifo nome="DownloadSimple" tamanho={14} />
           </span>
           <span className="resumoTexto" title={atividade.nome}>
-            {atividade.n === 1 ? atividade.nome : `${atividade.n} downloads`}
+            {atividade.n === 1 ? atividade.nome : t('{n} downloads', { n: atividade.n })}
           </span>
         </>
       )
@@ -1158,7 +1159,7 @@ function Atividade({ atividade, aoAgir }: { atividade: Atividade; aoAgir: Agir }
         <button
           type="button"
           className="resumoBotao"
-          title={`${atividade.texto} — clique para abrir o Halo`}
+          title={t('{texto} — clique para abrir o Halo', { texto: atividade.texto })}
           onClick={(e) => {
             e.stopPropagation()
             aoAgir('halo-tela')
@@ -1175,7 +1176,7 @@ function Atividade({ atividade, aoAgir }: { atividade: Atividade; aoAgir: Agir }
         <>
           <span className="pontoMic" />
           <span className="resumoTexto" title={atividade.quem}>
-            Microfone · {atividade.quem}
+            {t('Microfone')} · {atividade.quem}
           </span>
         </>
       )
@@ -1392,7 +1393,7 @@ function Anuncio({ evento }: { evento: IslandEvent }) {
       ) : (
         <>
           <span className="anuncioTexto">{evento.text}</span>
-          {evento.detail ? <span className="anuncioDetalhe">{evento.detail}</span> : null}
+          {evento.detail ? <span className="anuncioDetalhe">{t(evento.detail)}</span> : null}
         </>
       )}
     </>
@@ -1547,7 +1548,7 @@ function Cabeca({
 
   return (
     <header className="cabeca" data-hud={vivo ? 'sim' : 'nao'}>
-      <div className="abas" ref={barra} role="tablist" aria-label="Abas da ilha">
+      <div className="abas" ref={barra} role="tablist" aria-label={t('Abas da ilha')}>
         {capsula ? (
           <span
             className="abaCapsula"
@@ -1561,7 +1562,7 @@ function Cabeca({
             role="tab"
             className="aba"
             aria-selected={a.id === aba}
-            title={a.nome}
+            title={t(a.nome)}
             onClick={() => aoEscolher(a.id)}
           >
             {/* O contador mora SOBRE o glifo, como numa tab bar de verdade — e
@@ -1579,7 +1580,7 @@ function Cabeca({
                 <span className="abaBadge">{badge(a.id) > 99 ? '99+' : badge(a.id)}</span>
               ) : null}
             </span>
-            <span className="abaNome">{a.nome}</span>
+            <span className="abaNome">{t(a.nome)}</span>
           </button>
         ))}
       </div>
@@ -1607,8 +1608,8 @@ function Cabeca({
             type="button"
             className="acao"
             data-ativa={fixa ? 'sim' : 'nao'}
-            title={fixa ? 'Soltar (fecha quando o mouse sai)' : 'Segurar aberta'}
-            aria-label="Segurar a ilha aberta"
+            title={fixa ? t('Soltar (fecha quando o mouse sai)') : t('Segurar aberta')}
+            aria-label={t('Segurar a ilha aberta')}
             onClick={aoFixar}
           >
             <Glifo nome="PushPin" tamanho={14} cheio={fixa} />
@@ -1618,8 +1619,8 @@ function Cabeca({
             className="acao"
             data-ativa={silencioLigado ? 'sim' : 'nao'}
             data-pendente={pendentes.has('silencio-alternar') ? 'sim' : 'nao'}
-            title="Não perturbe: silencia as notificações"
-            aria-label="Não perturbe"
+            title={t('Não perturbe: silencia as notificações')}
+            aria-label={t('Não perturbe')}
             onClick={() => aoAgir('silencio-alternar')}
           >
             <Glifo
@@ -1635,10 +1636,12 @@ function Cabeca({
             data-pendente={pendentes.has('cafeina-alternar') ? 'sim' : 'nao'}
             title={
               cafeinaLigada
-                ? `Cafeína ligada — a tela não apaga (${cafeina?.detail})`
-                : 'Cafeína: manter a tela acordada'
+                ? t('Cafeína ligada — a tela não apaga ({detalhe})', {
+                    detalhe: cafeina?.detail ?? '',
+                  })
+                : t('Cafeína: manter a tela acordada')
             }
-            aria-label="Cafeína: manter a tela acordada"
+            aria-label={t('Cafeína: manter a tela acordada')}
             onClick={() => aoAgir('cafeina-alternar')}
           >
             <Glifo nome="Coffee" tamanho={14} cheio={cafeinaLigada} />
@@ -1659,10 +1662,10 @@ function Cabeca({
             }
             title={
               haloNaIlha
-                ? 'A janela do Halo está na ilha — clique (ou Meta+Espaço) a traz de volta'
-                : 'Recolher a janela do Halo para a ilha — clique, ou Meta+Espaço'
+                ? t('A janela do Halo está na ilha — clique (ou Meta+Espaço) a traz de volta')
+                : t('Recolher a janela do Halo para a ilha — clique, ou Meta+Espaço')
             }
-            aria-label={haloNaIlha ? 'Trazer o Halo de volta' : 'Recolher o Halo para a ilha'}
+            aria-label={haloNaIlha ? t('Trazer o Halo de volta') : t('Recolher o Halo para a ilha')}
             onClick={() => aoAgir(haloNaIlha ? 'halo-trazer' : 'halo-recolher')}
           >
             {/* Sem `cheio`: a marca do Halo é desenho nosso e não tem peso —
@@ -1742,33 +1745,38 @@ function Inicio({
   }[] = [
     {
       id: 'volume-mudo',
-      nome: mudo ? 'Som: mudo' : 'Silenciar o som',
+      nome: mudo ? t('Som: mudo') : t('Silenciar o som'),
       icone: mudo ? 'SpeakerSlash' : 'SpeakerHigh',
       ativa: mudo,
       modulo: 'audio',
     },
     {
       id: 'mic-mudo-alternar',
-      nome: micMudo ? 'Microfone: mudo' : 'Silenciar o microfone',
+      nome: micMudo ? t('Microfone: mudo') : t('Silenciar o microfone'),
       icone: micMudo ? 'MicrophoneSlash' : 'Microphone',
       ativa: micMudo,
       modulo: 'audio',
     },
     {
       id: 'cafeina-alternar',
-      nome: cafeina ? 'Cafeína ligada — a tela não apaga' : 'Cafeína: manter a tela acordada',
+      nome: cafeina ? t('Cafeína ligada — a tela não apaga') : t('Cafeína: manter a tela acordada'),
       icone: 'Coffee',
       ativa: cafeina,
       modulo: 'desktop',
     },
     {
       id: 'kde-mostrar-desktop',
-      nome: 'Mostrar a área de trabalho',
+      nome: t('Mostrar a área de trabalho'),
       icone: 'Desktop',
       modulo: 'desktop',
     },
-    { id: 'kde-captura', nome: 'Capturar a tela (Spectacle)', icone: 'Camera', modulo: 'desktop' },
-    { id: 'kde-bloquear', nome: 'Bloquear a tela agora', icone: 'Lock', modulo: 'desktop' },
+    {
+      id: 'kde-captura',
+      nome: t('Capturar a tela (Spectacle)'),
+      icone: 'Camera',
+      modulo: 'desktop',
+    },
+    { id: 'kde-bloquear', nome: t('Bloquear a tela agora'), icone: 'Lock', modulo: 'desktop' },
   ]
 
   return (
@@ -1798,13 +1806,13 @@ function Inicio({
               // Curto como as vizinhas (o nome da rede, "nada conectado"): a linha
               // tem ~120px e o resto é cortado. O que fazer com o clique está
               // no `title`, que é onde as outras também explicam.
-              estado={haloNaIlha ? 'na ilha' : 'à vista'}
+              estado={haloNaIlha ? t('na ilha') : t('à vista')}
               ativa={haloNaIlha}
               pendente={pendentes.has('halo-recolher') || pendentes.has('halo-trazer')}
               title={
                 haloNaIlha
-                  ? 'A janela do Halo está na ilha — clique (ou Meta+Espaço) a traz de volta'
-                  : 'Recolher a janela do Halo para a ilha — clique, ou Meta+Espaço'
+                  ? t('A janela do Halo está na ilha — clique (ou Meta+Espaço) a traz de volta')
+                  : t('Recolher a janela do Halo para a ilha — clique, ou Meta+Espaço')
               }
               onClick={() => aoAgir(haloNaIlha ? 'halo-trazer' : 'halo-recolher')}
               onContextMenu={() => aoAbrirModulo('halo')}
@@ -1812,30 +1820,30 @@ function Inicio({
             <Linha
               icone={wifi ? 'WifiHigh' : 'WifiSlash'}
               nome="Wi-Fi"
-              estado={wifi ? (conexao?.value ?? 'ligado') : 'desligado'}
+              estado={wifi ? t(conexao?.value ?? 'ligado') : t('desligado')}
               ativa={wifi}
               pendente={pendentes.has('wifi-alternar')}
-              title="Wi-Fi — botão direito abre o painel de rede"
+              title={t('Wi-Fi — botão direito abre o painel de rede')}
               onClick={() => aoAgir('wifi-alternar')}
               onContextMenu={() => aoAbrirModulo('rede')}
             />
             <Linha
               icone="Bluetooth"
               nome="Bluetooth"
-              estado={btLigado ? bt?.detail || 'ligado' : 'desligado'}
+              estado={btLigado ? t(bt?.detail || 'ligado') : t('desligado')}
               ativa={btLigado}
               pendente={pendentes.has('bluetooth-alternar')}
-              title="Bluetooth — botão direito abre o painel"
+              title={t('Bluetooth — botão direito abre o painel')}
               onClick={() => aoAgir('bluetooth-alternar')}
               onContextMenu={() => aoAbrirModulo('bluetooth')}
             />
             <Linha
               icone={silencio ? 'BellSlash' : 'Bell'}
-              nome="Silêncio"
-              estado={silencio ? 'não perturbe' : 'notificações'}
+              nome={t('Silêncio')}
+              estado={silencio ? t('não perturbe') : t('notificações')}
               ativa={silencio}
               pendente={pendentes.has('silencio-alternar')}
-              title="Não perturbe: silencia as notificações — botão direito abre os avisos"
+              title={t('Não perturbe: silencia as notificações — botão direito abre os avisos')}
               onClick={() => aoAgir('silencio-alternar')}
               onContextMenu={() => aoAbrirModulo('avisos')}
             />
@@ -1845,12 +1853,15 @@ function Inicio({
                 nome={celular.value}
                 estado={
                   bateriaCelular && bateriaCelular.value !== '—'
-                    ? `bateria ${bateriaCelular.value}${bateriaCelular.detail === 'carregando' ? ' ⚡' : ''}`
+                    ? t('bateria {valor}', { valor: bateriaCelular.value }) +
+                      (bateriaCelular.detail === 'carregando' ? ' ⚡' : '')
                     : 'KDE Connect'
                 }
                 ativa
                 pendente={pendentes.has('celular-ping')}
-                title="Celular pelo KDE Connect — clique manda um ping; botão direito abre o painel"
+                title={t(
+                  'Celular pelo KDE Connect — clique manda um ping; botão direito abre o painel',
+                )}
                 onClick={() => aoAgir('celular-ping')}
                 onContextMenu={() => aoAbrirModulo('celular')}
               />
@@ -1859,10 +1870,16 @@ function Inicio({
               <Linha
                 icone="Usb"
                 nome={pendrive.rotulo || pendrive.nome}
-                estado={pendrive.ponto ? 'montado · clique ejeta' : 'clique ejeta'}
+                estado={pendrive.ponto ? t('montado · clique ejeta') : t('clique ejeta')}
                 ativa={Boolean(pendrive.ponto)}
                 pendente={pendentes.has('disco-ejetar')}
-                title={`${pendrive.nome} · ${pendrive.tamanho} — clique ejeta com segurança; botão direito abre o painel`}
+                title={t(
+                  '{nome} · {tamanho} — clique ejeta com segurança; botão direito abre o painel',
+                  {
+                    nome: pendrive.nome,
+                    tamanho: pendrive.tamanho,
+                  },
+                )}
                 onClick={() => aoAgir('disco-ejetar', pendrive.device)}
                 onContextMenu={() => aoAbrirModulo('discos')}
               />
@@ -1877,7 +1894,7 @@ function Inicio({
                 className="tile"
                 data-ativa={f.ativa ? 'sim' : 'nao'}
                 data-pendente={pendentes.has(f.id) ? 'sim' : 'nao'}
-                title={`${f.nome} — botão direito abre o painel`}
+                title={t('{nome} — botão direito abre o painel', { nome: f.nome })}
                 aria-label={f.nome}
                 onClick={() => aoAgir(f.id)}
                 onContextMenu={(e) => {
@@ -1986,18 +2003,18 @@ function Player({
           type="button"
           className="playerCapaAlvo"
           onClick={aoAbrir}
-          title="Abrir o painel de mídia"
+          title={t('Abrir o painel de mídia')}
         >
           <Capa art={tocando?.art} />
         </button>
         <span className="playerTitulos">
           <Letreiro
             className="playerTitulo"
-            texto={nada ? 'Nada tocando' : (tocando?.value ?? '')}
+            texto={nada ? t('Nada tocando') : (tocando?.value ?? '')}
           />
           <Letreiro
             className="playerArtista"
-            texto={nada ? 'abra um player e ele aparece aqui' : (tocando?.detail ?? '')}
+            texto={nada ? t('abra um player e ele aparece aqui') : (tocando?.detail ?? '')}
           />
           {linha?.text ? (
             <span className="playerLetra" key={linha.at}>
@@ -2026,7 +2043,7 @@ function Player({
         <button
           type="button"
           className="acao"
-          aria-label="Anterior"
+          aria-label={t('Anterior')}
           onClick={() => aoAgir('midia-anterior')}
         >
           <Glifo nome="SkipBack" tamanho={18} cheio />
@@ -2034,7 +2051,7 @@ function Player({
         <button
           type="button"
           className="acao playerTocar"
-          aria-label="Tocar ou pausar"
+          aria-label={t('Tocar ou pausar')}
           onClick={() => aoAgir('midia-alternar')}
         >
           <Glifo nome={toca ? 'Pause' : 'Play'} tamanho={22} cheio />
@@ -2042,7 +2059,7 @@ function Player({
         <button
           type="button"
           className="acao"
-          aria-label="Próxima"
+          aria-label={t('Próxima')}
           onClick={() => aoAgir('midia-proxima')}
         >
           <Glifo nome="SkipForward" tamanho={18} cheio />
@@ -2099,7 +2116,7 @@ function Panorama({
         type="button"
         className="panoramaRelogio"
         onClick={() => aoAbrirModulo('tempo')}
-        title="Abrir relógio e clima"
+        title={t('Abrir relógio e clima')}
       >
         <span className="panoramaHora">{hora}</span>
         <span className="panoramaData">{data}</span>
@@ -2107,7 +2124,7 @@ function Panorama({
           <span className="panoramaClima">
             <Glifo nome="CloudSun" tamanho={14} />
             {clima?.value}
-            {ceu?.value ? ` · ${ceu.value}` : ''}
+            {ceu?.value ? ` · ${t(ceu.value)}` : ''}
           </span>
         ) : null}
         {fusos.length > 0 ? (
@@ -2129,13 +2146,13 @@ function Panorama({
             data-nivel={m.reading.level}
             style={{ '--i': indice + 1 } as React.CSSProperties}
             onClick={() => aoAbrirModulo(m.modulo)}
-            title={`${m.reading.label} — ${m.reading.detail}`}
+            title={`${t(m.reading.label)} — ${t(m.reading.detail)}`}
           >
             <span className="medidaTopo">
               <Glifo nome={m.icone} tamanho={14} />
-              <span className="medidaNome">{m.reading.label}</span>
+              <span className="medidaNome">{t(m.reading.label)}</span>
             </span>
-            <span className="medidaValor">{m.reading.value}</span>
+            <span className="medidaValor">{t(m.reading.value)}</span>
             <i
               className="medidaBarra"
               style={{ '--razao': m.reading.ratio ?? 0 } as React.CSSProperties}
@@ -2238,7 +2255,7 @@ function Volume({ reading, aoAgir }: { reading: Reading | undefined; aoAgir: Agi
   const mudo = reading?.value === 'mudo'
 
   return (
-    <label className="volume" title={mudo ? 'Mudo' : `Volume ${nivel}%`}>
+    <label className="volume" title={mudo ? t('Mudo') : t('Volume {n}%', { n: nivel })}>
       <Glifo
         nome={mudo ? 'SpeakerSlash' : nivel > 50 ? 'SpeakerHigh' : 'SpeakerLow'}
         tamanho={14}
@@ -2248,7 +2265,7 @@ function Volume({ reading, aoAgir }: { reading: Reading | undefined; aoAgir: Agi
         min={0}
         max={100}
         value={nivel}
-        aria-label="Volume"
+        aria-label={t('Volume')}
         style={{ '--v': `${nivel}%` } as React.CSSProperties}
         onChange={(e) => {
           const valor = Number(e.target.value)
@@ -2317,7 +2334,7 @@ function Temporizador({
     <>
       <span className="cronometroTopo">
         <Glifo nome={cronometro ? 'Hourglass' : 'Timer'} tamanho={12} />
-        {cronometro ? 'Cronômetro' : 'Temporizador'}
+        {cronometro ? t('Cronômetro') : t('Temporizador')}
       </span>
       {timer ? (
         <div className="cronometroVivo">
@@ -2325,13 +2342,13 @@ function Temporizador({
             <Rolar texto={contagem} />
           </span>
           <span className="cronometroRotulo">
-            {timer.label || (cronometro ? 'contando' : `${timer.minutes} min`)}
+            {timer.label || (cronometro ? t('contando') : t('{n} min', { n: timer.minutes }))}
           </span>
           {!cronometro ? <Barra ratio={restante} tinta /> : null}
           <div className="cronometroPresets">
             <button type="button" className="acaoLarga" onClick={() => aoAgir('timer-parar')}>
               <Glifo nome="Stop" tamanho={12} cheio />
-              Parar
+              {t('Parar')}
             </button>
           </div>
         </div>
@@ -2342,20 +2359,22 @@ function Temporizador({
               key={min}
               type="button"
               className="acaoLarga"
-              title={min === 25 ? 'Um pomodoro: 25 minutos de foco' : `${min} minutos`}
+              title={
+                min === 25 ? t('Um pomodoro: 25 minutos de foco') : t('{n} minutos', { n: min })
+              }
               onClick={() => aoAgir('timer-iniciar', `${min} ${min === 25 ? 'foco' : ''}`.trim())}
             >
-              {min === 25 ? '25 · foco' : `${min} min`}
+              {min === 25 ? t('25 · foco') : t('{n} min', { n: min })}
             </button>
           ))}
           <button
             type="button"
             className="acaoLarga"
-            title="Cronômetro: conta para cima"
+            title={t('Cronômetro: conta para cima')}
             onClick={() => aoAgir('timer-cronometro')}
           >
             <Glifo nome="Hourglass" tamanho={12} />
-            Cronômetro
+            {t('Cronômetro')}
           </button>
           <FocoSemana modulo={foco} compacto />
         </div>
@@ -2387,14 +2406,18 @@ function FocoSemana({
   // A letra de cada dia, do mais antigo para hoje.
   const letras = [...Array(7)].map((_, n) =>
     new Date(Date.now() - (6 - n) * 86_400_000)
-      .toLocaleDateString('pt-BR', { weekday: 'narrow' })
+      .toLocaleDateString(localeDoIdioma(), { weekday: 'narrow' })
       .toUpperCase(),
   )
   return (
     <span
       className="focoGrafico"
       data-compacto={compacto ? 'sim' : 'nao'}
-      title={`${semana.label}: ${semana.value} · ${hoje?.value ?? ''} hoje`}
+      title={t('{rotulo}: {valor} · {hoje} hoje', {
+        rotulo: semana.label,
+        valor: semana.value,
+        hoje: hoje?.value ?? '',
+      })}
     >
       <span className="focoBarras">
         {dias.map((min, n) => (
@@ -2404,7 +2427,7 @@ function FocoSemana({
             data-hoje={n === 6 ? 'sim' : 'nao'}
             data-vazio={min === 0 ? 'sim' : 'nao'}
             style={{ '--h': min / maior } as React.CSSProperties}
-            title={`${letras[n]}: ${min} min`}
+            title={t('{dia}: {n} min', { dia: letras[n] ?? '', n: min })}
           />
         ))}
       </span>
@@ -2417,8 +2440,10 @@ function FocoSemana({
         </span>
       ) : null}
       <span className="focoLegenda">
-        {hoje?.value ?? '0 min'} hoje
-        {sequencia && !/^0 /.test(sequencia.value) ? ` · ${sequencia.value} seguidos` : ''}
+        {t('{valor} hoje', { valor: hoje?.value ?? t('{n} min', { n: 0 }) })}
+        {sequencia && !/^0 /.test(sequencia.value)
+          ? t(' · {valor} seguidos', { valor: sequencia.value })
+          : ''}
       </span>
     </span>
   )
@@ -2503,9 +2528,9 @@ function Lancador({ aoAgir }: { aoAgir: Agir }) {
         <Glifo nome="MagnifyingGlass" tamanho={14} />
         <input
           type="search"
-          placeholder="App, comando, conta, g busca, :emoji — ou ? pergunta ao Claude"
+          placeholder={t('App, comando, conta, g busca, :emoji — ou ? pergunta ao Claude')}
           value={busca}
-          aria-label="Buscar aplicativo, comando, conta ou emoji"
+          aria-label={t('Buscar aplicativo, comando, conta ou emoji')}
           onFocus={() => window.halo?.island.setFocus(true)}
           onBlur={() => window.halo?.island.setFocus(false)}
           onChange={(e) => setBusca(e.target.value)}
@@ -2536,7 +2561,7 @@ function Lancador({ aoAgir }: { aoAgir: Agir }) {
               type="button"
               className="acaoLarga resposta cascata"
               style={{ '--i': indice } as React.CSSProperties}
-              title={r.abrir ? `Abrir: ${r.abrir}` : 'Copiar'}
+              title={r.abrir ? t('Abrir: {endereco}', { endereco: r.abrir }) : t('Copiar')}
               onClick={() => responder(r)}
             >
               <Glifo nome={r.icone} tamanho={12} />
@@ -2550,11 +2575,11 @@ function Lancador({ aoAgir }: { aoAgir: Agir }) {
               type="button"
               className="acaoLarga comando cascata"
               style={{ '--i': respostas.length + indice } as React.CSSProperties}
-              title={`Comando da ilha: ${c.nome}`}
+              title={t('Comando da ilha: {nome}', { nome: t(c.nome) })}
               onClick={() => rodar(c)}
             >
               <Glifo nome={c.icone} tamanho={12} />
-              {c.nome}
+              {t(c.nome)}
             </button>
           ))}
           {achados.map((app, indice) => (
@@ -2573,7 +2598,9 @@ function Lancador({ aoAgir }: { aoAgir: Agir }) {
           achados.length === 0 &&
           comandos.length === 0 &&
           respostas.length === 0 ? (
-            <span className="leituraDetalhe">Nenhum aplicativo nem comando com esse nome</span>
+            <span className="leituraDetalhe">
+              {t('Nenhum aplicativo nem comando com esse nome')}
+            </span>
           ) : null}
         </div>
       ) : null}
@@ -2609,7 +2636,12 @@ function Card({
       data-ok={modulo.ok ? 'sim' : 'nao'}
       style={{ '--i': indice } as React.CSSProperties}
     >
-      <button type="button" className="cardAlvo" onClick={aoAbrir} title={`Abrir ${modulo.name}`}>
+      <button
+        type="button"
+        className="cardAlvo"
+        onClick={aoAbrir}
+        title={t('Abrir {nome}', { nome: modulo.name })}
+      >
         <span className="cardTopo">
           <Glifo nome={modulo.icon} tamanho={14} />
           <span className="cardNome">{modulo.name}</span>
@@ -2617,7 +2649,7 @@ function Card({
         {modulo.ok && principal ? (
           <>
             <span className="cardValor">
-              {principal.value === 'nada' ? 'Nada tocando' : principal.value}
+              {principal.value === 'nada' ? t('Nada tocando') : principal.value}
             </span>
             <span className="cardDetalhe">{detalhe}</span>
             {principal.ratio !== null ? (
@@ -2625,7 +2657,7 @@ function Card({
             ) : null}
           </>
         ) : (
-          <span className="cardDetalhe">{modulo.error ?? 'sem dado'}</span>
+          <span className="cardDetalhe">{modulo.error ?? t('sem dado')}</span>
         )}
       </button>
 
@@ -2669,7 +2701,7 @@ function Foco({
 }) {
   return (
     <Painel direcao="dir">
-      <button type="button" className="focoTopo" onClick={aoVoltar} title="Voltar aos painéis">
+      <button type="button" className="focoTopo" onClick={aoVoltar} title={t('Voltar aos painéis')}>
         <Glifo nome="CaretLeft" tamanho={14} />
         <Glifo nome={modulo.icon} tamanho={14} />
         <span className="focoNome">{modulo.name}</span>
@@ -2721,7 +2753,7 @@ function FocoGenerico({
             </div>
           ))}
         {modulo.readings.length === 0 ? (
-          <span className="leituraDetalhe">{modulo.error ?? 'sem dado'}</span>
+          <span className="leituraDetalhe">{modulo.error ?? t('sem dado')}</span>
         ) : null}
       </div>
 
@@ -2748,7 +2780,7 @@ function FocoGenerico({
 
       {modulo.id === 'desktop' ? (
         <div className="focoAcoes">
-          <span className="secao">Cafeína por</span>
+          <span className="secao">{t('Cafeína por')}</span>
           {[30, 60, 120, 240].map((min) => (
             <button
               key={min}
@@ -2756,7 +2788,7 @@ function FocoGenerico({
               className="acaoLarga"
               onClick={() => aoAgir('cafeina-alternar', String(min))}
             >
-              {min < 60 ? `${min} min` : `${min / 60} h`}
+              {min < 60 ? t('{n} min', { n: min }) : t('{n} h', { n: min / 60 })}
             </button>
           ))}
         </div>
@@ -2771,7 +2803,7 @@ function Removiveis({ modulo, aoAgir }: { modulo: IslandModule; aoAgir: Agir }) 
   if (volumes.length === 0) return null
   return (
     <div className="lista">
-      <span className="secao">Volumes</span>
+      <span className="secao">{t('Volumes')}</span>
       {volumes.map((v, indice) => (
         <div
           key={`${v.device}-${v.particao}`}
@@ -2785,9 +2817,9 @@ function Removiveis({ modulo, aoAgir }: { modulo: IslandModule; aoAgir: Agir }) 
             <span className="janelaClasse">
               {' '}
               {v.ponto
-                ? `${v.ponto}${v.livre ? ` · ${v.livre} livres` : ''}`
+                ? v.ponto + (v.livre ? t(' · {livre} livres', { livre: v.livre }) : '')
                 : v.particao
-                  ? 'não montado'
+                  ? t('não montado')
                   : v.tamanho}
             </span>
           </span>
@@ -2795,8 +2827,8 @@ function Removiveis({ modulo, aoAgir }: { modulo: IslandModule; aoAgir: Agir }) 
             <button
               type="button"
               className="acao"
-              title="Montar"
-              aria-label={`Montar ${v.rotulo}`}
+              title={t('Montar')}
+              aria-label={t('Montar {nome}', { nome: v.rotulo })}
               onClick={() => aoAgir('disco-montar', v.particao)}
             >
               <Glifo nome="Plug" tamanho={14} />
@@ -2806,8 +2838,8 @@ function Removiveis({ modulo, aoAgir }: { modulo: IslandModule; aoAgir: Agir }) 
             <button
               type="button"
               className="acao"
-              title="Abrir no gerenciador de arquivos"
-              aria-label={`Abrir ${v.rotulo}`}
+              title={t('Abrir no gerenciador de arquivos')}
+              aria-label={t('Abrir {nome}', { nome: v.rotulo })}
               onClick={() => aoAgir('disco-abrir', v.ponto)}
             >
               <Glifo nome="FolderOpen" tamanho={14} />
@@ -2816,8 +2848,8 @@ function Removiveis({ modulo, aoAgir }: { modulo: IslandModule; aoAgir: Agir }) 
           <button
             type="button"
             className="acao"
-            title="Ejetar com segurança"
-            aria-label={`Ejetar ${v.nome}`}
+            title={t('Ejetar com segurança')}
+            aria-label={t('Ejetar {nome}', { nome: v.nome })}
             onClick={() => aoAgir('disco-ejetar', v.device)}
           >
             <Glifo nome="Eject" tamanho={14} />
@@ -2841,7 +2873,7 @@ function Atividades({
   const socket = leitura(modulo, 'api-socket')
   return (
     <div className="lista">
-      {lista.length > 0 ? <span className="secao">Publicadas</span> : null}
+      {lista.length > 0 ? <span className="secao">{t('Publicadas')}</span> : null}
       {lista.map((a, indice) => (
         <div
           key={a.id}
@@ -2876,8 +2908,8 @@ function Atividades({
           <button
             type="button"
             className="acao"
-            title="Tirar da lista"
-            aria-label={`Tirar ${a.title} da lista`}
+            title={t('Tirar da lista')}
+            aria-label={t('Tirar {nome} da lista', { nome: a.title })}
             onClick={() => aoAgir('api-atividade-limpar', a.id)}
           >
             <Glifo nome="X" tamanho={12} />
@@ -2886,8 +2918,9 @@ function Atividades({
       ))}
       {socket?.level === 'ok' ? (
         <span className="leituraDetalhe apiDica">
-          Publique com tools/ilha-avisar.sh, ou carregue tools/ilha-shell.sh no seu shell para os
-          comandos longos aparecerem aqui.
+          {t(
+            'Publique com tools/ilha-avisar.sh, ou carregue tools/ilha-shell.sh no seu shell para os comandos longos aparecerem aqui.',
+          )}
         </span>
       ) : null}
     </div>
@@ -2936,9 +2969,9 @@ function MidiaFoco({
           </span>
         )}
         <span className="midiaTitulos">
-          <span className="midiaTitulo">{nada ? 'Nada tocando' : tocando?.value}</span>
+          <span className="midiaTitulo">{nada ? t('Nada tocando') : tocando?.value}</span>
           <span className="midiaArtista">
-            {nada ? 'abra um player e ele aparece aqui' : tocando?.detail}
+            {nada ? t('abra um player e ele aparece aqui') : tocando?.detail}
           </span>
           {player && !nada ? <span className="leituraDetalhe">{player.value}</span> : null}
         </span>
@@ -2963,7 +2996,7 @@ function MidiaFoco({
         <button
           type="button"
           className="acaoLarga"
-          aria-label="Anterior"
+          aria-label={t('Anterior')}
           onClick={() => aoAgir('midia-anterior')}
         >
           <Glifo nome="SkipBack" tamanho={16} cheio />
@@ -2971,7 +3004,7 @@ function MidiaFoco({
         <button
           type="button"
           className="acaoLarga"
-          aria-label="Tocar ou pausar"
+          aria-label={t('Tocar ou pausar')}
           onClick={() => aoAgir('midia-alternar')}
         >
           <Glifo nome={toca ? 'Pause' : 'Play'} tamanho={18} cheio />
@@ -2979,7 +3012,7 @@ function MidiaFoco({
         <button
           type="button"
           className="acaoLarga"
-          aria-label="Próxima"
+          aria-label={t('Próxima')}
           onClick={() => aoAgir('midia-proxima')}
         >
           <Glifo nome="SkipForward" tamanho={16} cheio />
@@ -2987,8 +3020,8 @@ function MidiaFoco({
         <button
           type="button"
           className="acaoLarga"
-          aria-label="Abrir o player"
-          title="Trazer o player para a frente"
+          aria-label={t('Abrir o player')}
+          title={t('Trazer o player para a frente')}
           onClick={() => aoAgir('midia-abrir')}
         >
           <Glifo nome="ArrowSquareOut" tamanho={16} />
@@ -2997,8 +3030,8 @@ function MidiaFoco({
           type="button"
           className="acaoLarga"
           data-ativa={embaralhando ? 'sim' : 'nao'}
-          aria-label="Embaralhar"
-          title={embaralhando ? 'Embaralhando' : 'Em ordem'}
+          aria-label={t('Embaralhar')}
+          title={embaralhando ? t('Embaralhando') : t('Em ordem')}
           onClick={() => aoAgir('midia-embaralhar')}
         >
           <Glifo nome="Shuffle" tamanho={16} />
@@ -3007,13 +3040,13 @@ function MidiaFoco({
           type="button"
           className="acaoLarga"
           data-ativa={repetindo ? 'sim' : 'nao'}
-          aria-label="Repetir"
+          aria-label={t('Repetir')}
           title={
             repetindo === 'faixa'
-              ? 'Repete a faixa'
+              ? t('Repete a faixa')
               : repetindo === 'lista'
-                ? 'Repete a lista'
-                : 'Sem repetir'
+                ? t('Repete a lista')
+                : t('Sem repetir')
           }
           onClick={() => aoAgir('midia-repetir')}
         >
@@ -3023,8 +3056,8 @@ function MidiaFoco({
         <button
           type="button"
           className="acaoLarga"
-          aria-label="Copiar o link"
-          title="Copiar o link da faixa"
+          aria-label={t('Copiar o link')}
+          title={t('Copiar o link da faixa')}
           onClick={() => aoAgir('midia-copiar-link')}
         >
           <Glifo nome="Link" tamanho={16} />
@@ -3052,7 +3085,7 @@ function Saidas({ audio, aoAgir }: { audio: IslandModule | undefined; aoAgir: Ag
   if (saidas.length < 2) return null
   return (
     <div className="focoAcoes">
-      <span className="secao">Saída</span>
+      <span className="secao">{t('Saída')}</span>
       {saidas.map((s) => (
         <button
           key={s.nome}
@@ -3074,7 +3107,7 @@ function Saidas({ audio, aoAgir }: { audio: IslandModule | undefined; aoAgir: Ag
 /** "… High Definition Audio Controller" é o chip; "HDMI" é a saída. */
 function nomeDaSaida(nome: string, descricao: string): string {
   if (/hdmi/i.test(nome)) return 'HDMI'
-  if (/analog/i.test(nome)) return 'Alto-falantes'
+  if (/analog/i.test(nome)) return t('Alto-falantes')
   if (/usb/i.test(nome)) return 'USB'
   if (/bluez|bluetooth/i.test(nome)) return 'Bluetooth'
   return descricao.length > 28 ? `${descricao.slice(0, 27)}…` : descricao
@@ -3102,7 +3135,7 @@ function Letras({ linhas, atual }: { linhas: IslandLyricLine[]; atual: IslandLyr
           {l.text || '♪'}
         </span>
       ))}
-      <span className="letraCredito">letras · LRCLIB</span>
+      <span className="letraCredito">{t('letras · LRCLIB')}</span>
     </div>
   )
 }
@@ -3157,15 +3190,15 @@ function ClaudeFoco({
           <Glifo nome="Sparkle" tamanho={14} cheio={Boolean(agente)} />
           {agente
             ? agente.state === 'pensando'
-              ? 'pensando…'
+              ? t('pensando…')
               : agente.state === 'ferramenta'
-                ? `usando ${agente.activity || 'ferramenta'}`
+                ? t('usando {ferramenta}', { ferramenta: agente.activity || t('ferramenta') })
                 : agente.state === 'erro'
-                  ? 'deu erro'
+                  ? t('deu erro')
                   : pedido
-                    ? 'esperando você'
-                    : 'pronto'
-            : 'fechado'}
+                    ? t('esperando você')
+                    : t('pronto')
+            : t('fechado')}
         </span>
         <span className="claudeProjeto" title={estado?.project ?? ''}>
           {estado ? `${projetoNome(estado.project)} · ${estado.mode}` : ''}
@@ -3174,8 +3207,8 @@ function ClaudeFoco({
           <button
             type="button"
             className="acao"
-            title="Encerrar a conversa"
-            aria-label="Encerrar a conversa"
+            title={t('Encerrar a conversa')}
+            aria-label={t('Encerrar a conversa')}
             onClick={() => aoAgir('claude-parar')}
           >
             <Glifo nome="X" tamanho={12} />
@@ -3185,7 +3218,7 @@ function ClaudeFoco({
 
       {!agente && estado && estado.projects.length > 1 ? (
         <div className="focoAcoes">
-          <span className="secao">Projeto</span>
+          <span className="secao">{t('Projeto')}</span>
           {estado.projects.map((p) => (
             <button
               key={p}
@@ -3205,7 +3238,7 @@ function ClaudeFoco({
         {mensagens.length === 0 ? (
           <Vazio
             glifo="Sparkle"
-            texto="Pergunte algo. O Claude roda no projeto escolhido e vê o que a ilha sabe."
+            texto={t('Pergunte algo. O Claude roda no projeto escolhido e vê o que a ilha sabe.')}
           />
         ) : null}
         {mensagens.slice(-30).map((m) => (
@@ -3224,7 +3257,7 @@ function ClaudeFoco({
         <div className="claudePedido">
           <span className="claudePedidoTitulo">
             <Glifo nome="WarningCircle" tamanho={14} />
-            Quer usar {pedido.tool}
+            {t('Quer usar {ferramenta}', { ferramenta: pedido.tool })}
           </span>
           <span className="claudePedidoEntrada" title={pedido.input}>
             {pedido.input || pedido.description}
@@ -3236,14 +3269,14 @@ function ClaudeFoco({
               data-cor="acao"
               onClick={() => aoAgir('claude-aprovar', 'sim')}
             >
-              Permitir
+              {t('Permitir')}
             </button>
             <button
               type="button"
               className="envioBotao"
               onClick={() => aoAgir('claude-aprovar', 'nao')}
             >
-              Negar
+              {t('Negar')}
             </button>
           </span>
         </div>
@@ -3254,66 +3287,70 @@ function ClaudeFoco({
           type="button"
           className="acaoLarga"
           disabled={clips === 0}
-          title={clips === 0 ? 'Nada copiado ainda' : 'O Claude explica o último texto copiado'}
+          title={
+            clips === 0 ? t('Nada copiado ainda') : t('O Claude explica o último texto copiado')
+          }
           onClick={() =>
             aoAgir(
               'claude-perguntar',
-              perguntaJson('Explique o que é isto, em poucas linhas.', 'clip'),
+              perguntaJson(t('Explique o que é isto, em poucas linhas.'), 'clip'),
             )
           }
         >
           <Glifo nome="Clipboard" tamanho={12} />
-          Explicar a cópia
+          {t('Explicar a cópia')}
         </button>
         <button
           type="button"
           className="acaoLarga"
           disabled={clips === 0}
           title={
-            clips === 0 ? 'Nada copiado ainda' : 'Traduz o último texto copiado para o português'
+            clips === 0
+              ? t('Nada copiado ainda')
+              : t('Traduz o último texto copiado para o português')
           }
           onClick={() =>
             aoAgir(
               'claude-perguntar',
-              perguntaJson('Traduza para o português do Brasil. Só a tradução.', 'clip'),
+              perguntaJson(t('Traduza para o português do Brasil. Só a tradução.'), 'clip'),
             )
           }
         >
           <Glifo nome="TextAa" tamanho={12} />
-          Traduzir a cópia
+          {t('Traduzir a cópia')}
         </button>
         <button
           type="button"
           className="acaoLarga"
           disabled={avisos === 0}
-          title={avisos === 0 ? 'Nenhuma notificação' : 'Resume as notificações recentes'}
+          title={avisos === 0 ? t('Nenhuma notificação') : t('Resume as notificações recentes')}
           onClick={() =>
             aoAgir(
               'claude-perguntar',
-              perguntaJson('Resuma estas notificações e diga o que merece atenção.', 'avisos'),
+              perguntaJson(t('Resuma estas notificações e diga o que merece atenção.'), 'avisos'),
             )
           }
         >
           <Glifo nome="BellRinging" tamanho={12} />
-          Resumir avisos
+          {t('Resumir avisos')}
         </button>
         <button
           type="button"
           className="acaoLarga"
           disabled={!tocando}
-          title={tocando ? 'Conta algo sobre a faixa que toca' : 'Nada tocando'}
+          title={tocando ? t('Conta algo sobre a faixa que toca') : t('Nada tocando')}
           onClick={() =>
             aoAgir(
               'claude-perguntar',
               perguntaJson(
-                'Conte, em três linhas, algo interessante sobre esta faixa ou artista.',
+                t('Conte, em três linhas, algo interessante sobre esta faixa ou artista.'),
                 'tocando',
               ),
             )
           }
         >
           <Glifo nome="MusicNotes" tamanho={12} />
-          Sobre a faixa
+          {t('Sobre a faixa')}
         </button>
       </div>
 
@@ -3321,9 +3358,9 @@ function ClaudeFoco({
         <Glifo nome="Sparkle" tamanho={14} />
         <input
           type="text"
-          placeholder={agente ? 'Continue a conversa…' : 'Pergunte ao Claude…'}
+          placeholder={agente ? t('Continue a conversa…') : t('Pergunte ao Claude…')}
           value={texto}
-          aria-label="Pergunta ao Claude"
+          aria-label={t('Pergunta ao Claude')}
           onFocus={() => window.halo?.island.setFocus(true)}
           onBlur={() => window.halo?.island.setFocus(false)}
           onChange={(e) => setTexto(e.target.value)}
@@ -3336,8 +3373,8 @@ function ClaudeFoco({
           type="button"
           className="acao"
           disabled={!texto.trim()}
-          title="Enviar"
-          aria-label="Enviar"
+          title={t('Enviar')}
+          aria-label={t('Enviar')}
           onClick={enviar}
         >
           <Glifo nome="PaperPlaneTilt" tamanho={14} />
@@ -3457,7 +3494,7 @@ function GavetaFoco({
     return (
       <Vazio
         glifo="Tray"
-        texto="Arraste arquivos, texto ou endereços para a pílula e eles ficam aqui"
+        texto={t('Arraste arquivos, texto ou endereços para a pílula e eles ficam aqui')}
       />
     )
   }
@@ -3469,7 +3506,9 @@ function GavetaFoco({
             key={item.path}
             className="item cascata"
             data-existe={item.exists ? 'sim' : 'nao'}
-            title={item.exists ? item.path : `${item.path} — sumiu do disco`}
+            title={
+              item.exists ? item.path : t('{caminho} — sumiu do disco', { caminho: item.path })
+            }
             draggable={item.kind !== 'url'}
             onDragStart={(e) => {
               e.preventDefault()
@@ -3483,8 +3522,8 @@ function GavetaFoco({
               <button
                 type="button"
                 className="acao"
-                title="Abrir"
-                aria-label={`Abrir ${item.name}`}
+                title={t('Abrir')}
+                aria-label={t('Abrir {nome}', { nome: item.name })}
                 onClick={() => aoAgir('gaveta-abrir', item.path)}
               >
                 <Glifo nome="ArrowSquareOut" tamanho={12} />
@@ -3493,8 +3532,8 @@ function GavetaFoco({
                 <button
                   type="button"
                   className="acao"
-                  title="Enviar ao Seafile"
-                  aria-label={`Enviar ${item.name} ao Seafile`}
+                  title={t('Enviar ao Seafile')}
+                  aria-label={t('Enviar {nome} ao Seafile', { nome: item.name })}
                   onClick={() => aoAgir('gaveta-enviar', item.path)}
                 >
                   <Glifo nome="CloudArrowUp" tamanho={12} />
@@ -3504,8 +3543,8 @@ function GavetaFoco({
                 <button
                   type="button"
                   className="acao"
-                  title={`Enviar para ${celular} (KDE Connect)`}
-                  aria-label={`Enviar ${item.name} para ${celular}`}
+                  title={t('Enviar para {celular} (KDE Connect)', { celular })}
+                  aria-label={t('Enviar {nome} para {celular}', { nome: item.name, celular })}
                   onClick={() => aoAgir('celular-enviar', item.path)}
                 >
                   <Glifo nome="DeviceMobile" tamanho={12} />
@@ -3515,8 +3554,8 @@ function GavetaFoco({
                 <button
                   type="button"
                   className="acao"
-                  title="Ler o texto da imagem (OCR) e copiar"
-                  aria-label={`Ler o texto de ${item.name}`}
+                  title={t('Ler o texto da imagem (OCR) e copiar')}
+                  aria-label={t('Ler o texto de {nome}', { nome: item.name })}
                   onClick={() => aoAgir('texto-da-imagem', item.path)}
                 >
                   <Glifo nome="TextAa" tamanho={12} />
@@ -3526,13 +3565,13 @@ function GavetaFoco({
                 <button
                   type="button"
                   className="acao"
-                  title="Perguntar ao Claude o que é isto"
-                  aria-label={`Perguntar ao Claude sobre ${item.name}`}
+                  title={t('Perguntar ao Claude o que é isto')}
+                  aria-label={t('Perguntar ao Claude sobre {nome}', { nome: item.name })}
                   onClick={() =>
                     aoAgir(
                       'claude-perguntar',
                       perguntaJson(
-                        'O que é este arquivo? Resuma em poucas linhas.',
+                        t('O que é este arquivo? Resuma em poucas linhas.'),
                         undefined,
                         item.path,
                       ),
@@ -3545,8 +3584,8 @@ function GavetaFoco({
               <button
                 type="button"
                 className="acao"
-                title="Tirar da gaveta"
-                aria-label={`Tirar ${item.name} da gaveta`}
+                title={t('Tirar da gaveta')}
+                aria-label={t('Tirar {nome} da gaveta', { nome: item.name })}
                 onClick={() => aoAgir('gaveta-remover', item.path)}
               >
                 <Glifo nome="X" tamanho={12} />
@@ -3580,7 +3619,7 @@ function JanelasFoco({ guardadas, aoAgir }: { guardadas: IslandWindow[]; aoAgir:
   return (
     <div className="lista">
       {guardadas.length > 0 ? (
-        <span className="secao">Guardadas — clique para devolver</span>
+        <span className="secao">{t('Guardadas — clique para devolver')}</span>
       ) : null}
       {guardadas.map((janela, indice) => (
         <div
@@ -3600,7 +3639,7 @@ function JanelasFoco({ guardadas, aoAgir }: { guardadas: IslandWindow[]; aoAgir:
         </div>
       ))}
 
-      <span className="secao">{abertas === null ? 'Listando janelas…' : 'Abertas'}</span>
+      <span className="secao">{abertas === null ? t('Listando janelas…') : t('Abertas')}</span>
       {visiveis.map((janela, indice) => (
         <div
           key={janela.id}
@@ -3612,7 +3651,7 @@ function JanelasFoco({ guardadas, aoAgir }: { guardadas: IslandWindow[]; aoAgir:
           <button
             type="button"
             className="janelaTitulo"
-            title="Trazer para a frente"
+            title={t('Trazer para a frente')}
             onClick={() => aoAgir('janela-focar', janela.id)}
           >
             {janela.title}
@@ -3620,8 +3659,8 @@ function JanelasFoco({ guardadas, aoAgir }: { guardadas: IslandWindow[]; aoAgir:
           <button
             type="button"
             className="acao"
-            title="Metade esquerda"
-            aria-label={`Encaixar ${janela.title} à esquerda`}
+            title={t('Metade esquerda')}
+            aria-label={t('Encaixar {nome} à esquerda', { nome: janela.title })}
             onClick={() => aoAgir('janela-encaixar', `${janela.id} esquerda`)}
           >
             <Glifo nome="SquareHalf" tamanho={14} />
@@ -3629,8 +3668,8 @@ function JanelasFoco({ guardadas, aoAgir }: { guardadas: IslandWindow[]; aoAgir:
           <button
             type="button"
             className="acao espelhado"
-            title="Metade direita"
-            aria-label={`Encaixar ${janela.title} à direita`}
+            title={t('Metade direita')}
+            aria-label={t('Encaixar {nome} à direita', { nome: janela.title })}
             onClick={() => aoAgir('janela-encaixar', `${janela.id} direita`)}
           >
             <Glifo nome="SquareHalf" tamanho={14} />
@@ -3638,8 +3677,8 @@ function JanelasFoco({ guardadas, aoAgir }: { guardadas: IslandWindow[]; aoAgir:
           <button
             type="button"
             className="acao"
-            title="Maximizar"
-            aria-label={`Maximizar ${janela.title}`}
+            title={t('Maximizar')}
+            aria-label={t('Maximizar {nome}', { nome: janela.title })}
             onClick={() => aoAgir('janela-encaixar', `${janela.id} maximizar`)}
           >
             <Glifo nome="ArrowsOutSimple" tamanho={14} />
@@ -3647,8 +3686,8 @@ function JanelasFoco({ guardadas, aoAgir }: { guardadas: IslandWindow[]; aoAgir:
           <button
             type="button"
             className="acao"
-            title="Guardar na gaveta (a janela voa para a pílula)"
-            aria-label={`Guardar ${janela.title}`}
+            title={t('Guardar na gaveta (a janela voa para a pílula)')}
+            aria-label={t('Guardar {nome}', { nome: janela.title })}
             onClick={() => aoAgir('janela-guardar', janela.id)}
           >
             <Glifo nome="Tray" tamanho={14} />
@@ -3656,7 +3695,7 @@ function JanelasFoco({ guardadas, aoAgir }: { guardadas: IslandWindow[]; aoAgir:
         </div>
       ))}
       {abertas !== null && visiveis.length === 0 ? (
-        <Vazio glifo="AppWindow" texto="Nenhuma janela aberta" />
+        <Vazio glifo="AppWindow" texto={t('Nenhuma janela aberta')} />
       ) : null}
     </div>
   )
@@ -3665,7 +3704,7 @@ function JanelasFoco({ guardadas, aoAgir }: { guardadas: IslandWindow[]; aoAgir:
 /* ——— Avisos ———————————————————————————————————————————— */
 
 const hora = (at: number) =>
-  new Date(at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+  new Date(at).toLocaleTimeString(localeDoIdioma(), { hour: '2-digit', minute: '2-digit' })
 
 /** Uma cor estável por aplicativo, pelo hash do nome. As oito moram em `tokens.css`. */
 function corDoApp(app: string): string {
@@ -3677,30 +3716,33 @@ function corDoApp(app: string): string {
 function AvisosFoco({ avisos, aoAgir }: { avisos: IslandNotice[]; aoAgir: Agir }) {
   if (avisos.length === 0)
     return (
-      <Vazio glifo="BellRinging" texto="As notificações que os aplicativos mandarem ficam aqui" />
+      <Vazio
+        glifo="BellRinging"
+        texto={t('As notificações que os aplicativos mandarem ficam aqui')}
+      />
     )
   return (
     <div className="lista">
       <div className="focoAcoes">
-        <span className="secao">Recentes</span>
+        <span className="secao">{t('Recentes')}</span>
         <button
           type="button"
           className="acaoLarga"
           style={{ marginLeft: 'auto' }}
-          title="O Claude resume as notificações e diz o que merece atenção"
+          title={t('O Claude resume as notificações e diz o que merece atenção')}
           onClick={() =>
             aoAgir(
               'claude-perguntar',
-              perguntaJson('Resuma estas notificações e diga o que merece atenção.', 'avisos'),
+              perguntaJson(t('Resuma estas notificações e diga o que merece atenção.'), 'avisos'),
             )
           }
         >
           <Glifo nome="Sparkle" tamanho={14} />
-          Resumir
+          {t('Resumir')}
         </button>
         <button type="button" className="acaoLarga" onClick={() => aoAgir('avisos-limpar')}>
           <Glifo nome="Broom" tamanho={14} />
-          Limpar
+          {t('Limpar')}
         </button>
       </div>
       {avisos.map((aviso, indice) => (
@@ -3713,7 +3755,7 @@ function AvisosFoco({ avisos, aoAgir }: { avisos: IslandNotice[]; aoAgir: Agir }
           <span className="avisoTopo">
             <span className="avisoApp">
               <i className="avisoCor" style={{ background: corDoApp(aviso.app) }} />
-              {aviso.app || 'sistema'}
+              {aviso.app || t('sistema')}
             </span>
             <span className="avisoHora">{hora(aviso.at)}</span>
           </span>
@@ -3724,8 +3766,8 @@ function AvisosFoco({ avisos, aoAgir }: { avisos: IslandNotice[]; aoAgir: Agir }
               <button
                 type="button"
                 className="acao"
-                title={`Abrir ${aviso.app}`}
-                aria-label={`Abrir ${aviso.app}`}
+                title={t('Abrir {nome}', { nome: aviso.app })}
+                aria-label={t('Abrir {nome}', { nome: aviso.app })}
                 onClick={() => aoAgir('avisos-abrir-app', aviso.desktopEntry)}
               >
                 <Glifo nome="ArrowSquareOut" tamanho={12} />
@@ -3734,8 +3776,8 @@ function AvisosFoco({ avisos, aoAgir }: { avisos: IslandNotice[]; aoAgir: Agir }
             <button
               type="button"
               className="acao"
-              title="Dispensar"
-              aria-label="Dispensar"
+              title={t('Dispensar')}
+              aria-label={t('Dispensar')}
               onClick={() => aoAgir('avisos-remover', String(aviso.id))}
             >
               <Glifo nome="X" tamanho={12} />
@@ -3756,7 +3798,10 @@ function ClipsFoco({ clips, aoAgir }: { clips: IslandClip[]; aoAgir: Agir }) {
   const vistos = termo ? clips.filter((c) => c.preview.toLowerCase().includes(termo)) : clips
   if (clips.length === 0)
     return (
-      <Vazio glifo="Clipboard" texto="O que você copiar aparece aqui, para pegar de volta depois" />
+      <Vazio
+        glifo="Clipboard"
+        texto={t('O que você copiar aparece aqui, para pegar de volta depois')}
+      />
     )
   return (
     <div className="lista">
@@ -3764,15 +3809,17 @@ function ClipsFoco({ clips, aoAgir }: { clips: IslandClip[]; aoAgir: Agir }) {
         <Glifo nome="MagnifyingGlass" tamanho={14} />
         <input
           type="search"
-          placeholder="Buscar nas cópias…"
+          placeholder={t('Buscar nas cópias…')}
           value={busca}
-          aria-label="Buscar nas cópias"
+          aria-label={t('Buscar nas cópias')}
           onFocus={() => window.halo?.island.setFocus(true)}
           onBlur={() => window.halo?.island.setFocus(false)}
           onChange={(e) => setBusca(e.target.value)}
         />
       </label>
-      {vistos.length === 0 ? <span className="leituraDetalhe">Nada com esse texto</span> : null}
+      {vistos.length === 0 ? (
+        <span className="leituraDetalhe">{t('Nada com esse texto')}</span>
+      ) : null}
       {vistos.map((clip, indice) => (
         <div
           key={clip.id}
@@ -3783,7 +3830,7 @@ function ClipsFoco({ clips, aoAgir }: { clips: IslandClip[]; aoAgir: Agir }) {
           <button
             type="button"
             className="clipAlvo"
-            title="Copiar de novo"
+            title={t('Copiar de novo')}
             onClick={() => {
               aoAgir('clip-copiar', String(clip.id))
               setCopiado(clip.id)
@@ -3813,7 +3860,7 @@ function ClipsFoco({ clips, aoAgir }: { clips: IslandClip[]; aoAgir: Agir }) {
               {clip.preview}
             </span>
             <span className="clipMeta">
-              {clip.length > clip.preview.length ? `${clip.length} caracteres · ` : ''}
+              {clip.length > clip.preview.length ? t('{n} caracteres · ', { n: clip.length }) : ''}
               {hora(clip.at)}
             </span>
           </button>
@@ -3822,8 +3869,8 @@ function ClipsFoco({ clips, aoAgir }: { clips: IslandClip[]; aoAgir: Agir }) {
               <button
                 type="button"
                 className="acao"
-                title={clip.kind === 'email' ? 'Escrever e-mail' : 'Abrir no navegador'}
-                aria-label={clip.kind === 'email' ? 'Escrever e-mail' : 'Abrir no navegador'}
+                title={clip.kind === 'email' ? t('Escrever e-mail') : t('Abrir no navegador')}
+                aria-label={clip.kind === 'email' ? t('Escrever e-mail') : t('Abrir no navegador')}
                 onClick={() =>
                   aoAgir(
                     'gaveta-abrir',
@@ -3838,8 +3885,8 @@ function ClipsFoco({ clips, aoAgir }: { clips: IslandClip[]; aoAgir: Agir }) {
               type="button"
               className="acao"
               data-ativa={clip.pinned ? 'sim' : 'nao'}
-              title={clip.pinned ? 'Soltar' : 'Fixar'}
-              aria-label={clip.pinned ? 'Soltar' : 'Fixar'}
+              title={clip.pinned ? t('Soltar') : t('Fixar')}
+              aria-label={clip.pinned ? t('Soltar') : t('Fixar')}
               onClick={() => aoAgir('clip-fixar', String(clip.id))}
             >
               <Glifo nome="PushPin" tamanho={12} cheio={clip.pinned} />
@@ -3847,8 +3894,8 @@ function ClipsFoco({ clips, aoAgir }: { clips: IslandClip[]; aoAgir: Agir }) {
             <button
               type="button"
               className="acao"
-              title="Tirar do histórico"
-              aria-label="Tirar do histórico"
+              title={t('Tirar do histórico')}
+              aria-label={t('Tirar do histórico')}
               onClick={() => aoAgir('clip-remover', String(clip.id))}
             >
               <Glifo nome="X" tamanho={12} />
@@ -3859,7 +3906,7 @@ function ClipsFoco({ clips, aoAgir }: { clips: IslandClip[]; aoAgir: Agir }) {
       <div className="focoAcoes">
         <button type="button" className="acaoLarga" onClick={() => aoAgir('clip-limpar')}>
           <Glifo nome="Broom" tamanho={14} />
-          Limpar · fixados ficam
+          {t('Limpar · fixados ficam')}
         </button>
       </div>
     </div>
@@ -3883,8 +3930,8 @@ function Nota({ texto, aoAgir }: { texto: string; aoAgir: Agir }) {
       <textarea
         className="notaCampo"
         value={valor}
-        placeholder="Anote algo — fica guardado na ilha."
-        aria-label="Nota rápida"
+        placeholder={t('Anote algo — fica guardado na ilha.')}
+        aria-label={t('Nota rápida')}
         onFocus={() => {
           setEmUso(true)
           window.halo?.island.setFocus(true)
@@ -3904,7 +3951,7 @@ function Nota({ texto, aoAgir }: { texto: string; aoAgir: Agir }) {
           }, 600)
         }}
       />
-      <span className="notaEstado">{salvo ? 'guardada' : 'guardando…'}</span>
+      <span className="notaEstado">{salvo ? t('guardada') : t('guardando…')}</span>
     </div>
   )
 }
@@ -3937,7 +3984,7 @@ function Barra({
     <button
       type="button"
       className="barra barraBuscavel"
-      aria-label="Ir para um ponto da faixa"
+      aria-label={t('Ir para um ponto da faixa')}
       onClick={(e) => {
         const r = e.currentTarget.getBoundingClientRect()
         aoBuscar(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)))
@@ -3969,7 +4016,7 @@ function Solte({
   return (
     <div className="solte">
       <section
-        aria-label="Guardar na gaveta"
+        aria-label={t('Guardar na gaveta')}
         className="alvoSoltar"
         data-pronto="sim"
         data-mirando={mirando === 'gaveta' || mirando === null ? 'sim' : 'nao'}
@@ -3977,12 +4024,12 @@ function Solte({
         onDragOver={(e) => e.preventDefault()}
       >
         <Glifo nome="Tray" tamanho={28} />
-        <span className="solteTitulo">Guardar na gaveta</span>
-        <span className="solteDetalhe">fica na ilha, para arrastar de volta depois</span>
+        <span className="solteTitulo">{t('Guardar na gaveta')}</span>
+        <span className="solteDetalhe">{t('fica na ilha, para arrastar de volta depois')}</span>
       </section>
 
       <section
-        aria-label="Enviar ao Seafile"
+        aria-label={t('Enviar ao Seafile')}
         className="alvoSoltar"
         data-pronto={pronto ? 'sim' : 'nao'}
         data-mirando={mirando === 'seafile' ? 'sim' : 'nao'}
@@ -3991,24 +4038,26 @@ function Solte({
       >
         <Glifo nome={pronto ? 'CloudArrowUp' : 'WarningCircle'} tamanho={28} />
         <span className="solteTitulo">
-          {pronto ? 'Enviar ao Seafile' : 'Seafile sem configurar'}
+          {pronto ? t('Enviar ao Seafile') : t('Seafile sem configurar')}
         </span>
         <span className="solteDetalhe">
           {pronto
-            ? `vai para ${biblioteca?.name ?? 'a biblioteca escolhida'}`
+            ? biblioteca?.name
+              ? t('vai para {biblioteca}', { biblioteca: biblioteca.name })
+              : t('vai para a biblioteca escolhida')
             : seafile?.auth.state === 'sem-config'
-              ? 'Configurações → Seafile: o endereço do servidor'
+              ? t('Configurações → Seafile: o endereço do servidor')
               : seafile?.auth.state === 'sem-credencial'
-                ? 'Configurações → Seafile: falta entrar na conta'
+                ? t('Configurações → Seafile: falta entrar na conta')
                 : seafile?.auth.state === 'erro'
                   ? seafile.auth.message
-                  : 'escolha uma biblioteca em Configurações'}
+                  : t('escolha uma biblioteca em Configurações')}
         </span>
       </section>
 
       {celular ? (
         <section
-          aria-label="Enviar ao celular"
+          aria-label={t('Enviar ao celular')}
           className="alvoSoltar"
           data-pronto="sim"
           data-mirando={mirando === 'celular' ? 'sim' : 'nao'}
@@ -4016,8 +4065,8 @@ function Solte({
           onDragOver={(e) => e.preventDefault()}
         >
           <Glifo nome="DeviceMobile" tamanho={28} />
-          <span className="solteTitulo">Enviar ao celular</span>
-          <span className="solteDetalhe">{celular} · pelo KDE Connect</span>
+          <span className="solteTitulo">{t('Enviar ao celular')}</span>
+          <span className="solteDetalhe">{t('{celular} · pelo KDE Connect', { celular })}</span>
         </section>
       ) : null}
     </div>
@@ -4034,17 +4083,24 @@ function tamanho(bytes: number): string {
     valor /= 1000
     i += 1
   }
-  return `${valor < 10 ? valor.toFixed(1).replace('.', ',') : Math.round(valor)} ${unidades[i]}`
+  const numero =
+    valor < 10
+      ? valor.toLocaleString(localeDoIdioma(), {
+          minimumFractionDigits: 1,
+          maximumFractionDigits: 1,
+        })
+      : Math.round(valor)
+  return `${numero} ${unidades[i]}`
 }
 
 /** "hoje", "ontem", "há 3 dias" — o quanto basta para decidir se substitui. */
 function quando(iso: string): string {
   if (!iso) return ''
   const dias = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000)
-  if (dias <= 0) return 'hoje'
-  if (dias === 1) return 'ontem'
-  if (dias < 30) return `há ${dias} dias`
-  return new Date(iso).toLocaleDateString('pt-BR')
+  if (dias <= 0) return t('hoje')
+  if (dias === 1) return t('ontem')
+  if (dias < 30) return t('há {n} dias', { n: dias })
+  return new Date(iso).toLocaleDateString(localeDoIdioma())
 }
 
 /**
@@ -4076,16 +4132,16 @@ function SeafileCard({
   const valor =
     auth?.state === 'ok'
       ? parados.length > 0
-        ? `${parados.length} para decidir`
+        ? t('{n} para decidir', { n: parados.length })
         : enviando.length > 0
           ? `${Math.round((total > 0 ? feito / total : 0) * 100)}%`
-          : 'conectado'
+          : t('conectado')
       : auth?.state === 'sem-config'
-        ? 'sem servidor'
+        ? t('sem servidor')
         : auth?.state === 'sem-credencial'
-          ? 'falta entrar'
+          ? t('falta entrar')
           : auth?.state === 'erro'
-            ? 'erro'
+            ? t('erro')
             : '—'
 
   return (
@@ -4103,7 +4159,7 @@ function SeafileCard({
             <button
               type="button"
               className="acao envioLimpar"
-              title="Limpar os envios terminados"
+              title={t('Limpar os envios terminados')}
               onClick={aoLimpar}
             >
               <Glifo nome="Broom" tamanho={14} />
@@ -4114,9 +4170,13 @@ function SeafileCard({
         <span className="cardDetalhe">
           {auth?.state === 'ok'
             ? enviando.length > 0
-              ? `${tamanho(feito)} de ${tamanho(total)} · ${biblioteca?.name ?? 'biblioteca'}`
-              : (biblioteca?.name ?? 'arraste um arquivo aqui')
-            : 'arraste um arquivo aqui'}
+              ? t('{feito} de {total} · {biblioteca}', {
+                  feito: tamanho(feito),
+                  total: tamanho(total),
+                  biblioteca: biblioteca?.name ?? t('biblioteca'),
+                })
+              : (biblioteca?.name ?? t('arraste um arquivo aqui'))
+            : t('arraste um arquivo aqui')}
         </span>
       </div>
       {uploads.length > 0 ? (
@@ -4132,14 +4192,20 @@ function SeafileCard({
                   </span>
                   <span className="envioEstado">
                     {u.state === 'enviando'
-                      ? `${Math.round(u.progress * 100)}% · ${tamanho(u.sent)} de ${tamanho(u.bytes)}`
+                      ? t('{p}% · {feito} de {total}', {
+                          p: Math.round(u.progress * 100),
+                          feito: tamanho(u.sent),
+                          total: tamanho(u.bytes),
+                        })
                       : u.state === 'esperando'
-                        ? 'na fila'
+                        ? t('na fila')
                         : u.state === 'pronto'
-                          ? `enviado · ${tamanho(u.bytes)}`
+                          ? t('enviado · {tamanho}', { tamanho: tamanho(u.bytes) })
                           : u.state === 'existe'
-                            ? `já existe lá · ${tamanho(u.remote?.size ?? 0)}${u.remote?.modified ? `, ${quando(u.remote.modified)}` : ''}`
-                            : (u.error ?? 'falhou')}
+                            ? t('já existe lá · {tamanho}', {
+                                tamanho: tamanho(u.remote?.size ?? 0),
+                              }) + (u.remote?.modified ? `, ${quando(u.remote.modified)}` : '')
+                            : (u.error ?? t('falhou'))}
                   </span>
                 </span>
                 {u.state === 'enviando' || u.state === 'esperando' || u.state === 'pronto' ? (
@@ -4156,26 +4222,28 @@ function SeafileCard({
                       type="button"
                       className="envioBotao"
                       data-cor="acao"
-                      title={`Substituir o arquivo que está no Seafile pelo seu (${tamanho(u.bytes)})`}
+                      title={t('Substituir o arquivo que está no Seafile pelo seu ({tamanho})', {
+                        tamanho: tamanho(u.bytes),
+                      })}
                       onClick={() => aoDecidir(u.id, 'substituir')}
                     >
-                      Substituir
+                      {t('Substituir')}
                     </button>
                     <button
                       type="button"
                       className="envioBotao"
-                      title="Enviar como cópia: o Seafile guarda os dois"
+                      title={t('Enviar como cópia: o Seafile guarda os dois')}
                       onClick={() => aoDecidir(u.id, 'copia')}
                     >
-                      Manter os dois
+                      {t('Manter os dois')}
                     </button>
                     <button
                       type="button"
                       className="envioBotao"
-                      title="Não enviar"
+                      title={t('Não enviar')}
                       onClick={() => aoDecidir(u.id, 'cancelar')}
                     >
-                      Cancelar
+                      {t('Cancelar')}
                     </button>
                   </span>
                 ) : null}

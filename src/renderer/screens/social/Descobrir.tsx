@@ -12,6 +12,7 @@ import type {
   CreativeSort,
 } from '@shared/creative'
 import { CREATIVE_KIND_LABEL } from '@shared/creative'
+import { t } from '@shared/i18n'
 import { useCreativeSearch, useCreativeTrending } from '@/hooks/useCreative'
 import { cx } from '@/ui/cx'
 import { Capa } from './Capa'
@@ -100,8 +101,8 @@ export function Descobrir({
           className={styles.buscaCampo}
           type="search"
           value={texto}
-          placeholder="Procurar referências…"
-          aria-label="Procurar referências nas fontes conectadas"
+          placeholder={t('Procurar referências…')}
+          aria-label={t('Procurar referências nas fontes conectadas')}
           onChange={(e) => aoDigitar(e.target.value)}
         />
       </div>
@@ -138,20 +139,22 @@ export function Descobrir({
             </>
           ) : (
             <Vazio
-              titulo="Nada encontrado"
-              corpo="Nenhuma fonte conectada respondeu a essa busca. Você ainda pode guardar qualquer referência pelo link, no botão da Biblioteca."
+              titulo={t('Nada encontrado')}
+              corpo={t(
+                'Nenhuma fonte conectada respondeu a essa busca. Você ainda pode guardar qualquer referência pelo link, no botão da Biblioteca.',
+              )}
             />
           )
         ) : (
           <>
             {carregandoHome ? (
               <>
-                <Secao titulo="Explorar" itens={[]} />
+                <Secao titulo={t('Explorar')} itens={[]} />
                 <Esqueleto />
               </>
             ) : daHome.length > 0 ? (
               <>
-                <Secao titulo="Explorar" itens={daHome} aoRecarregar={recarregar} />
+                <Secao titulo={t('Explorar')} itens={daHome} aoRecarregar={recarregar} />
                 <Grade
                   itens={daHome}
                   salvos={salvos}
@@ -168,7 +171,7 @@ export function Descobrir({
                 que não existe: quem fala é o vazio, que tem texto próprio. */}
             {recentes.length > 0 ? (
               <>
-                <Secao titulo="Salvos recentemente" itens={recentes} />
+                <Secao titulo={t('Salvos recentemente')} itens={recentes} />
                 <Grade
                   itens={recentes}
                   salvos={salvos}
@@ -180,8 +183,10 @@ export function Descobrir({
               </>
             ) : daHome.length === 0 && !carregandoHome ? (
               <Vazio
-                titulo="Nada para mostrar ainda"
-                corpo="Entre na sua conta do DeviantArt no painel ao lado para ver o seu feed aqui — ou guarde qualquer referência por link, no botão da Biblioteca."
+                titulo={t('Nada para mostrar ainda')}
+                corpo={t(
+                  'Entre na sua conta do DeviantArt no painel ao lado para ver o seu feed aqui — ou guarde qualquer referência por link, no botão da Biblioteca.',
+                )}
               />
             ) : null}
           </>
@@ -229,14 +234,14 @@ function Ondes({
     // exatamente o que esses elementos são, e o leitor de tela anuncia o rótulo
     // antes de cada opção sem precisar de `aria-label`.
     <fieldset className={styles.ondes}>
-      <legend className={styles.ondesRotulo}>Procurar em</legend>
+      <legend className={styles.ondesRotulo}>{t('Procurar em')}</legend>
       <button
         type="button"
         aria-pressed={todas}
         className={cx(styles.chip, todas && styles.chipOn)}
         onClick={() => aoEscolher([])}
       >
-        Todas
+        {t('Todas')}
       </button>
       {buscaveis.map((f) => {
         const marcada = escolhidas.includes(f.provider)
@@ -287,7 +292,7 @@ function Secao({
         <button
           type="button"
           className={styles.secaoRecarregar}
-          aria-label="Buscar de novo"
+          aria-label={t('Buscar de novo')}
           onClick={aoRecarregar}
         >
           <ArrowClockwise size={12} />
@@ -329,7 +334,7 @@ function Mais({
   return (
     <div className={styles.mais}>
       <button type="button" className={styles.maisBotao} disabled={carregando} onClick={aoPedir}>
-        {carregando ? 'Carregando…' : 'Carregar mais'}
+        {carregando ? t('Carregando…') : t('Carregar mais')}
       </button>
     </div>
   )
@@ -372,7 +377,7 @@ function Grade({
               type="button"
               className={styles.cartaoAbrir}
               onClick={() => aoAbrir(item)}
-              aria-label={`Ver ${item.title || 'referência'}`}
+              aria-label={t('Ver {titulo}', { titulo: item.title || t('referência') })}
             >
               <Capa url={item.cover} alt="" />
               {/* A marca da plataforma sobre a capa. Numa grade que mistura
@@ -383,13 +388,13 @@ function Grade({
             </button>
 
             <div className={styles.cartaoTexto}>
-              <span className={styles.cartaoTitulo}>{item.title || 'Sem título'}</span>
+              <span className={styles.cartaoTitulo}>{item.title || t('Sem título')}</span>
               <span className={styles.cartaoOrigem}>
                 {item.author ? `${item.author} · ` : ''}
                 {item.provider}
               </span>
               <span className={styles.cartaoTipo}>
-                {CREATIVE_KIND_LABEL[item.kind]}
+                {t(CREATIVE_KIND_LABEL[item.kind])}
                 {item.license ? ` · ${item.license}` : ''}
               </span>
             </div>
@@ -398,7 +403,7 @@ function Grade({
               <button
                 type="button"
                 className={styles.cartaoBotao}
-                aria-label={guardado?.favorite ? 'Desfavoritar' : 'Favoritar'}
+                aria-label={guardado?.favorite ? t('Desfavoritar') : t('Favoritar')}
                 aria-pressed={guardado?.favorite ?? false}
                 onClick={() => aoFavoritar(item)}
               >
@@ -407,15 +412,15 @@ function Grade({
               <button
                 type="button"
                 className={styles.cartaoBotao}
-                aria-label={guardado ? 'Na biblioteca' : 'Salvar na biblioteca'}
+                aria-label={guardado ? t('Na biblioteca') : t('Salvar na biblioteca')}
                 // Para ONDE vai. O destino é o grupo aberto na Biblioteca, e
                 // sem dizer isso o botão parece guardar sempre no mesmo lugar.
                 title={
                   guardado
-                    ? 'Tirar da biblioteca'
+                    ? t('Tirar da biblioteca')
                     : destino
-                      ? `Salvar em ${destino}`
-                      : 'Salvar na biblioteca'
+                      ? t('Salvar em {destino}', { destino })
+                      : t('Salvar na biblioteca')
                 }
                 aria-pressed={Boolean(guardado)}
                 onClick={() => aoSalvar(item)}
@@ -427,7 +432,7 @@ function Grade({
                 href={item.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Abrir original"
+                aria-label={t('Abrir original')}
               >
                 <ArrowSquareOut size={14} />
               </a>

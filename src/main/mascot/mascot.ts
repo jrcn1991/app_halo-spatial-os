@@ -1,6 +1,7 @@
 import { copyFile, mkdir, readdir } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { basename, join } from 'node:path'
+import { t } from '@shared/i18n'
 import type { MascotAnimation, MascotFrame, MascotInfo } from '@shared/mascot'
 import { acharAnimacao, MOOD_CANDIDATES } from '@shared/mascot'
 import { currentSettings } from '../settings'
@@ -33,7 +34,7 @@ function caminho(): string {
 
 async function personagem(): Promise<AcsCharacter> {
   const alvo = caminho()
-  if (!alvo) throw new Error('nenhum personagem escolhido')
+  if (!alvo) throw new Error(t('nenhum personagem escolhido'))
   if (carregado?.path === alvo) return carregado.character
 
   carregando ??= parseAcs(alvo).then(
@@ -115,7 +116,7 @@ export async function mascotAnimation(nome: string): Promise<MascotAnimation> {
 
   const ch = await personagem()
   const animacao = ch.animations.find((a) => a.name === nome)
-  if (!animacao) throw new Error(`o personagem não tem a animação "${nome}"`)
+  if (!animacao) throw new Error(t('o personagem não tem a animação "{nome}"', { nome }))
 
   const lista: MascotFrame[] = []
   for (const quadro of animacao.frames) {
@@ -215,7 +216,7 @@ export async function mascotPreview(arquivo: string): Promise<string> {
     ch.animations.find((a) => a.name === 'RestPose') ??
     ch.animations.find((a) => a.frames.some((f) => f.images.length > 0))
   const quadro = pose?.frames.find((f) => f.images.length > 0)
-  if (!quadro) throw new Error('personagem sem quadro desenhável')
+  if (!quadro) throw new Error(t('personagem sem quadro desenhável'))
 
   const composto = composeAcsFrame(ch, quadro)
   const png = paraPng(composto.width, composto.height, composto.rgba)

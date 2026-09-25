@@ -1,3 +1,4 @@
+import { localeDoIdioma, t } from '@shared/i18n'
 import type { Aviso } from '@shared/notificacoes'
 import {
   type CSSProperties,
@@ -36,7 +37,9 @@ const SAIDA_MS = 480
 
 type Mostrado = { aviso: Aviso; saindo: boolean }
 
-const HORA = new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' })
+/** A hora do aviso, no formato do idioma — criada na hora de desenhar, para seguir a troca. */
+const hora = (at: number) =>
+  new Intl.DateTimeFormat(localeDoIdioma(), { hour: '2-digit', minute: '2-digit' }).format(at)
 
 /** O alfa de uma cor computada (`rgba(…, a)`, `color(srgb … / a)`); sem alfa escrito, 1. */
 function alfa(cor: string): number {
@@ -198,17 +201,17 @@ export function NotificacoesApp({ canto }: { canto: string }) {
               )}
             </span>
             <span className="avisoApp" data-aviso="app">
-              {aviso.app || 'Notificação'}
+              {aviso.app || t('Notificação')}
             </span>
             <span className="avisoHora" data-aviso="hora">
-              {aviso.at ? HORA.format(aviso.at) : 'agora'}
+              {aviso.at ? hora(aviso.at) : t('agora')}
             </span>
             <button
               type="button"
               className="avisoFechar"
               data-aviso="fechar"
-              aria-label="Dispensar"
-              title="Dispensar (sai do histórico também)"
+              aria-label={t('Dispensar')}
+              title={t('Dispensar (sai do histórico também)')}
               onClick={() => fechar(aviso)}
             >
               <Glifo nome="X" tamanho={13} />

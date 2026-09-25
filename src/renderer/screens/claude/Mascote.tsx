@@ -1,4 +1,5 @@
 import type { Agent } from '@shared/agents'
+import { t } from '@shared/i18n'
 import type { MascotAnimation, MascotInfo, MascotMood } from '@shared/mascot'
 import { IDLE_INTERVAL, idlePool } from '@shared/mascot'
 import { useEffect, useRef, useState } from 'react'
@@ -142,7 +143,7 @@ export function Mascote({ agentes }: { agentes: Agent[] }) {
   if (!info?.ready || !quadro) return <div className={styles.orb} />
 
   return (
-    <div className={styles.mascote} title={`${info.name} — ${tocando ?? 'parado'}`}>
+    <div className={styles.mascote} title={`${info.name} — ${tocando ?? t('parado')}`}>
       <img
         className={styles.mascoteQuadro}
         src={quadro}

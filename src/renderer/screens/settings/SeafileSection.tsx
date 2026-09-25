@@ -1,3 +1,4 @@
+import { t } from '@shared/i18n'
 import type { SeafileState } from '@shared/seafile'
 import { useEffect, useState } from 'react'
 import { useHalo } from '@/store/useHalo'
@@ -43,55 +44,59 @@ export function SeafileSection() {
   return (
     <>
       <div className={styles.header}>
-        <span className={styles.eyebrow}>Seafile · Envio</span>
-        <span className={styles.title}>Para onde vão os arquivos</span>
+        <span className={styles.eyebrow}>{t('Seafile · Envio')}</span>
+        <span className={styles.title}>{t('Para onde vão os arquivos')}</span>
         <span className={styles.subtitle}>
-          Arraste um arquivo para a ilha dinâmica e ele sobe para o seu servidor. A senha só passa
-          uma vez, para virar token — ela não fica guardada.
+          {t(
+            'Arraste um arquivo para a ilha dinâmica e ele sobe para o seu servidor. A senha só passa uma vez, para virar token — ela não fica guardada.',
+          )}
         </span>
       </div>
       <div className={styles.divider} />
 
       <div className={styles.section}>
-        <span className={styles.sectionLabel}>Servidor</span>
+        <span className={styles.sectionLabel}>{t('Servidor')}</span>
         <input
           className={styles.campo}
           value={server}
           placeholder="http://192.168.1.20:8000"
-          aria-label="Endereço do servidor Seafile"
+          aria-label={t('Endereço do servidor Seafile')}
           spellCheck={false}
           onChange={(e) => setServer(e.target.value)}
         />
         <span className={styles.note}>
           {auth?.state === 'sem-config'
-            ? 'Endereço vazio ou inválido. Precisa começar com http:// ou https://.'
+            ? t('Endereço vazio ou inválido. Precisa começar com http:// ou https://.')
             : auth?.state === 'erro'
-              ? `Não consegui falar com ${auth.server}: ${auth.message}`
-              : `Servidor: ${server || '—'}`}
+              ? t('Não consegui falar com {servidor}: {erro}', {
+                  servidor: auth.server,
+                  erro: auth.message,
+                })
+              : t('Servidor: {endereco}', { endereco: server || '—' })}
         </span>
       </div>
 
       {conectado && estado && auth.state === 'ok' ? (
         <>
           <div className={styles.section}>
-            <span className={styles.sectionLabel}>Conta</span>
-            <span className={styles.note}>Conectado como {auth.user}.</span>
+            <span className={styles.sectionLabel}>{t('Conta')}</span>
+            <span className={styles.note}>{t('Conectado como {nome}.', { nome: auth.user })}</span>
             <div className={styles.stack}>
               <button
                 type="button"
                 className={`${styles.replay} ${styles.secondary}`}
                 onClick={() => window.halo?.seafile.logout()}
               >
-                Sair
+                {t('Sair')}
               </button>
             </div>
           </div>
 
           <div className={styles.section}>
-            <span className={styles.sectionLabel}>Biblioteca que recebe</span>
+            <span className={styles.sectionLabel}>{t('Biblioteca que recebe')}</span>
             {estado.libraries.length > 0 ? (
               <Tabs
-                label="Biblioteca do Seafile"
+                label={t('Biblioteca do Seafile')}
                 options={estado.libraries
                   .filter((l) => !l.readOnly)
                   .slice(0, 6)
@@ -103,21 +108,25 @@ export function SeafileSection() {
                 }}
               />
             ) : (
-              <span className={styles.note}>Nenhuma biblioteca com permissão de escrita.</span>
+              <span className={styles.note}>
+                {t('Nenhuma biblioteca com permissão de escrita.')}
+              </span>
             )}
             <span className={styles.note}>
-              Os arquivos vão para a raiz dela. Bibliotecas somente leitura não aparecem aqui.
+              {t(
+                'Os arquivos vão para a raiz dela. Bibliotecas somente leitura não aparecem aqui.',
+              )}
             </span>
           </div>
         </>
       ) : (
         <div className={styles.section}>
-          <span className={styles.sectionLabel}>Entrar</span>
+          <span className={styles.sectionLabel}>{t('Entrar')}</span>
           <input
             className={styles.campo}
             value={usuario}
-            placeholder="E-mail da conta"
-            aria-label="Usuário do Seafile"
+            placeholder={t('E-mail da conta')}
+            aria-label={t('Usuário do Seafile')}
             spellCheck={false}
             onChange={(e) => setUsuario(e.target.value)}
           />
@@ -125,8 +134,8 @@ export function SeafileSection() {
             className={styles.campo}
             type="password"
             value={senha}
-            placeholder="Senha"
-            aria-label="Senha do Seafile"
+            placeholder={t('Senha')}
+            aria-label={t('Senha do Seafile')}
             onChange={(e) => setSenha(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') void entrar()
@@ -139,12 +148,13 @@ export function SeafileSection() {
               disabled={!server || !usuario || !senha || entrando}
               onClick={() => void entrar()}
             >
-              {entrando ? 'Entrando…' : 'Entrar'}
+              {entrando ? t('Entrando…') : t('Entrar')}
             </button>
           </div>
           <span className={styles.note}>
-            A senha é trocada por um token e descartada. O token fica em ~/.config, nunca no
-            repositório.
+            {t(
+              'A senha é trocada por um token e descartada. O token fica em ~/.config, nunca no repositório.',
+            )}
           </span>
         </div>
       )}

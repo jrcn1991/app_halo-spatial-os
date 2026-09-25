@@ -4,6 +4,7 @@ import { stat } from 'node:fs/promises'
 import { request as pedirHttp } from 'node:http'
 import { request as pedirHttps } from 'node:https'
 import { basename } from 'node:path'
+import { t } from '@shared/i18n'
 import type {
   SeafileAuth,
   SeafileLibrary,
@@ -102,7 +103,7 @@ export async function seafileAuth(): Promise<SeafileAuth> {
     }
     if (!resposta.ok) return { state: 'erro', server, message: `HTTP ${resposta.status}` }
     const conta = (await resposta.json()) as { email?: string; name?: string }
-    return { state: 'ok', server, user: conta.name || conta.email || 'conectado' }
+    return { state: 'ok', server, user: conta.name || conta.email || t('conectado') }
   } catch (erro) {
     return { state: 'erro', server, message: (erro as Error).message.slice(0, 100) }
   }
@@ -124,12 +125,12 @@ export async function seafileLogin(user: string, password: string): Promise<Seaf
       body: JSON.stringify({ username: user, password }),
     })
     if (resposta.status === 400 || resposta.status === 403) {
-      return { state: 'erro', server, message: 'usuário ou senha recusados' }
+      return { state: 'erro', server, message: t('usuário ou senha recusados') }
     }
     if (!resposta.ok) return { state: 'erro', server, message: `HTTP ${resposta.status}` }
 
     const { token } = (await resposta.json()) as { token?: string }
-    if (!token) return { state: 'erro', server, message: 'o servidor não devolveu token' }
+    if (!token) return { state: 'erro', server, message: t('o servidor não devolveu token') }
 
     saveSeafileToken(token)
     cacheBibliotecas = null
@@ -310,10 +311,10 @@ export async function seafileUpload(caminho: string): Promise<SeafileUpload> {
 
   try {
     const info = await stat(caminho)
-    if (!info.isFile()) throw new Error('não é um arquivo')
-    if (info.size > ARQUIVO_MAX) throw new Error('arquivo grande demais')
+    if (!info.isFile()) throw new Error(t('não é um arquivo'))
+    if (info.size > ARQUIVO_MAX) throw new Error(t('arquivo grande demais'))
     const { library } = config()
-    if (!library) throw new Error('nenhuma biblioteca escolhida')
+    if (!library) throw new Error(t('nenhuma biblioteca escolhida'))
 
     const remoto = await existente(library, upload.name)
     if (remoto) {
@@ -362,7 +363,9 @@ async function enviar(
     const { library, token } = config()
     const linkResposta = await pedir(`/api2/repos/${library}/upload-link/`)
     if (!linkResposta.ok)
-      throw new Error(`não consegui o endereço de envio (HTTP ${linkResposta.status})`)
+      throw new Error(
+        t('não consegui o endereço de envio (HTTP {status})', { status: linkResposta.status }),
+      )
     const link = (await linkResposta.json()) as string
 
     let ultimo = 0

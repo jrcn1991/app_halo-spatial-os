@@ -1,5 +1,6 @@
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
+import { t } from '@shared/i18n'
 import dbus from 'dbus-next'
 import { app, type BrowserWindow, nativeImage } from 'electron'
 import { alternarHalo, garantirHaloAVista, haloRecolhido } from './island/halo'
@@ -166,7 +167,7 @@ class ItemDeBandeja extends Interface {
   }
   /** `(nome do ícone, pixmaps, título, descrição)`. */
   get ToolTip(): [string, [number, number, Buffer][], string, string] {
-    return ['', [], 'Halo', 'Mostrar ou esconder o Halo']
+    return ['', [], 'Halo', t('Mostrar ou esconder o Halo')]
   }
   /** `false`: o clique esquerdo chama `Activate`, e não abre o menu. */
   get ItemIsMenu(): boolean {
@@ -220,7 +221,7 @@ class MenuDaBandeja extends Interface {
       [
         MOSTRAR,
         {
-          label: new Variant('s', haloRecolhido() ? 'Mostrar o Halo' : 'Esconder o Halo'),
+          label: new Variant('s', haloRecolhido() ? t('Mostrar o Halo') : t('Esconder o Halo')),
           enabled: new Variant('b', true),
           visible: new Variant('b', true),
         },
@@ -229,7 +230,7 @@ class MenuDaBandeja extends Interface {
       [
         SAIR,
         {
-          label: new Variant('s', 'Sair'),
+          label: new Variant('s', t('Sair do Halo')),
           enabled: new Variant('b', true),
           visible: new Variant('b', true),
         },
