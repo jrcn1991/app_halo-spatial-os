@@ -14,6 +14,7 @@ import { AppearanceSection, CONTENT_ENTRANCE, DOCK, NAVIGATION } from './setting
 import { ClaudeSection } from './settings/ClaudeSection'
 import { EnvironmentSection } from './settings/EnvironmentSection'
 import { IslandSection } from './settings/IslandSection'
+import { LanguageSection } from './settings/LanguageSection'
 import { LauncherSection } from './settings/LauncherSection'
 import { MediaSection } from './settings/MediaSection'
 import { MusicSection } from './settings/MusicSection'
@@ -35,6 +36,7 @@ import { WindowSection } from './settings/WindowSection'
 const SECTIONS: readonly { id: SettingsSection; label: string }[] = [
   { id: 'animation', label: 'Animação' },
   { id: 'appearance', label: 'Aparência' },
+  { id: 'language', label: 'Idioma' },
   { id: 'environment', label: 'Ambiente' },
   { id: 'window', label: 'Janela' },
   { id: 'widgets', label: 'Widgets' },
@@ -95,6 +97,8 @@ export function SettingsScreen() {
         <div className={styles.body}>
           {section === 'animation' ? (
             <AnimationSection />
+          ) : section === 'language' ? (
+            <LanguageSection />
           ) : section === 'appearance' ? (
             <AppearanceSection />
           ) : section === 'environment' ? (

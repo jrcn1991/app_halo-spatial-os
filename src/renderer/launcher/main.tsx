@@ -22,6 +22,7 @@ import '../styles/env-cyberpunk.css'
 import '../styles/env-bioshock.css'
 import './launcher.css'
 
+import { ComIdioma, idiomaDaConsulta } from '@/app/idioma'
 import { LauncherApp } from './LauncherApp'
 
 const raiz = document.getElementById('lancador')
@@ -40,6 +41,8 @@ window.halo?.launcher.onEnv((novo) => {
 
 createRoot(raiz).render(
   <StrictMode>
-    <LauncherApp />
+    <ComIdioma inicial={idiomaDaConsulta()}>
+      <LauncherApp />
+    </ComIdioma>
   </StrictMode>,
 )

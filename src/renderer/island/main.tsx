@@ -9,6 +9,7 @@ import '@fontsource/dm-mono/400.css'
 import './tokens.css'
 import './island.css'
 
+import { ComIdioma, idiomaDaConsulta } from '@/app/idioma'
 import { IslandApp } from './IslandApp'
 import { VooApp } from './Voo'
 
@@ -18,4 +19,8 @@ if (!raiz) throw new Error('#ilha não encontrado')
 // A mesma página serve a ilha e a camada do fantasma (`?modo=voo`).
 const modoVoo = new URLSearchParams(window.location.search).get('modo') === 'voo'
 
-createRoot(raiz).render(<StrictMode>{modoVoo ? <VooApp /> : <IslandApp />}</StrictMode>)
+createRoot(raiz).render(
+  <StrictMode>
+    <ComIdioma inicial={idiomaDaConsulta()}>{modoVoo ? <VooApp /> : <IslandApp />}</ComIdioma>
+  </StrictMode>,
+)

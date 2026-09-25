@@ -1,5 +1,6 @@
 import type { PermissionMode } from '@shared/agents'
 import type { EnvironmentId } from '@shared/environments'
+import { definirIdioma, type Idioma } from '@shared/i18n'
 import { type IslandSettings, limitarAltura } from '@shared/island'
 import type { MascotLiveliness } from '@shared/mascot'
 import type { Progress } from '@shared/media'
@@ -44,6 +45,7 @@ export type Slider = 'imersao' | 'vol' | 'mvol'
  */
 
 export type SettingsSection =
+  | 'language'
   | 'animation'
   | 'appearance'
   | 'environment'
@@ -96,6 +98,9 @@ type HaloState = {
   /** Muda para remontar os painéis e repetir a animação de entrada. */
   nonce: number
   settingsSection: SettingsSection
+  /** O idioma da interface; trocar remonta o app inteiro (ver `app/idioma.tsx`). */
+  language: Idioma
+  setLanguage: (idioma: Idioma) => void
   appearance: Appearance
   widgets: Widgets
   /** Telas fora do dock. Home e Configurações nunca entram aqui. */
@@ -263,6 +268,11 @@ export const useHalo = create<HaloState>((set) => ({
   sliders: { imersao: 70, vol: 64, mvol: 58 },
   nonce: 0,
   settingsSection: 'animation',
+  language: initial.language,
+  setLanguage: (language) => {
+    definirIdioma(language)
+    set({ language })
+  },
   appearance: initial.appearance,
   widgets: initial.widgets,
   hiddenScreens: initial.hiddenScreens as Screen[],

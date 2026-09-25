@@ -1,5 +1,6 @@
 import { join } from 'node:path'
 import type { EnvironmentId } from '@shared/environments'
+import { idiomaAtual } from '@shared/i18n'
 import { IPC } from '@shared/ipc-contract'
 import { BrowserWindow, type Display, screen } from 'electron'
 import { ativarJanelaPorTitulo, geometriaDaJanelaAtiva } from '../island/kwin'
@@ -61,7 +62,7 @@ function criar(env: EnvironmentId): BrowserWindow {
   win.on('blur', () => {
     if (!win.isDestroyed() && win.isVisible()) win.hide()
   })
-  const consulta = `env=${encodeURIComponent(env)}`
+  const consulta = `env=${encodeURIComponent(env)}&lang=${idiomaAtual()}`
   const devUrl = process.env.ELECTRON_RENDERER_URL
   if (devUrl) void win.loadURL(`${devUrl}/launcher.html?${consulta}`)
   else

@@ -26,6 +26,7 @@ import '../styles/env-bioshock.css'
 import '../styles/animations.css'
 import './notificacoes.css'
 
+import { ComIdioma, idiomaDaConsulta } from '@/app/idioma'
 import { NotificacoesApp } from './NotificacoesApp'
 
 const raiz = document.getElementById('avisos')
@@ -47,6 +48,8 @@ window.halo?.notificacoes.onEnv((novo) => {
 
 createRoot(raiz).render(
   <StrictMode>
-    <NotificacoesApp canto={consulta.get('canto') ?? 'topo-direita'} />
+    <ComIdioma inicial={idiomaDaConsulta()}>
+      <NotificacoesApp canto={consulta.get('canto') ?? 'topo-direita'} />
+    </ComIdioma>
   </StrictMode>,
 )

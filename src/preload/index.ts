@@ -104,6 +104,13 @@ const api: HaloApi = {
     original: () => ipcRenderer.invoke(IPC.wallpaperOriginal) as Promise<boolean>,
     restaurar: () => ipcRenderer.invoke(IPC.wallpaperRestaurar) as Promise<WallpaperResult>,
   },
+  idioma: {
+    onMudou: (handler: (idioma: string) => void) => {
+      const ouvinte = (_e: unknown, idioma: string) => handler(idioma)
+      ipcRenderer.on(IPC.idiomaMudou, ouvinte)
+      return () => ipcRenderer.removeListener(IPC.idiomaMudou, ouvinte)
+    },
+  },
   system: {
     dependencies: () => ipcRenderer.invoke(IPC.systemDependencies) as Promise<DiagnosticoDoSistema>,
   },

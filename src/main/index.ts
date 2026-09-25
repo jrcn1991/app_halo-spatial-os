@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import type { Attachment } from '@shared/agents'
 import type { CreativeItem, CreativeProviderId, CreativeQuery } from '@shared/creative'
 import type { EnvironmentId } from '@shared/environments'
+import { definirIdioma, ehIdioma } from '@shared/i18n'
 import type { AppInfo, DesktopModeResult, WindowSize } from '@shared/ipc-contract'
 import { IPC } from '@shared/ipc-contract'
 import type { IslandSettings, NoticesResult } from '@shared/island'
@@ -242,10 +243,25 @@ function semAltura(settings: HaloSettings) {
   }
 }
 
+/**
+ * O idioma mudou em Configurações: o main passa a escrever na língua nova e
+ * avisa TODAS as janelas — o app já trocou sozinho; a ilha, o lançador e os
+ * balões só sabem por aqui.
+ */
+function avisarIdioma(antes: HaloSettings, depois: unknown): void {
+  const novo = (depois as Partial<HaloSettings> | null)?.language
+  if (!ehIdioma(novo) || novo === antes.language) return
+  definirIdioma(novo)
+  for (const win of BrowserWindow.getAllWindows()) {
+    if (!win.isDestroyed()) win.webContents.send(IPC.idiomaMudou, novo)
+  }
+}
+
 function registerIpc(): void {
   ipcMain.on(IPC.windowClose, (e) => BrowserWindow.fromWebContents(e.sender)?.close())
   ipcMain.on(IPC.settingsSave, (_e, settings) => {
     const antes = currentSettings()
+    avisarIdioma(antes, settings)
     saveSettings(settings)
     const depois = currentSettings()
     // O lançador segue o tema: trocar de ambiente avisa a janela (sem recriar).
@@ -884,6 +900,9 @@ app.whenReady().then(async () => {
   }
 
   const settings = readSettings()
+  // Antes de qualquer janela ou menu: o main também escreve na tela (a
+  // bandeja, a ilha, os avisos).
+  definirIdioma(settings.language)
   gravarPadrao()
   registerIpc()
   // A bandeja ANTES da janela, e a ordem é o que sustenta a regra: com a

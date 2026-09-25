@@ -1,5 +1,6 @@
 import { join } from 'node:path'
 import type { EnvironmentId } from '@shared/environments'
+import { idiomaAtual } from '@shared/i18n'
 import { IPC } from '@shared/ipc-contract'
 import type { Aviso, CantoDosAvisos } from '@shared/notificacoes'
 import { BrowserWindow, screen } from 'electron'
@@ -52,7 +53,7 @@ function limites(): Electron.Rectangle {
 }
 
 function carregar(win: BrowserWindow): void {
-  const consulta = `env=${encodeURIComponent(ambiente)}&canto=${canto}&desfoque=${desfoque ? 'sim' : 'nao'}`
+  const consulta = `env=${encodeURIComponent(ambiente)}&canto=${canto}&desfoque=${desfoque ? 'sim' : 'nao'}&lang=${idiomaAtual()}`
   const devUrl = process.env.ELECTRON_RENDERER_URL
   if (devUrl) void win.loadURL(`${devUrl}/notificacoes.html?${consulta}`)
   else

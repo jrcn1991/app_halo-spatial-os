@@ -1,4 +1,5 @@
 import { join } from 'node:path'
+import { idiomaAtual } from '@shared/i18n'
 import { IPC } from '@shared/ipc-contract'
 import {
   type IslandEvent,
@@ -91,7 +92,10 @@ function telaDaIlha(win: BrowserWindow): Display {
 }
 
 /** A página da ilha, com a consulta (`a=1&b=2`) — a mesma para a ilha e para a camada. */
-function carregar(win: BrowserWindow, consulta: string): void {
+function carregar(win: BrowserWindow, consultaSemIdioma: string): void {
+  // O idioma vai na consulta, como as outras opções da página: a ilha precisa
+  // dele no primeiro desenho. Trocas depois chegam por `IPC.idiomaMudou`.
+  const consulta = `${consultaSemIdioma}&lang=${idiomaAtual()}`
   const devUrl = process.env.ELECTRON_RENDERER_URL
   if (devUrl) void win.loadURL(`${devUrl}/island.html?${consulta}`)
   else {

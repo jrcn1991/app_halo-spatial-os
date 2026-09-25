@@ -18,6 +18,7 @@ export function startPersistingSettings(): () => void {
   return useHalo.subscribe((state) => {
     const next = snapshot(state)
     if (
+      next.language === previous.language &&
       next.appearance === previous.appearance &&
       next.environment === previous.environment &&
       next.widgets === previous.widgets &&
@@ -52,6 +53,7 @@ export function startPersistingSettings(): () => void {
 
 function snapshot(state: ReturnType<typeof useHalo.getState>): HaloSettings {
   return {
+    language: state.language,
     appearance: state.appearance,
     environment: state.environment,
     widgets: state.widgets,

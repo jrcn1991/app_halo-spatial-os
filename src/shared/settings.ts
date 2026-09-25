@@ -6,6 +6,7 @@ import {
   type EnvironmentId,
   isEnvironmentId,
 } from './environments'
+import { ehIdioma, IDIOMA_PADRAO, type Idioma } from './i18n'
 import {
   ALTURA_PILULA_MAX,
   ALTURA_PILULA_MIN,
@@ -387,6 +388,11 @@ export type News = {
 }
 
 export type HaloSettings = {
+  /**
+   * O idioma da interface. Português é o padrão, e o que um arquivo antigo ou
+   * editado à mão trouxer de estranho volta para ele. Ver `shared/i18n.ts`.
+   */
+  language: Idioma
   appearance: Appearance
   /** O ambiente ativo e as imagens de cada um. Ver `EnvironmentSettings`. */
   environment: EnvironmentSettings
@@ -443,6 +449,7 @@ export const CLARIDADE_HANDOFF = 50
 
 /** Os padrões reproduzem o protótipo do handoff exatamente. */
 export const DEFAULT_SETTINGS: HaloSettings = {
+  language: IDIOMA_PADRAO,
   appearance: {
     tint: { on: false, rgb: hueToRgb(DEFAULT_TINT_HUE) },
     dock: 'bottom',
@@ -594,6 +601,7 @@ export function parseSettings(input: unknown): HaloSettings {
   const tint = isRecord(a.tint) ? a.tint : {}
 
   return {
+    language: ehIdioma(input.language) ? input.language : DEFAULT_SETTINGS.language,
     appearance: {
       tint: {
         on: typeof tint.on === 'boolean' ? tint.on : base.tint.on,

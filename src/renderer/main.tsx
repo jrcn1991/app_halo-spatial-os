@@ -52,8 +52,10 @@ import './styles/animations.css'
 import './styles/global.css'
 
 import { App } from './app/App'
+import { ComIdioma } from './app/idioma'
 import { startPersistingSettings } from './app/persist'
 import { startWatchingRecent } from './app/recent'
+import { useHalo } from './store/useHalo'
 
 startPersistingSettings()
 startWatchingRecent()
@@ -67,8 +69,18 @@ window.halo?.window.onDormindo((dormindo) => {
 const root = document.getElementById('root')
 if (!root) throw new Error('#root não encontrado')
 
+/** O app lê o idioma do store: é a tela de Configurações que o troca. */
+function Raiz() {
+  const idioma = useHalo((s) => s.language)
+  return (
+    <ComIdioma inicial={idioma}>
+      <App />
+    </ComIdioma>
+  )
+}
+
 createRoot(root).render(
   <StrictMode>
-    <App />
+    <Raiz />
   </StrictMode>,
 )

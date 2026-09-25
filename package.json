@@ -23,7 +23,7 @@
     "lint": "biome check src tools",
     "lint:fix": "biome check --write src tools",
     "lint:style": "node tools/style-lint.mjs",
-    "check": "npm run typecheck && npm run lint && electron-vite build && npm run lint:style && npm run test:screens && npm run layout",
+    "check": "npm run typecheck && npm run lint && electron-vite build && npm run lint:style && npm run i18n && npm run test:screens && npm run layout",
     "test:setup": "playwright install chromium",
     "layout": "node tools/layout-check.mjs",
     "test:screens": "node tools/screens-check.mjs",
@@ -32,7 +32,8 @@
     "island": "node tools/island-check.mjs",
     "doctor": "node tools/doctor.mjs",
     "mascot:extract": "node tools/acs-extract.mjs",
-    "vitrine": "node tools/vitrine.mjs"
+    "vitrine": "node tools/vitrine.mjs",
+    "i18n": "node tools/i18n-check.mjs"
   },
   "engines": {
     "node": ">=22"

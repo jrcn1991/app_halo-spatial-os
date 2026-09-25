@@ -174,6 +174,7 @@ export const IPC = {
   islandAtividades: 'island:atividades',
   islandEspectro: 'island:espectro',
   islandClaude: 'island:claude',
+  idiomaMudou: 'idioma:mudou',
   islandAltura: 'island:altura',
   seafileState: 'seafile:state',
   seafileLogin: 'seafile:login',
@@ -279,6 +280,10 @@ export type HaloApi = {
   }
   appInfo: () => Promise<AppInfo>
   /** O que o app precisa de fora, e o que esta máquina tem. */
+  /** O idioma da interface mudou em Configurações: o main avisa TODAS as janelas. */
+  idioma: {
+    onMudou: (handler: (idioma: string) => void) => () => void
+  }
   system: {
     /**
      * Quais dos programas de `shared/dependencias.ts` existem aqui, e que
