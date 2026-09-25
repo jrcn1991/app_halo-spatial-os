@@ -30,6 +30,7 @@ const ACAO = ['plasmashell', 'show-on-mouse-pos', '', '']
 /** O recorte da interface `org.kde.KGlobalAccel` que usamos, tipado. */
 type Acessos = {
   setForeignShortcut(acao: string[], teclas: number[]): Promise<void>
+  unregister(componente: string, acao: string): Promise<boolean>
 }
 
 async function kglobalaccel() {
@@ -53,6 +54,20 @@ export async function devolverMetaV(): Promise<void> {
   const { bus, acessos } = await kglobalaccel()
   try {
     await acessos.setForeignShortcut(ACAO, [META_V])
+  } finally {
+    bus.disconnect()
+  }
+}
+
+/**
+ * Esquece uma ação que um script do KWin registrou (os atalhos da ilha e do
+ * lançador): a tecla fica livre e a linha sai de `kglobalshortcutsrc` na hora.
+ * Descarregar o script não basta — o kglobalaccel guarda a ação e a tecla.
+ */
+export async function esquecerAcaoDoKWin(acao: string): Promise<void> {
+  const { bus, acessos } = await kglobalaccel()
+  try {
+    await acessos.unregister('kwin', acao)
   } finally {
     bus.disconnect()
   }

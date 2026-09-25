@@ -5,6 +5,7 @@ import { IPC } from '@shared/ipc-contract'
 import type { IslandWindow } from '@shared/island'
 import dbus from 'dbus-next'
 import { app } from 'electron'
+import { esquecerAcaoDoKWin } from '../launcher/klipper'
 import { broadcastToIslands } from './window'
 
 /**
@@ -760,6 +761,16 @@ entregar(achou ? { ok: true } : { erro: 'janela não encontrada' })
 
 /** Tira a linha do atalho do `kglobalshortcutsrc` — só a nossa, uma por vez. */
 async function apagarAtalho(titulo: string): Promise<void> {
+  // Pedir ao kglobalaccel que ESQUEÇA a ação, e não só apagar a linha do
+  // arquivo. MEDIDO em 24/09/2026, no teste de instalação do zero: com o
+  // `kwriteconfig6 --delete` sozinho, as linhas do Halo continuavam em
+  // `kglobalshortcutsrc` depois de desligar a ilha e o lançador — o
+  // kglobalaccel guarda os atalhos na memória e reescreve o arquivo por cima.
+  // E com o Meta+V ainda preso na ação do Halo, devolvê-lo ao Klipper falhava
+  // em silêncio. `unregister` solta a tecla e tira a linha na hora.
+  await esquecerAcaoDoKWin(titulo).catch(() => {})
+  // O arquivo, por garantia: sem kglobalaccel de pé (sessão caindo), é o que
+  // sobra para não deixar a linha para trás.
   const { execFile } = await import('node:child_process')
   const { promisify } = await import('node:util')
   await promisify(execFile)(

@@ -961,9 +961,12 @@ async function aplicarVigia(ilha: IslandSettings, lancador: boolean): Promise<vo
     // Sem KWin, ou sem permissão de escrever o pacote: o cartão continua.
   })
   // O Meta+V: liberado do Klipper ANTES de o script tentar registrá-lo (o KDE
-  // não entrega tecla ocupada), e devolvido assim que o lançador é desligado.
+  // não entrega tecla ocupada). A devolução é o contrário, e vem no FIM: só
+  // depois que a ação do Halo solta a tecla (`apagarAtalho`, dentro de
+  // `iniciarVigia`/`apagarAtalhos`) o Klipper consegue pegá-la de volta.
+  // MEDIDO em 24/09/2026: devolvendo antes, o KDE recusava em silêncio e o
+  // Klipper ficava sem Meta+V.
   if (lancador) await liberarMetaV().catch(() => {})
-  else await devolverMetaV().catch(() => {})
   // Sem ilha não há pílula para trazer o app de volta — mas a bandeja também é
   // caminho de volta, a mesma regra de `nasceRecolhido`. Só sem os DOIS o app
   // reaparece à força. Antes isto ignorava a bandeja, e numa máquina nova (a
@@ -974,6 +977,7 @@ async function aplicarVigia(ilha: IslandSettings, lancador: boolean): Promise<vo
     if (semCaminhoDeVolta) garantirHaloAVista()
     await pararVigia()
     await apagarAtalhos()
+    await devolverMetaV().catch(() => {})
     return
   }
   if (semCaminhoDeVolta) garantirHaloAVista()
@@ -1001,6 +1005,7 @@ async function aplicarVigia(ilha: IslandSettings, lancador: boolean): Promise<vo
   ).catch(() => {
     // Sem KWin (outro ambiente): a ilha vive sem o vigia.
   })
+  if (!lancador) await devolverMetaV().catch(() => {})
 }
 
 /**
