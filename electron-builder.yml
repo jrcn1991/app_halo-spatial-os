@@ -3,8 +3,13 @@ productName: Halo
 directories:
   output: dist
   buildResources: build
+# Só o que é do app: `out/` também guarda o que ferramentas de fora geram
+# ali (`npm run vitrine` deixa ~25 MB de vídeo e capturas em `out/vitrine`), e
+# um `out/**` levava tudo para dentro do pacote — medido: 106 → 132 MB.
 files:
-  - out/**
+  - out/main/**
+  - out/preload/**
+  - out/renderer/**
   - package.json
 # O papel de parede do BioShock é arte nossa e vem com o app. Fica FORA do asar
 # porque quem o aplica é o `plasma-apply-wallpaperimage`, um programa de fora:
