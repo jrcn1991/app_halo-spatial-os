@@ -24,4 +24,6 @@ export const mockHomeFeed: HomeFeedRepository = {
       { kind: 'ok', title: 'Ambiente', body: 'Floresta ajustada para a luz da manhã', app: '' },
     ],
   }),
+  // A lista de exemplo não muda: não há o que avisar.
+  onChanged: () => () => {},
 }

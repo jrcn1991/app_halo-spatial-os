@@ -290,6 +290,18 @@ const CHECKS = [
     },
   ],
   [
+    'TMDB: a chave não atravessa para o renderer',
+    async (api) => {
+      // O mesmo argv das outras duas. O renderer só pode saber que a chave
+      // EXISTE: recebe a marca de `TMDB_GUARDADA` (src/shared/settings.ts) ou
+      // nada. Qualquer outro texto é a chave de verdade vazando.
+      const chave = api.settings.initial?.media?.tmdbKey ?? ''
+      return chave === '' || chave === 'halo: chave guardada no main'
+        ? true
+        : 'a chave do TMDB chegou ao renderer'
+    },
+  ],
+  [
     'metadados do TMDB respondem sem derrubar a tela',
     async (api) => {
       const status = await api.media.status()
@@ -822,6 +834,11 @@ const CHECKS = [
         'http://192.168.0.1/',
         'http://10.0.0.1/',
         'http://100.64.0.1/',
+        // O IPv4 dentro de um IPv6: a `URL` normaliza `::ffff:127.0.0.1` para
+        // `::ffff:7f00:1`, e a trava antiga, que lia texto, deixava passar.
+        'http://[::ffff:127.0.0.1]:8000/',
+        'http://[64:ff9b::192.168.0.1]/',
+        'http://[2002:c0a8:1::]/',
         'file:///etc/passwd',
         'ftp://exemplo.test/',
       ]

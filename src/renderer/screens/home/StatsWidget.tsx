@@ -13,8 +13,8 @@ import styles from './widgets.module.css'
  * Os mini-stats da home.
  *
  * O handoff mostra DOIS, e eles são bateria e passthrough — coisas de headset.
- * Esta máquina é um desktop, então o par virou CPU e memória. O usuário pediu
- * a placa de vídeo e a temperatura, e a grade passou a ter quatro: a coluna
+ * Num desktop o par vira CPU e memória. Com a placa de vídeo e a
+ * temperatura, a grade passou a ter quatro: a coluna
  * tinha folga de sobra abaixo dos dois primeiros. Divergência em MOCKS.md.
  *
  * Nenhum dos quatro inventa número. Sem leitura, o valor é um travessão e o

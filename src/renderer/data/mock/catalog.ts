@@ -89,4 +89,6 @@ export const mockCatalog: CatalogRepository = {
   extra: async () => ({ state: 'no-key' }),
   play: async () => undefined,
   forget: () => undefined,
+  // Não há seletor de arquivo no navegador: é o mesmo que cancelar.
+  choose: async () => null,
 }

@@ -18,8 +18,7 @@ import styles from './social.module.css'
  * válido, e ele continua na biblioteca.
  *
  * As coleções sugeridas (Inspirações, Modelos para imprimir…) aparecem como
- * SUGESTÃO e não são criadas sozinhas: o usuário pediu que fossem sugestões, e
- * uma pasta que aparece sem ninguém pedir é uma pasta que ninguém quis.
+ * SUGESTÃO e não são criadas sozinhas: uma pasta que aparece sem ninguém pedir é uma pasta que ninguém quis.
  *
  * O grupo aberto aqui é o DESTINO de quem for salvo no feed — por isso ele mora
  * na tela e não neste componente. Antes tudo caía solto: dois itens salvos,

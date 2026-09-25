@@ -1,5 +1,6 @@
 import { localeDoIdioma, t } from '@shared/i18n'
-import { useCatalogStatus } from '@/hooks/useCatalog'
+import { TMDB_GUARDADA } from '@shared/settings'
+import { useCatalogActions, useCatalogStatus } from '@/hooks/useCatalog'
 import { useHalo } from '@/store/useHalo'
 import styles from '../SettingsScreen.module.css'
 
@@ -14,9 +15,10 @@ export function MediaSection() {
   const playlist = useHalo((s) => s.playlist)
   const setPlaylist = useHalo((s) => s.setPlaylist)
   const status = useCatalogStatus(playlist)
+  const { choose } = useCatalogActions()
 
   const escolher = async () => {
-    const caminho = await window.halo?.media.choose()
+    const caminho = await choose()
     if (caminho) setPlaylist(caminho)
   }
 
@@ -88,6 +90,22 @@ export function MediaSection() {
 }
 
 /**
+ * O que o campo da chave vira depois de uma edição.
+ *
+ * Com chave guardada, o campo mostra `TMDB_GUARDADA` — a chave de verdade
+ * ficou no main e não viaja para cá (ver `paraRenderer`). O campo é de
+ * senha, então a marca aparece como os pontinhos de sempre. Editar em cima
+ * dela: apagar um caractere apaga a chave; colar por cima de tudo, ou
+ * digitar depois, fica só com o que foi digitado — a marca nunca vai para o
+ * disco como se fosse chave.
+ */
+function novaChave(atual: string, digitado: string): string {
+  if (atual !== TMDB_GUARDADA) return digitado
+  if (digitado.length < TMDB_GUARDADA.length) return ''
+  return digitado.replace(TMDB_GUARDADA, '')
+}
+
+/**
  * A chave do TMDB.
  *
  * A lista M3U traz nome, ano, categoria e capa — nada mais. Sinopse, nota,
@@ -111,7 +129,7 @@ function ChaveTmdb() {
         placeholder={t('Chave da API — cole aqui')}
         aria-label={t('Chave da API do TMDB')}
         spellCheck={false}
-        onChange={(e) => setTmdbKey(e.target.value)}
+        onChange={(e) => setTmdbKey(novaChave(tmdbKey, e.target.value))}
       />
       <span className={styles.note}>
         {tmdbKey

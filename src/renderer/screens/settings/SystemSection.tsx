@@ -4,7 +4,7 @@ import {
   type NivelDeDependencia,
 } from '@shared/dependencias'
 import { marcar, t } from '@shared/i18n'
-import { useEffect, useState } from 'react'
+import { useDependencies } from '@/hooks/useSistema'
 import { cx } from '@/ui/cx'
 import styles from '../SettingsScreen.module.css'
 
@@ -40,11 +40,7 @@ const EXPLICACOES: Record<NivelDeDependencia, string> = {
 const NIVEIS: readonly NivelDeDependencia[] = ['essencial', 'kde', 'opcional']
 
 export function SystemSection() {
-  const [diagnostico, setDiagnostico] = useState<DiagnosticoDoSistema | null>(null)
-
-  useEffect(() => {
-    void window.halo?.system.dependencies().then(setDiagnostico)
-  }, [])
+  const { data: diagnostico } = useDependencies()
 
   return (
     <>

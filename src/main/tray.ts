@@ -47,8 +47,8 @@ import { alternarHalo, garantirHaloAVista, haloRecolhido } from './island/halo'
  *
  * O menu de botão direito é o segundo protocolo desta história: quem o desenha
  * é o `com.canonical.dbusmenu`, e o item da bandeja só aponta para ele pela
- * propriedade `Menu`. Ele existe porque o usuário pediu um jeito de SAIR do
- * app (06/09/2026) — com a janela fora da barra de tarefas, fechar pelo botão
+ * propriedade `Menu`. Ele existe para haver um jeito de SAIR do app — com a
+ * janela fora da barra de tarefas, fechar pelo botão
  * da própria tela exige mostrá-la primeiro, e um app que roda o tempo todo
  * precisa de uma saída no lugar onde ele mora.
  */

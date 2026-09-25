@@ -89,7 +89,7 @@ export const ENVIRONMENTS = [
   {
     id: 'cyberpunk',
     // "Cyberpunk", sem o "2077": cyberpunk é nome de gênero, e "Cyberpunk
-    // 2077" é o título registrado do jogo (24/09/2026, pedido do usuário).
+    // 2077" é o título registrado do jogo.
     name: 'Cyberpunk',
     wallpaper: '.local/share/halo-spatial-os/wallpapers/cyberpunk.jpg',
     ready: true,
@@ -103,7 +103,7 @@ export const ENVIRONMENTS = [
   {
     id: 'bioshock',
     // "Shock", e não "BioShock": BioShock é marca da 2K, e o ambiente é só
-    // inspirado no art déco subaquático do jogo (24/09/2026, pedido do usuário).
+    // inspirado no art déco subaquático do jogo.
     // O id continua `bioshock` — é ele que está gravado nas configurações de
     // quem já usa, e trocá-lo apagaria os ajustes deste ambiente.
     name: 'Shock',

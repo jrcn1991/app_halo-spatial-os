@@ -1,6 +1,6 @@
 import { copyFile, mkdir, readdir } from 'node:fs/promises'
 import { homedir } from 'node:os'
-import { basename, join } from 'node:path'
+import { basename, dirname, join, resolve } from 'node:path'
 import { t } from '@shared/i18n'
 import type { MascotAnimation, MascotFrame, MascotInfo } from '@shared/mascot'
 import { acharAnimacao, MOOD_CANDIDATES } from '@shared/mascot'
@@ -28,8 +28,19 @@ const quadros = new Map<string, MascotAnimation>()
    cobrem os estados e as bobagens recentes; a menos usada sai. */
 const QUADROS_MAX = 20
 
+/**
+ * O personagem escolhido — mas só se ele mora na biblioteca.
+ *
+ * O caminho vem das configurações, que o renderer escreve: aceitá-lo como
+ * está faria o main decodificar qualquer arquivo do disco que alguém pusesse
+ * ali. O seletor não perde nada com isso, porque `mascotAdd` copia o escolhido
+ * para a biblioteca antes de gravá-lo. Fora dela, vale como "sem personagem".
+ */
 function caminho(): string {
-  return currentSettings().mascot.file
+  const bruto = currentSettings().mascot.file
+  if (!bruto) return ''
+  const alvo = resolve(bruto)
+  return dirname(alvo) === resolve(mascotFolder()) ? alvo : ''
 }
 
 async function personagem(): Promise<AcsCharacter> {
@@ -159,8 +170,9 @@ export type MascotChoice = { file: string; name: string; current: boolean }
 /**
  * Os personagens que dá para escolher.
  *
- * A pasta da biblioteca, mais o que estiver escolhido agora — se o usuário
- * apontou um `.acs` de outro lugar, ele continua na lista em vez de sumir.
+ * A pasta da biblioteca. O escolhido agora só entra por ela: `caminho()`
+ * recusa o que estiver fora (o bloco abaixo cobre um arquivo da biblioteca
+ * cujo nome não termina em `.acs`).
  */
 export async function mascotList(): Promise<MascotChoice[]> {
   const pasta = mascotFolder()
@@ -199,6 +211,9 @@ export async function mascotAdd(origem: string): Promise<string> {
 
 /** Cache das amostras: compor de novo a cada abertura da tela seria desperdício. */
 const amostras = new Map<string, string>()
+/* Teto das amostras: uma por personagem da lista, e a biblioteca de quem
+   coleciona passa de dezenas. O mais antigo sai, como em `quadros`. */
+const AMOSTRAS_MAX = 40
 
 /**
  * Uma imagem de um personagem, para a tela de escolha.
@@ -210,6 +225,13 @@ const amostras = new Map<string, string>()
 export async function mascotPreview(arquivo: string): Promise<string> {
   const guardada = amostras.get(arquivo)
   if (guardada) return guardada
+  // Só o que a tela de escolha lista: a biblioteca e o escolhido agora. O
+  // caminho vem do renderer, e sem isto o main decodificaria qualquer arquivo
+  // do disco que alguém mandasse. O seletor de arquivo não perde nada: o que
+  // ele escolhe é copiado para a biblioteca ANTES da amostra ser pedida.
+  if (!(await mascotList()).some((c) => c.file === arquivo)) {
+    throw new Error(t('personagem sem quadro desenhável'))
+  }
 
   const ch = await parseAcs(arquivo)
   const pose =
@@ -220,6 +242,10 @@ export async function mascotPreview(arquivo: string): Promise<string> {
 
   const composto = composeAcsFrame(ch, quadro)
   const png = paraPng(composto.width, composto.height, composto.rgba)
+  if (amostras.size >= AMOSTRAS_MAX) {
+    const primeira = amostras.keys().next()
+    if (!primeira.done) amostras.delete(primeira.value)
+  }
   amostras.set(arquivo, png)
   return png
 }

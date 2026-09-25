@@ -1,8 +1,9 @@
 import type { Agent } from '@shared/agents'
 import { t } from '@shared/i18n'
-import type { MascotAnimation, MascotInfo, MascotMood } from '@shared/mascot'
+import type { MascotAnimation, MascotMood } from '@shared/mascot'
 import { IDLE_INTERVAL, idlePool } from '@shared/mascot'
 import { useEffect, useRef, useState } from 'react'
+import { useMascotAnimation, useMascotInfo } from '@/hooks/useMascot'
 import { useHalo } from '@/store/useHalo'
 import styles from './claude.module.css'
 
@@ -30,7 +31,8 @@ function humorDe(agentes: Agent[]): MascotMood {
 
 export function Mascote({ agentes }: { agentes: Agent[] }) {
   const agitacao = useHalo((s) => s.mascotLiveliness)
-  const [info, setInfo] = useState<MascotInfo | null>(null)
+  const { info } = useMascotInfo()
+  const animation = useMascotAnimation()
   const [quadro, setQuadro] = useState<string | null>(null)
   const [tocando, setTocando] = useState<string | null>(null)
   const relogio = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
@@ -40,10 +42,6 @@ export function Mascote({ agentes }: { agentes: Agent[] }) {
   // Turno recém-terminado: o total de turnos subindo é o gatilho da comemoração.
   const turnos = agentes.reduce((soma, a) => soma + a.turns, 0)
   const turnosAntes = useRef(turnos)
-
-  useEffect(() => {
-    void window.halo?.mascot.info().then(setInfo)
-  }, [])
 
   /**
    * Toca uma animação até o fim, quadro a quadro.
@@ -59,7 +57,7 @@ export function Mascote({ agentes }: { agentes: Agent[] }) {
     const tocar = async (nome: string) => {
       let animacao = cache.current.get(nome)
       if (!animacao) {
-        animacao = await window.halo?.mascot.animation(nome).catch(() => undefined)
+        animacao = await animation(nome).catch(() => undefined)
         if (!animacao || !vivo) return
         cache.current.set(nome, animacao)
       }
@@ -90,7 +88,7 @@ export function Mascote({ agentes }: { agentes: Agent[] }) {
       vivo = false
       clearTimeout(relogio.current)
     }
-  }, [info, humor, turnos])
+  }, [info, humor, turnos, animation])
 
   /**
    * Bobagens de ocioso.
@@ -114,8 +112,7 @@ export function Mascote({ agentes }: { agentes: Agent[] }) {
       () => {
         const escolhida = pool[Math.floor(Math.random() * pool.length)]
         if (!escolhida) return
-        void window.halo?.mascot
-          .animation(escolhida)
+        void animation(escolhida)
           .then((animacao) => {
             cache.current.set(escolhida, animacao)
             setTocando(escolhida)
@@ -137,7 +134,7 @@ export function Mascote({ agentes }: { agentes: Agent[] }) {
       minimo + Math.random() * (maximo - minimo),
     )
     return () => clearTimeout(espera)
-  }, [info, humor, tocando, agitacao])
+  }, [info, humor, tocando, agitacao, animation])
 
   // Sem personagem escolhido (ou com erro ao ler), o orbe do handoff fica.
   if (!info?.ready || !quadro) return <div className={styles.orb} />

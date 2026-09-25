@@ -2,6 +2,7 @@ import { join } from 'node:path'
 import { idiomaAtual } from '@shared/i18n'
 import { IPC } from '@shared/ipc-contract'
 import { BrowserWindow, screen } from 'electron'
+import { travarNavegacao } from '../navegacao'
 import { isX11 } from './desktop-layer'
 
 /**
@@ -73,6 +74,7 @@ function criar(): BrowserWindow {
   })
 
   win.setAspectRatio(PROPORCAO)
+  travarNavegacao(win.webContents)
   // Mini janela só faz sentido se ela ficar visível enquanto se usa outra
   // coisa. No Wayland isto não pega (ver `togglePinned`), e a janela nasce
   // sem fixar em vez de nascer mentindo.

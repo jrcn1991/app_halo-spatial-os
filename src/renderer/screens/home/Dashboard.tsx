@@ -8,12 +8,12 @@ import { ENVIRONMENTS, type Environment, type EnvironmentId } from '@shared/envi
 import { localeDoIdioma, t } from '@shared/i18n'
 import { type CSSProperties, useEffect, useState } from 'react'
 import { aplicarWallpaper } from '@/app/environment'
-import { repositories } from '@/data'
 import type { NewsFeedStatus, NewsItem } from '@/domain/types'
-import { useApps, useNotifications } from '@/hooks/useHome'
+import { useApps, useLaunchApp, useNotifications } from '@/hooks/useHome'
 import { useContainers, useHost } from '@/hooks/useLab'
 import { useNews } from '@/hooks/useNews'
 import { useProjects } from '@/hooks/useProjects'
+import { useWallpaperPreviews } from '@/hooks/useWallpaper'
 import { useHalo } from '@/store/useHalo'
 import { cx } from '@/ui/cx'
 import styles from './home.module.css'
@@ -355,6 +355,7 @@ function NotificationIcon({ kind }: { kind: 'ok' | 'info' | 'error' }) {
 /** Gaveta de apps: os aplicativos instalados de verdade. */
 function AppsDrawer() {
   const { data: apps } = useApps()
+  const launch = useLaunchApp()
 
   return (
     <div className={styles.drawer}>
@@ -377,7 +378,7 @@ function AppsDrawer() {
             key={app.id}
             className={styles.app}
             title={app.comment ?? app.name}
-            onClick={() => void repositories.apps.launch(app.id)}
+            onClick={() => void launch(app.id)}
           >
             <GridFour size={20} color="var(--text-secondary)" />
             <span className={styles.appName}>{app.name}</span>
@@ -539,42 +540,6 @@ export function Environments() {
       )}
     </>
   )
-}
-
-/**
- * As miniaturas dos papéis de parede, uma por ambiente.
- *
- * Quem lê o disco e encolhe a imagem é o main (ver
- * `src/main/services/wallpaper.ts`): o renderer não alcança arquivo, e a CSP
- * dele só abre `data:`. Fora do Electron — o navegador dos testes de tela —
- * não há `window.halo`, e o quadrado fica com as listras de sempre.
- *
- * Refaz a busca quando o usuário troca a imagem de um ambiente nas
- * configurações; o main guarda cada miniatura pela data do arquivo, então
- * pedir de novo é barato.
- */
-function useWallpaperPreviews(
-  imagens: Record<string, string>,
-): Partial<Record<EnvironmentId, string>> {
-  const [previas, setPrevias] = useState<Partial<Record<EnvironmentId, string>>>({})
-  // `imagens` não é lido aqui dentro de propósito: quem sabe o caminho de cada
-  // ambiente é o main. Ele está na lista para a busca refazer quando o usuário
-  // troca a imagem nas configurações — sem isso o quadrado ficaria com a
-  // miniatura antiga até o app reabrir.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: ver acima
-  useEffect(() => {
-    let vivo = true
-    void window.halo?.wallpaper
-      .previews()
-      .then((lista) => vivo && setPrevias(lista))
-      .catch(() => {
-        // Sem prévia o painel continua inteiro: é enfeite, não conteúdo.
-      })
-    return () => {
-      vivo = false
-    }
-  }, [imagens])
-  return previas
 }
 
 /** O nome do arquivo, que é o que cabe no tooltip. */

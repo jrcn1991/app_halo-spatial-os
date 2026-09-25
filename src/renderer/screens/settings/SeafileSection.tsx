@@ -1,6 +1,6 @@
 import { t } from '@shared/i18n'
-import type { SeafileState } from '@shared/seafile'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { useSeafile } from '@/hooks/useSeafile'
 import { useHalo } from '@/store/useHalo'
 import { Tabs } from '@/ui/Tabs'
 import styles from '../SettingsScreen.module.css'
@@ -19,22 +19,17 @@ export function SeafileSection() {
   const server = useHalo((s) => s.seafileServer)
   const setServer = useHalo((s) => s.setSeafileServer)
   const setLibrary = useHalo((s) => s.setSeafileLibrary)
-  const [estado, setEstado] = useState<SeafileState | null>(null)
+  const seafile = useSeafile()
+  const estado = seafile.estado
   const [usuario, setUsuario] = useState('')
   const [senha, setSenha] = useState('')
   const [entrando, setEntrando] = useState(false)
 
-  useEffect(() => {
-    void window.halo?.seafile.state().then(setEstado)
-    return window.halo?.seafile.onChanged(setEstado)
-  }, [])
-
   const entrar = async () => {
     setEntrando(true)
-    await window.halo?.seafile.login(usuario, senha)
+    await seafile.login(usuario, senha)
     // A senha some da tela assim que vira token: não há por que mantê-la.
     setSenha('')
-    setEstado((await window.halo?.seafile.state()) ?? null)
     setEntrando(false)
   }
 
@@ -85,7 +80,7 @@ export function SeafileSection() {
               <button
                 type="button"
                 className={`${styles.replay} ${styles.secondary}`}
-                onClick={() => window.halo?.seafile.logout()}
+                onClick={seafile.logout}
               >
                 {t('Sair')}
               </button>
@@ -104,7 +99,7 @@ export function SeafileSection() {
                 value={estado.library}
                 onChange={(id) => {
                   setLibrary(id)
-                  window.halo?.seafile.setLibrary(id)
+                  seafile.setLibrary(id)
                 }}
               />
             ) : (

@@ -231,8 +231,7 @@
    do painel, dentro do padding inferior (20px), fora do caminho do conteúdo.
 
    Ele substitui o sol retrô da primeira versão. A referência NÃO tem sol no
-   painel: o que se vê ali é o papel de parede atravessando o vidro, e o
-   usuário apontou (05/09/2026). O sol é do cartão do relógio, e só dele. */
+   painel: o que se vê ali é o papel de parede atravessando o vidro. O sol é do cartão do relógio, e só dele. */
 :root[data-env="citypop"] [data-halo-in="center"] {
   position: relative;
   isolation: isolate;
@@ -395,7 +394,7 @@
    - o brilho do pôr do sol subindo do horizonte, no rodapé;
    - a vinheta marinha que fecha os cantos e devolve o foco ao meio.
 
-   O usuário pediu discrição nos temas anteriores e a regra ficou: alfas
+   A regra dos temas anteriores vale aqui: alfas
    baixos, nada perseguível pelo olho. */
 :root[data-env="citypop"] [data-halo-fx="ambiente"] {
   background-image:
@@ -407,8 +406,7 @@
 /* NÃO há linha do horizonte. A primeira versão desenhava um fio de neon de
    1px atravessando a janela inteira a 22% da base — e a janela é um overlay
    transparente: o fio cruzava o palco, o vão entre os painéis e o que estivesse
-   atrás, como um risco em cima das outras janelas. O usuário viu e pediu para
-   sair (05/09/2026). Cenário de tema fica DENTRO dos painéis ou em alfa que
+   atrás, como um risco em cima das outras janelas. Saiu por isso. Cenário de tema fica DENTRO dos painéis ou em alfa que
    não se lê como traço; um elemento de largura total é sempre suspeito aqui. */
 
 /* ——— O relógio aceso ——————————————————————————————————————————
@@ -441,14 +439,14 @@
    deliberada, e não esquecimento. */
 
 /* ——— A arte dentro dos cartões ————————————————————————————————
-   A diferença que o usuário viu entre a referência e a primeira entrega: lá o
+   A diferença entre a referência e a primeira entrega: lá o
    cartão do relógio traz o sol com a palmeira, e o do clima traz a cidade com
    o morro. Sem elas o tema era paleta; com elas ele é o lugar.
 
-   As duas peças são as que o USUÁRIO gerou para isto, na pasta do tema — o sol
+   As duas peças foram geradas para isto, na pasta do tema — o sol
    com a palmeira e o morro com a cidade, ambos
    sobre preto para recorte. A primeira entrega recortou do papel de parede, e
-   ele apontou: ficava diferente da referência. Estas são as peças da própria
+   ficava diferente da referência. Estas são as peças da própria
    referência. O preto virou alfa pela luminância, com a cor despremultiplicada
    para o contorno não ganhar franja escura; a cidade ainda leva um
    desvanecimento à esquerda, para MORRER dentro do cartão.
@@ -501,8 +499,8 @@
    referência o morro encosta na borda de cima e a cidade corre sob o texto. A
    peça é larga (340×87); esticada à altura do cartão ela passa da largura, e o
    que sobra à esquerda é cortado — e o que fica por baixo do número esmaece
-   pela máscara, para o texto continuar sendo o que se lê. O usuário apontou a
-   versão anterior (218×56, no canto) como pequena demais. */
+   pela máscara, para o texto continuar sendo o que se lê. A versão anterior
+   (218×56, no canto) era pequena demais. */
 :root[data-env="citypop"] [data-halo-cartao~="clima"]::before {
   inset: 0;
   width: auto;
@@ -510,7 +508,7 @@
   border-radius: inherit;
   background-image: url("../assets/env/citypop/cidade.png");
   background-size: auto 100%;
-  /* Posição afinada pelo usuário na tela (05/09/2026), em três rodadas: 30px
+  /* Posição afinada na tela, em três rodadas: 30px
      e mais 50px para a direita, depois 15px de volta — o morro sai de baixo do
      número e a cidade corre para o canto. A peça (≈410px na altura do cartão)
      é bem mais larga que os 268px do cartão, então mesmo 65px deslocada o lado
@@ -531,13 +529,13 @@
    cartão ele era pintado ATRÁS do fundo do cartão — o vidro cobalto ficava
    por cima da peça e a afogava. Com `isolation: isolate` o -1 passa a valer
    dentro do cartão: acima do fundo dele, abaixo do texto. O relógio fica como
-   está — o usuário aprovou aquele resultado, e mudar a pintura mudaria o sol. */
+   está — o resultado dele já está certo, e mudar a pintura mudaria o sol. */
 :root[data-env="citypop"] [data-halo-cartao~="clima"] {
   isolation: isolate;
   /* Na referência o cartão do clima é o mais escuro da coluna — mas escuro
      AZULADO, o cobalto da noite (#0c2c64, medido), não preto. A primeira
-     tentativa (rgb 6 18 54 a 0,72) saiu preta demais e destoou do tema; o
-     usuário apontou. Este é o cobalto do painel, quase sólido, por cima do
+     tentativa (rgb 6 18 54 a 0,72) saiu preta demais e destoou do tema.
+     Este é o cobalto do painel, quase sólido, por cima do
      vidro: dá chão à peça e continua da mesma família que o resto. */
   background: rgba(12, 44, 100, 0.78);
 }
@@ -561,10 +559,10 @@
   /* A fita de listras ocupa a esquerda; o texto fica à direita dela.
 
      Não é um `repeating-linear-gradient` cortado por uma caixa: o corte da
-     caixa é vertical e partia a última listra no meio — o usuário notou o
+     caixa é vertical e partia a última listra no meio, num
      corte seco. As listras são paradas fixas num gradiente a 135°, com transparente
      antes e depois: cada uma é um paralelogramo inteiro, e a fita termina na
-     diagonal da última, como na folha de peças que ele gerou. As cores vão do
+     diagonal da última, como na folha de peças do tema. As cores vão do
      rosa ao cobalto, como a fita da referência. */
   background:
     linear-gradient(
@@ -586,7 +584,7 @@
   font-size: 9px;
   line-height: 12px;
   text-align: right;
-  /* Neon aceso, a pedido do usuário (05/09/2026): antes ficava a 0,55 e lia
+  /* Neon aceso: antes ficava a 0,55 e lia
      como legenda apagada. O halo é ciano em duas camadas, curta e larga, o
      mesmo desenho do brilho do relógio. */
   opacity: 0.95;

@@ -81,4 +81,8 @@ export const mockAgents: AgentsRepository = {
     ouvintes.add(handler)
     return () => ouvintes.delete(handler)
   },
+  // Sem seletor nem gerenciador de arquivos no navegador: cancelar e "não abriu".
+  addProject: async () => null,
+  openProject: async () => false,
+  chooseCli: async () => null,
 }

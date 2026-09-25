@@ -11,6 +11,7 @@ import {
 } from '@shared/island'
 import { alturaDaIlha } from '@shared/settings'
 import { BrowserWindow, type Display, screen } from 'electron'
+import { travarNavegacao } from '../navegacao'
 import { setSkipTaskbar } from '../services/desktop-layer'
 import { currentSettings } from '../settings'
 import { setInputRegion } from './entrada'
@@ -149,6 +150,7 @@ function criar(display: Display, settings: IslandSettings): BrowserWindow {
 
   win.setAlwaysOnTop(true, 'screen-saver')
   win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
+  travarNavegacao(win.webContents)
 
   carregar(
     win,
@@ -423,6 +425,7 @@ function criarCamada(): void {
   win.webContents.once('did-finish-load', () => {
     camadaPronta = true
   })
+  travarNavegacao(win.webContents)
   carregar(win, 'modo=voo')
   camada = win
   if (!ouvindoTelas) {
@@ -540,7 +543,7 @@ export function flightReady(win: BrowserWindow): void {
 /**
  * Esconde as ilhas das telas dadas (ids de `Display`) e mostra as outras.
  *
- * Por TELA, e não todas de uma vez (pedido do usuário, 14/09/2026): com um
+ * Por TELA, e não todas de uma vez: com um
  * jogo em tela cheia numa tela, a ilha sumia nas duas. A tela do jogo perde a
  * ilha; a outra continua com a dela. Lista vazia = todas à vista.
  */

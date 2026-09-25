@@ -15,6 +15,7 @@ export const ipcHomeFeed: HomeFeedRepository = {
     const { listening, items } = await window.halo.island.notices()
     return { listening, items: items.map(paraTela) }
   },
+  onChanged: (handler) => window.halo.island.onNoticesChanged(handler),
 }
 
 /**

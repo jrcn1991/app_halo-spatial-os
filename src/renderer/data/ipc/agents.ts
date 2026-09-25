@@ -11,4 +11,7 @@ export const ipcAgents: AgentsRepository = {
   close: (id) => window.halo.agents.close(id),
   messages: (id) => window.halo.agents.messages(id),
   onChanged: (handler) => window.halo.agents.onChanged(handler),
+  addProject: () => window.halo.agents.addProject(),
+  openProject: (path) => window.halo.agents.openProject(path),
+  chooseCli: () => window.halo.agents.chooseCli(),
 }

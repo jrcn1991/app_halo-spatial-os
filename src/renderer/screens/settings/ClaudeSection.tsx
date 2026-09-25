@@ -1,13 +1,9 @@
 import { PERMISSION_MODES, type PermissionMode } from '@shared/agents'
 import { marcar, t } from '@shared/i18n'
-import {
-  idlePool,
-  MASCOT_LIVELINESS,
-  type MascotChoice,
-  type MascotInfo,
-  type MascotLiveliness,
-} from '@shared/mascot'
+import { idlePool, MASCOT_LIVELINESS, type MascotLiveliness } from '@shared/mascot'
 import { useEffect, useState } from 'react'
+import { useAgentTools } from '@/hooks/useAgents'
+import { useMascotInfo, useMascotLibrary } from '@/hooks/useMascot'
 import { useHalo } from '@/store/useHalo'
 import { Tabs } from '@/ui/Tabs'
 import { Toggle } from '@/ui/Toggle'
@@ -133,9 +129,10 @@ export function ClaudeSection() {
 function ProgramaClaude() {
   const cli = useHalo((s) => s.claudeCli)
   const setCli = useHalo((s) => s.setClaudeCli)
+  const { chooseCli } = useAgentTools()
 
   const escolher = async () => {
-    const caminho = await window.halo?.agents.chooseCli()
+    const caminho = await chooseCli()
     if (caminho) setCli(caminho)
   }
 
@@ -188,30 +185,27 @@ function MascoteConfig() {
   const file = useHalo((s) => s.mascotFile)
   const on = useHalo((s) => s.mascotOn)
   const setMascot = useHalo((s) => s.setMascot)
-  const [info, setInfo] = useState<MascotInfo | null>(null)
-  const [lista, setLista] = useState<MascotChoice[]>([])
+  const { info, reload: recarregarInfo } = useMascotInfo()
+  const { lista, reload: recarregarLista, preview, choose } = useMascotLibrary()
   const [amostras, setAmostras] = useState<Record<string, string>>({})
   const liveliness = useHalo((s) => s.mascotLiveliness)
   const ociosas = info?.ready ? idlePool(info.animations, Object.values(info.moods)).length : 0
 
   const recarregar = () => {
-    void window.halo?.mascot.info().then(setInfo)
-    void window.halo?.mascot.list().then(setLista)
+    recarregarInfo()
+    recarregarLista()
   }
-
-  useEffect(recarregar, [])
 
   // As amostras são caras (decodificar o arquivo inteiro para tirar um quadro),
   // então vêm uma a uma, e só as que ainda não vieram.
   useEffect(() => {
     for (const escolha of lista) {
       if (amostras[escolha.file]) continue
-      void window.halo?.mascot
-        .preview(escolha.file)
+      void preview(escolha.file)
         .then((png) => setAmostras((atuais) => ({ ...atuais, [escolha.file]: png })))
         .catch(() => undefined)
     }
-  }, [lista, amostras])
+  }, [lista, amostras, preview])
 
   const escolher = (caminho: string) => {
     setMascot({ file: caminho, on: true })
@@ -220,7 +214,7 @@ function MascoteConfig() {
   }
 
   const adicionar = async () => {
-    const caminho = await window.halo?.mascot.choose()
+    const caminho = await choose()
     if (caminho) escolher(caminho)
   }
 

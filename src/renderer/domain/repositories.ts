@@ -10,6 +10,11 @@ import type {
   CreativeQuery,
   CreativeSearchResult,
 } from '@shared/creative'
+import type { DiagnosticoDoSistema } from '@shared/dependencias'
+import type { EnvironmentId } from '@shared/environments'
+import type { AppInfo, DesktopModeResult, WallpaperResult, WindowSize } from '@shared/ipc-contract'
+import type { CatalogEntry } from '@shared/island'
+import type { MascotAnimation, MascotChoice, MascotInfo } from '@shared/mascot'
 import type {
   CatalogPage,
   CatalogQuery,
@@ -19,6 +24,8 @@ import type {
   TitleDetail,
 } from '@shared/media'
 import type { NewsResult } from '@shared/news'
+import type { EstadoDosAvisos } from '@shared/notificacoes'
+import type { SeafileAuth, SeafileState } from '@shared/seafile'
 import type {
   SpotifyAuth,
   SpotifyCommand,
@@ -68,6 +75,11 @@ export type FilesRepository = {
   storage(path?: string): Promise<StorageInfo>
   favorites(): Promise<Favorite[]>
   mounts(): Promise<Mount[]>
+  /**
+   * O caminho em disco de um arquivo arrastado ou colado. Vazio quando ele
+   * não veio do disco (um blob) — e sempre vazio fora do Electron.
+   */
+  pathOf(file: File): Promise<string>
 }
 
 export type PlayerRepository = {
@@ -132,6 +144,8 @@ export type CreativeRepository = {
 /** As notificações do sistema, pelo vigia do D-Bus da ilha. */
 export type HomeFeedRepository = {
   notifications(): Promise<Notifications>
+  /** Avisa que a lista mudou. Devolve o cancelador. */
+  onChanged(handler: () => void): () => void
 }
 
 /**
@@ -162,6 +176,8 @@ export type CatalogRepository = {
   play(id: string, episode?: string | null, startAt?: number): Promise<void>
   /** Tira um título de "Continuar assistindo". */
   forget(id: string, episode: string | null): void
+  /** Abre o seletor da lista M3U. `null` quando nada foi escolhido. */
+  choose(): Promise<string | null>
 }
 
 /**
@@ -180,6 +196,12 @@ export type AgentsRepository = {
   close(id: string): void
   messages(id: string): Promise<AgentMessage[]>
   onChanged(handler: (agents: Agent[]) => void): () => void
+  /** Abre o seletor de pasta para fixar um projeto. `null` = cancelou. */
+  addProject(): Promise<string | null>
+  /** Abre a pasta de um projeto fixado no gerenciador de arquivos. */
+  openProject(path: string): Promise<boolean>
+  /** Abre o seletor para apontar o programa `claude`. `null` = cancelou. */
+  chooseCli(): Promise<string | null>
 }
 
 /**
@@ -201,6 +223,90 @@ export type SpotifyRepository = {
   raise(): Promise<SpotifyControlResult>
 }
 
+/**
+ * O próprio app: versão e o que ele precisa da máquina.
+ *
+ * `null` é "não há como saber aqui" (fora do Electron) — a tela mostra o
+ * estado de espera, nunca um número inventado.
+ */
+export type SystemRepository = {
+  appInfo(): Promise<AppInfo | null>
+  dependencies(): Promise<DiagnosticoDoSistema | null>
+}
+
+/**
+ * A janela do app. Não é dado, é comando — mas passa pelo mesmo caminho para
+ * que nenhuma tela alcance o `window.halo`, e para que fora do Electron o
+ * pedido caia num mock que não faz nada. `null` = não houve janela a mexer.
+ */
+export type WindowRepository = {
+  setScale(scale: number): Promise<WindowSize | null>
+  setDesktopMode(on: boolean): Promise<DesktopModeResult | null>
+  relaunch(): Promise<void>
+}
+
+/**
+ * O papel de parede da sessão — a exceção autorizada de escrita fora do app
+ * (ver `main/services/wallpaper.ts`). A aplicação em si (`apply`) mora em
+ * `app/environment.ts`, que é quem troca de ambiente.
+ *
+ * `null` nas perguntas de sim/não é "não se sabe" (fora do Electron).
+ */
+export type WallpaperRepository = {
+  previews(): Promise<Partial<Record<EnvironmentId, string>>>
+  choose(): Promise<string | null>
+  chooseVideo(): Promise<string | null>
+  videoPlugin(): Promise<boolean | null>
+  original(): Promise<boolean | null>
+  /** `null` quando não havia a quem pedir. */
+  restaurar(): Promise<WallpaperResult | null>
+}
+
+/**
+ * Seafile: a conta e a biblioteca que recebem o que vai para a ilha.
+ *
+ * A senha atravessa uma vez, no `login`; o token fica no main. `state` é
+ * `null` fora do Electron — não há servidor a consultar.
+ */
+export type SeafileRepository = {
+  state(): Promise<SeafileState | null>
+  onChanged(handler: (state: SeafileState) => void): () => void
+  login(user: string, password: string): Promise<SeafileAuth | null>
+  logout(): Promise<void>
+  setLibrary(id: string): Promise<void>
+}
+
+/**
+ * O mascote da tela do Claude (um `.acs` do Microsoft Agent).
+ *
+ * Os quadros vêm por animação, sob pedido: mandar todas as imagens de uma vez
+ * seriam megabytes pelo IPC por nada.
+ */
+export type MascotRepository = {
+  info(): Promise<MascotInfo>
+  animation(name: string): Promise<MascotAnimation>
+  list(): Promise<MascotChoice[]>
+  /** Um quadro do personagem, em `data:`. Vazio quando não deu. */
+  preview(file: string): Promise<string>
+  choose(): Promise<string | null>
+}
+
+/** O que Configurações → Ilha precisa saber da ilha. */
+export type IslandSettingsRepository = {
+  displays(): Promise<{ id: string; label: string; primary: boolean }[]>
+  catalog(): Promise<CatalogEntry[]>
+}
+
+/**
+ * Os balões de notificação vestidos pelo tema. `estado` é `null` fora do
+ * Electron: não há servidor de notificações a quem perguntar.
+ */
+export type NotificacoesRepository = {
+  estado(): Promise<EstadoDosAvisos | null>
+  /** Manda uma notificação de exemplo. Lança se o servidor não respondeu. */
+  exemplo(): Promise<void>
+}
+
 export type Repositories = {
   weather: WeatherRepository
   lab: LabRepository
@@ -214,4 +320,11 @@ export type Repositories = {
   catalog: CatalogRepository
   agents: AgentsRepository
   spotify: SpotifyRepository
+  system: SystemRepository
+  window: WindowRepository
+  wallpaper: WallpaperRepository
+  seafile: SeafileRepository
+  mascot: MascotRepository
+  islandSettings: IslandSettingsRepository
+  notificacoes: NotificacoesRepository
 }

@@ -1,6 +1,9 @@
 import { execFile } from 'node:child_process'
+import { stat } from 'node:fs/promises'
+import { isAbsolute, resolve } from 'node:path'
 import { promisify } from 'node:util'
 import { t } from '@shared/i18n'
+import { launchApp } from '../services/apps'
 import { playerModes } from '../services/player'
 import { saidasAudio } from './sources'
 
@@ -284,8 +287,44 @@ export const avisar = (titulo: string, corpo: string) =>
 
 /* ——— Abrir coisas ————————————————————————————————————— */
 
-/** Abre pasta, arquivo ou endereço no aplicativo padrão do sistema. */
-export const abrir = (alvo: string) => cmd('gio', ['open', alvo])
+/**
+ * Abre pasta, arquivo ou endereço no aplicativo padrão do sistema.
+ *
+ * Sem conferência nenhuma: é para quem JÁ conferiu o alvo. O que vem do
+ * renderer passa por `abrirDoRenderer`. O `--` impede que um alvo começado
+ * por `-` seja lido como opção do `gio`.
+ */
+export const abrir = (alvo: string) => cmd('gio', ['open', '--', alvo])
 
-/** Abre um `.desktop` instalado, pelo id. */
-export const abrirApp = (id: string) => cmd('gio', ['launch', id])
+/**
+ * `gio open` para um alvo que veio do renderer.
+ *
+ * `gio open` num ARQUIVO roda o aplicativo padrão dele — num `.sh` ou num
+ * `.desktop`, é executar —, e o app não executa nada (CLAUDE.md § Arquivos
+ * são somente leitura). Então passa só o que as ações da ilha abrem de
+ * verdade: endereço http(s), `mailto:` sem parâmetros (o `?attach=` de alguns
+ * clientes anexaria um arquivo local), pasta, e — só para a gaveta — um item
+ * que o usuário pôs lá, que é a escolha explícita dele de abrir aquele
+ * arquivo. É a mesma regra de `claudeProjectOpen`.
+ */
+const RECUSADO = 'alvo recusado: só endereço, pasta ou item da gaveta'
+
+export async function abrirDoRenderer(
+  alvo: string,
+  permitidos: readonly string[] = [],
+): Promise<string> {
+  if (/^https?:\/\//i.test(alvo)) {
+    const url = new URL(alvo)
+    return abrir(url.href)
+  }
+  if (/^mailto:[^?\s]+$/i.test(alvo)) return abrir(alvo)
+  if (!isAbsolute(alvo)) throw new Error(RECUSADO)
+  const caminho = resolve(alvo)
+  if (permitidos.includes(caminho)) return abrir(caminho)
+  const info = await stat(caminho).catch(() => null)
+  if (!info?.isDirectory()) throw new Error(RECUSADO)
+  return abrir(caminho)
+}
+
+/** Abre um `.desktop` instalado, pelo id — só os das pastas de aplicativos. */
+export const abrirApp = (id: string) => launchApp(id)

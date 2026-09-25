@@ -26,7 +26,7 @@ import type { CreativeItem } from '@shared/creative'
  * entre navegações). Encher 24 cartões seriam minutos de espera e dezenas de
  * carregamentos nos servidores deles, para um campo que a grade não tem.
  *
- * O usuário decidiu em 04/09/2026: a tela mostra o que a página mostra. Se um
+ * Decisão de desenho: a tela mostra o que a página mostra. Se um
  * dia isso mudar, o lugar é o DETALHE — um pin de cada vez, quando ele abre —,
  * e nunca a grade.
  *

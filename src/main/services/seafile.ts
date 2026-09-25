@@ -1,6 +1,5 @@
 import { randomBytes } from 'node:crypto'
 import { createReadStream } from 'node:fs'
-import { stat } from 'node:fs/promises'
 import { request as pedirHttp } from 'node:http'
 import { request as pedirHttps } from 'node:https'
 import { basename } from 'node:path'
@@ -14,6 +13,7 @@ import type {
 } from '@shared/seafile'
 import { servidorValido } from '@shared/seafile'
 import { currentSettings, saveSeafileToken } from '../settings'
+import { arquivoSolto } from './arquivo-solto'
 
 /**
  * Cliente do Seafile.
@@ -310,20 +310,22 @@ export async function seafileUpload(caminho: string): Promise<SeafileUpload> {
   anotar(upload)
 
   try {
-    const info = await stat(caminho)
-    if (!info.isFile()) throw new Error(t('não é um arquivo'))
-    if (info.size > ARQUIVO_MAX) throw new Error(t('arquivo grande demais'))
+    // O caminho vem do renderer (arrasto, gaveta): só arquivo comum, fora de
+    // `/proc` e afins, e enviado pelo destino do link — ver `arquivo-solto.ts`.
+    const conferido = await arquivoSolto(caminho, ARQUIVO_MAX)
+    const real = conferido.caminho
+    const info = { size: conferido.bytes }
     const { library } = config()
     if (!library) throw new Error(t('nenhuma biblioteca escolhida'))
 
     const remoto = await existente(library, upload.name)
     if (remoto) {
-      pendentes.set(id, { caminho, bytes: info.size })
+      pendentes.set(id, { caminho: real, bytes: info.size })
       const parado: SeafileUpload = { ...upload, bytes: info.size, state: 'existe', remote: remoto }
       anotar(parado)
       return parado
     }
-    return await enviar({ ...upload, bytes: info.size }, caminho, false)
+    return await enviar({ ...upload, bytes: info.size }, real, false)
   } catch (erro) {
     const falhou: SeafileUpload = {
       ...upload,

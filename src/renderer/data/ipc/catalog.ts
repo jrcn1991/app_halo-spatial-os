@@ -9,4 +9,5 @@ export const ipcCatalog: CatalogRepository = {
   extra: (id) => window.halo.media.extra(id),
   play: (id, episode, startAt) => window.halo.media.play(id, episode, startAt),
   forget: (id, episode) => window.halo.media.forget(id, episode),
+  choose: () => window.halo.media.choose(),
 }

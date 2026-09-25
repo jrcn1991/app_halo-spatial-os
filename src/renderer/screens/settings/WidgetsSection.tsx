@@ -20,7 +20,7 @@ const UNITS: readonly { value: TemperatureUnit; label: string }[] = [
 
 /**
  * Os conjuntos de ícone do clima. Os três últimos são imagens de skins do
- * Rainmeter que o usuário trouxe; os créditos ficam na nota abaixo do controle
+ * Rainmeter; os créditos ficam na nota abaixo do controle
  * e em `THIRD-PARTY.md` — as licenças (CC BY-NC-SA) pedem isso.
  */
 const ICONS: readonly { value: WeatherIcon; label: string }[] = [

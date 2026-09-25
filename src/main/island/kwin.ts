@@ -241,7 +241,7 @@ else entregar(resumo(alvo))
  * A opacidade vai a zero antes: o efeito de minimizar do KWin roda sobre uma
  * janela invisível, e quem conta a história é o fantasma. Guardada, a janela
  * SAI da barra de tarefas e do Alt+Tab (`skipTaskbar`, `skipSwitcher`): ela
- * está na gaveta, e só a gaveta a devolve — o que o usuário pediu. Por isso
+ * está na gaveta, e só a gaveta a devolve. Por isso
  * `soltarGuardadas` ao fechar o app: sem o Halo ninguém a traria de volta.
  */
 export async function esconderEMinimizar(
@@ -568,9 +568,8 @@ if (!alvo) {
  * responder a cada erguida com a sua — não aconteceu com o Plasma nem com o
  * Latte, mas um vigia que trava o compositor seria pior que a barriga.
  *
- * E o painel que NASCE por cima (14/09/2026): o usuário viu a ilha atrás da
- * barra superior logo depois de trocar de ambiente, e voltar ao normal com um
- * clique. Um reinício do plasmashell (na época, o que o script de cor do tema
+ * E o painel que NASCE por cima: a ilha ficava atrás da barra superior logo
+ * depois de trocar de ambiente, e voltava ao normal com um clique. Um reinício do plasmashell (na época, o que o script de cor do tema
  * do KDE fazia) recria o
  * painel, e o painel novo é uma janela nova, mapeada acima da ilha — a posição DA ILHA na pilha não
  * muda, e o sinal dela não dispara. Por isso o vigia escuta também os painéis

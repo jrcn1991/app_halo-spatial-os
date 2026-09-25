@@ -518,7 +518,7 @@ export const useHalo = create<HaloState>((set) => ({
       ),
     })),
 
-  // Pedido do usuário depois de usar os grupos: a ordem deles também é dele.
+  // A ordem dos grupos também é escolha do usuário, e não se reordena.
   reorderClaudeGroup: (groupId, before) =>
     set((s) => {
       if (groupId === before) return s

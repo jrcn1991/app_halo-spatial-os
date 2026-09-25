@@ -24,7 +24,7 @@ import { app } from 'electron'
  * ilegível recomeça vazio com um aviso, em vez de derrubar a tela.
  *
  * O que se guarda: metadados e a URL original. NUNCA o arquivo da obra — nem
- * a imagem, nem o STL. É a regra de direitos autorais que o usuário pediu, e
+ * a imagem, nem o STL. É a regra de direitos autorais da Social Arte, e
  * é o que faz um item salvo continuar sendo uma REFERÊNCIA ao original.
  */
 

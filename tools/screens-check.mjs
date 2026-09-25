@@ -34,8 +34,8 @@ const SPECS = {
       'saudação pela hora do sistema',
       (p) => text(p, '[class*="_greeting_"]', /^(Bom dia|Boa tarde|Boa noite),/),
     ],
-    // Quatro, e não os dois do handoff: o usuário pediu a placa de vídeo e a
-    // temperatura, e a coluna tinha folga. Contados porque a grade de duas
+    // Quatro, e não os dois do handoff: a placa de vídeo e a temperatura
+    // entraram, e a coluna tinha folga. Contados porque a grade de duas
     // colunas quebraria em silêncio se um deles sumisse.
     ['mini-stats da máquina', (p) => count(p, '[class*="_stat_"]', 4)],
     ['cartões de Continuar', (p) => atLeast(p, '[class*="_continueCard_"]', 1)],
@@ -319,7 +319,7 @@ const SPECS = {
        *
        * Antes tudo caía solto: itens com `coleções=[]` e `favorito=false`,
        * visíveis só em "Tudo" e em mais lugar nenhum. Grupo que nunca recebe
-       * nada é grupo que não existe, e foi o usuário quem apontou.
+       * nada é grupo que não existe.
        *
        * O caminho aqui usa um cartão que JÁ está na biblioteca (a seção
        * "Salvos recentemente" os desenha): tirar e pôr de volta com o grupo
@@ -330,7 +330,7 @@ const SPECS = {
         // A regra: o grupo aberto na Biblioteca é o DESTINO de quem for salvo.
         // Antes tudo caía solto — itens com `coleções=[]` e `favorito=false`,
         // visíveis só em "Tudo" e em mais lugar nenhum. Grupo que nunca recebe
-        // nada é grupo que não existe, e foi o usuário quem apontou.
+        // nada é grupo que não existe.
         await p.click('[class*="_chipFraco_"]:has-text("Inspirações")')
         await p.waitForTimeout(SETTLE)
         await p.click('[class*="_colecaoLinha_"] [class*="_chip_"]:has-text("Inspirações")')
@@ -543,8 +543,7 @@ const SPECS = {
       },
     ],
     [
-      // Pedido do usuário, que tem muitos projetos: agrupar por categoria e
-      // recolher. O que se cobra é que nenhum caminho PERDE projeto — mover,
+      // Agrupar projetos por categoria e recolher, para listas longas. O que se cobra é que nenhum caminho PERDE projeto — mover,
       // recolher e apagar o grupo só mudam onde ele aparece.
       'grupos: criar, pôr projeto dentro, recolher, expandir e apagar sem perder nada',
       async (p) => {
@@ -624,7 +623,7 @@ const SPECS = {
       },
     ],
     [
-      // Pedido do usuário: abrir a pasta do repositório no Dolphin, ou copiar o
+      // Abrir a pasta do repositório no gerenciador de arquivos, ou copiar o
       // caminho, sem sair da tela. Cada cartão tem os dois.
       'cada projeto abre a pasta e copia o caminho',
       async (p) => {
@@ -1076,7 +1075,7 @@ const SPECS = {
       },
     ],
     [
-      // Pedido do usuário: cada ambiente pode ter um vídeo de fundo. Aqui, sem
+      // Cada ambiente pode ter um vídeo de fundo. Aqui, sem
       // `window.halo`, não há plugin para consultar; o que se cobra é que todo
       // ambiente com imagem tem também o seu vídeo, e que a tela diz quem toca.
       'Ambiente oferece um vídeo para cada ambiente pronto',
@@ -1288,7 +1287,7 @@ const SPECS = {
           return `a Floresta não tem preset e devia voltar ao handoff: "${naFlorestaVidro}"`
         }
 
-        // E o que o usuário viu quebrado: ajuste feito num ambiente NÃO pode
+        // E o defeito que já aconteceu: ajuste feito num ambiente NÃO pode
         // aparecer no outro, e tem de estar lá quando ele voltar. Aqui a
         // Floresta escolhe "Enxame"; o BioShock precisa continuar no preset
         // dele, e a Floresta precisa reencontrar a escolha ao voltar.
@@ -1504,13 +1503,12 @@ const SPECS = {
       },
     ],
     [
-      // A altura da pílula fechada é escolhida pelo usuário (18/09/2026). O
+      // A altura da pílula fechada é ajustável. O
       // teste guarda os limites do contrato: o piso de 24 existe porque o
       // texto de 13px não muda de corpo, e o botão de restaurar tem de estar
       // desabilitado quando já se está nos 36 do handoff — sem ele o padrão
       // seria visto uma vez e nunca mais.
-      // A altura passou a ser POR AMBIENTE em 20/09/2026 (pedido do usuário:
-      // na Floresta, um pouco mais baixa, para não passar muito da barra do
+      // A altura passou a ser POR AMBIENTE (na Floresta, um pouco mais baixa, para não passar muito da barra do
       // tema). Sem escolha no ambiente vale a altura global, os 36 do
       // handoff — e é a ela que o "Restaurar padrão" volta.
       'a altura da pílula é ajustável, entre 24 e 48, e volta à do ambiente',
@@ -1547,8 +1545,8 @@ const SPECS = {
       },
     ],
     [
-      // Nasceu ligada por pedido do usuário (12/09/2026) e passou a nascer DESLIGADA em 24/09/2026, quando o app
-      // começou a ser preparado para outras máquinas: ligar esconde os balões
+      // Nasce DESLIGADA desde que o app passou a ser preparado para outras
+      // máquinas: ligar esconde os balões
       // do Plasma, e isso não se faz sem a pessoa pedir. Os quatro cantos têm
       // de estar lá.
       'as notificações do sistema têm seção própria, e nascem desligadas',
@@ -1748,7 +1746,7 @@ await avisos.waitForTimeout(800)
 const sobraram = await avisos.locator('[data-halo-in="aviso"]').count()
 conferirAviso('dispensar tira um balão', sobraram === 2 ? true : `sobraram ${sobraram}`)
 // Com o desfoque do KWin atrás (`desfoque=sim`), a Floresta vira vidro aberto
-// — o piso some — e SÓ ela: os temas que o usuário aprovou sólidos continuam
+// — o piso some — e SÓ ela: os temas desenhados sólidos continuam
 // sólidos. Sem desfoque, o piso quase sólido de cima é o que vale.
 for (const [env, vidro] of [
   ['floresta', true],

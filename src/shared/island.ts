@@ -105,9 +105,8 @@ export const ISLAND_FLIGHTS: readonly IslandFlightStyle[] = [
 /**
  * A altura da pílula FECHADA, em px.
  *
- * 36 é o número do handoff (e o da ilha da Apple). O usuário pediu poder
- * baixá-la (18/09/2026): sobre o painel do KDE a faixa preta ficava alta
- * demais para o gosto dele. Vale SÓ para a pílula — a ilha aberta continua
+ * 36 é o número do handoff (e o da ilha da Apple). Ela pode ser baixada:
+ * sobre o painel do KDE a faixa preta fica alta demais. Vale SÓ para a pílula — a ilha aberta continua
  * crescendo com o conteúdo, porque ali a altura é o painel, não a moldura.
  *
  * O piso é 24: abaixo disso o texto de 13px de uma atividade não cabe sem
@@ -153,7 +152,7 @@ export type IslandSettings = {
   /**
    * O efeito do KWin que faz a janela de verdade voar para a pílula (ver
    * `island/efeito.ts`). Escreve um pacote em `~/.local/share/kwin-wayland/
-   * effects/` — autorizado pelo usuário; desligar remove o pacote.
+   * effects/` — exceção documentada; desligar remove o pacote.
    */
   kwinEffect: boolean
   /** Esconder a ilha enquanto a janela ativa está em tela cheia. */
@@ -199,8 +198,8 @@ export type IslandSettings = {
    * Atalho global Meta+Space para recolher o Halo para a ilha e trazê-lo de
    * volta (ver `island/halo.ts`). Como o `shortcut` da janela ativa, ele grava
    * uma linha em `~/.config/kglobalshortcutsrc` — fora do app —, e desligar a
-   * apaga. Nasce LIGADO porque o usuário pediu este gesto por nome; a chave
-   * existe para ele poder desfazer sem editar arquivo nenhum.
+   * apaga. Nasce LIGADO porque é o gesto principal da ilha; a chave
+   * existe para desfazer sem editar arquivo nenhum.
    */
   appShortcut: boolean
   /**

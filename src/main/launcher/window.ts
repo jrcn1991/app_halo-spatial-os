@@ -4,6 +4,7 @@ import { idiomaAtual } from '@shared/i18n'
 import { IPC } from '@shared/ipc-contract'
 import { BrowserWindow, type Display, screen } from 'electron'
 import { ativarJanelaPorTitulo, geometriaDaJanelaAtiva } from '../island/kwin'
+import { travarNavegacao } from '../navegacao'
 import { setSkipTaskbar } from '../services/desktop-layer'
 import { currentSettings, saveLauncherPosition } from '../settings'
 
@@ -16,8 +17,8 @@ import { currentSettings, saveLauncherPosition } from '../settings'
  * escondida no arranque e mostrada/escondida pelo atalho — recriar a cada
  * Meta+V custaria o carregamento do renderer a cada abertura.
  *
- * Aparece na tela da janela ATIVA (o usuário viu: na tela do cursor ela caía
- * sobre o Halo enquanto ele trabalhava noutra), na posição em que ele a
+ * Aparece na tela da janela ATIVA (na tela do cursor ela caía sobre o Halo
+ * enquanto se trabalhava noutra), na posição em que ele a
  * deixou da última vez — o arrasto é livre, e o deslocamento é guardado
  * relativo à área útil da tela, para valer em qualquer uma. Sem posição
  * guardada: centrada, um pouco acima do meio, como o Raycast. Esc, perder o
@@ -59,6 +60,7 @@ function criar(env: EnvironmentId): BrowserWindow {
   win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
   // O título é como o KWin acha a janela para ativá-la; o renderer não o muda.
   win.on('page-title-updated', (e) => e.preventDefault())
+  travarNavegacao(win.webContents)
   win.on('blur', () => {
     if (!win.isDestroyed() && win.isVisible()) win.hide()
   })

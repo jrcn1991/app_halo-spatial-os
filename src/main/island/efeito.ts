@@ -18,7 +18,7 @@ import { qdbus } from './kwin'
  * `~/.local/share/kwin-wayland/effects/halo-gaveta/` (o diretório de
  * pacotes do usuário; o Plasma 6.6 separa `kwin-wayland` de `kwin`), e o
  * efeito é carregado no compositor por D-Bus (`loadEffect`), sem tocar em
- * `kwinrc`. Autorizado pelo usuário em 02/09/2026; a opção
+ * `kwinrc`. É exceção documentada (CLAUDE.md § Janela e camada); a opção
  * `island.kwinEffect` desliga e REMOVE o pacote.
  *
  * Como o efeito sabe quais janelas são nossas: a guardada recebe

@@ -13,8 +13,8 @@ import { X } from '@phosphor-icons/react/dist/icons/X'
 import { localeDoIdioma, marcar, t } from '@shared/i18n'
 import type { ExtraResult, Title } from '@shared/media'
 import { useDeferredValue, useState } from 'react'
-import { repositories } from '@/data'
 import {
+  useCatalogActions,
   useCatalogPage,
   useCatalogStatus,
   useCategories,
@@ -259,8 +259,9 @@ function CatalogoPanel({
   reordenavel: boolean
   lista: string | null
 }) {
+  const { choose } = useCatalogActions()
   const escolherLista = async () => {
-    const caminho = await window.halo?.media.choose()
+    const caminho = await choose()
     if (caminho) useHalo.getState().setPlaylist(caminho)
   }
 
@@ -445,6 +446,7 @@ function Capa({
  */
 function DetalhePanel({ id, aoVoltar }: { id: string | null; aoVoltar: () => void }) {
   const { data: titulo, loading } = useTitle(id)
+  const { play } = useCatalogActions()
   const tmdbKey = useHalo((s) => s.tmdbKey)
   const { data: extra, loading: buscandoExtra } = useTitleExtra(id, tmdbKey)
   const [temporada, setTemporada] = useState<number | null>(null)
@@ -484,7 +486,7 @@ function DetalhePanel({ id, aoVoltar }: { id: string | null; aoVoltar: () => voi
       <button
         type="button"
         className={styles.tocar}
-        onClick={() => void repositories.catalog.play(titulo.id, episodios[0]?.id)}
+        onClick={() => void play(titulo.id, episodios[0]?.id)}
       >
         <Play size={16} weight="fill" />
         {titulo.kind === 'series'
@@ -518,7 +520,7 @@ function DetalhePanel({ id, aoVoltar }: { id: string | null; aoVoltar: () => voi
                 key={episodio.id}
                 type="button"
                 className={styles.episodio}
-                onClick={() => void repositories.catalog.play(titulo.id, episodio.id)}
+                onClick={() => void play(titulo.id, episodio.id)}
               >
                 <span className={styles.episodioNumero}>E{episodio.number}</span>
                 <span className={styles.episodioNome}>{episodio.title || t('Episódio')}</span>
@@ -535,6 +537,7 @@ function DetalhePanel({ id, aoVoltar }: { id: string | null; aoVoltar: () => voi
 /** "Onde eu parei" — escrito pelo main enquanto o player avança. */
 function RecentesPanel() {
   const recentes = useHalo((s) => s.recent)
+  const { play, forget } = useCatalogActions()
 
   if (recentes.length === 0) {
     return (
@@ -556,7 +559,7 @@ function RecentesPanel() {
             <button
               type="button"
               className={styles.recenteAlvo}
-              onClick={() => void repositories.catalog.play(item.id, item.episode, item.seconds)}
+              onClick={() => void play(item.id, item.episode, item.seconds)}
             >
               {item.poster ? (
                 <img className={styles.recenteArte} src={item.poster} alt="" loading="lazy" />
@@ -586,7 +589,7 @@ function RecentesPanel() {
               type="button"
               className={styles.recenteTirar}
               aria-label={t('Tirar {nome} de continuar assistindo', { nome: item.name })}
-              onClick={() => repositories.catalog.forget(item.id, item.episode)}
+              onClick={() => forget(item.id, item.episode)}
             >
               <X size={11} color="var(--text-tertiary)" />
             </button>

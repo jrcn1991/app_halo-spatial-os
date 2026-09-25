@@ -2,6 +2,7 @@ import { marcar, t } from '@shared/i18n'
 import type { DesktopModeResult, WindowSize } from '@shared/ipc-contract'
 import { HIDEABLE_SCREENS } from '@shared/settings'
 import { useEffect, useState } from 'react'
+import { useWindowControl } from '@/hooks/useSistema'
 import { useHalo } from '@/store/useHalo'
 import { DOCK_ITEMS } from '@/ui/Dock'
 import { Tabs } from '@/ui/Tabs'
@@ -34,14 +35,15 @@ export function WindowSection() {
   const scale = useHalo((s) => s.appearance.scale)
   const setAppearance = useHalo((s) => s.setAppearance)
   const [applied, setApplied] = useState<WindowSize | null>(null)
+  const janela = useWindowControl()
 
   // A janela segue a escolha assim que ela muda. O "Restaurar padrão" da
   // Aparência NÃO mexe mais aqui: ele vive no painel direito de quase toda
   // seção, e zerava a ampliação de quem estava configurando outra coisa — sem
   // redimensionar nada, porque este efeito só existe com esta seção montada.
   useEffect(() => {
-    void window.halo?.window.setScale(scale).then(setApplied)
-  }, [scale])
+    void janela.setScale(scale).then(setApplied)
+  }, [janela, scale])
 
   const max = applied?.max ?? MAX_SCALE
   const options = STEPS.map((step) => ({
@@ -105,11 +107,12 @@ function DesktopSection() {
   const on = useHalo((s) => s.desktopMode)
   const setDesktopMode = useHalo((s) => s.setDesktopMode)
   const [resultado, setResultado] = useState<DesktopModeResult | null>(null)
+  const janela = useWindowControl()
 
   const alternar = (next: boolean) => {
     setDesktopMode(next)
     setResultado(null)
-    void window.halo?.window.setDesktopMode(next).then(setResultado)
+    void janela.setDesktopMode(next).then(setResultado)
   }
 
   // Ligar fora do X11 (ou desligar tendo entrado nele) só vale na próxima
@@ -137,7 +140,7 @@ function DesktopSection() {
           <button
             type="button"
             className={`${styles.replay} ${styles.secondary}`}
-            onClick={() => window.halo?.window.relaunch()}
+            onClick={() => void janela.relaunch()}
           >
             {t('Reabrir agora')}
           </button>

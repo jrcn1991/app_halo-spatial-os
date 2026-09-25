@@ -300,7 +300,7 @@ export type HaloApi = {
   }
   /**
    * O papel de parede da máquina — a única coisa que um ambiente muda fora do
-   * app. Exceção autorizada pelo usuário; ver `src/main/services/wallpaper.ts`.
+   * app. Exceção documentada; ver `src/main/services/wallpaper.ts`.
    */
   wallpaper: {
     /** Aplica a imagem daquele ambiente. Qual é ela, quem sabe é o main. */

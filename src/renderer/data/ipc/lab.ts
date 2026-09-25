@@ -20,6 +20,8 @@ export const ipcFiles: FilesRepository = {
   storage: (path) => window.halo.files.storage(path),
   favorites: () => window.halo.files.favorites(),
   mounts: () => window.halo.files.mounts(),
+  // Síncrono no preload (é o `webUtils`); o contrato é assíncrono como todos.
+  pathOf: async (file) => window.halo.files.pathOf(file),
 }
 
 export const ipcPlayer: PlayerRepository = {

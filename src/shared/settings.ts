@@ -83,7 +83,7 @@ export type Appearance = {
  * Estes quatro são os campos que um tema pode sugerir por preset, e por isso
  * são os que precisam de memória própria: trocar de ambiente tem de trazer de
  * volta o que a pessoa deixou naquele ambiente, e não carregar o ajuste do
- * anterior por cima do tema novo. Foi exatamente isso que o usuário viu — mexer
+ * anterior por cima do tema novo. O defeito era esse — mexer
  * na transparência da Floresta e reencontrá-la no BioShock.
  *
  * Campo AUSENTE significa "não escolhi": vale o preset do ambiente
@@ -109,8 +109,7 @@ export type AjustesDoAmbiente = {
   graphs?: StatGraphs
   /**
    * A altura da pílula da ilha NESTE ambiente, em px (24–48). AUSENTE = a
-   * escolhida em Configurações → Ilha. Pedido do usuário
-   * (20/09/2026): na Floresta, uma pílula um pouco mais baixa, para não passar
+   * escolhida em Configurações → Ilha. Na Floresta, uma pílula um pouco mais baixa, para não passar
    * muito da barra do painel.
    */
   islandHeight?: number
@@ -138,8 +137,8 @@ export type EnvironmentSettings = {
    */
   wallpapers: Record<EnvironmentId, string>
   /**
-   * Vídeo de fundo de cada ambiente, caminho absoluto. Pedido do usuário
-   * (13/09/2026). AUSENTE = sem vídeo, fica a imagem.
+   * Vídeo de fundo de cada ambiente, caminho absoluto.
+   * AUSENTE = sem vídeo, fica a imagem.
    *
    * Não substitui `wallpapers`: a imagem continua sendo a capa do ambiente —
    * a miniatura da Home e o que fica se o vídeo não puder tocar. Quem toca é
@@ -157,7 +156,7 @@ export type TemperatureUnit = 'c' | 'f'
 /**
  * O conjunto de ícones do clima. `phosphor` é o do handoff; `animated` é o
  * conjunto CSS animado; os três seguintes são imagens vindas de skins do
- * Rainmeter que o usuário trouxe (créditos e licenças em
+ * Rainmeter (créditos e licenças em
  * `THIRD-PARTY.md`).
  */
 export type WeatherIcon = 'phosphor' | 'animated' | 'astro' | 'weathercast'
@@ -265,15 +264,30 @@ export type Media = {
    * É do usuário, e gratuita. O app não embute uma: ela iria parar no
    * repositório. Vazia significa "sem metadados", e a tela mostra só o que a
    * lista traz — nunca inventa.
+   *
+   * No renderer este campo NÃO é a chave: é `TMDB_GUARDADA` quando há uma, e
+   * vazio quando não há (ver `paraRenderer`, em `src/main/window.ts`). A chave
+   * só volta por aqui quando o usuário digita uma nova.
    */
   tmdbKey: string
 }
 
 /**
+ * O que o renderer recebe no lugar da chave do TMDB, quando há uma.
+ *
+ * As configurações chegam à janela por argumento de linha de comando, legível
+ * em `/proc/<pid>/cmdline` por qualquer processo da máquina — a chave não pode
+ * ir junto. A tela só precisa saber que ELA EXISTE (para dizer "configurada"),
+ * e quem a usa é o main. Na volta, `saveSettings` troca esta marca pela chave
+ * guardada. O texto não tem forma de chave (32 hexadecimais ou um token v4),
+ * então não há chave de verdade que se confunda com ela.
+ */
+export const TMDB_GUARDADA = 'halo: chave guardada no main'
+
+/**
  * Um grupo de projetos na lista da esquerda da tela do Claude ("Jogos").
  *
- * Pedido do usuário (13/09/2026), que tem muitos projetos: agrupar e recolher
- * por categoria. Um projeto mora em NO MÁXIMO um grupo — é pasta, não
+ * Para listas longas de projetos: agrupar e recolher por categoria. Um projeto mora em NO MÁXIMO um grupo — é pasta, não
  * etiqueta: a lista mostra cada projeto uma vez só.
  */
 export type ClaudeGroup = {
@@ -496,8 +510,7 @@ export const DEFAULT_SETTINGS: HaloSettings = {
   // Desligado por padrão: ligar tira o Meta+V do Klipper (ver `launcher/klipper.ts`),
   // e nada que mexe num atalho do sistema começa ligado sem o usuário pedir.
   launcher: { on: false, recentes: [] },
-  // LIGADO por padrão, e é exceção à regra acima: o usuário pediu que os
-  // balões seguissem o tema automaticamente (12/09/2026). O que torna
+  // Os balões seguem o tema. O que torna
   // isso seguro é o desenho, não o padrão — o Halo só esconde os balões do
   // Plasma DEPOIS de conseguir desenhar os seus, e a inibição morre junto com
   // a conexão dele (ver `main/notificacoes/servidor.ts`). O canto é o que o
@@ -514,7 +527,7 @@ export const DEFAULT_SETTINGS: HaloSettings = {
     placement: 'sobre',
     opening: 'hover',
     motion: 'gota',
-    // A janela de verdade voando, pedido do usuário em 03/09/2026: é o que o
+    // A janela de verdade voando: é o que o
     // efeito do KWin já fazia com as janelas guardadas, agora também com o
     // app. Sem o efeito carregado, cai no `sugado` sozinho.
     flight: 'real',
@@ -523,7 +536,7 @@ export const DEFAULT_SETTINGS: HaloSettings = {
     clipboard: true,
     lyrics: true,
     shortcut: false,
-    // Ligado: o usuário pediu o Meta+Space por nome. Ver `appShortcut` em
+    // Ligado: o Meta+Space é o gesto principal da ilha. Ver `appShortcut` em
     // `shared/island.ts` — desligar apaga a linha do kglobalshortcutsrc.
     appShortcut: true,
     kwinEffect: true,

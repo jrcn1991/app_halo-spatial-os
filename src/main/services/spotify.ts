@@ -574,7 +574,7 @@ async function tentar<T>(promessa: Promise<T | null>): Promise<T | null> {
 async function detalhePlaylist(id: string): Promise<SpotifyDetail> {
   // Separado do `Promise.all` de propósito: a lista de faixas pode ser
   // recusada, e derrubar o cabeçalho junto deixava o clique sem NENHUM efeito
-  // visível — foi o defeito que o usuário viu.
+  // visível.
   const bruta = await api<PlaylistBruta>(`/playlists/${id}`)
   if (!bruta) throw new Error(t('playlist não encontrada'))
   const item = comoItem(bruta)

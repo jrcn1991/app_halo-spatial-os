@@ -1,7 +1,7 @@
 import { execFile } from 'node:child_process'
 import { readdir, readFile } from 'node:fs/promises'
 import { homedir } from 'node:os'
-import { join } from 'node:path'
+import { basename, join, resolve } from 'node:path'
 import { promisify } from 'node:util'
 import type { DesktopApp } from '@shared/apps'
 
@@ -47,7 +47,7 @@ async function parse(path: string): Promise<DesktopApp | null> {
   }
 }
 
-export async function apps(): Promise<DesktopApp[]> {
+async function arquivosDesktop(): Promise<string[]> {
   const files: string[] = []
   for (const dir of DIRS) {
     try {
@@ -57,7 +57,11 @@ export async function apps(): Promise<DesktopApp[]> {
       // Diretório ausente nesta máquina: segue para o próximo.
     }
   }
+  return files
+}
 
+export async function apps(): Promise<DesktopApp[]> {
+  const files = await arquivosDesktop()
   const parsed = await Promise.all(files.map(parse))
   const found = parsed.filter((a): a is DesktopApp => a !== null)
 
@@ -66,6 +70,34 @@ export async function apps(): Promise<DesktopApp[]> {
   return [...unique.values()].sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'))
 }
 
+/**
+ * O `.desktop` instalado que responde por este id — ou `null`.
+ *
+ * O id vem do renderer (e, na ilha, até do remetente de uma notificação), e
+ * `gio launch` roda o `Exec` de QUALQUER `.desktop` que receber: um arquivo
+ * escrito numa pasta temporária viraria "rodar este comando". Por isso só
+ * sai daqui um arquivo das pastas de aplicativos que a lista já varre.
+ *
+ * Aceita o caminho completo (o que `apps()` devolve como id) ou só o nome do
+ * arquivo (o `desktop-entry` que uma notificação declara); neste caso a pasta
+ * do usuário vence a do sistema, como no padrão freedesktop.
+ */
+export async function desktopConhecido(id: string): Promise<string | null> {
+  if (!id.endsWith('.desktop')) return null
+  const files = await arquivosDesktop()
+  const achado = id.includes('/')
+    ? files.find((f) => f === resolve(id))
+    : files.reverse().find((f) => basename(f) === id)
+  if (!achado) return null
+  // Sem o filtro de `NoDisplay` de `parse`: o remetente de uma notificação
+  // costuma ser um serviço escondido do menu, e abri-lo é legítimo.
+  const text = await readFile(achado, 'utf8').catch(() => '')
+  return field(text, 'Type') === 'Application' ? achado : null
+}
+
 export async function launchApp(id: string): Promise<void> {
-  await run('gio', ['launch', id])
+  const caminho = await desktopConhecido(id)
+  if (!caminho) throw new Error(`aplicativo desconhecido: ${id}`)
+  // `--`: o caminho nunca é lido como opção do `gio`.
+  await run('gio', ['launch', '--', caminho])
 }

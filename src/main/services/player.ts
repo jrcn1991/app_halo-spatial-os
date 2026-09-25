@@ -1,7 +1,8 @@
-import { readFile } from 'node:fs/promises'
+import { readFile, stat } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import type { NowPlaying, PlaybackStatus } from '@shared/player'
 import dbus from 'dbus-next'
+import { pedir } from './creative/rede'
 
 /**
  * O que está tocando, pelo MPRIS — por uma conexão D-Bus que FICA, com sinais.
@@ -259,15 +260,28 @@ async function buscarCapa(url: string): Promise<string | null> {
 }
 
 async function lerOrigem(url: string): Promise<Buffer | null> {
-  if (url.startsWith('file://')) return readFile(fileURLToPath(url))
+  if (url.startsWith('file://')) {
+    // O caminho veio de outro programa: só arquivo comum e dentro do teto —
+    // `/dev/zero` ou um vídeo de gigabytes seriam lidos inteiros para a memória.
+    const caminho = fileURLToPath(url)
+    const info = await stat(caminho)
+    if (!info.isFile() || info.size > CAPA_MAX) return null
+    return readFile(caminho)
+  }
   if (!url.startsWith('http://') && !url.startsWith('https://')) return null
 
+  // A URL também veio de outro programa pelo D-Bus: passa pela trava contra
+  // SSRF da Social Arte (nada de rede local) e pelo mesmo teto do arquivo,
+  // contado no corpo que chega.
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), 6000)
   try {
-    const resposta = await fetch(url, { signal: controller.signal })
-    if (!resposta.ok) return null
-    return Buffer.from(await resposta.arrayBuffer())
+    const resposta = await pedir(new URL(url), {}, controller.signal)
+    if (resposta.status < 200 || resposta.status >= 300) {
+      resposta.descartar()
+      return null
+    }
+    return await resposta.ler(CAPA_MAX)
   } finally {
     clearTimeout(timer)
   }

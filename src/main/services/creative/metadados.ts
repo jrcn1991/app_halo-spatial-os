@@ -12,7 +12,7 @@ import type { CreativeItem, CreativeKind, CreativeProviderId } from '@shared/cre
  * O que este arquivo NÃO faz, de propósito: raspar o conteúdo da página. Nada
  * de ler o corpo do post, baixar o arquivo 3D ou colher imagens que o site não
  * declarou. O que se guarda são os metadados que a página oferece e o link
- * para o original — a regra de direitos autorais que o usuário pediu.
+ * para o original — a regra de direitos autorais da Social Arte.
  */
 
 /** Uma etiqueta `<meta property="…" content="…">`, nos dois arranjos de atributo. */

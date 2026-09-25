@@ -184,6 +184,8 @@ export const mockFiles: FilesRepository = {
       path: `/home/halo/${name}`,
       kind: 'folder' as const,
     })),
+  // No navegador um `File` não tem caminho em disco: o mesmo que um blob.
+  pathOf: async () => '',
 }
 
 /** O que o protótipo mostra tocando na home e na tela de Música. */

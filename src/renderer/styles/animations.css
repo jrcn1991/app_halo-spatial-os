@@ -180,7 +180,7 @@
   }
 }
 
-/* "Surgir": 0,5s e 24px — com 0,32s e 8px não se via (medido pelo usuário).
+/* "Surgir": 0,5s e 24px — com 0,32s e 8px não se via (medido na tela).
    Sem quique: a diferença para o Elástico é justamente não passar do ponto. */
 [data-halo-in="content"] {
   animation: halo-content 0.5s var(--ease, cubic-bezier(0.22, 1, 0.36, 1)) both;
@@ -1287,7 +1287,7 @@
    subtree sem custar quadro. O desenho está em `styles/env-bioshock.css`; aqui
    fica o quanto e em quanto tempo.
 
-   O usuário pediu DISCRIÇÃO neste tema. Os dois laços são LENTOS de propósito:
+   Este tema é DISCRETO. Os dois laços são LENTOS de propósito:
    42 s e 55 s. Movimento que o olho consegue perseguir vira o assunto da tela,
    e o assunto da tela é o que está escrito nela.
    ========================================================================== */

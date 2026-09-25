@@ -5,6 +5,7 @@ import { IPC } from '@shared/ipc-contract'
 import type { Aviso, CantoDosAvisos } from '@shared/notificacoes'
 import { BrowserWindow, screen } from 'electron'
 import { setInputRegion } from '../island/entrada'
+import { travarNavegacao } from '../navegacao'
 import { setSkipTaskbar } from '../services/desktop-layer'
 import { type AreaDeVidro, desfocarAtras } from './desfoque'
 
@@ -174,6 +175,7 @@ export function abrirJanelaDosAvisos(
   win.on('resize', escreverComEcos)
   win.webContents.on('did-finish-load', aoPronta)
   win.webContents.on('render-process-gone', () => aoCair())
+  travarNavegacao(win.webContents)
   janela = win
   carregar(win)
 }

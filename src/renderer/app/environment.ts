@@ -62,7 +62,7 @@ export function useEnvironmentTheme(): void {
  * tema é, depois dos tokens e do papel de parede. A Floresta não aparece aqui
  * de propósito: ela É o handoff, e o handoff não tem preset — tem padrão.
  *
- * Os valores são ESCOLHA DO USUÁRIO, validados por ele na tela: trocar um é
+ * Os valores são escolhas de desenho, validadas na tela: trocar um é
  * trocar uma linha aqui, e nada mais. Não há regra que os derive do tema, e
  * inventar uma seria inventar gosto alheio.
  *
@@ -108,15 +108,13 @@ export const PRESETS_DO_AMBIENTE: Partial<Record<EnvironmentId, PresetDoAmbiente
    * "Tela ligando" é a entrada que estala na horizontal como uma TV antiga —
    * é o gesto do tema, e não uma escolha bonita qualquer.
    *
-   * Transparência 26 e claridade 46 são ESCOLHA DO USUÁRIO (05/09/2026), depois
-   * de três rodadas medidas contra a referência (22 → 6, atrás da cor do
-   * painel dela). Com o cobalto e as bordas acertados, ele preferiu o vidro
-   * mais aberto e mais claro do que a referência pede — e é ele quem manda no
-   * padrão de fábrica do tema.
+   * Transparência 26 e claridade 46 saíram de três rodadas medidas contra a
+   * referência (22 → 6, atrás da cor do painel dela). Com o cobalto e as
+   * bordas acertados, o vidro ficou mais aberto e mais claro do que a
+   * referência pede — de propósito, é o padrão de fábrica do tema.
    *
    * As ondas nos medidores são da referência — cada cartão de CPU, memória, GPU
-   * e temperatura tem a sua, em neon. O usuário tinha decidido deixá-las de
-   * fora e voltou atrás em 05/09/2026; entraram como preset DESTE ambiente,
+   * e temperatura tem a sua, em neon. Entraram como preset DESTE ambiente,
    * para a Floresta continuar sendo o handoff.
    *
    * Como todo preset, é sugestão: mexer em Aparência ganha dele, e "Restaurar

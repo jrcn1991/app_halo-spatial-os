@@ -8,10 +8,17 @@
  * escolheu inglês — em silêncio. Também acusa:
  *   - `t()` com template literal que tenha `${…}` (a frase tem de ser uma chave
  *     fixa; o que varia entra por `{nome}` e `vars`);
- *   - a mesma chave com traduções DIFERENTES em duas áreas.
+ *   - a mesma chave com traduções DIFERENTES em duas áreas;
+ *   - chave do dicionário que não aparece em lugar nenhum do código (sobra).
  *
- *   node tools/i18n-check.mjs            # falha se faltar tradução
- *   node tools/i18n-check.mjs --sobras   # lista também chaves que ninguém usa
+ * A sobra é conferida por LITERAL, não por `t()`: boa parte das chaves chega
+ * ao `t()` por variável — os nomes das entradas (`t(nome)`), os erros do
+ * script do KWin (`t(r.erro)`), os dois braços de um plural
+ * (`t(n === 1 ? 'a' : 'b')`). Uma chave só é sobra quando o texto dela não
+ * existe entre aspas em nenhum arquivo de `src/` — aí não há caminho pelo qual
+ * ela chegue à tela, e ela só engorda o dicionário e engana quem traduz.
+ *
+ *   node tools/i18n-check.mjs   # falha se faltar tradução ou sobrar chave
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
@@ -44,34 +51,68 @@ function arquivos(dir) {
 
 // `t(` ou `marcar(` seguido de UM literal: aspas simples, duplas ou crase.
 const CHAMADA = /\b(?:t|marcar)\(\s*(['"`])((?:\\.|(?!\1)[^\\])*)\1/g
+// Os dois braços de um plural: `t(n === 1 ? 'a' : 'b', …)`. Sem isto, o
+// singular e o plural escapavam da conferência de tradução.
+const TERNARIO =
+  /\b(?:t|marcar)\(\s*[^'"`()?;]{1,120}\?\s*(['"])((?:\\.|(?!\1)[^\\])*)\1\s*:\s*(['"])((?:\\.|(?!\3)[^\\])*)\3/g
+
+/** O literal como o JavaScript o lê: `\'` vira `'`, `\n` vira quebra. */
+const ler = (aspa, bruto) =>
+  aspa === '`'
+    ? bruto
+    : JSON.parse(`"${bruto.replace(/\\'/g, "'").replace(/"/g, '\\"').replace(/\\\\"/g, '\\"')}"`)
+
 const faltando = new Map()
 const dinamicos = []
 const usadas = new Set()
+const fontes = []
 for (const arquivo of arquivos(join(ROOT, 'src'))) {
   const texto = readFileSync(arquivo, 'utf8')
-  for (const m of texto.matchAll(CHAMADA)) {
-    const [, aspa, bruto] = m
-    const antes = texto.slice(0, m.index)
-    const linha = antes.split('\n').length
+  fontes.push(texto)
+  const ondeEsta = (indice) => {
+    const antes = texto.slice(0, indice)
     // Exemplo em comentário não é texto de tela.
     const inicioDaLinha = antes.slice(antes.lastIndexOf('\n') + 1).trim()
-    if (inicioDaLinha.startsWith('*') || inicioDaLinha.startsWith('//')) continue
-    const onde = `${relative(ROOT, arquivo)}:${linha}`
+    if (inicioDaLinha.startsWith('*') || inicioDaLinha.startsWith('//')) return null
+    return `${relative(ROOT, arquivo)}:${antes.split('\n').length}`
+  }
+  for (const m of texto.matchAll(CHAMADA)) {
+    const [, aspa, bruto] = m
+    const onde = ondeEsta(m.index)
+    if (!onde) continue
     if (aspa === '`' && bruto.includes('${')) {
       dinamicos.push(`${onde}  t(\`${bruto.slice(0, 60)}…\`) — use {nome} e vars`)
       continue
     }
-    // O literal como o JavaScript o lê: `\'` vira `'`, `\n` vira quebra.
-    const chave =
-      aspa === '`'
-        ? bruto
-        : JSON.parse(
-            `"${bruto.replace(/\\'/g, "'").replace(/"/g, '\\"').replace(/\\\\"/g, '\\"')}"`,
-          )
+    const chave = ler(aspa, bruto)
     usadas.add(chave)
     if (!dicionario.has(chave)) faltando.set(chave, onde)
   }
+  for (const m of texto.matchAll(TERNARIO)) {
+    const onde = ondeEsta(m.index)
+    if (!onde) continue
+    for (const chave of [ler(m[1], m[2]), ler(m[3], m[4])]) {
+      usadas.add(chave)
+      if (!dicionario.has(chave)) faltando.set(chave, onde)
+    }
+  }
 }
+
+// Sobra: chave cujo texto não aparece entre aspas em arquivo nenhum de `src/`
+// (fora do próprio dicionário). Ver o cabeçalho — `t()` por variável conta.
+const todoOCodigo = fontes.join('\n')
+const aparece = (chave) => {
+  const formas = new Set([chave, chave.replace(/'/g, "\\'"), JSON.stringify(chave).slice(1, -1)])
+  for (const forma of formas)
+    for (const aspa of ["'", '"', '`'])
+      if (todoOCodigo.includes(`${aspa}${forma}${aspa}`)) return true
+  // Chave de objeto sem aspas (`Cascata: '…'`, em `styles/entrances.ts`).
+  return (
+    /^[\p{L}_$][\p{L}\p{N}_$]*$/u.test(chave) &&
+    new RegExp(`[\\s{,]${chave}\\s*:`, 'u').test(todoOCodigo)
+  )
+}
+const sobras = [...dicionario.keys()].filter((k) => !usadas.has(k) && !aparece(k))
 
 let falhou = false
 if (conflitos.length) {
@@ -89,10 +130,12 @@ if (faltando.size) {
   console.log(`✗ ${faltando.size} texto(s) sem inglês:`)
   for (const [chave, onde] of faltando) console.log(`  ${onde}  "${chave.slice(0, 90)}"`)
 }
-if (process.argv.includes('--sobras')) {
-  const sobras = [...dicionario.keys()].filter((k) => !usadas.has(k))
-  console.log(`· ${sobras.length} chave(s) no dicionário que nenhum t()/marcar() usa`)
-  for (const s of sobras.slice(0, 50)) console.log(`  "${s.slice(0, 90)}"`)
+if (sobras.length) {
+  falhou = true
+  console.log(`✗ ${sobras.length} chave(s) no dicionário que o código não usa em lugar nenhum:`)
+  for (const s of sobras) console.log(`  ${dicionario.get(s).area}  "${s.slice(0, 90)}"`)
 }
 if (falhou) process.exit(1)
-console.log(`✓ ${usadas.size} textos marcados, todos com inglês · ${dicionario.size} no dicionário`)
+console.log(
+  `✓ ${usadas.size} textos marcados, todos com inglês · ${dicionario.size} no dicionário, sem sobras`,
+)

@@ -289,7 +289,7 @@ function registerIpc(): void {
     // para: reescrever o pacote faz o compositor recompilar o efeito.
     //
     // A altura que vale não é mais só `island.pillHeight`: o ambiente pode ter
-    // a dele (`alturaDaIlha`, pedido do usuário em 20/09/2026). Então a comparação é entre as alturas
+    // a dele (`alturaDaIlha`). Então a comparação é entre as alturas
     // RESOLVIDAS, e o "só a altura mudou" ignora também o ajuste do ambiente
     // que a produziu — senão arrastar o slider com um ambiente que tem altura
     // própria remontaria a ilha a cada pixel, que é justamente o que este
@@ -385,7 +385,7 @@ function registerIpc(): void {
     return { on, applied, server }
   })
   // Papel de parede: a única coisa que um ambiente muda fora do app — exceção
-  // autorizada pelo usuário, ver `services/wallpaper.ts`.
+  // documentada em `services/wallpaper.ts`.
   ipcMain.handle(IPC.wallpaperApply, (_e, id: EnvironmentId) => applyWallpaper(id))
   ipcMain.handle(IPC.wallpaperPreviews, () => wallpaperPreviews())
   // O que falta nesta máquina. Não sai para nenhum processo — ver
@@ -640,8 +640,8 @@ function registerAgentsIpc(): void {
     return escolha.canceled ? null : (escolha.filePaths[0] ?? null)
   })
 
-  // Abrir a pasta de um projeto no gerenciador de arquivos (pedido do usuário:
-  // um clique na pasta do repositório a abre no gerenciador). Pelo mesmo `gio open`
+  // Abrir a pasta de um projeto no gerenciador de arquivos (um clique na pasta
+  // do repositório a abre no gerenciador). Pelo mesmo `gio open`
   // da ilha, sem programa novo. Só PASTA e só de projeto FIXADO: o caminho vem
   // do renderer, e `gio open` num arquivo rodaria o aplicativo padrão dele —
   // e o app não executa nada (CLAUDE.md § Arquivos são somente leitura).

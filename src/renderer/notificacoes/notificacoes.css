@@ -78,7 +78,7 @@ body {
      Isso vale SEM desfoque atrás. Com o efeito de desfoque do KWin (a janela
      o pede por `_KDE_NET_WM_BLUR_BEHIND_REGION`), o piso some e sobra só o
      vidro do handoff, a 62%, sobre o papel de parede desfocado — o material
-     do painel do Plasma, pedido do usuário para a Floresta (12/09/2026). Os
+     do painel do Plasma, que é o da Floresta. Os
      outros temas trazem o próprio fundo sólido e não mudam. */
   background-color: color-mix(in srgb, var(--glass-center-base) var(--aviso-piso), transparent);
   background-image: linear-gradient(var(--glass-center-bg), var(--glass-center-bg));

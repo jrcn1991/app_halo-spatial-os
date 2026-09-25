@@ -48,7 +48,7 @@ export function SocialScreen() {
   /**
    * O grupo aberto na Biblioteca — e o DESTINO de quem for salvo no feed.
    *
-   * Pedido do usuário: o que se salva vai para o grupo selecionado. O grupo
+   * O que se salva vai para o grupo selecionado. O grupo
    * selecionado é este: salvar com "Inspirações" aberto guarda em Inspirações,
    * com "Favoritos" aberto guarda favoritado, e com "Tudo" aberto guarda solto.
    * Sem isto tudo caía solto e os grupos ficavam permanentemente vazios.

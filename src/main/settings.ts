@@ -7,6 +7,7 @@ import {
   parseSettings,
   RECENTES_MAX,
   type RecenteDoLancador,
+  TMDB_GUARDADA,
 } from '@shared/settings'
 import { app } from 'electron'
 
@@ -115,6 +116,12 @@ export function saveSettings(input: unknown): void {
   const next = parseSettings(input)
   const position = current?.desktop.position ?? next.desktop.position
   const recent = current?.media.recent ?? next.media.recent
+  // A chave do TMDB não é escrita pelo main, mas o renderer só a conhece como
+  // `TMDB_GUARDADA` (ela não viaja no argv — ver `paraRenderer`). A marca de
+  // volta quer dizer "a mesma de antes"; qualquer outro valor, inclusive o
+  // vazio, é o usuário trocando ou apagando a chave.
+  const tmdbKey =
+    next.media.tmdbKey === TMDB_GUARDADA ? (current?.media.tmdbKey ?? '') : next.media.tmdbKey
   // Terceiro campo com o mesmo problema: o refresh token do Spotify nasce do
   // consentimento OAuth, que acontece aqui no main. O renderer conhece só o
   // que veio no arranque; aceitar a cópia dele desconectaria a conta no
@@ -139,7 +146,7 @@ export function saveSettings(input: unknown): void {
   current = {
     ...next,
     desktop: { ...next.desktop, position },
-    media: { ...next.media, recent },
+    media: { ...next.media, recent, tmdbKey },
     music: { ...next.music, spotifyRefreshToken },
     seafile: { ...next.seafile, token: seafileToken },
     island: { ...next.island, shelf, note, focus },

@@ -25,3 +25,11 @@ export function useMounts(): Async<Mount[]> {
 export function useFavorites(): Async<Favorite[]> {
   return useAsync(() => repositories.files.favorites(), [])
 }
+
+/**
+ * O caminho em disco de um arquivo colado ou arrastado. Vazio quando ele não
+ * veio do disco — e sempre vazio fora do Electron.
+ */
+export function usePathOf(): (file: File) => Promise<string> {
+  return repositories.files.pathOf
+}

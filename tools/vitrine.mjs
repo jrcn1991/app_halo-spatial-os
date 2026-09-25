@@ -119,7 +119,7 @@ const espera = (p, ms) => p.waitForTimeout(ms)
  * Um horário de manhã, fixo: o relógio e a saudação da Home saem iguais a
  * cada rodada, e o diff das imagens só mostra o que mudou de verdade.
  */
-const HORA = new Date('2026-09-24T09:41:00-03:00')
+const HORA = new Date('2026-09-24T09:41:00Z')
 
 /** A janela do app e a ilha, prontas — com uma cidade no clima. */
 async function montar(page, url) {

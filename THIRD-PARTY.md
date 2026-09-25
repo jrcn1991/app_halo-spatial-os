@@ -44,6 +44,11 @@ estava declarada.
 | `astro/` | ASTROWeather (`astro_weather.rmskin`) | xxenium | Creative Commons Attribution-NonCommercial-ShareAlike 3.0 |
 | `weathercast/` | SA Weather Cast v1.1.2 (`SA.Weather.Cast.v1.1.2.rmskin`) | Saber Akiyama | Creative Commons BY-NC-SA 4.0 International |
 
+O texto das licenças, que a própria CC pede que acompanhe a atribuição:
+
+- CC BY-NC-SA 3.0 — <https://creativecommons.org/licenses/by-nc-sa/3.0/legalcode>
+- CC BY-NC-SA 4.0 — <https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode>
+
 O que as licenças exigem, e onde o app cumpre:
 
 - **Atribuição**: a linha de crédito aparece em Configurações → Widgets →

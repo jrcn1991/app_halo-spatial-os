@@ -112,14 +112,15 @@ const MAPA: Record<string, (arg: string | null) => Promise<unknown>> = {
   // O remetente de uma notificação, pelo `.desktop` que ele declarou.
   'avisos-abrir-app': (arg) =>
     acoes.abrirApp(/\.desktop$/.test(arg ?? '') ? (arg ?? '') : `${arg}.desktop`),
-  'abrir-caminho': (arg) => acoes.abrir(arg ?? homedir()),
+  'abrir-caminho': (arg) => acoes.abrirDoRenderer(arg ?? homedir()),
 
   // ——— A gaveta de arquivos ————————————————————————————
   'gaveta-guardar': async (arg) => shelfAdd(arg ?? ''),
   'gaveta-guardar-texto': (arg) => shelfAddText(arg ?? ''),
   'gaveta-remover': async (arg) => shelfRemove(arg ?? ''),
   'gaveta-limpar': async () => shelfClear(),
-  'gaveta-abrir': (arg) => acoes.abrir(arg ?? homedir()),
+  // Arquivo só abre se estiver na gaveta: pôr lá foi a escolha do usuário.
+  'gaveta-abrir': (arg) => acoes.abrirDoRenderer(arg ?? homedir(), currentSettings().island.shelf),
   'gaveta-enviar': (arg) => seafileUpload(arg ?? ''),
 
   // ——— O celular (KDE Connect) ——————————————————————————
@@ -159,7 +160,7 @@ const MAPA: Record<string, (arg: string | null) => Promise<unknown>> = {
   // ——— Discos removíveis ————————————————————————————————
   'disco-ejetar': (arg) => ejetarDisco(arg ?? ''),
   'disco-montar': (arg) => montarDisco(arg ?? ''),
-  'disco-abrir': (arg) => acoes.abrir(arg ?? homedir()),
+  'disco-abrir': (arg) => acoes.abrirDoRenderer(arg ?? homedir()),
 
   // ——— Foco e API local ————————————————————————————————
   'foco-limpar': async () => limparFoco(),
@@ -247,7 +248,7 @@ async function copiarTextoLido(texto: string): Promise<void> {
 }
 
 /**
- * Guarda a janela e a faz VOAR para a pílula — o gesto que o usuário pediu.
+ * Guarda a janela e a faz VOAR para a pílula — o gesto da gaveta.
  *
  * A ordem é a da revisão de movimento: lê a janela (geometria), desenha o
  * fantasma sobre ela, só ENTÃO a esconde e minimiza; aos 380ms a pílula

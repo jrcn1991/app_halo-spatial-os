@@ -1,6 +1,4 @@
-import { lookup } from 'node:dns/promises'
-import { isIP } from 'node:net'
-import { RedeError } from './rede'
+import { pedir } from './rede'
 
 /**
  * A capa de uma referência, convertida para `data:`.
@@ -32,32 +30,6 @@ const MAX_BYTES_CACHE = 24 * 1024 * 1024
 const cache = new Map<string, string>()
 let bytesNoCache = 0
 
-/** Mesma conferência de `rede.ts`: imagem também vem de URL do usuário. */
-async function publico(url: URL): Promise<boolean> {
-  if (url.protocol !== 'http:' && url.protocol !== 'https:') return false
-  const host = url.hostname.replace(/^\[|\]$/g, '')
-  try {
-    const enderecos = isIP(host) ? [{ address: host }] : await lookup(host, { all: true })
-    return enderecos.every(({ address }) => {
-      if (isIP(address) === 6) return !/^(::1|::|f[cd]|fe[89ab])/i.test(address)
-      const [a = 0, b = 0] = address.split('.').map(Number)
-      return !(
-        a === 0 ||
-        a === 10 ||
-        a === 127 ||
-        (a === 100 && b >= 64 && b <= 127) ||
-        (a === 169 && b === 254) ||
-        (a === 172 && b >= 16 && b <= 31) ||
-        (a === 192 && (b === 168 || b === 0)) ||
-        (a === 198 && (b === 18 || b === 19)) ||
-        a >= 224
-      )
-    })
-  } catch {
-    return false
-  }
-}
-
 export async function creativeThumb(bruta: string): Promise<string> {
   if (!bruta) return ''
   const guardada = cache.get(bruta)
@@ -65,8 +37,9 @@ export async function creativeThumb(bruta: string): Promise<string> {
 
   let valor = ''
   try {
-    const url = new URL(bruta)
-    if (await publico(url)) valor = await baixar(url)
+    // A trava contra SSRF é a de `rede.ts`, dentro de `pedir`: imagem também
+    // vem de URL que o app não escolheu.
+    valor = await baixar(new URL(bruta))
   } catch {
     // Endereço inválido ou host bloqueado: a tela desenha o lugar da imagem.
   }
@@ -88,27 +61,34 @@ async function baixar(url: URL): Promise<string> {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
   try {
-    const resposta = await fetch(url, {
-      signal: controller.signal,
-      redirect: 'error',
-      headers: {
+    // Sem seguir redirecionamento: uma capa que redireciona fica sem capa, e
+    // é um salto a menos para conferir.
+    const resposta = await pedir(
+      url,
+      {
         Accept: 'image/*',
         'User-Agent':
           'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Halo/1.0',
       },
-    })
-    if (!resposta.ok) return ''
+      controller.signal,
+    )
 
     // O tipo vem do SERVIDOR, e é ele que decide se isto vira `data:`. SVG
     // fica de fora: é documento com script, e aqui é uma capa.
-    const tipo = (resposta.headers.get('content-type') ?? '').split(';')[0]?.trim() ?? ''
-    if (!/^image\/(png|jpeg|jpg|gif|webp|avif)$/i.test(tipo)) return ''
+    const tipo = (resposta.headers['content-type'] ?? '').split(';')[0]?.trim() ?? ''
+    if (
+      resposta.status < 200 ||
+      resposta.status >= 300 ||
+      !/^image\/(png|jpeg|jpg|gif|webp|avif)$/i.test(tipo)
+    ) {
+      resposta.descartar()
+      return ''
+    }
 
-    const buffer = Buffer.from(await resposta.arrayBuffer())
-    if (buffer.byteLength > MAX_BYTES) return ''
+    // Passar do teto é erro de `ler`, e erro aqui é capa vazia.
+    const buffer = await resposta.ler(MAX_BYTES)
     return `data:${tipo};base64,${buffer.toString('base64')}`
-  } catch (erro) {
-    if (erro instanceof RedeError) return ''
+  } catch {
     return ''
   } finally {
     clearTimeout(timer)

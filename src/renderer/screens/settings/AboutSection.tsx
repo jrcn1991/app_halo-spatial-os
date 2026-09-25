@@ -1,6 +1,5 @@
 import { t } from '@shared/i18n'
-import type { AppInfo } from '@shared/ipc-contract'
-import { useEffect, useState } from 'react'
+import { useAppInfo } from '@/hooks/useSistema'
 import styles from '../SettingsScreen.module.css'
 
 /**
@@ -21,11 +20,7 @@ import styles from '../SettingsScreen.module.css'
 const AUTOR = 'https://github.com/jrcn1991'
 
 export function AboutSection() {
-  const [info, setInfo] = useState<AppInfo | null>(null)
-
-  useEffect(() => {
-    void window.halo?.appInfo().then(setInfo)
-  }, [])
+  const { data: info } = useAppInfo()
 
   return (
     <>

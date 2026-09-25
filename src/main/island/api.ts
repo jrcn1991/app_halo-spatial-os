@@ -165,11 +165,21 @@ export async function startApi(): Promise<void> {
   s.on('error', () => {})
   await new Promise<void>((resolve, reject) => {
     s.once('error', reject)
-    s.listen(arquivo, () => {
-      s.off('error', reject)
-      resolve()
-    })
+    // O arquivo tem de NASCER 0600. O `chmod` depois do `listen` deixava uma
+    // fresta em que o socket existia com a permissão do umask — e, sem
+    // `XDG_RUNTIME_DIR`, ele mora no `/tmp` de todo mundo. O `bind` acontece
+    // dentro da chamada a `listen`, então o umask só precisa valer nela.
+    const umaskAnterior = process.umask(0o177)
+    try {
+      s.listen(arquivo, () => {
+        s.off('error', reject)
+        resolve()
+      })
+    } finally {
+      process.umask(umaskAnterior)
+    }
   })
+  // Rede de segurança, caso o umask não tenha valido (um `bind` adiado).
   await chmod(arquivo, 0o600).catch(() => {})
   servidor = s
   faxina = setInterval(() => {

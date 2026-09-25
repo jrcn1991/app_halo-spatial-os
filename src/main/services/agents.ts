@@ -15,6 +15,7 @@ import type {
 } from '@shared/agents'
 import { t } from '@shared/i18n'
 import { currentSettings } from '../settings'
+import { arquivoSolto } from './arquivo-solto'
 
 /**
  * Agentes do Claude, um processo por terminal.
@@ -560,15 +561,17 @@ const TEXTO_MAX = 200_000
 /** Lê um arquivo do disco e o prepara como anexo. */
 export async function readAttachment(path: string): Promise<Attachment | null> {
   try {
-    const info = await stat(path)
-    if (!info.isFile() || info.size > ANEXO_MAX) return null
+    // O caminho vem do renderer (arrasto ou colar): só arquivo comum, fora de
+    // `/proc` e afins, e lido pelo destino do link — ver `arquivo-solto.ts`.
+    const { caminho: real, bytes } = await arquivoSolto(path, ANEXO_MAX)
+    const info = { size: bytes }
 
     const name = basename(path)
     const ext = extname(path).toLowerCase()
     const mediaType = IMAGEM[ext]
 
     if (mediaType) {
-      const conteudo = await readFile(path)
+      const conteudo = await readFile(real)
       return {
         path,
         name,
@@ -583,7 +586,7 @@ export async function readAttachment(path: string): Promise<Attachment | null> {
         path,
         name,
         kind: 'text',
-        data: await readFile(path, 'utf8'),
+        data: await readFile(real, 'utf8'),
         mediaType: 'text/plain',
         bytes: info.size,
       }

@@ -1,6 +1,7 @@
 import { join } from 'node:path'
-import type { HaloSettings } from '@shared/settings'
+import { type HaloSettings, TMDB_GUARDADA } from '@shared/settings'
 import { BrowserWindow, screen, shell } from 'electron'
+import { travarNavegacao } from './navegacao'
 import { isX11, marcarForaDaBarra, setDesktopLayer, setSkipTaskbar } from './services/desktop-layer'
 import { savePosition } from './settings'
 
@@ -118,9 +119,8 @@ export function createMainWindow(
   // uma página: executam alguma coisa. Os endereços da Social Arte vêm de
   // metadado de página alheia — conteúdo não confiável —, e essa é a diferença
   // entre "abrir o original" e "rodar o que a página mandar".
-  win.webContents.setWindowOpenHandler(({ url }) => {
+  travarNavegacao(win.webContents, (url) => {
     if (/^https?:\/\//i.test(url)) void shell.openExternal(url)
-    return { action: 'deny' }
   })
 
   return win
@@ -140,11 +140,14 @@ export function createMainWindow(
  * `src/main/settings.ts`).
  */
 function paraRenderer(settings: HaloSettings): HaloSettings {
-  // Todo segredo sai daqui. São dois hoje — o refresh do Spotify e o token do
-  // Seafile — e a lista cresce junto com as integrações: qualquer credencial
-  // nova precisa ser acrescentada aqui, ou ela vaza pelo mesmo caminho.
+  // Todo segredo sai daqui. São três hoje — o refresh do Spotify, o token do
+  // Seafile e a chave do TMDB — e a lista cresce junto com as integrações:
+  // qualquer credencial nova precisa ser acrescentada aqui, ou ela vaza pelo
+  // mesmo caminho. A chave do TMDB vira uma marca, e não vazio, porque a
+  // tela de Configurações precisa dizer que ela existe.
   return {
     ...settings,
+    media: { ...settings.media, tmdbKey: settings.media.tmdbKey ? TMDB_GUARDADA : '' },
     music: { ...settings.music, spotifyRefreshToken: '' },
     seafile: { ...settings.seafile, token: '' },
   }

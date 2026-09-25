@@ -1,6 +1,7 @@
 import { marcar, t } from '@shared/i18n'
-import { CANTOS_DOS_AVISOS, type CantoDosAvisos, type EstadoDosAvisos } from '@shared/notificacoes'
-import { useEffect, useState } from 'react'
+import { CANTOS_DOS_AVISOS, type CantoDosAvisos } from '@shared/notificacoes'
+import { useState } from 'react'
+import { useEstadoDosAvisos, useExemploDeAviso } from '@/hooks/useNotificacoes'
 import { useHalo } from '@/store/useHalo'
 import { Tabs } from '@/ui/Tabs'
 import { Toggle } from '@/ui/Toggle'
@@ -25,33 +26,15 @@ const ROTULOS: Record<CantoDosAvisos, string> = {
 export function NotificacoesSection() {
   const cfg = useHalo((s) => s.notificacoes)
   const setNotificacoes = useHalo((s) => s.setNotificacoes)
-  const [estado, setEstado] = useState<EstadoDosAvisos | null>(null)
-  const [exemplo, setExemplo] = useState<'pronto' | 'mandando' | 'falhou'>('pronto')
-
   // O estado muda sem a tela pedir (a janela carrega, o applet do KDE derruba
-  // o silêncio): lido de novo a cada 1,5s enquanto a seção está aberta. É IPC,
-  // sem processo externo.
-  useEffect(() => {
-    const halo = window.halo
-    if (!halo) return
-    let vivo = true
-    const ler = () =>
-      void halo.notificacoes
-        .estado()
-        .then((e) => vivo && setEstado(e))
-        .catch(() => {})
-    ler()
-    const id = setInterval(ler, 1500)
-    return () => {
-      vivo = false
-      clearInterval(id)
-    }
-  }, [])
+  // o silêncio): o hook o relê enquanto a seção está aberta.
+  const estado = useEstadoDosAvisos()
+  const exemploDeAviso = useExemploDeAviso()
+  const [exemplo, setExemplo] = useState<'pronto' | 'mandando' | 'falhou'>('pronto')
 
   const mandarExemplo = () => {
     setExemplo('mandando')
-    void window.halo?.notificacoes
-      .exemplo()
+    void exemploDeAviso()
       .then(() => setExemplo('pronto'))
       .catch(() => setExemplo('falhou'))
   }
@@ -103,7 +86,9 @@ export function NotificacoesSection() {
             type="button"
             className={styles.replay}
             onClick={mandarExemplo}
-            disabled={exemplo === 'mandando' || !window.halo}
+            // Sem estado não há servidor a quem mandar (fora do Electron, ou ele
+            // ainda não respondeu).
+            disabled={exemplo === 'mandando' || !estado}
           >
             {t('Mostrar um exemplo')}
           </button>

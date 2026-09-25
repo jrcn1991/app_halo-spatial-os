@@ -8,6 +8,7 @@ import type {
 } from '@shared/media'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { repositories } from '@/data'
+import type { CatalogRepository } from '@/domain/repositories'
 import { type Async, useAsync } from './useAsync'
 
 /** Quanto o catálogo pede por vez. Uma tela cheia de capas cabe folgada. */
@@ -113,4 +114,12 @@ export function useCatalogPage(query: CatalogQuery): {
   const loadMore = useCallback(() => setOffset((atual) => atual + PAGINA), [])
 
   return { items, total, loading, error, more: items.length < total, loadMore }
+}
+
+/**
+ * O que a tela faz com o catálogo além de ler: tocar, tirar de "Continuar
+ * assistindo" e apontar a lista M3U. Fora do Electron nada disso tem efeito.
+ */
+export function useCatalogActions(): Pick<CatalogRepository, 'play' | 'forget' | 'choose'> {
+  return repositories.catalog
 }

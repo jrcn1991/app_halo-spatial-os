@@ -3,6 +3,7 @@ import { pathToFileURL } from 'node:url'
 import { promisify } from 'node:util'
 import { marcar, t } from '@shared/i18n'
 import type { Reading } from '@shared/island'
+import { arquivoSolto } from '../services/arquivo-solto'
 import { announceToIslands } from './window'
 
 /**
@@ -113,7 +114,11 @@ export const pingCelular = () => plugin('ping', 'ping', 'sendPing')
  * Connect o transfere; `http(s)://` abre no navegador do celular.
  */
 export async function enviarAoCelular(alvo: string): Promise<Celular> {
-  const url = /^https?:\/\//.test(alvo) ? alvo : pathToFileURL(alvo).href
+  // Arquivo vem do renderer: só arquivo comum, fora de `/proc` e afins (ver
+  // `arquivo-solto.ts`). Sem teto — mandar um vídeo ao celular é o uso.
+  const url = /^https?:\/\//.test(alvo)
+    ? alvo
+    : pathToFileURL((await arquivoSolto(alvo, Number.POSITIVE_INFINITY)).caminho).href
   if (!url.startsWith('file://') && !/^https?:\/\//.test(url)) {
     throw new Error(t('só arquivo (caminho absoluto) ou endereço http(s)'))
   }

@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs'
 import { mkdir, unlink, writeFile } from 'node:fs/promises'
-import { basename, join } from 'node:path'
+import { basename, dirname, join, resolve } from 'node:path'
 import { t } from '@shared/i18n'
 import { IPC } from '@shared/ipc-contract'
 import type { IslandEvent, ShelfItem } from '@shared/island'
@@ -37,7 +37,11 @@ import { announceToIslands, broadcastToIslands } from './window'
 const PASTA_TEXTOS = join(app.getPath('home'), '.local', 'share', 'halo-spatial-os', 'gaveta')
 
 const eUrl = (path: string) => /^https?:\/\//.test(path)
-const eTexto = (path: string) => path.startsWith(PASTA_TEXTOS)
+/* Pelo DIRETÓRIO resolvido, não pelo prefixo do texto: `…/gaveta/../../x`
+   começa com a pasta e aponta para fora dela — e `eTexto` é o que autoriza o
+   `unlink` de `shelfRemove` e `shelfClear`. Um trecho de texto mora direto
+   na pasta, nunca numa subpasta, então a igualdade basta. */
+const eTexto = (path: string) => dirname(resolve(path)) === PASTA_TEXTOS
 
 /** Um nome curto para mostrar: o host da URL, ou o nome do arquivo. */
 function nomeDe(path: string): string {
@@ -70,16 +74,20 @@ function avisar(evento?: IslandEvent): void {
 }
 
 /** Guarda um arquivo do usuário (referência) ou um endereço http(s). */
-export function shelfAdd(path: string): void {
-  if (eUrl(path)) {
+export function shelfAdd(bruto: string): void {
+  if (eUrl(bruto)) {
+    const path = bruto
     const atual = currentSettings().island.shelf
     if (atual.includes(path)) return
     saveIslandShelf([path, ...atual])
     avisar({ icon: 'Link', text: nomeDe(path), detail: t('guardado na gaveta'), level: 'ok' })
     return
   }
-  if (!path.startsWith('/'))
+  if (!bruto.startsWith('/'))
     throw new Error(t('a gaveta só guarda caminhos absolutos ou endereços'))
+  // Guarda o caminho já resolvido: `..` na lista seria um nome enganoso na
+  // tela e um jeito de fingir que um arquivo de fora é trecho da gaveta.
+  const path = resolve(bruto)
   if (!existsSync(path)) throw new Error(t('esse arquivo não existe'))
   const atual = currentSettings().island.shelf
   if (atual.includes(path)) return

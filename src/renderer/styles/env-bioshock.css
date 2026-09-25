@@ -52,7 +52,7 @@
      (`ref-canto-sup-esq.png`, linha horizontal na aresta esquerda): sulco quase
      preto, cume a `#988152`, sulco, canal a `#36301e`, sulco, filete interno a
      `#6d562e`. Os valores abaixo são esses, ABERTOS: a amostra de 3× está
-     borrada pela ampliação e puxa tudo para baixo, e o usuário pediu bronze
+     borrada pela ampliação e puxa tudo para baixo; e o bronze quer ser
      mais claro e mais quente, com mais distância até o vidro.
 
      `--bs-patina` é a oxidação — verde de cobre, que é o que acontece com
@@ -493,7 +493,7 @@
 
    Ela monta SOBRE a aresta, como na referência, e não mais dentro do painel:
    o leque fica acima do filete, as volutas correm por cima dele e só o losango
-   do pé desce para dentro. Dentro era o que o usuário viu e recusou — a peça
+   do pé desce para dentro. Dentro não funcionava — a peça
    passava por trás da moldura e saía decepada numa linha reta, sem começo
    visível. Os dois números que fazem isso funcionar (a caixa transbordada e a
    camada) estão comentados na regra, cada um com a conta de onde saiu.
@@ -523,7 +523,7 @@
      lâminas descem. 29 põe as lâminas fora e deixa o plinto de 12px no gutter. */
   inset: -26px 0 -29px;
   /* Acima da moldura (`::before`, `z-index: 1`), e não atrás dela. Era este o
-     erro que o usuário viu: a `z-index: -1` a crista passava POR TRÁS do filete
+     erro visível: a `z-index: -1` a crista passava POR TRÁS do filete
      e do trilho, e o leque saía decepado numa linha reta — a peça parecia
      começar do nada. Ornamento que monta sobre a moldura vem DEPOIS dela.
 
@@ -1153,7 +1153,7 @@
      projeta. Quatro elipses num ladrilho de 520×320 que anda devagar;
    - no `::after`, a NEVE MARINHA: partículas em suspensão, subindo.
 
-   O usuário pediu DISCRIÇÃO aqui, ao contrário do Cyberpunk. Por isso os alfas
+   DISCRIÇÃO aqui, ao contrário do Cyberpunk. Por isso os alfas
    são de 0,03 a 0,07 e o movimento é lento o bastante para não ser perseguido
    pelo olho. `mix-blend-mode: screen` faz a luz somar em vez de cobrir: sobre o
    painel escuro ela aparece, sobre o texto claro ela some sozinha.

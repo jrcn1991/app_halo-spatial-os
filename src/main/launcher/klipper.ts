@@ -5,8 +5,8 @@ import dbus from 'dbus-next'
  *
  * É a QUARTA coisa que este app escreve fora de si (as outras três estão em
  * CLAUDE.md, "Janela e camada"), e a única que mexe num atalho de OUTRO
- * programa. O que a sustenta: o usuário pediu exatamente isso — que a tecla
- * abrisse o lançador em vez do clipboard do sistema —, o histórico de cópias que o
+ * programa. O que a sustenta: a tecla abre o lançador em vez do clipboard do
+ * sistema por escolha explícita (`launcher.on`), o histórico de cópias que o
  * Klipper mostraria continua acessível (a ilha e o lançador leem o mesmo
  * histórico, do próprio Klipper), e o interruptor em Configurações → Lançador
  * devolve a tecla.

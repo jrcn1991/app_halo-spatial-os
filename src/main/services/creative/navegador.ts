@@ -16,8 +16,7 @@ import { RedeError } from './rede'
  * - a API do DeviantArt perdeu `browse/newest` e `browse/popular` em
  *   01/07/2024, e o que sobrou exige registro de aplicativo;
  * - a home logada — o feed que o usuário montou seguindo quem ele segue — não
- *   existe em API nenhuma. É a página dele, com a sessão dele;
- * - e o usuário pediu explicitamente este caminho.
+ *   existe em API nenhuma. É a página dele, com a sessão dele.
  *
  * ## As amarras
  *

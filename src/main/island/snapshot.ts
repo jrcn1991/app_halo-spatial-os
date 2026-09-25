@@ -96,8 +96,7 @@ export function esquecerMemoria(): void {
  * O instantâneo que a ilha mostra.
  *
  * Ela reaproveita os serviços do app (MPRIS, clima, Docker, git, aplicativos)
- * em vez de duplicá-los — foi o que o usuário pediu ao dizer que ela pode usar
- * os mesmos mecanismos. O que ela NÃO faz é mudar qualquer um deles: só lê.
+ * em vez de duplicá-los: uma fonte só por dado. O que ela NÃO faz é mudar qualquer um deles: só lê.
  *
  * Cada módulo é montado em separado e falha em separado: uma fonte fora do ar
  * marca aquele módulo como indisponível e os outros seguem. Uma ilha que some

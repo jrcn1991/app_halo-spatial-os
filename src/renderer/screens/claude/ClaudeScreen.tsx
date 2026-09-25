@@ -16,7 +16,8 @@ import { X } from '@phosphor-icons/react/dist/icons/X'
 import type { Agent, AgentMessage, AgentState, Attachment } from '@shared/agents'
 import { localeDoIdioma, t } from '@shared/i18n'
 import { useEffect, useRef, useState } from 'react'
-import { useAgentMessages, useAgents, useSessions } from '@/hooks/useAgents'
+import { useAgentMessages, useAgents, useAgentTools, useSessions } from '@/hooks/useAgents'
+import { usePathOf } from '@/hooks/useFiles'
 import { useProjectInfos, useProjects } from '@/hooks/useProjects'
 import { useHalo } from '@/store/useHalo'
 import { cx } from '@/ui/cx'
@@ -155,6 +156,7 @@ function ProjetosPanel({
   aoVerConversas: (project: string) => void
 }) {
   const projetos = useHalo((s) => s.claudeProjects)
+  const { addProject, openProject } = useAgentTools()
   const grupos = useHalo((s) => s.claudeGroups)
   const adicionar = useHalo((s) => s.addClaudeProject)
   const remover = useHalo((s) => s.removeClaudeProject)
@@ -204,7 +206,7 @@ function ProjetosPanel({
   }, [projetos.length, encontrados, adicionar])
 
   const escolher = async () => {
-    const caminho = await window.halo?.agents.addProject()
+    const caminho = await addProject()
     if (caminho) adicionar(caminho)
   }
 
@@ -343,7 +345,7 @@ function ProjetosPanel({
             className={styles.projectAbrir}
             aria-label={t('Abrir a pasta de {nome} no gerenciador de arquivos', { nome })}
             title={t('Abrir a pasta')}
-            onClick={() => void window.halo?.agents.openProject(caminho)}
+            onClick={() => void openProject(caminho)}
           >
             <FolderOpen size={12} color="var(--text-tertiary)" />
           </button>
@@ -692,6 +694,7 @@ function ConversaPanel({
 }) {
   // A marca muda a cada evento do agente; é ela que rebusca a transcrição.
   const marca = agente ? `${agente.state}|${agente.turns}|${agente.lastAt}` : null
+  const pathOf = usePathOf()
   const mensagens = useAgentMessages(agente?.id ?? null, marca)
   const [texto, setTexto] = useState('')
   const [anexos, setAnexos] = useState<Attachment[]>([])
@@ -738,9 +741,9 @@ function ConversaPanel({
     if (arquivos.length === 0) return
     evento.preventDefault()
 
-    const caminhos = arquivos
-      .map((arquivo) => window.halo?.files.pathOf(arquivo) ?? '')
-      .filter((caminho) => caminho.length > 0)
+    const caminhos = (await Promise.all(arquivos.map(pathOf))).filter(
+      (caminho) => caminho.length > 0,
+    )
     if (caminhos.length === 0) return
 
     const lidos = await aoAnexarCaminhos(caminhos)

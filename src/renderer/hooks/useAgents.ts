@@ -1,6 +1,7 @@
 import type { Agent, AgentMessage, AgentSession, Attachment } from '@shared/agents'
 import { useCallback, useEffect, useState } from 'react'
 import { repositories } from '@/data'
+import type { AgentsRepository } from '@/domain/repositories'
 
 /**
  * Os agentes vivos e o que eles disseram.
@@ -92,4 +93,15 @@ export function useSessions(project: string | null): AgentSession[] {
   }, [project])
 
   return sessions
+}
+
+/**
+ * Os seletores e o "abrir a pasta" da tela do Claude e de Configurações.
+ * Separado de `useAgents` para quem só precisa disto não assinar a lista.
+ */
+export function useAgentTools(): Pick<
+  AgentsRepository,
+  'addProject' | 'openProject' | 'chooseCli'
+> {
+  return repositories.agents
 }

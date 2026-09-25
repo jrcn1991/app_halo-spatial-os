@@ -15,7 +15,8 @@ import {
   type IslandPlacement,
 } from '@shared/island'
 import { fusoValido } from '@shared/settings'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { useDisplays, useIslandCatalog } from '@/hooks/useIslandSettings'
 import { useHalo } from '@/store/useHalo'
 import { Slider } from '@/ui/Slider'
 import { Tabs } from '@/ui/Tabs'
@@ -158,7 +159,7 @@ export function IslandSection() {
   const island = useHalo((s) => s.island)
   const setIsland = useHalo((s) => s.setIsland)
   // A altura da pílula é do AMBIENTE ATIVO, não global: cada ambiente pede
-  // uma pílula diferente sobre a barra (pedido do usuário, 20/09/2026).
+  // uma pílula diferente sobre a barra.
   const ambiente = useHalo((s) => s.environment.id)
   const ajuste = useHalo((s) => s.environment.ajustes)[ambiente]
   const setIslandHeight = useHalo((s) => s.setIslandHeight)
@@ -166,13 +167,8 @@ export function IslandSection() {
   const altura = ajuste?.islandHeight ?? island.pillHeight
   const doAmbiente = environmentById(ambiente)
   const nomeDoAmbiente = doAmbiente ? environmentLabel(doAmbiente) : ambiente
-  const [telas, setTelas] = useState<{ id: string; label: string; primary: boolean }[]>([])
-  const [integracoes, setIntegracoes] = useState(0)
-
-  useEffect(() => {
-    void window.halo?.island.displays().then(setTelas)
-    void window.halo?.island.catalog().then((c) => setIntegracoes(c.length))
-  }, [])
+  const telas = useDisplays().data ?? []
+  const integracoes = useIslandCatalog().data?.length ?? 0
 
   const opcoesTela = [
     { value: 'primary', label: t('Tela principal') },
@@ -239,7 +235,7 @@ export function IslandSection() {
         <span className={styles.note}>{t(EXPLICA_ASSENTO[island.placement])}</span>
       </div>
 
-      {/* A altura é POR AMBIENTE desde 20/09/2026, pedido do usuário: na
+      {/* A altura é POR AMBIENTE: na
           Floresta a pílula fica um pouco mais baixa, para não passar muito da
           barra do tema, que é menor. O slider escreve no ambiente ATIVO, como
           o vidro em Aparência; ausente vale a altura global da ilha. */}

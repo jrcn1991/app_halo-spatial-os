@@ -1,7 +1,8 @@
 import { ENVIRONMENTS, type EnvironmentId, environmentLabel } from '@shared/environments'
 import { t } from '@shared/i18n'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { aplicarWallpaper } from '@/app/environment'
+import { useWallpaperActions, useWallpaperStatus } from '@/hooks/useWallpaper'
 import { useHalo } from '@/store/useHalo'
 import { Toggle } from '@/ui/Toggle'
 import styles from '../SettingsScreen.module.css'
@@ -26,30 +27,18 @@ export function EnvironmentSection() {
   const setWallpaper = useHalo((s) => s.setEnvironmentWallpaper)
   const setImagem = useHalo((s) => s.setEnvironmentImage)
   const setVideo = useHalo((s) => s.setEnvironmentVideo)
-  /** `null` = não se sabe (fora do Electron, ou ainda perguntando). */
-  const [plugin, setPlugin] = useState<boolean | null>(null)
+  /**
+   * Se o plugin de vídeo está instalado, e se há o fundo de antes da primeira
+   * troca guardado. `null` = não se sabe (fora do Electron, ou ainda
+   * perguntando).
+   */
+  const { plugin, original } = useWallpaperStatus()
+  const papel = useWallpaperActions()
   const [erroDoVideo, setErroDoVideo] = useState('')
-  /** Há o fundo de antes da primeira troca guardado? `null` = não se sabe. */
-  const [original, setOriginal] = useState<boolean | null>(null)
   const [restauro, setRestauro] = useState('')
 
-  useEffect(() => {
-    let viva = true
-    window.halo?.wallpaper.videoPlugin().then(
-      (instalado) => viva && setPlugin(instalado),
-      () => {},
-    )
-    window.halo?.wallpaper.original().then(
-      (guardado) => viva && setOriginal(guardado),
-      () => {},
-    )
-    return () => {
-      viva = false
-    }
-  }, [])
-
   const restaurar = async () => {
-    const r = await window.halo?.wallpaper.restaurar()
+    const r = await papel.restaurar()
     if (!r) return
     // Voltar ao fundo de antes só dura se o próximo ambiente não o trocar de
     // novo — por isso o interruptor é desligado junto.
@@ -62,7 +51,7 @@ export function EnvironmentSection() {
   }
 
   const escolher = async (id: EnvironmentId) => {
-    const caminho = await window.halo?.wallpaper.choose()
+    const caminho = await papel.choose()
     if (caminho) setImagem(id, caminho)
   }
 
@@ -76,7 +65,7 @@ export function EnvironmentSection() {
   }
 
   const escolherVideo = async (id: EnvironmentId) => {
-    const caminho = await window.halo?.wallpaper.chooseVideo()
+    const caminho = await papel.chooseVideo()
     if (caminho) trocarVideo(id, caminho)
   }
 

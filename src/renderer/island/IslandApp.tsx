@@ -101,8 +101,8 @@ const limitarAltura = (px: number): number =>
  */
 const ATIVIDADE_MIN_MS = 8000
 /**
- * Uma faixa pausada há mais que isto sai da pílula até o play voltar. Pedido
- * do usuário (14/09/2026): com o Spotify aberto e a música pausada, a ilha
+ * Uma faixa pausada há mais que isto sai da pílula até o play voltar. Sem
+ * isto, com o Spotify aberto e a música pausada, a ilha
  * mostrava a faixa para sempre, até o Spotify ser fechado.
  */
 const PAUSA_ESQUECIDA_MS = 20_000
@@ -1798,7 +1798,7 @@ function Inicio({
         <div className="inicioGrade">
           <div className="bloco cascata" style={{ '--i': 0 } as React.CSSProperties}>
             {/* O Halo primeiro, e em destaque: é o app a que a ilha pertence,
-                e o gesto que o usuário pediu (Meta+Space) mora aqui em forma
+                e o gesto de Meta+Space mora aqui em forma
                 de clique. Aceso = a janela está DENTRO da ilha. */}
             <Linha
               icone="Halo"

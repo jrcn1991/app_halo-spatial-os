@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { promisify } from 'node:util'
 import { t } from '@shared/i18n'
 import { app } from 'electron'
+import { arquivoSolto } from '../services/arquivo-solto'
 
 /**
  * Ler o texto de uma imagem — e de um pedaço da tela.
@@ -21,6 +22,8 @@ import { app } from 'electron'
 
 const run = promisify(execFile)
 const TIMEOUT_MS = 30_000
+/** Uma captura de tela 8K em PNG fica bem abaixo disto; acima, não é imagem para OCR. */
+const OCR_MAX = 64 * 1024 * 1024
 
 let idiomas: string | null = null
 
@@ -39,8 +42,10 @@ export async function idiomasDoOcr(): Promise<string> {
 
 export async function lerTextoDaImagem(imagem: string): Promise<string> {
   if (!imagem.startsWith('/')) throw new Error(t('a imagem precisa de um caminho absoluto'))
+  // O caminho vem do renderer: só arquivo comum, fora de `/proc` e afins.
+  const { caminho } = await arquivoSolto(imagem, OCR_MAX)
   const lang = await idiomasDoOcr()
-  const { stdout } = await run('tesseract', [imagem, 'stdout', '-l', lang], {
+  const { stdout } = await run('tesseract', [caminho, 'stdout', '-l', lang], {
     timeout: TIMEOUT_MS,
     maxBuffer: 4 * 1024 * 1024,
   })

@@ -16,7 +16,7 @@ import { announceToIslands, flyBackFromIslands, flyToIslands } from './window'
 /**
  * O app dentro da ilha.
  *
- * O gesto que o usuário pediu: Meta+Space recolhe a janela do Halo para a
+ * O gesto: Meta+Space recolhe a janela do Halo para a
  * pílula, onde ela vira o botão aceso do início; de novo (ou um clique nesse
  * botão) a traz de volta. O voo é o mesmo da gaveta de janelas — o fantasma
  * que encolhe até a boca e a cuspida de volta (ver `island/window.ts`).
@@ -34,7 +34,7 @@ import { announceToIslands, flyBackFromIslands, flyToIslands } from './window'
  *
  * O que ela É continua igual: ao voltar, a janela reaparece no mesmo canto e
  * na camada do papel de parede, sem foco. Recolher e trazer não mudam o app,
- * só o escondem — foi o que o usuário pediu.
+ * só o escondem.
  */
 
 /** A janela do app, achada pelo título (o mesmo caminho de `halo-tela`). */

@@ -17,8 +17,8 @@ const exec = promisify(execFile)
  * Troca o papel de parede da sessão do Plasma.
  *
  * EXCEÇÃO AUTORIZADA à regra "nunca escrever fora do app para conseguir um
- * efeito de sistema" (CLAUDE.md § Janela e camada). O usuário pediu
- * explicitamente que escolher um ambiente troque o papel de parede da máquina;
+ * efeito de sistema" (CLAUDE.md § Janela e camada): escolher um ambiente troca
+ * o papel de parede da máquina, com interruptor próprio;
  * é a ÚNICA coisa que o ambiente muda lá fora — o tema é da aplicação.
  *
  * O caminho é o `plasma-apply-wallpaperimage`, utilitário oficial do KDE
@@ -116,9 +116,8 @@ function origemEmbutida(relativo: string): string {
 /**
  * O plugin que toca VÍDEO como papel de parede.
  *
- * Pedido do usuário (13/09/2026): um ambiente pode ter um vídeo de fundo. O
- * plugin NÃO é do app — é o `org.local.videowallpaper`, que o usuário instalou
- * na pasta dele —, e por isso o Halo só o escolhe e aponta o arquivo, sem
+ * Um ambiente pode ter um vídeo de fundo. O plugin NÃO é do app — é o
+ * `org.local.videowallpaper`, instalado pelo usuário na pasta dele —, e por isso o Halo só o escolhe e aponta o arquivo, sem
  * nunca editar nem instalar o plugin. O contrato dele é uma chave só
  * (`Video`, uma URL `file://`); sem som, em loop e cobrindo a tela são fixos
  * no QML dele. Sem o plugin, a imagem do ambiente fica e a tela diz por quê.

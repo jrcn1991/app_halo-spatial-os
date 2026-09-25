@@ -3,17 +3,29 @@ import { ipcAgents } from './ipc/agents'
 import { ipcCatalog } from './ipc/catalog'
 import { ipcCreative } from './ipc/creative'
 import { ipcHomeFeed } from './ipc/home'
+import { ipcIslandSettings } from './ipc/island'
 import { ipcApps, ipcFiles, ipcLab, ipcPlayer, ipcProjects } from './ipc/lab'
+import { ipcMascot } from './ipc/mascot'
 import { ipcNews } from './ipc/news'
+import { ipcNotificacoes } from './ipc/notificacoes'
+import { ipcSeafile } from './ipc/seafile'
+import { ipcSystem, ipcWindow } from './ipc/sistema'
 import { ipcSpotify } from './ipc/spotify'
+import { ipcWallpaper } from './ipc/wallpaper'
 import { ipcWeather } from './ipc/weather'
 import { mockAgents } from './mock/agents'
 import { mockCatalog } from './mock/catalog'
 import { mockCreative } from './mock/creative'
 import { mockHomeFeed } from './mock/home'
+import { mockIslandSettings } from './mock/island'
 import { mockApps, mockFiles, mockLab, mockPlayer, mockProjects } from './mock/lab'
+import { mockMascot } from './mock/mascot'
 import { mockNews } from './mock/news'
+import { mockNotificacoes } from './mock/notificacoes'
+import { mockSeafile } from './mock/seafile'
+import { mockSystem, mockWindow } from './mock/sistema'
 import { mockSpotify } from './mock/spotify'
+import { mockWallpaper } from './mock/wallpaper'
 import { mockWeather } from './mock/weather'
 
 /**
@@ -47,4 +59,14 @@ export const repositories: Repositories = {
   // Dentro do app é a conta do usuário (ou o estado honesto de "falta
   // configurar"); fora dele, exemplo etiquetado — ver `mock/spotify.ts`.
   spotify: inApp ? ipcSpotify : mockSpotify,
+  // O que as telas de Configurações e do Claude pediam direto ao
+  // `window.halo`. Fora do app, os mocks respondem "não se sabe" (`null`) ou
+  // "cancelou" — nenhum inventa dado, e nenhum comando mexe em nada.
+  system: inApp ? ipcSystem : mockSystem,
+  window: inApp ? ipcWindow : mockWindow,
+  wallpaper: inApp ? ipcWallpaper : mockWallpaper,
+  seafile: inApp ? ipcSeafile : mockSeafile,
+  mascot: inApp ? ipcMascot : mockMascot,
+  islandSettings: inApp ? ipcIslandSettings : mockIslandSettings,
+  notificacoes: inApp ? ipcNotificacoes : mockNotificacoes,
 }

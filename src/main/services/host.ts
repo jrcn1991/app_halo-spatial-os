@@ -13,9 +13,8 @@ import { gpuStats } from './gpu'
  *
  * ## O histórico é colhido AQUI, e num ritmo só
  *
- * Os medidores da home podem mostrar o gráfico das últimas leituras (o usuário
- * pediu em 05/09/2026, depois de ter decidido o contrário: mudou de ideia ao
- * ver a referência do City Pop). O histórico mora no main, e não na tela, por
+ * Os medidores da home podem mostrar o gráfico das últimas leituras (como na
+ * referência do City Pop). O histórico mora no main, e não na tela, por
  * dois motivos medidos no desenho:
  *
  * - a tela remonta a cada troca de aba, e um histórico guardado nela nasceria
