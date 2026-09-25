@@ -83,7 +83,9 @@ one to be broken by mistake.
   at all; without one, the screen says where to configure it.
 - **Secrets don't travel as command-line arguments** (argv is readable in
   `/proc/<pid>/cmdline`): `paraRenderer`, in `src/main/window.ts`, strips the
-  tokens before the window receives them.
+  Spotify and Seafile tokens and the TMDB key before the window receives them.
+  When the screen needs to know a key exists, it gets a marker
+  (`TMDB_GUARDADA`), which `saveSettings` swaps back for the key on disk.
 - **Third-party logins open in the system browser**, via OAuth with PKCE — an
   app window asking for a password would be indistinguishable from phishing.
   Two exceptions, with constraints written in the code: the Seafile on the
@@ -92,6 +94,41 @@ one to be broken by mistake.
   platform's real page, in a window with the URL stamped in its title).
 - **Terms of use count as requirements**: the TMDB attribution never leaves the
   screen.
+
+### What comes from the screen is not trusted
+
+The renderer shows outside text (Social Arte pages, model replies, media
+metadata). If it is ever tricked, the main process is what stands between
+that and the machine. So every IPC channel treats its input as foreign:
+
+- **Every app window stays on its own origin.** `travarNavegacao`
+  (`src/main/navegacao.ts`) refuses `will-navigate` and `will-redirect` to
+  anything outside the app and denies new windows — otherwise dropping a link
+  on a window would take it to another page, and that page would inherit the
+  preload with all of the IPC. New windows go through it. The Social Arte
+  ones are left out on purpose: they navigate, so they have no preload.
+- **Opening an app or a path only with what main recognises.** `gio launch`
+  only takes a `.desktop` from the folders the app list reads
+  (`desktopConhecido`, in `services/apps.ts`); `gio open` only takes a
+  folder, an `http(s)` URL, a `mailto:` without attachments or a shelf item
+  (`abrirDoRenderer`, in `island/actions.ts`). Opening a FILE with its default
+  program is running it, and the app doesn't do that. Both put `--` before
+  the argument so it can never become an option.
+- **Paths from the screen are resolved before use.** Claude attachments,
+  uploads to Seafile and to the phone, and OCR go through `arquivoSolto`
+  (`services/arquivo-solto.ts`): absolute path, `realpath`, regular file,
+  outside `/proc`, `/sys` and `/dev`, with a size cap. The shelf only deletes
+  what is INSIDE it, comparing the folder of the resolved path — `startsWith`
+  let `..` through. The mascot is only read from the library.
+- **Outside URLs only through the network guard.** Everything main fetches
+  from an address it didn't choose (a pasted link, an MPRIS cover,
+  redirects) goes through `creative/rede.ts`: one list of forbidden ranges,
+  which also catches IPv4 hidden inside IPv6 (`::ffff:`, NAT64, 6to4), and
+  the checked IP is the connected IP — the `lookup` checks at connect time,
+  so the name can't switch addresses between the check and the fetch.
+- **The local socket is born closed.** The island API creates its socket
+  under `umask` 0177: it exists as 0600 from the start, with no window in
+  which another user could open it.
 
 ### CSS: three traps that have already cost dearly
 
@@ -120,7 +157,8 @@ Portuguese in the component itself, and that text is the translation key —
 - **Every string someone reads goes through `t()`** — labels, notices, empty
   states, `aria-label`, errors that reach the screen, main-process text (tray,
   island readings). `npm run i18n`, part of `check`, fails if a marked string
-  has no English.
+  has no English — and also if a translation is left over that no string uses.
+  Ternary plurals (`t(n === 1 ? 'a' : 'b')`) are read on both branches.
 - **What varies goes in via `{name}`**: `t('{n} títulos', { n })`. No `${…}`
   inside the key: word order changes between languages.
 - **Call `t()` at render time, never at module top level** — otherwise the
@@ -320,6 +358,13 @@ The rules that guide the work are at the start of this file, in
 
 ### Decisions that look like mistakes and aren't
 
+- **`overrides` in `package.json`, for packages the app never calls.**
+  `dbus-next` stopped at 0.10.2 and pins `xml2js` to a version with prototype
+  pollution — and it parses the XML that other processes on the D-Bus session
+  send. The override moves it to 0.6, same API. The `usocket` one (an optional
+  dependency of `dbus-next` that doesn't even get installed) removes an old
+  `node-gyp` tree from `npm audit`. When updating `dbus-next`, check whether
+  both are still needed.
 - **No global `box-sizing: border-box`.** The prototype runs on `content-box`:
   "panel 270×600 with padding 18px 16px" renders 304px wide, and the flex row
   still shrinks the three panels. Measured on the prototype: 297 / 733 / 278px

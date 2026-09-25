@@ -77,7 +77,9 @@ quebrada por engano.
   sem ela, a tela diz onde configurar.
 - **Segredo não viaja em argumento de linha de comando** (argv é legível em
   `/proc/<pid>/cmdline`): `paraRenderer`, em `src/main/window.ts`, tira os
-  tokens antes de a janela recebê-los.
+  tokens do Spotify e do Seafile e a chave do TMDB antes de a janela
+  recebê-los. Se a tela precisa saber que a chave existe, recebe uma marca
+  (`TMDB_GUARDADA`), que `saveSettings` troca de volta pela chave do disco.
 - **Login de terceiro abre no navegador do sistema**, por OAuth com PKCE —
   uma janela do app pedindo senha seria indistinguível de phishing. Duas
   exceções, com amarras escritas no código: o Seafile da rede local (a senha
@@ -85,6 +87,41 @@ quebrada por engano.
   a senha é a página de verdade da plataforma, numa janela com a URL carimbada
   no título).
 - **Termos de uso valem como requisito**: a atribuição do TMDB não sai da tela.
+
+### O que vem da tela não é de confiança
+
+O renderer mostra texto de fora (páginas da Social Arte, respostas de modelo,
+metadados de mídia). Se um dia ele for enganado, o main é o que separa esse
+engano da máquina. Por isso todo canal de IPC trata o que recebe como vindo
+de fora:
+
+- **Toda janela do app fica na própria origem.** `travarNavegacao`
+  (`src/main/navegacao.ts`) recusa `will-navigate` e `will-redirect` para
+  fora do app e nega janela nova — sem isso, soltar um link na janela a
+  levaria para outra página, e essa página herdaria o preload com todo o IPC.
+  Janela nova passa por ela. As da Social Arte ficam de fora de propósito:
+  elas navegam, e por isso não têm preload.
+- **Abrir app ou caminho só com o que o main reconhece.** `gio launch` só
+  recebe um `.desktop` que esteja nas pastas que a lista de aplicativos lê
+  (`desktopConhecido`, em `services/apps.ts`); `gio open` só recebe pasta,
+  URL `http(s)`, `mailto:` sem anexo ou item da gaveta
+  (`abrirDoRenderer`, em `island/actions.ts`). Abrir um ARQUIVO com o
+  programa padrão é executá-lo, e isso o app não faz. Os dois levam `--`
+  antes do argumento, para ele nunca virar opção.
+- **Caminho vindo da tela é resolvido antes de usado.** Anexo do Claude,
+  envio ao Seafile, ao celular e OCR passam por `arquivoSolto`
+  (`services/arquivo-solto.ts`): caminho absoluto, `realpath`, arquivo
+  comum, fora de `/proc`, `/sys` e `/dev`, com teto de tamanho. A gaveta só
+  apaga o que está DENTRO dela, comparando a pasta do caminho já resolvido —
+  `startsWith` deixava `..` passar. O mascote só é lido da biblioteca.
+- **URL de fora só pela trava de rede.** Tudo que o main busca num endereço
+  que não escolheu (link colado, capa do MPRIS, redirecionamentos) passa por
+  `creative/rede.ts`: uma lista só de faixas proibidas, que pega também o
+  IPv4 escondido num IPv6 (`::ffff:`, NAT64, 6to4), e o IP conferido é o IP
+  conectado — o `lookup` confere na hora da conexão, então o nome não pode
+  trocar de endereço entre a conferência e a busca.
+- **Socket local nasce fechado.** A API da ilha cria o socket com `umask`
+  0177: ele já existe como 0600, sem intervalo em que outro usuário o abra.
 
 ### CSS: três armadilhas que já custaram caro
 
@@ -112,7 +149,8 @@ português no próprio componente, e ele é a chave da tradução —
 - **Todo texto que alguém lê passa por `t()`** — rótulos, avisos, estados
   vazios, `aria-label`, erros que chegam à tela, textos do main (bandeja,
   leituras da ilha). `npm run i18n`, dentro do `check`, falha se um texto
-  marcado não tiver inglês.
+  marcado não tiver inglês — e também se sobrar tradução que nenhum texto usa.
+  Plural por ternário (`t(n === 1 ? 'a' : 'b')`) é lido nos dois braços.
 - **O que varia entra por `{nome}`**: `t('{n} títulos', { n })`. Nada de
   `${…}` dentro da chave: a ordem das palavras muda de uma língua para a outra.
 - **`t()` na hora de desenhar, nunca no topo do módulo** — senão a língua do
@@ -293,6 +331,13 @@ As regras que guiam o trabalho estão no começo deste arquivo, em
 
 ### Decisões que parecem erro e não são
 
+- **`overrides` no `package.json`, para pacotes que o app nem chama.** O
+  `dbus-next` parou na 0.10.2 e prende o `xml2js` numa versão com
+  *prototype pollution* — e ele lê o XML que outros processos da sessão D-Bus
+  mandam. O override sobe para a 0.6, com a mesma API. O do `usocket` (um
+  opcional do `dbus-next`, que nem chega a ser instalado) tira do
+  `npm audit` uma árvore antiga de `node-gyp`. Ao atualizar o `dbus-next`,
+  confira se os dois ainda são necessários.
 - **Sem `box-sizing: border-box` global.** O protótipo roda em `content-box`:
   "painel 270×600 com padding 18px 16px" renderiza 304px de largura, e a linha
   flex ainda encolhe os três painéis. Medido no protótipo: 297 / 733 / 278px na
