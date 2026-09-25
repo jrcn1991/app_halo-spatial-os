@@ -140,7 +140,7 @@ the notification bubbles and the wallpaper switch don't work.
 2. Install it:
 
    ```bash
-   sudo apt install ./halo-spatial-os_0.1.0_amd64.deb
+   sudo apt install ./halo-spatial-os_0.2.0_amd64.deb
    ```
 
 3. Open **Halo** from the application menu.

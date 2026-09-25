@@ -136,7 +136,7 @@ de notificação e a troca de papel de parede não funcionam.
 2. Instale:
 
    ```bash
-   sudo apt install ./halo-spatial-os_0.1.0_amd64.deb
+   sudo apt install ./halo-spatial-os_0.2.0_amd64.deb
    ```
 
 3. Abra o **Halo** pelo menu de aplicativos.
