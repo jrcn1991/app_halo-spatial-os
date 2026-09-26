@@ -2,13 +2,13 @@
   "name": "halo-spatial-os",
   "version": "0.2.2",
   "description": "Halo — Spatial OS. App desktop Linux (Electron) recriando o handoff design_handoff_halo_spatial_os.",
-  "homepage": "https://jrcn1991.github.io/halo-spatial-os/",
+  "homepage": "https://jrcn1991.github.io/app_halo-spatial-os/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jrcn1991/halo-spatial-os.git"
+    "url": "https://github.com/jrcn1991/app_halo-spatial-os.git"
   },
   "bugs": {
-    "url": "https://github.com/jrcn1991/halo-spatial-os/issues"
+    "url": "https://github.com/jrcn1991/app_halo-spatial-os/issues"
   },
   "main": "out/main/index.js",
   "type": "module",

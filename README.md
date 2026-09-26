@@ -13,8 +13,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/jrcn1991/halo-spatial-os/releases/latest"><img src="https://img.shields.io/badge/Download-.deb%20for%20Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white" alt="Download the .deb"></a>
-  <a href="https://jrcn1991.github.io/halo-spatial-os/"><img src="https://img.shields.io/badge/Visit-the%20website-7C5CFF?style=for-the-badge&logo=githubpages&logoColor=white" alt="Project website"></a>
+  <a href="https://github.com/jrcn1991/app_halo-spatial-os/releases/latest"><img src="https://img.shields.io/badge/Download-.deb%20for%20Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white" alt="Download the .deb"></a>
+  <a href="https://jrcn1991.github.io/app_halo-spatial-os/"><img src="https://img.shields.io/badge/Visit-the%20website-7C5CFF?style=for-the-badge&logo=githubpages&logoColor=white" alt="Project website"></a>
 </p>
 
 <p align="center">
@@ -26,9 +26,9 @@
 </p>
 
 <p align="center">
-  <a href="https://jrcn1991.github.io/halo-spatial-os/#passeio"><img src="site/assets/ambientes.gif" alt="Halo switching between its four environments: Cyberpunk, City Pop, Shock and Floresta" width="880"></a>
+  <a href="https://jrcn1991.github.io/app_halo-spatial-os/#passeio"><img src="site/assets/ambientes.gif" alt="Halo switching between its four environments: Cyberpunk, City Pop, Shock and Floresta" width="880"></a>
   <br>
-  <sub>▶ <a href="https://jrcn1991.github.io/halo-spatial-os/#passeio">Watch the full tour</a> — environments, island, launcher, notifications and every screen · <a href="https://jrcn1991.github.io/halo-spatial-os/#demo">Try the interactive demo</a> in your browser</sub>
+  <sub>▶ <a href="https://jrcn1991.github.io/app_halo-spatial-os/#passeio">Watch the full tour</a> — environments, island, launcher, notifications and every screen · <a href="https://jrcn1991.github.io/app_halo-spatial-os/#demo">Try the interactive demo</a> in your browser</sub>
 </p>
 
 <p align="center">
@@ -224,7 +224,7 @@ the notification bubbles and the wallpaper switch don't work.
 
 ## Installation
 
-1. Download the latest `.deb` from [Releases](https://github.com/jrcn1991/halo-spatial-os/releases/latest).
+1. Download the latest `.deb` from [Releases](https://github.com/jrcn1991/app_halo-spatial-os/releases/latest).
 2. Install it:
 
    ```bash
@@ -454,7 +454,7 @@ Halo wouldn't exist without these projects and works, which showed the way:
   surface, with live activities and system meters; this README's structure
   comes from it.
 - [**Notchy**](https://notchy.dev/) — the island as a complete product; its
-  website inspired [Halo's](https://jrcn1991.github.io/halo-spatial-os/).
+  website inspired [Halo's](https://jrcn1991.github.io/app_halo-spatial-os/).
 - [**dynamic-island-projects**](https://github.com/aeusteixeira/dynamic-island-projects)
   — projects and Claude Code sessions in a notch-style drop on Windows: the idea
   of bringing Claude into the pill.

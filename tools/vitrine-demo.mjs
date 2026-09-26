@@ -349,7 +349,7 @@ const HALO = String.raw`
     downloads: [],
     clips: [
       { id: 6, at: AGORA - 30_000, preview: 'sudo apt install ./halo-spatial-os_0.2.1_amd64.deb', length: 49, kind: 'texto', pinned: true },
-      { id: 5, at: AGORA - 90_000, preview: 'https://github.com/jrcn1991/halo-spatial-os', length: 43, kind: 'url', pinned: false },
+      { id: 5, at: AGORA - 90_000, preview: 'https://github.com/jrcn1991/app_halo-spatial-os', length: 43, kind: 'url', pinned: false },
       { id: 4, at: AGORA - 200_000, preview: '#61d19a', length: 7, kind: 'cor', pinned: false },
       { id: 3, at: AGORA - 400_000, preview: 'contato@exemplo.com', length: 19, kind: 'email', pinned: false },
       { id: 2, at: AGORA - 800_000, preview: 'Vidro, blur e o custo de compor em tempo real', length: 45, kind: 'texto', pinned: false },
@@ -364,7 +364,7 @@ const HALO = String.raw`
     { path: '/exemplo/briefing.pdf', name: 'briefing.pdf', exists: true, kind: 'arquivo' },
     { path: '/exemplo/paleta-floresta.png', name: 'paleta-floresta.png', exists: true, kind: 'arquivo' },
     { path: '/exemplo/trecho.txt', name: 'Trecho: a ilha abre ao passar o mouse', exists: true, kind: 'texto' },
-    { path: 'https://jrcn1991.github.io/halo-spatial-os/', name: 'jrcn1991.github.io/halo-spatial-os', exists: true, kind: 'url' },
+    { path: 'https://jrcn1991.github.io/app_halo-spatial-os/', name: 'jrcn1991.github.io/app_halo-spatial-os', exists: true, kind: 'url' },
   ]
   const janelas = [
     { id: 'w1', title: 'Documentação — Kate', appClass: 'org.kde.kate', minimized: false, active: true },
