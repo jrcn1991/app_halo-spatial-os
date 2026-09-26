@@ -156,12 +156,6 @@
   .dicas li b { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 8px; font: 600 13px var(--mono); background: var(--accent-soft); color: var(--accent); transition: color .8s, background .8s; }
   .dicas em { font-style: normal; color: var(--text); }
 
-  /* ——— A faixa corrida ——— */
-  .faixa { border-block: 1px solid var(--line); background: rgba(255,255,255,.02); overflow: hidden; padding: 16px 0; margin: 40px 0 0; mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); }
-  .faixa-trilho { display: flex; gap: 40px; width: max-content; animation: corre 42s linear infinite; }
-  .faixa span { font: 500 14px var(--mono); color: var(--muted); white-space: nowrap; display: inline-flex; align-items: center; gap: 40px; }
-  .faixa span::after { content: "✦"; color: var(--accent); transition: color .8s; }
-  @keyframes corre { to { transform: translateX(-50%); } }
 
   /* ——— Seções ——— */
   section { padding: 96px 0; }
@@ -192,7 +186,7 @@
     color: var(--muted); font-size: 15px;
   }
   .abas li b { color: var(--text); display: block; font-size: 15.5px; }
-  .abas li i { font-style: normal; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; background: var(--glass-2); font-size: 16px; }
+  .abas li i { color: var(--text); font-style: normal; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; background: var(--glass-2); font-size: 16px; }
   .abas li.acesa, .js .abas li.revela.visivel.acesa { background: var(--glass-2); border-color: var(--accent); transform: translateY(-4px); }
   .abas li.acesa i { background: var(--accent-soft); }
 
@@ -259,9 +253,19 @@
   .cartao::before { content: ""; position: absolute; inset: 0; opacity: 0; transition: opacity .3s; background: radial-gradient(320px circle at var(--mx, 50%) var(--my, 50%), var(--accent-soft), transparent 60%); pointer-events: none; }
   .cartao:hover::before { opacity: 1; }
   .cartao:hover { border-color: var(--line-2); transform: translateY(-3px); }
-  .cartao .icone { font-size: 22px; width: 46px; height: 46px; display: grid; place-items: center; border-radius: 14px; background: var(--accent-soft); margin-bottom: 16px; transition: background .8s; }
+  .cartao .icone { color: var(--accent); font-size: 22px; width: 46px; height: 46px; display: grid; place-items: center; border-radius: 14px; background: var(--accent-soft); margin-bottom: 16px; transition: background .8s; }
   .cartao h3 { margin: 0 0 6px; font-size: 18px; }
   .cartao p { margin: 0; color: var(--muted); font-size: 15px; }
+
+  .faixa-numeros { margin-top: 56px; }
+  /* Posições da navegação: botões que trocam a captura. */
+  .nav-opcoes { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 26px 0 18px; }
+  .nav-opcoes button { font: 500 14.5px var(--sans, inherit); color: var(--muted); background: var(--glass); border: 1px solid var(--line); border-radius: 999px; padding: 9px 18px; cursor: pointer; transition: color .25s, background .25s, border-color .25s; }
+  .nav-opcoes button:hover { color: var(--text); }
+  .nav-opcoes button[aria-pressed="true"] { color: var(--text); background: var(--accent-soft); border-color: var(--accent); }
+  .nav-quadro img { width: 100%; display: block; transition: opacity .25s; }
+  .nav-quadro img.trocando { opacity: 0; }
+  .i-info { color: var(--accent); display: inline-grid; }
 
   .numeros { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
   .numero { text-align: center; padding: 30px 12px; border-radius: var(--radius); background: var(--glass); border: 1px solid var(--line); }
@@ -345,7 +349,6 @@
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
     .revela, .sobe { opacity: 1 !important; transform: none !important; }
-    .faixa-trilho { transform: none; }
   }
 </style>
 </head>
@@ -382,7 +385,7 @@
   </p>
   <div class="ctas sobe" style="--d:4">
     <a class="botao primario" href="https://github.com/jrcn1991/halo-spatial-os/releases/latest"><span lang="pt">Baixar o .deb</span><span lang="en">Download the .deb</span></a>
-    <a class="botao" href="#passeio"><span lang="pt">▶ Assistir ao passeio</span><span lang="en">▶ Watch the tour</span></a>
+    <a class="botao" href="#demo"><span lang="pt">Experimentar a demo</span><span lang="en">Try the demo</span></a>
   </div>
   <div class="selos sobe" style="--d:5">
     <span class="selo">v0.2.1</span>
@@ -411,25 +414,27 @@
     <li><b>1</b><span lang="pt">Passe o mouse na <em>pílula</em> do topo — a ilha abre, com as abas.</span><span lang="en">Hover the <em>pill</em> up top — the island opens, tabs and all.</span></li>
     <li><b>2</b><span lang="pt">Na Início, clique num <em>ambiente</em>: muda o tema e o papel de parede.</span><span lang="en">On Home, click an <em>environment</em>: theme and wallpaper change.</span></li>
     <li><b>3</b><span lang="pt"><em>Ctrl+K</em> abre o lançador: tente <code>15% de 240</code>, <code>30c em f</code>, <code>:coracao</code>.</span><span lang="en"><em>Ctrl+K</em> opens the launcher: try <code>15% of 240</code>, <code>30c in f</code>, <code>:heart</code>.</span></li>
-    <li><b>4</b><span lang="pt">O dock embaixo passa pelas oito telas. Nada aqui é da máquina de ninguém.</span><span lang="en">The dock below walks the eight screens. Nothing here is from anyone's machine.</span></li>
+    <li><b>4</b><span lang="pt">Use o dock embaixo para passar pelas oito telas. Todos os dados são de exemplo.</span><span lang="en">Use the dock below to go through the eight screens. All the data is made up.</span></li>
   </ul>
 </div>
 
-<div class="faixa" aria-hidden="true">
-  <div class="faixa-trilho">
-    <span>Ilha dinâmica</span><span>Meta+V</span><span>Floresta</span><span>City Pop</span><span>Cyberpunk</span><span>Shock</span><span>Claude Code</span><span>Spotify · MPRIS</span><span>M3U + TMDB</span><span>Docker</span><span>Git</span><span>KDE Connect</span><span>OCR</span><span>Balões do tema</span><span>Meta+Espaço</span>
-    <span>Ilha dinâmica</span><span>Meta+V</span><span>Floresta</span><span>City Pop</span><span>Cyberpunk</span><span>Shock</span><span>Claude Code</span><span>Spotify · MPRIS</span><span>M3U + TMDB</span><span>Docker</span><span>Git</span><span>KDE Connect</span><span>OCR</span><span>Balões do tema</span><span>Meta+Espaço</span>
+<section class="wrap faixa-numeros">
+  <div class="numeros">
+    <div class="numero revela" style="--d:0"><b data-conta="8">8</b><span lang="pt">telas</span><span lang="en">screens</span></div>
+    <div class="numero revela" style="--d:1"><b data-conta="4">4</b><span lang="pt">ambientes</span><span lang="en">environments</span></div>
+    <div class="numero revela" style="--d:2"><b data-conta="141">141</b><span lang="pt">integrações na ilha</span><span lang="en">island integrations</span></div>
+    <div class="numero revela" style="--d:3"><b data-conta="0">0</b><span lang="pt">contas para criar</span><span lang="en">accounts to create</span></div>
   </div>
-</div>
+</section>
 
 <!-- ——— A ilha ——— -->
 <section id="ilha" class="wrap">
   <div class="titulo revela">
     <div class="eyebrow"><span lang="pt">A ilha</span><span lang="en">The island</span></div>
-    <h2><span lang="pt">O notch que o Linux não tem.</span><span lang="en">The notch Linux never had.</span></h2>
+    <h2><span lang="pt">Uma ilha no topo da tela.</span><span lang="en">An island at the top of the screen.</span></h2>
     <p>
-      <span lang="pt">Uma pílula sobre o painel do Plasma que anuncia, mostra a música com o espectro de verdade e abre ao passar o mouse. Nasce <b>ligada</b>, e o Meta+Espaço recolhe o app inteiro para dentro dela.</span>
-      <span lang="en">A pill on top of the Plasma panel that announces, shows the music with the real spectrum and opens on hover. It's <b>on by default</b>, and Meta+Space folds the whole app into it.</span>
+      <span lang="pt">Uma pílula sobre o painel do Plasma que mostra avisos e a música que está tocando, e abre quando você passa o mouse. Ela já vem <b>ligada</b>, e o Meta+Espaço mostra e esconde a janela do Halo.</span>
+      <span lang="en">A pill on top of the Plasma panel that shows notices and what's playing, and opens when you hover it. It comes <b>turned on</b>, and Meta+Space shows and hides the Halo window.</span>
     </p>
   </div>
   <div class="moldura ilha-video revela">
@@ -437,14 +442,14 @@
     <span class="selo-canto"><span lang="pt">dados de exemplo</span><span lang="en">demo data</span></span>
   </div>
   <ul class="abas" id="abas">
-    <li class="revela" style="--d:0"><i>⌂</i><div><b><span lang="pt">Início</span><span lang="en">Home</span></b><span lang="pt">Player, conexões, atalhos, temporizadores e o campo do lançador.</span><span lang="en">Player, connections, shortcuts, timers and the launcher field.</span></div></li>
-    <li class="revela" style="--d:1"><i>▦</i><div><b><span lang="pt">Painéis</span><span lang="en">Panels</span></b><span lang="pt">Sistema, GPU, áudio, rede, discos, celular, foco.</span><span lang="en">System, GPU, audio, network, disks, phone, focus.</span></div></li>
-    <li class="revela" style="--d:2"><i>✳</i><div><b>Claude</b><span lang="pt">Pergunte com <code>?</code> e aprove na pílula.</span><span lang="en">Ask with <code>?</code> and approve in the pill.</span></div></li>
-    <li class="revela" style="--d:3"><i>⤓</i><div><b><span lang="pt">Gaveta</span><span lang="en">Drawer</span></b><span lang="pt">Solte arquivos, links e texto na pílula.</span><span lang="en">Drop files, links and text on the pill.</span></div></li>
-    <li class="revela" style="--d:0"><i>▢</i><div><b><span lang="pt">Janelas</span><span lang="en">Windows</span></b><span lang="pt">Guarde uma janela — ela voa para a ilha.</span><span lang="en">Put a window away — it flies into the island.</span></div></li>
-    <li class="revela" style="--d:1"><i>🔔</i><div><b><span lang="pt">Avisos</span><span lang="en">Notices</span></b><span lang="pt">As últimas notificações do sistema.</span><span lang="en">The latest system notifications.</span></div></li>
-    <li class="revela" style="--d:2"><i>⎘</i><div><b><span lang="pt">Cópias</span><span lang="en">Copies</span></b><span lang="pt">O histórico da área de transferência, com ações para links, cores e e-mails.</span><span lang="en">Clipboard history, with actions for links, colors and e-mails.</span></div></li>
-    <li class="revela" style="--d:3"><i>✎</i><div><b><span lang="pt">Nota</span><span lang="en">Note</span></b><span lang="pt">Uma nota rápida que sobrevive ao reinício.</span><span lang="en">A quick note that survives restarts.</span></div></li>
+    <li class="revela" style="--d:0"><i><svg viewBox="0 0 256 256" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M219.31,108.68l-80-80a16,16,0,0,0-22.62,0l-80,80A15.87,15.87,0,0,0,32,120v96a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V160h32v56a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V120A15.87,15.87,0,0,0,219.31,108.68ZM208,208H160V152a8,8,0,0,0-8-8H104a8,8,0,0,0-8,8v56H48V120l80-80,80,80Z"/></svg></i><div><b><span lang="pt">Início</span><span lang="en">Home</span></b><span lang="pt">Player, conexões, atalhos, temporizadores e o campo do lançador.</span><span lang="en">Player, connections, shortcuts, timers and the launcher field.</span></div></li>
+    <li class="revela" style="--d:1"><i><svg viewBox="0 0 256 256" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M104,40H56A16,16,0,0,0,40,56v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V56A16,16,0,0,0,104,40Zm0,64H56V56h48v48Zm96-64H152a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V56A16,16,0,0,0,200,40Zm0,64H152V56h48v48Zm-96,32H56a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V152A16,16,0,0,0,104,136Zm0,64H56V152h48v48Zm96-64H152a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V152A16,16,0,0,0,200,136Zm0,64H152V152h48v48Z"/></svg></i><div><b><span lang="pt">Painéis</span><span lang="en">Panels</span></b><span lang="pt">Sistema, GPU, áudio, rede, discos, celular, foco.</span><span lang="en">System, GPU, audio, network, disks, phone, focus.</span></div></li>
+    <li class="revela" style="--d:2"><i><svg viewBox="0 0 256 256" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M197.58,129.06,146,110l-19-51.62a15.92,15.92,0,0,0-29.88,0L78,110l-51.62,19a15.92,15.92,0,0,0,0,29.88L78,178l19,51.62a15.92,15.92,0,0,0,29.88,0L146,178l51.62-19a15.92,15.92,0,0,0,0-29.88ZM137,164.22a8,8,0,0,0-4.74,4.74L112,223.85,91.78,169A8,8,0,0,0,87,164.22L32.15,144,87,123.78A8,8,0,0,0,91.78,119L112,64.15,132.22,119a8,8,0,0,0,4.74,4.74L191.85,144ZM144,40a8,8,0,0,1,8-8h16V16a8,8,0,0,1,16,0V32h16a8,8,0,0,1,0,16H184V64a8,8,0,0,1-16,0V48H152A8,8,0,0,1,144,40ZM248,88a8,8,0,0,1-8,8h-8v8a8,8,0,0,1-16,0V96h-8a8,8,0,0,1,0-16h8V72a8,8,0,0,1,16,0v8h8A8,8,0,0,1,248,88Z"/></svg></i><div><b>Claude</b><span lang="pt">Pergunte com <code>?</code> e aprove na pílula.</span><span lang="en">Ask with <code>?</code> and approve in the pill.</span></div></li>
+    <li class="revela" style="--d:3"><i><svg viewBox="0 0 256 256" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M208,32H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32Zm0,16V152h-28.7A15.86,15.86,0,0,0,168,156.69L148.69,176H107.31L88,156.69A15.86,15.86,0,0,0,76.69,152H48V48Zm0,160H48V168H76.69L96,187.31A15.86,15.86,0,0,0,107.31,192h41.38A15.86,15.86,0,0,0,160,187.31L179.31,168H208v40Z"/></svg></i><div><b><span lang="pt">Gaveta</span><span lang="en">Drawer</span></b><span lang="pt">Solte arquivos, links e texto na pílula.</span><span lang="en">Drop files, links and text on the pill.</span></div></li>
+    <li class="revela" style="--d:0"><i><svg viewBox="0 0 256 256" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M216,40H72A16,16,0,0,0,56,56V72H40A16,16,0,0,0,24,88V200a16,16,0,0,0,16,16H184a16,16,0,0,0,16-16V184h16a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM184,88v16H40V88Zm0,112H40V120H184v80Zm32-32H200V88a16,16,0,0,0-16-16H72V56H216Z"/></svg></i><div><b><span lang="pt">Janelas</span><span lang="en">Windows</span></b><span lang="pt">Guarde uma janela — ela voa para a ilha.</span><span lang="en">Put a window away — it flies into the island.</span></div></li>
+    <li class="revela" style="--d:1"><i><svg viewBox="0 0 256 256" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M221.8,175.94C216.25,166.38,208,139.33,208,104a80,80,0,1,0-160,0c0,35.34-8.26,62.38-13.81,71.94A16,16,0,0,0,48,200H88.81a40,40,0,0,0,78.38,0H208a16,16,0,0,0,13.8-24.06ZM128,216a24,24,0,0,1-22.62-16h45.24A24,24,0,0,1,128,216ZM48,184c7.7-13.24,16-43.92,16-80a64,64,0,1,1,128,0c0,36.05,8.28,66.73,16,80Z"/></svg></i><div><b><span lang="pt">Avisos</span><span lang="en">Notices</span></b><span lang="pt">As últimas notificações do sistema.</span><span lang="en">The latest system notifications.</span></div></li>
+    <li class="revela" style="--d:2"><i><svg viewBox="0 0 256 256" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M168,152a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,152Zm-8-40H96a8,8,0,0,0,0,16h64a8,8,0,0,0,0-16Zm56-64V216a16,16,0,0,1-16,16H56a16,16,0,0,1-16-16V48A16,16,0,0,1,56,32H92.26a47.92,47.92,0,0,1,71.48,0H200A16,16,0,0,1,216,48ZM96,64h64a32,32,0,0,0-64,0ZM200,48H173.25A47.93,47.93,0,0,1,176,64v8a8,8,0,0,1-8,8H88a8,8,0,0,1-8-8V64a47.93,47.93,0,0,1,2.75-16H56V216H200Z"/></svg></i><div><b><span lang="pt">Cópias</span><span lang="en">Copies</span></b><span lang="pt">O histórico da área de transferência, com ações para links, cores e e-mails.</span><span lang="en">Clipboard history, with actions for links, colors and e-mails.</span></div></li>
+    <li class="revela" style="--d:3"><i><svg viewBox="0 0 256 256" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M229.66,58.34l-32-32a8,8,0,0,0-11.32,0l-96,96A8,8,0,0,0,88,128v32a8,8,0,0,0,8,8h32a8,8,0,0,0,5.66-2.34l96-96A8,8,0,0,0,229.66,58.34ZM124.69,152H104V131.31l64-64L188.69,88ZM200,76.69,179.31,56,192,43.31,212.69,64ZM224,128v80a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V48A16,16,0,0,1,48,32h80a8,8,0,0,1,0,16H48V208H208V128a8,8,0,0,1,16,0Z"/></svg></i><div><b><span lang="pt">Nota</span><span lang="en">Note</span></b><span lang="pt">Uma nota rápida que sobrevive ao reinício.</span><span lang="en">A quick note that survives restarts.</span></div></li>
   </ul>
 </section>
 
@@ -459,10 +464,10 @@
     </div>
     <div class="revela de-lado">
       <div class="eyebrow"><span lang="pt">O lançador</span><span lang="en">The launcher</span></div>
-      <h2><span lang="pt">Um campo resolve.</span><span lang="en">One field does it.</span></h2>
+      <h2><span lang="pt">Apps, contas e buscas no Meta+V.</span><span lang="en">Apps, math and search on Meta+V.</span></h2>
       <p class="texto">
-        <span lang="pt">Apps, comandos, contas, conversões, emoji, busca na web e janelas — no Meta+V, vestido pelo ambiente, e no campo da ilha, que é o mesmo motor.</span>
-        <span lang="en">Apps, commands, math, conversions, emoji, web search and windows — on Meta+V, dressed by the environment, and in the island's field, which is the same engine.</span>
+        <span lang="pt">Digite o nome de um app, uma conta, uma conversão, um emoji ou uma busca na web. O mesmo lançador abre no Meta+V e no campo da ilha, com as cores do ambiente escolhido.</span>
+        <span lang="en">Type an app name, a sum, a conversion, an emoji or a web search. The same launcher opens on Meta+V and in the island's field, in the colors of the chosen environment.</span>
       </p>
       <div class="campo-demo" aria-hidden="true">
         <div class="linha-campo">
@@ -479,14 +484,14 @@
 <section id="ambientes" class="wrap">
   <div class="titulo revela">
     <div class="eyebrow"><span lang="pt">Ambientes</span><span lang="en">Environments</span></div>
-    <h2><span lang="pt">Quatro roupas. Um clique.</span><span lang="en">Four outfits. One click.</span></h2>
-    <p><span lang="pt">Um ambiente é o tema do app mais o papel de parede da sessão — imagem ou vídeo. Painéis, fontes, dock, lançador e balões mudam juntos, e o seu fundo original fica guardado.</span><span lang="en">An environment is the app's theme plus your session wallpaper — image or video. Panels, fonts, dock, launcher and bubbles change together, and your original wallpaper is kept.</span></p>
-    <p style="margin-top:10px"><span lang="pt">Clique num cartão: ele veste a demo lá em cima.</span><span lang="en">Click a card: it dresses the demo up top.</span></p>
+    <h2><span lang="pt">Quatro temas, um clique.</span><span lang="en">Four themes, one click.</span></h2>
+    <p><span lang="pt">Cada ambiente muda o tema do Halo e o papel de parede do computador, com imagem ou vídeo. Painéis, fontes, dock, lançador e notificações mudam juntos, e o seu papel de parede original fica guardado.</span><span lang="en">Each environment changes Halo's theme and your desktop wallpaper, image or video. Panels, fonts, dock, launcher and notifications change together, and your original wallpaper is kept.</span></p>
+    <p style="margin-top:10px"><span lang="pt">Clique num cartão para aplicar o tema na demo lá em cima.</span><span lang="en">Click a card to apply it to the demo up top.</span></p>
   </div>
   <div class="ambientes">
-    <button class="amb revela" style="--d:0;--c:#61d19a" data-env="floresta"><img src="assets/home-floresta.jpg" alt="" loading="lazy"><div class="nome"><div class="cores"><i style="background:#61d19a"></i><i style="background:#b98cff"></i><i style="background:#f2a65a"></i></div><b>Floresta</b><span lang="pt">O vidro do handoff, na mata.</span><span lang="en">The original glass, in the woods.</span></div></button>
+    <button class="amb revela" style="--d:0;--c:#61d19a" data-env="floresta"><img src="assets/home-floresta.jpg" alt="" loading="lazy"><div class="nome"><div class="cores"><i style="background:#61d19a"></i><i style="background:#b98cff"></i><i style="background:#f2a65a"></i></div><b>Floresta</b><span lang="pt">Vidro claro sobre a floresta.</span><span lang="en">Clear glass over the forest.</span></div></button>
     <button class="amb revela" style="--d:1;--c:#4fd8ff" data-env="citypop"><img src="assets/home-citypop.jpg" alt="" loading="lazy"><div class="nome"><div class="cores"><i style="background:#ff5fa2"></i><i style="background:#4fd8ff"></i><i style="background:#ffd166"></i></div><b>City Pop</b><span lang="pt">Anos 80, beira-mar, néon.</span><span lang="en">The 80s, seaside, neon.</span></div></button>
-    <button class="amb revela" style="--d:2;--c:#f75049" data-env="cyberpunk"><img src="assets/home-cyberpunk.jpg" alt="" loading="lazy"><div class="nome"><div class="cores"><i style="background:#fcee0a"></i><i style="background:#02d7f2"></i><i style="background:#f75049"></i></div><b>Cyberpunk</b><span lang="pt">Chanfros, amarelo e chuva.</span><span lang="en">Chamfers, yellow and rain.</span></div></button>
+    <button class="amb revela" style="--d:2;--c:#f75049" data-env="cyberpunk"><img src="assets/home-cyberpunk.jpg" alt="" loading="lazy"><div class="nome"><div class="cores"><i style="background:#fcee0a"></i><i style="background:#02d7f2"></i><i style="background:#f75049"></i></div><b>Cyberpunk</b><span lang="pt">Cantos cortados, amarelo e chuva.</span><span lang="en">Cut corners, yellow and rain.</span></div></button>
     <button class="amb revela" style="--d:3;--c:#d9a441" data-env="bioshock"><img src="assets/home-bioshock.jpg" alt="" loading="lazy"><div class="nome"><div class="cores"><i style="background:#9ee6e0"></i><i style="background:#d9a441"></i><i style="background:#2f6f5e"></i></div><b>Shock</b><span lang="pt">Art déco no fundo do mar.</span><span lang="en">Art deco under the sea.</span></div></button>
   </div>
 </section>
@@ -496,10 +501,10 @@
   <div class="lado">
     <div class="revela de-lado">
       <div class="eyebrow"><span lang="pt">Notificações</span><span lang="en">Notifications</span></div>
-      <h2><span lang="pt">Até o balão veste o tema.</span><span lang="en">Even the bubble wears the theme.</span></h2>
+      <h2><span lang="pt">Notificações no estilo do tema.</span><span lang="en">Notifications in the theme's style.</span></h2>
       <p class="texto">
-        <span lang="pt">O Plasma continua servidor; o Halo vira vigia, esconde os balões dele e desenha os seus, com o vidro, as fontes e a entrada do ambiente. Clicar numa ação volta ao app que mandou, e fechar o Halo devolve os balões na hora. Ligue em Configurações → Notificações.</span>
-        <span lang="en">Plasma stays the server; Halo becomes a watcher, hides its bubbles and draws its own, with the environment's glass, fonts and entrance. Clicking an action goes back to the app that sent it, and closing Halo gives the bubbles back at once. Turn it on in Settings → Notifications.</span>
+        <span lang="pt">O Halo pode desenhar as notificações do sistema com as cores, as fontes e a animação do ambiente escolhido. O Plasma continua cuidando delas: clicar numa ação abre o app que enviou, e se o Halo fechar as notificações normais do Plasma voltam na hora. Ative em Configurações → Notificações.</span>
+        <span lang="en">Halo can draw system notifications with the colors, fonts and animation of the chosen environment. Plasma still handles them: clicking an action opens the app that sent it, and if Halo closes, Plasma's own notifications come back right away. Turn it on in Settings → Notifications.</span>
       </p>
     </div>
     <div class="revela" style="--d:1">
@@ -521,7 +526,7 @@
   <div class="titulo revela">
     <div class="eyebrow"><span lang="pt">As telas</span><span lang="en">The screens</span></div>
     <h2><span lang="pt">Oito telas, três painéis cada.</span><span lang="en">Eight screens, three panels each.</span></h2>
-    <p><span lang="pt">Cada uma entra com a animação dela. Clique numa imagem para ver de perto.</span><span lang="en">Each one comes in with its own animation. Click an image to see it up close.</span></p>
+    <p><span lang="pt">Cada tela tem a sua animação de entrada. Clique numa imagem para ampliar.</span><span lang="en">Each screen has its own entrance animation. Click an image to enlarge it.</span></p>
   </div>
   <div class="moldura revela">
     <video class="auto" muted loop playsinline preload="none" poster="assets/telas.jpg" data-src="assets/telas.mp4" aria-label="Passando pelas oito telas"></video>
@@ -538,40 +543,51 @@
   </div>
 </section>
 
+<!-- ——— Navegação ——— -->
+<section id="navegacao" class="wrap">
+  <div class="titulo revela">
+    <div class="eyebrow"><span lang="pt">Navegação</span><span lang="en">Navigation</span></div>
+    <h2><span lang="pt">A navegação onde você preferir.</span><span lang="en">Navigation where you prefer.</span></h2>
+    <p><span lang="pt">O dock pode ficar embaixo, em cima ou nas laterais da janela, ou embutido no painel central. A escolha fica em Configurações → Aparência.</span><span lang="en">The dock can sit at the bottom, the top or either side of the window, or inside the center panel. Pick it in Settings → Appearance.</span></p>
+  </div>
+  <div class="nav-opcoes revela" role="group" aria-label="Posição da navegação">
+    <button type="button" data-nav="base" aria-pressed="true"><span lang="pt">Embaixo</span><span lang="en">Bottom</span></button>
+    <button type="button" data-nav="topo" aria-pressed="false"><span lang="pt">Em cima</span><span lang="en">Top</span></button>
+    <button type="button" data-nav="esquerda" aria-pressed="false"><span lang="pt">Esquerda</span><span lang="en">Left</span></button>
+    <button type="button" data-nav="direita" aria-pressed="false"><span lang="pt">Direita</span><span lang="en">Right</span></button>
+    <button type="button" data-nav="embutida" aria-pressed="false"><span lang="pt">Embutida</span><span lang="en">Embedded</span></button>
+  </div>
+  <div class="moldura nav-quadro revela">
+    <img id="nav-img" src="assets/nav-base.jpg" alt="A janela do Halo com a navegação embaixo" loading="lazy">
+  </div>
+</section>
+
 <!-- ——— Recursos ——— -->
 <section id="recursos" class="wrap">
   <div class="titulo revela">
     <div class="eyebrow"><span lang="pt">Recursos</span><span lang="en">Features</span></div>
-    <h2><span lang="pt">Tudo o que a sua máquina já sabe, num lugar só.</span><span lang="en">Everything your machine already knows, in one place.</span></h2>
-    <p><span lang="pt">Os dados são os seus, lidos daqui mesmo: sem conta, sem servidor, sem nada inventado.</span><span lang="en">The data is yours, read right here: no account, no server, nothing made up.</span></p>
+    <h2><span lang="pt">O que já está no seu computador, num lugar só.</span><span lang="en">What's already on your computer, in one place.</span></h2>
+    <p><span lang="pt">Tudo é lido do seu próprio computador, sem conta e sem servidor.</span><span lang="en">Everything is read from your own computer, with no account and no server.</span></p>
   </div>
   <div class="grade">
-    <div class="cartao revela" style="--d:0"><div class="icone">🪟</div><h3><span lang="pt">Janela que não cobre nada</span><span lang="en">A window that covers nothing</span></h3><p><span lang="pt">Mora na camada do papel de parede, fora da barra de tarefas. Nasce recolhida e volta pela ilha, pela bandeja ou por Meta+Espaço.</span><span lang="en">Lives on the wallpaper layer, out of the taskbar. Starts collapsed and comes back from the island, the tray or Meta+Space.</span></p></div>
-    <div class="cartao revela" style="--d:1"><div class="icone">🎵</div><h3><span lang="pt">Spotify sem configurar</span><span lang="en">Spotify with no setup</span></h3><p><span lang="pt">Com o app do Spotify aberto, o "tocando agora" e os comandos já funcionam, pelo MPRIS. A API só entra para playlists e outros aparelhos.</span><span lang="en">With the Spotify app open, now playing and the controls just work, over MPRIS. The API is only for playlists and other devices.</span></p></div>
-    <div class="cartao revela" style="--d:2"><div class="icone">📈</div><h3><span lang="pt">Medidores de verdade</span><span lang="en">Real meters</span></h3><p><span lang="pt">CPU, memória, GPU e temperatura, com histórico, lidos por um relógio só para não pesar.</span><span lang="en">CPU, memory, GPU and temperature, with history, read by a single clock to stay light.</span></p></div>
-    <div class="cartao revela" style="--d:3"><div class="icone">✳️</div><h3>Claude Code</h3><p><span lang="pt">Um agente por projeto, com histórico e anexos. O CLI é instalado à parte — sem ele, a tela avisa e mostra onde configurar.</span><span lang="en">One agent per project, with history and attachments. The CLI is installed separately — without it, the screen tells you where to set it up.</span></p></div>
-    <div class="cartao revela" style="--d:0"><div class="icone">🧞</div><h3><span lang="pt">Mascote clássico</span><span lang="en">Classic mascot</span></h3><p><span lang="pt">Genie, Merlin ou Clippit reagindo ao que os agentes fazem — personagens <code>.acs</code> do Microsoft Agent, que você traz.</span><span lang="en">Genie, Merlin or Clippit reacting to what agents do — Microsoft Agent <code>.acs</code> characters you bring.</span></p></div>
-    <div class="cartao revela" style="--d:1"><div class="icone">🎬</div><h3><span lang="pt">Sua biblioteca</span><span lang="en">Your library</span></h3><p><span lang="pt">Sua lista M3U vira catálogo com favoritos e "continuar assistindo", e um player que fica por cima.</span><span lang="en">Your M3U list becomes a catalog with favorites and "continue watching", and a player that stays on top.</span></p></div>
-    <div class="cartao revela" style="--d:2"><div class="icone">🐳</div><h3>Home Lab</h3><p><span lang="pt">Containers do Docker, serviços com latência medida e a saúde da máquina.</span><span lang="en">Docker containers, services with measured latency and the machine's health.</span></p></div>
-    <div class="cartao revela" style="--d:3"><div class="icone">📰</div><h3><span lang="pt">Leitura na Início</span><span lang="en">Reading on Home</span></h3><p><span lang="pt">Feeds RSS que você escolhe — nasce com Tecnoblog, CNN Brasil e BBC World.</span><span lang="en">RSS feeds of your choice — starts with Tecnoblog, CNN Brasil and BBC World.</span></p></div>
+    <div class="cartao revela" style="--d:0"><div class="icone"><svg viewBox="0 0 256 256" width="24" height="24" fill="currentColor" aria-hidden="true"><path d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,160H40V56H216V200ZM80,84A12,12,0,1,1,68,72,12,12,0,0,1,80,84Zm40,0a12,12,0,1,1-12-12A12,12,0,0,1,120,84Z"/></svg></div><h3><span lang="pt">Fica atrás das outras janelas</span><span lang="en">Stays behind your other windows</span></h3><p><span lang="pt">A janela fica junto do papel de parede e fora da barra de tarefas. Abre escondida e aparece pela ilha, pelo ícone na bandeja ou pelo Meta+Espaço.</span><span lang="en">The window sits with the wallpaper, out of the taskbar. It opens hidden and shows up from the island, the tray icon or Meta+Space.</span></p></div>
+    <div class="cartao revela" style="--d:1"><div class="icone"><svg viewBox="0 0 256 256" width="24" height="24" fill="currentColor" aria-hidden="true"><path d="M212.92,17.69a8,8,0,0,0-6.86-1.45l-128,32A8,8,0,0,0,72,56V166.08A36,36,0,1,0,88,196V110.25l112-28v51.83A36,36,0,1,0,216,164V24A8,8,0,0,0,212.92,17.69ZM52,216a20,20,0,1,1,20-20A20,20,0,0,1,52,216ZM88,93.75V62.25l112-28v31.5ZM180,184a20,20,0,1,1,20-20A20,20,0,0,1,180,184Z"/></svg></div><h3><span lang="pt">Spotify sem configurar</span><span lang="en">Spotify with no setup</span></h3><p><span lang="pt">Com o app do Spotify aberto, a música tocando e os controles já funcionam. A conexão com a API só é preciso para ver playlists e controlar outros aparelhos.</span><span lang="en">With the Spotify app open, what's playing and the controls already work. Connecting the API is only needed for playlists and other devices.</span></p></div>
+    <div class="cartao revela" style="--d:2"><div class="icone"><svg viewBox="0 0 256 256" width="24" height="24" fill="currentColor" aria-hidden="true"><path d="M232,208a8,8,0,0,1-8,8H32a8,8,0,0,1-8-8V48a8,8,0,0,1,16,0v94.37L90.73,98a8,8,0,0,1,10.07-.38l58.81,44.11L218.73,90a8,8,0,1,1,10.54,12l-64,56a8,8,0,0,1-10.07.38L96.39,114.29,40,163.63V200H224A8,8,0,0,1,232,208Z"/></svg></div><h3><span lang="pt">Medidores de verdade</span><span lang="en">Real meters</span></h3><p><span lang="pt">CPU, memória, GPU e temperatura, com gráfico do histórico e sem pesar no computador.</span><span lang="en">CPU, memory, GPU and temperature, with a history graph and without slowing your computer down.</span></p></div>
+    <div class="cartao revela" style="--d:3"><div class="icone"><svg viewBox="0 0 256 256" width="24" height="24" fill="currentColor" aria-hidden="true"><path d="M197.58,129.06,146,110l-19-51.62a15.92,15.92,0,0,0-29.88,0L78,110l-51.62,19a15.92,15.92,0,0,0,0,29.88L78,178l19,51.62a15.92,15.92,0,0,0,29.88,0L146,178l51.62-19a15.92,15.92,0,0,0,0-29.88ZM137,164.22a8,8,0,0,0-4.74,4.74L112,223.85,91.78,169A8,8,0,0,0,87,164.22L32.15,144,87,123.78A8,8,0,0,0,91.78,119L112,64.15,132.22,119a8,8,0,0,0,4.74,4.74L191.85,144ZM144,40a8,8,0,0,1,8-8h16V16a8,8,0,0,1,16,0V32h16a8,8,0,0,1,0,16H184V64a8,8,0,0,1-16,0V48H152A8,8,0,0,1,144,40ZM248,88a8,8,0,0,1-8,8h-8v8a8,8,0,0,1-16,0V96h-8a8,8,0,0,1,0-16h8V72a8,8,0,0,1,16,0v8h8A8,8,0,0,1,248,88Z"/></svg></div><h3>Claude Code</h3><p><span lang="pt">Um agente por projeto, com histórico e anexos. O Claude Code é instalado à parte, e se ele faltar a tela avisa e mostra onde configurar.</span><span lang="en">One agent per project, with history and attachments. Claude Code is installed separately, and if it's missing the screen tells you where to set it up.</span></p></div>
+    <div class="cartao revela" style="--d:0"><div class="icone"><svg viewBox="0 0 256 256" width="24" height="24" fill="currentColor" aria-hidden="true"><path d="M48,64a8,8,0,0,1,8-8H72V40a8,8,0,0,1,16,0V56h16a8,8,0,0,1,0,16H88V88a8,8,0,0,1-16,0V72H56A8,8,0,0,1,48,64ZM184,192h-8v-8a8,8,0,0,0-16,0v8h-8a8,8,0,0,0,0,16h8v8a8,8,0,0,0,16,0v-8h8a8,8,0,0,0,0-16Zm56-48H224V128a8,8,0,0,0-16,0v16H192a8,8,0,0,0,0,16h16v16a8,8,0,0,0,16,0V160h16a8,8,0,0,0,0-16ZM219.31,80,80,219.31a16,16,0,0,1-22.62,0L36.68,198.63a16,16,0,0,1,0-22.63L176,36.69a16,16,0,0,1,22.63,0l20.68,20.68A16,16,0,0,1,219.31,80Zm-54.63,32L144,91.31l-96,96L68.68,208ZM208,68.69,187.31,48l-32,32L176,100.69Z"/></svg></div><h3><span lang="pt">Mascote clássico</span><span lang="en">Classic mascot</span></h3><p><span lang="pt">Genie, Merlin ou Clippit reagem ao que os agentes fazem. São personagens <code>.acs</code> do Microsoft Agent, que você baixa à parte.</span><span lang="en">Genie, Merlin or Clippit react to what the agents do. They are Microsoft Agent <code>.acs</code> characters you download separately.</span></p></div>
+    <div class="cartao revela" style="--d:1"><div class="icone"><svg viewBox="0 0 256 256" width="24" height="24" fill="currentColor" aria-hidden="true"><path d="M216,104H102.09L210,75.51a8,8,0,0,0,5.68-9.84l-8.16-30a15.93,15.93,0,0,0-19.42-11.13L35.81,64.74a15.75,15.75,0,0,0-9.7,7.4,15.51,15.51,0,0,0-1.55,12L32,111.56c0,.14,0,.29,0,.44v88a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V112A8,8,0,0,0,216,104ZM192.16,40l6,22.07-22.62,6L147.42,51.83Zm-66.69,17.6,28.12,16.24-36.94,9.75L88.53,67.37Zm-79.4,44.62-6-22.08,26.5-7L94.69,89.4ZM208,200H48V120H208v80Z"/></svg></div><h3><span lang="pt">Sua biblioteca</span><span lang="en">Your library</span></h3><p><span lang="pt">Sua lista M3U vira um catálogo com favoritos e "continuar assistindo", e o player fica por cima das outras janelas.</span><span lang="en">Your M3U list becomes a catalog with favorites and "continue watching", and the player stays above other windows.</span></p></div>
+    <div class="cartao revela" style="--d:2"><div class="icone"><svg viewBox="0 0 256 256" width="24" height="24" fill="currentColor" aria-hidden="true"><path d="M223.68,66.15,135.68,18h0a15.88,15.88,0,0,0-15.36,0l-88,48.17a16,16,0,0,0-8.32,14v95.64a16,16,0,0,0,8.32,14l88,48.17a15.88,15.88,0,0,0,15.36,0l88-48.17a16,16,0,0,0,8.32-14V80.18A16,16,0,0,0,223.68,66.15ZM128,32h0l80.34,44L128,120,47.66,76ZM40,90l80,43.78v85.79L40,175.82Zm96,129.57V133.82L216,90v85.78Z"/></svg></div><h3>Home Lab</h3><p><span lang="pt">Containers do Docker, serviços com latência medida e a saúde da máquina.</span><span lang="en">Docker containers, services with measured latency and the machine's health.</span></p></div>
+    <div class="cartao revela" style="--d:3"><div class="icone"><svg viewBox="0 0 256 256" width="24" height="24" fill="currentColor" aria-hidden="true"><path d="M88,112a8,8,0,0,1,8-8h80a8,8,0,0,1,0,16H96A8,8,0,0,1,88,112Zm8,40h80a8,8,0,0,0,0-16H96a8,8,0,0,0,0,16ZM232,64V184a24,24,0,0,1-24,24H32A24,24,0,0,1,8,184.11V88a8,8,0,0,1,16,0v96a8,8,0,0,0,16,0V64A16,16,0,0,1,56,48H216A16,16,0,0,1,232,64Zm-16,0H56V184a23.84,23.84,0,0,1-1.37,8H208a8,8,0,0,0,8-8Z"/></svg></div><h3><span lang="pt">Leitura na Início</span><span lang="en">Reading on Home</span></h3><p><span lang="pt">Feeds RSS que você escolhe — nasce com Tecnoblog, CNN Brasil e BBC World.</span><span lang="en">RSS feeds of your choice — starts with Tecnoblog, CNN Brasil and BBC World.</span></p></div>
   </div>
 </section>
 
-<section class="wrap">
-  <div class="numeros">
-    <div class="numero revela" style="--d:0"><b data-conta="8">8</b><span lang="pt">telas</span><span lang="en">screens</span></div>
-    <div class="numero revela" style="--d:1"><b data-conta="4">4</b><span lang="pt">ambientes</span><span lang="en">environments</span></div>
-    <div class="numero revela" style="--d:2"><b data-conta="141">141</b><span lang="pt">integrações na ilha</span><span lang="en">island integrations</span></div>
-    <div class="numero revela" style="--d:3"><b data-conta="0">0</b><span lang="pt">contas para criar</span><span lang="en">accounts to create</span></div>
-  </div>
-</section>
 
 <!-- ——— O passeio ——— -->
 <section id="passeio" class="wrap">
   <div class="titulo revela">
     <div class="eyebrow"><span lang="pt">O passeio</span><span lang="en">The tour</span></div>
-    <h2><span lang="pt">Tudo de uma vez, sem cortes.</span><span lang="en">All of it, uncut.</span></h2>
-    <p><span lang="pt">Os ambientes, a ilha e as abas, o lançador, os balões em cada tema e cada tela entrando com a animação dela.</span><span lang="en">The environments, the island and its tabs, the launcher, the bubbles in each theme and every screen coming in with its animation.</span></p>
+    <h2><span lang="pt">O passeio completo.</span><span lang="en">The full tour.</span></h2>
+    <p><span lang="pt">Os ambientes, a ilha com as abas, o lançador, as notificações em cada tema e todas as telas.</span><span lang="en">The environments, the island and its tabs, the launcher, the notifications in each theme and every screen.</span></p>
   </div>
   <div class="moldura revela">
     <video controls muted playsinline preload="none" poster="assets/passeio.jpg">
@@ -579,7 +595,7 @@
     </video>
   </div>
   <div class="aviso-demo revela">
-    <span>ⓘ</span>
+    <span class="i-info"><svg viewBox="0 0 256 256" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V128a8,8,0,0,1,0-16,16,16,0,0,1,16,16v40A8,8,0,0,1,144,176ZM112,84a12,12,0,1,1,12,12A12,12,0,0,1,112,84Z"/></svg></span>
     <span><span lang="pt"><b>Tudo nesta página é dado de demonstração.</b> As imagens e os vídeos saem do app construído rodando fora do Electron, com os dados de exemplo — músicas, filmes, projetos e avisos inventados, sobre os papéis de parede dos próprios ambientes. Nada vem de uma tela de verdade.</span><span lang="en"><b>Everything on this page is demo data.</b> The images and videos come from the built app running outside Electron, with its sample data — made-up songs, films, projects and notices, over the environments' own wallpapers. Nothing comes from a real screen.</span></span>
   </div>
 </section>
@@ -589,11 +605,11 @@
   <div class="titulo revela">
     <div class="eyebrow"><span lang="pt">Instalar</span><span lang="en">Install</span></div>
     <h2><span lang="pt">Três passos.</span><span lang="en">Three steps.</span></h2>
-    <p><span lang="pt">Feito para Ubuntu com KDE Plasma 6. Não tenta ser compatível com tudo — e diz o que precisa.</span><span lang="en">Made for Ubuntu with KDE Plasma 6. It doesn't try to run everywhere — and it tells you what it needs.</span></p>
+    <p><span lang="pt">Feito para Ubuntu com KDE Plasma 6. Ele não funciona em qualquer sistema, e avisa o que está faltando.</span><span lang="en">Made for Ubuntu with KDE Plasma 6. It doesn't run everywhere, and it tells you what's missing.</span></p>
   </div>
   <div class="passos">
     <div class="passo revela" style="--d:0"><div><h3><span lang="pt">Baixe o .deb</span><span lang="en">Download the .deb</span></h3><p><span lang="pt">A versão mais recente está em</span><span lang="en">The latest version is in</span> <a href="https://github.com/jrcn1991/halo-spatial-os/releases/latest">Releases</a>.</p></div></div>
-    <div class="passo revela" style="--d:1"><div><h3><span lang="pt">Instale</span><span lang="en">Install it</span></h3><p><span lang="pt">Ele puxa o que é essencial e o perfil do AppArmor de que o Electron precisa.</span><span lang="en">It pulls in the essentials and the AppArmor profile Electron needs.</span></p><pre><code>sudo apt install ./halo-spatial-os_0.2.1_amd64.deb</code><button class="copiar" type="button">copiar</button></pre></div></div>
+    <div class="passo revela" style="--d:1"><div><h3><span lang="pt">Instale</span><span lang="en">Install it</span></h3><p><span lang="pt">O apt instala junto o que é essencial e o perfil do AppArmor que o Electron precisa.</span><span lang="en">apt also installs the essentials and the AppArmor profile Electron needs.</span></p><pre><code>sudo apt install ./halo-spatial-os_0.2.1_amd64.deb</code><button class="copiar" type="button">copiar</button></pre></div></div>
     <div class="passo revela" style="--d:2"><div><h3><span lang="pt">Abra e confira</span><span lang="en">Open it and check</span></h3><p><span lang="pt">Abra o Halo pelo menu — a ilha aparece no topo da tela. Em <b>Configurações → Sistema</b> ele lista cada programa que falta, o que se perde sem ele e o comando para instalar.</span><span lang="en">Open Halo from the menu — the island shows up at the top of the screen. <b>Settings → System</b> lists every missing program, what you lose without it and the command to install it.</span></p></div></div>
   </div>
 
@@ -829,6 +845,19 @@
     vista.unobserve(e.target)
   }), { threshold: 0, rootMargin: '0px 0px -8% 0px' })
   document.querySelectorAll('.revela').forEach((el) => vista.observe(el))
+  // Posições da navegação: cada botão troca a captura, com um esmaecer curto.
+  const navImg = document.getElementById('nav-img')
+  const NAV_ALT = { base: 'embaixo', topo: 'em cima', esquerda: 'à esquerda', direita: 'à direita', embutida: 'embutida no painel central' }
+  for (const b of document.querySelectorAll('[data-nav]')) {
+    b.addEventListener('click', () => {
+      for (const o of document.querySelectorAll('[data-nav]')) o.setAttribute('aria-pressed', String(o === b))
+      const nome = b.dataset.nav
+      navImg.classList.add('trocando')
+      const nova = new Image()
+      nova.onload = () => { navImg.src = nova.src; navImg.alt = 'A janela do Halo com a navegação ' + NAV_ALT[nome]; navImg.classList.remove('trocando') }
+      nova.src = 'assets/nav-' + nome + '.jpg'
+    })
+  }
 </script>
 </body>
 </html>

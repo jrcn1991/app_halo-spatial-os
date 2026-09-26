@@ -58,6 +58,15 @@ const REMENDOS_DEMO = [
     () => 'weather:{place:"Lisboa",unit:"c",icon:"phosphor"}',
   ],
   [
+    // No app a miniatura de cada cartão de ambiente vem do main; o mock
+    // devolve nada e os quadrados ficariam só com as listras. Os fundos já
+    // estão na demo (`fundos/`), relativos a `app/index.html`.
+    'ambientes: a miniatura de cada papel de parede',
+    /previews:async\(\)=>\(\{\}\)/,
+    () =>
+      `previews:async()=>({${AMBIENTES.map((id) => `${id}:"../fundos/${id}.jpg"`).join(',')}})`,
+  ],
+  [
     'idioma: o da página',
     /language:([\w$]+),appearance:\{tint:/,
     (_m, padrao) => `language:(globalThis.__demoIdioma||${padrao}),appearance:{tint:`,
