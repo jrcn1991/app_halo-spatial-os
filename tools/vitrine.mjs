@@ -135,6 +135,17 @@ function servir() {
   const remendados = new Map()
   for (const f of readdirSync(join(dir, 'assets')).filter((f) => f.endsWith('.js'))) {
     const r = remendarBundle(readFileSync(join(dir, 'assets', f), 'utf8'))
+    // A miniatura de cada cartão de ambiente: no app ela vem do main, e o mock
+    // devolve nada. Aqui os fundos já são servidos em `/__fundo/`.
+    const previas = /previews:async\(\)=>\(\{\}\)/
+    if (previas.test(r.js)) {
+      const ambientes = ['floresta', 'citypop', 'cyberpunk', 'bioshock']
+      r.js = r.js.replace(
+        previas,
+        `previews:async()=>({${ambientes.map((id) => `${id}:"/__fundo/${id}.jpg"`).join(',')}})`,
+      )
+      r.casou.push('ambientes: a miniatura de cada papel de parede')
+    }
     if (r.casou.length > 0) {
       remendados.set(`/assets/${f}`, r.js)
       console.log(`  remendos em ${f}: ${r.casou.join('; ')}`)
