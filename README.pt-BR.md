@@ -28,7 +28,7 @@
 <p align="center">
   <a href="https://jrcn1991.github.io/halo-spatial-os/#passeio"><img src="site/assets/ambientes.gif" alt="O Halo trocando entre os quatro ambientes: Cyberpunk, City Pop, Shock e Floresta" width="880"></a>
   <br>
-  <sub>▶ <a href="https://jrcn1991.github.io/halo-spatial-os/#passeio">Assista ao passeio completo</a> — ambientes, ilha, lançador, notificações e todas as telas</sub>
+  <sub>▶ <a href="https://jrcn1991.github.io/halo-spatial-os/#passeio">Assista ao passeio completo</a> — ambientes, ilha, lançador, notificações e todas as telas · <a href="https://jrcn1991.github.io/halo-spatial-os/#demo">Experimente a demo interativa</a> no navegador</sub>
 </p>
 
 <p align="center">

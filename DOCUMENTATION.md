@@ -54,7 +54,8 @@ one to be broken by mistake.
 - **The factory chooses by environment**: inside Electron it hands out the real
   services; outside it (browser, tests) it hands out the examples. That is what
   makes the tests deterministic — and it is what `npm run vitrine` uses to
-  generate the README images.
+  generate the README images, and `npm run demo-web` for the website's
+  interactive demo (`site/demo/`, made-up data, no network).
 - **Periodic readings live in main, on a single clock.** The meters' history
   is collected by ONE sampler in `services/host.ts`: the screen remounts on
   every tab switch and would lose whatever it kept, and CPU usage is the
@@ -237,7 +238,7 @@ path:
    `PRESETS_DO_AMBIENTE` (`src/renderer/app/environment.ts`);
 5. a wallpaper of its own goes in `src/renderer/assets/env/<id>/fundo.jpg`, in
    `EMBUTIDOS` (`services/wallpaper.ts`) and in `extraResources`;
-6. run `npm run check` and `npm run vitrine`, and look at the result.
+6. run `npm run check`, `npm run vitrine` and `npm run demo-web`, and look at the result.
 
 Third-party art doesn't get in: the existing environments use original art,
 generated for the project, and the provenance of each piece is in

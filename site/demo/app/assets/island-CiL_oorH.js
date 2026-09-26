@@ -1,0 +1,1 @@
+const A=["gota","elastico","desliza","expandir","nenhuma"],s=["sobre","abaixo"],e=["hover","click"],n=["real","real-foguete","real-desmanchar","sugado","genie","foguete","dobra","giro","desmanchar","nenhuma"],o=36,L=24,t=48;function r(a){return Math.round(Math.max(24,Math.min(48,a)))}const _=560;export{o as A,s as I,_ as V,t as a,L as b,e as c,A as d,n as e,r as l};

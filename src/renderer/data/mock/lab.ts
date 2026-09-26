@@ -14,7 +14,7 @@ import type { FileEntry } from '@/domain/types'
 
 export const mockLab: LabRepository = {
   host: async () => ({
-    hostname: 'arasaka-01',
+    hostname: 'halo-01',
     cpuPercent: 34,
     // Doze leituras fixas: os gráficos das telas de teste precisam ser iguais
     // a cada rodada, e uma onda com relevo mostra que o traçado funciona.
@@ -38,7 +38,7 @@ export const mockLab: LabRepository = {
   }),
   machines: async () => [
     {
-      name: 'arasaka-01',
+      name: 'halo-01',
       role: 'Nó principal',
       cpuPercent: 34,
       memoryPercent: 62,
@@ -47,11 +47,11 @@ export const mockLab: LabRepository = {
     },
   ],
   monitors: async () => [
-    { name: 'seafile', target: 'seafile.arasaka.io', up: true, latencyMs: 42, note: null },
+    { name: 'seafile', target: 'seafile.exemplo.io', up: true, latencyMs: 42, note: null },
     { name: 'jellyfin', target: 'jellyfin.local', up: true, latencyMs: 318, note: 'LATÊNCIA ALTA' },
     {
       name: 'backup-nightly',
-      target: 'backup.arasaka.io',
+      target: 'backup.exemplo.io',
       up: false,
       latencyMs: null,
       note: 'DOWN',

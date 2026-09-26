@@ -33,6 +33,7 @@
     "doctor": "node tools/doctor.mjs",
     "mascot:extract": "node tools/acs-extract.mjs",
     "vitrine": "node tools/vitrine.mjs",
+    "demo-web": "npm run build && node tools/demo-web.mjs",
     "i18n": "node tools/i18n-check.mjs"
   },
   "engines": {

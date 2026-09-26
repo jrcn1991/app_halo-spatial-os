@@ -49,7 +49,8 @@ quebrada por engano.
 - **A fábrica escolhe pelo ambiente**: dentro do Electron vão os serviços
   reais; fora dele (navegador, testes) vão os exemplos. É isso que torna os
   testes determinísticos — e é o que `npm run vitrine` usa para gerar as
-  imagens do README.
+  imagens do README, e `npm run demo-web` para a demo interativa da página
+  (`site/demo/`, dados inventados, sem rede).
 - **Leitura periódica mora no main, num relógio só.** O histórico dos
   medidores é colhido por UM amostrador em `services/host.ts`: a tela remonta
   a cada troca de aba e perderia o que guardasse, e a CPU é diferença entre
@@ -226,7 +227,7 @@ tela nenhuma: só redefine tokens em `src/renderer/styles/env-<id>.css`, sob
    `PRESETS_DO_AMBIENTE` (`src/renderer/app/environment.ts`);
 5. papel de parede próprio vai em `src/renderer/assets/env/<id>/fundo.jpg`,
    em `EMBUTIDOS` (`services/wallpaper.ts`) e em `extraResources`;
-6. rode `npm run check` e `npm run vitrine`, e olhe o resultado.
+6. rode `npm run check`, `npm run vitrine` e `npm run demo-web`, e olhe o resultado.
 
 Arte de terceiro não entra: os ambientes que existem usam arte própria, gerada
 para o projeto, e a proveniência de cada peça está em

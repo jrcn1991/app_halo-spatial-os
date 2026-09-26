@@ -103,42 +103,9 @@
   nav.topo .botao { padding: 8px 16px; font-size: 14px; }
 
   /* ——— Hero ——— */
-  .hero { text-align: center; padding: 64px 0 36px; position: relative; }
-  /* A pílula do topo: a ilha de verdade faz isto — fecha, alarga para anunciar,
-     volta. Aqui ela passa pelos três estados em loop. */
-  .pilula {
-    position: relative; height: 38px; margin: 0 auto 38px; width: 190px;
-    background: #000; border-radius: 0 0 20px 20px;
-    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--line);
-    animation: pilula 12s var(--spring) infinite;
-    overflow: hidden;
-  }
-  .pilula > div {
-    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 10px;
-    font: 500 12.5px var(--mono); color: var(--muted); white-space: nowrap; opacity: 0;
-  }
-  .pilula .p1 { animation: fase1 12s infinite; }
-  .pilula .p2 { animation: fase2 12s infinite; }
-  .pilula .p3 { animation: fase3 12s infinite; }
-  .capinha { width: 22px; height: 22px; border-radius: 6px; background: linear-gradient(160deg, #0f2027 10%, #2c5364 60%, #f7b267); position: relative; overflow: hidden; }
-  .capinha::after { content: ""; position: absolute; width: 10px; height: 10px; border-radius: 50%; background: #fef3e2; left: 6px; top: 5px; }
-  .onda { display: inline-flex; gap: 2px; align-items: center; height: 16px; }
-  .onda b { width: 3px; border-radius: 2px; background: var(--accent); animation: barra 0.9s ease-in-out infinite; transition: background .8s; }
-  .onda b:nth-child(2) { animation-delay: -.3s; } .onda b:nth-child(3) { animation-delay: -.6s; } .onda b:nth-child(4) { animation-delay: -.15s; } .onda b:nth-child(5) { animation-delay: -.45s; }
-  @keyframes barra { 0%, 100% { height: 4px; } 50% { height: 15px; } }
-  .ponto { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); }
-  @keyframes pilula {
-    0%, 28% { width: 190px; height: 38px; }
-    33%, 60% { width: 340px; height: 38px; }
-    65%, 90% { width: 240px; height: 38px; }
-    100% { width: 190px; }
-  }
-  @keyframes fase1 { 0%, 27% { opacity: 1; } 31%, 94% { opacity: 0; } 98%, 100% { opacity: 1; } }
-  @keyframes fase2 { 0%, 32% { opacity: 0; } 36%, 59% { opacity: 1; } 63%, 100% { opacity: 0; } }
-  @keyframes fase3 { 0%, 64% { opacity: 0; } 68%, 89% { opacity: 1; } 93%, 100% { opacity: 0; } }
-
+  .hero { text-align: center; padding: 44px 0 26px; position: relative; }
   .eyebrow { font: 500 13px var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); transition: color .8s; }
-  h1 { font-size: clamp(40px, 7.4vw, 88px); line-height: 1.02; letter-spacing: -0.04em; margin: 14px 0 20px; font-weight: 700; }
+  h1 { font-size: clamp(38px, 5.8vw, 72px); line-height: 1.02; letter-spacing: -0.04em; margin: 12px 0 16px; font-weight: 700; }
   h1 em {
     font-style: normal;
     background: linear-gradient(100deg, var(--accent), var(--accent-2), var(--accent));
@@ -147,45 +114,47 @@
     animation: brilho 6s linear infinite;
   }
   @keyframes brilho { to { background-position: -200% 0; } }
-  .sub { color: var(--muted); font-size: clamp(17px, 2vw, 20px); max-width: 660px; margin: 0 auto 32px; }
+  .sub { color: var(--muted); font-size: clamp(16px, 1.8vw, 19px); max-width: 680px; margin: 0 auto 24px; }
   .ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-  .selos { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 26px; }
+  .selos { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
   .selo { font: 500 12.5px var(--mono); color: var(--muted); padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--glass); }
 
   /* A entrada do hero: cada peça sobe, uma depois da outra. */
   .js .sobe { opacity: 0; transform: translateY(22px); animation: sobe .9s var(--ease) forwards; animation-delay: calc(var(--d, 0) * 110ms + 120ms); }
   @keyframes sobe { to { opacity: 1; transform: none; } }
 
-  /* ——— O palco: a Home nos quatro ambientes, com uma inclinação que segue o mouse ——— */
-  .demo { padding: 16px 0 40px; perspective: 1600px; }
-  .palco {
-    position: relative; aspect-ratio: 16 / 9; border-radius: var(--radius); overflow: hidden;
+  /* ——— A demo: o Halo de verdade, construído, num "monitor" ———
+     O desktop inteiro (papel de parede, barra, ilha, janela, lançador, balões)
+     mora em `demo/`, gerado por `tools/demo-web.mjs`; aqui fica só a moldura. */
+  .demo { padding: 8px 0 40px; }
+  .demo-topo { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; width: min(1560px, 100% - 32px, (100svh - 120px) * 1.6); }
+  .ao-vivo { display: inline-flex; align-items: center; gap: 9px; font: 500 12.5px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .ao-vivo i { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 0 var(--accent); animation: pulsa 2s ease-out infinite; transition: background .8s; }
+  @keyframes pulsa { 0% { box-shadow: 0 0 0 0 var(--accent-soft); } 70%, 100% { box-shadow: 0 0 0 10px transparent; } }
+  .demo-acoes { display: flex; gap: 8px; flex-wrap: wrap; }
+  .acao-demo {
+    display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; cursor: pointer;
+    font: 600 13.5px var(--sans); color: var(--text); text-decoration: none;
+    background: var(--glass); border: 1px solid var(--line-2); transition: border-color .2s, background .2s, transform .25s var(--spring);
+  }
+  .acao-demo:hover { border-color: var(--accent); background: var(--accent-soft); transform: translateY(-1px); }
+  .acao-demo kbd { font: 500 11px var(--mono); padding: 2px 6px; border-radius: 5px; background: var(--glass-2); color: var(--muted); }
+  .monitor {
+    /* Inteira à vista: nunca mais alta que a janela menos a barra de navegação. */
+    position: relative; width: min(1560px, 100% - 32px, (100svh - 120px) * 1.6); margin: 0 auto; aspect-ratio: 16 / 10;
+    border-radius: var(--radius); overflow: hidden; background: #05070a;
     border: 1px solid var(--line-2);
     box-shadow: 0 40px 120px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(0, 0, 0, 0.4), 0 0 90px var(--accent-soft);
-    transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
-    transition: box-shadow 0.8s, transform .5s var(--ease);
-    transform-style: preserve-3d;
+    transition: box-shadow 0.8s;
   }
-  .js .palco { animation: pouso 1.4s var(--ease) both .5s; }
-  @keyframes pouso { from { opacity: 0; transform: rotateX(18deg) translateY(60px) scale(.94); } }
-  .palco img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.9s ease, transform 6s linear; transform: scale(1.06); }
-  .palco img.ativa { opacity: 1; transform: scale(1); }
-  .brilho-palco { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(600px circle at var(--mx, 50%) var(--my, 0%), rgba(255,255,255,.10), transparent 45%); }
-  .seletor { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 22px; }
-  .chip {
-    position: relative; overflow: hidden;
-    display: inline-flex; align-items: center; gap: 9px; cursor: pointer;
-    padding: 9px 16px; border-radius: 999px; font: 600 14px var(--sans); color: var(--muted);
-    background: var(--glass); border: 1px solid var(--line); transition: all 0.25s;
-  }
-  .chip span { width: 10px; height: 10px; border-radius: 50%; }
-  .chip:hover { color: var(--text); border-color: var(--line-2); }
-  .chip[aria-pressed="true"] { color: var(--text); border-color: var(--accent); background: var(--accent-soft); }
-  /* O relógio do passeio automático: uma barra que enche no chip ativo. */
-  .chip[aria-pressed="true"]::after { content: ""; position: absolute; left: 0; bottom: 0; height: 2px; background: var(--accent); animation: enche 4.2s linear; }
-  .manual .chip::after { display: none; }
-  @keyframes enche { from { width: 0; } to { width: 100%; } }
-  .legenda { text-align: center; color: var(--faint); font-size: 14px; margin-top: 14px; }
+  .js .monitor { animation: pouso 1.4s var(--ease) both .4s; }
+  @keyframes pouso { from { opacity: 0; transform: translateY(40px) scale(.97); } }
+  .monitor iframe, .monitor img { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; object-fit: cover; }
+  .so-computador { display: none; }
+  .dicas { list-style: none; padding: 0; margin: 22px auto 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: min(1560px, 100% - 32px, (100svh - 120px) * 1.6); }
+  .dicas li { display: grid; grid-template-columns: 26px 1fr; gap: 10px; align-items: start; color: var(--muted); font-size: 14.5px; line-height: 1.5; }
+  .dicas li b { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 8px; font: 600 13px var(--mono); background: var(--accent-soft); color: var(--accent); transition: color .8s, background .8s; }
+  .dicas em { font-style: normal; color: var(--text); }
 
   /* ——— A faixa corrida ——— */
   .faixa { border-block: 1px solid var(--line); background: rgba(255,255,255,.02); overflow: hidden; padding: 16px 0; margin: 40px 0 0; mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); }
@@ -348,7 +317,7 @@
   .js .revela.de-lado.visivel { transform: none; }
 
   @media (max-width: 980px) {
-    .ambientes, .baloes, .abas { grid-template-columns: repeat(2, 1fr); }
+    .ambientes, .baloes, .abas, .dicas { grid-template-columns: repeat(2, 1fr); }
     .telas { grid-template-columns: repeat(2, 1fr); }
     .lado, .lado.inverso { grid-template-columns: 1fr; gap: 32px; }
     .lado.inverso > :first-child { order: 0; }
@@ -359,8 +328,13 @@
     .numeros { grid-template-columns: repeat(2, 1fr); }
     section { padding: 64px 0; }
   }
+  @media (max-width: 760px) {
+    .so-computador { display: block; width: min(1560px, 100% - 32px); margin: 12px auto 0; padding: 12px 14px; border-radius: 14px; border: 1px dashed var(--line-2); color: var(--muted); font-size: 14px; }
+    .so-computador b { color: var(--text); }
+    .demo-acoes .acao-demo[data-demo] { display: none; }
+  }
   @media (max-width: 520px) {
-    .telas, .abas { grid-template-columns: 1fr; }
+    .telas, .abas, .dicas { grid-template-columns: 1fr; }
     .ambientes { gap: 10px; }
     .amb .nome { padding: 40px 12px 12px; }
     .amb .nome span { display: none; }
@@ -371,7 +345,6 @@
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
     .revela, .sobe { opacity: 1 !important; transform: none !important; }
-    .pilula .p1 { opacity: 1; }
     .faixa-trilho { transform: none; }
   }
 </style>
@@ -384,6 +357,7 @@
   <div class="wrap">
     <a class="marca" href="#"><img src="assets/icone.png" alt="">Halo</a>
     <div class="links">
+      <a href="#demo"><span lang="pt">Demo</span><span lang="en">Demo</span></a>
       <a href="#ilha"><span lang="pt">Ilha</span><span lang="en">Island</span></a>
       <a href="#lancador"><span lang="pt">Lançador</span><span lang="en">Launcher</span></a>
       <a href="#ambientes"><span lang="pt">Ambientes</span><span lang="en">Environments</span></a>
@@ -400,11 +374,6 @@
 </nav>
 
 <header class="hero wrap">
-  <div class="pilula sobe" aria-hidden="true" style="--d:0">
-    <div class="p1"><span class="capinha"></span><span class="onda"><b></b><b></b><b></b><b></b><b></b></span></div>
-    <div class="p2"><span class="ponto"></span><span lang="pt">Download concluído · halo 0.2.1</span><span lang="en">Download finished · halo 0.2.1</span></div>
-    <div class="p3"><span>⏱</span><span lang="pt">foco · 24:59</span><span lang="en">focus · 24:59</span></div>
-  </div>
   <div class="eyebrow sobe" style="--d:1"><span lang="pt">Spatial OS para Linux</span><span lang="en">Spatial OS for Linux</span></div>
   <h1 class="sobe" style="--d:2"><span lang="pt">Sua área de trabalho,<br><em>em vidro.</em></span><span lang="en">Your desktop,<br><em>made of glass.</em></span></h1>
   <p class="sub sobe" style="--d:3">
@@ -424,21 +393,26 @@
   </div>
 </header>
 
-<div class="demo wrap">
-  <div class="palco" id="palco">
-    <img src="assets/home-floresta.jpg" data-env="floresta" alt="O Halo no ambiente Floresta" class="ativa">
-    <img src="assets/home-citypop.jpg" data-env="citypop" alt="O Halo no ambiente City Pop" loading="lazy">
-    <img src="assets/home-cyberpunk.jpg" data-env="cyberpunk" alt="O Halo no ambiente Cyberpunk" loading="lazy">
-    <img src="assets/home-bioshock.jpg" data-env="bioshock" alt="O Halo no ambiente Shock" loading="lazy">
-    <div class="brilho-palco" aria-hidden="true"></div>
+<div class="demo" id="demo">
+  <div class="demo-topo wrap">
+    <span class="ao-vivo"><i></i><span lang="pt">Demo interativa · dados de exemplo</span><span lang="en">Interactive demo · sample data</span></span>
+    <div class="demo-acoes">
+      <button type="button" class="acao-demo" data-demo="lancador"><kbd>Ctrl K</kbd><span lang="pt">Lançador</span><span lang="en">Launcher</span></button>
+      <button type="button" class="acao-demo" data-demo="aviso"><span lang="pt">Enviar notificação</span><span lang="en">Send a notification</span></button>
+      <a class="acao-demo" id="demo-cheia" href="demo/" target="_blank" rel="noopener"><span lang="pt">Tela cheia ↗</span><span lang="en">Full screen ↗</span></a>
+    </div>
   </div>
-  <div class="seletor" id="seletor" role="group" aria-label="Ambientes">
-    <button class="chip" data-env="floresta" aria-pressed="true"><span style="background:#61d19a"></span>Floresta</button>
-    <button class="chip" data-env="citypop" aria-pressed="false"><span style="background:#4fd8ff"></span>City Pop</button>
-    <button class="chip" data-env="cyberpunk" aria-pressed="false"><span style="background:#f75049"></span>Cyberpunk</button>
-    <button class="chip" data-env="bioshock" aria-pressed="false"><span style="background:#d9a441"></span>Shock</button>
+  <div class="monitor" id="monitor">
+    <iframe id="demo-quadro" title="Demonstração interativa do Halo" allow="clipboard-write" data-src="demo/"></iframe>
+    <noscript><img src="assets/home-floresta.jpg" alt="O Halo no ambiente Floresta"></noscript>
   </div>
-  <p class="legenda"><span lang="pt">Clique num ambiente — no app, ele troca o tema <em>e</em> o papel de parede da sua sessão.</span><span lang="en">Pick an environment — in the app, it switches the theme <em>and</em> your session wallpaper.</span></p>
+  <p class="so-computador"><span lang="pt"><b>Melhor no computador.</b> A demo reproduz uma tela de 1680×1050, com mouse e teclado; no celular ela aparece em miniatura.</span><span lang="en"><b>Best on a computer.</b> The demo recreates a 1680×1050 screen with mouse and keyboard; on a phone it shows as a miniature.</span></p>
+  <ul class="dicas wrap">
+    <li><b>1</b><span lang="pt">Passe o mouse na <em>pílula</em> do topo — a ilha abre, com as abas.</span><span lang="en">Hover the <em>pill</em> up top — the island opens, tabs and all.</span></li>
+    <li><b>2</b><span lang="pt">Na Início, clique num <em>ambiente</em>: muda o tema e o papel de parede.</span><span lang="en">On Home, click an <em>environment</em>: theme and wallpaper change.</span></li>
+    <li><b>3</b><span lang="pt"><em>Ctrl+K</em> abre o lançador: tente <code>15% de 240</code>, <code>30c em f</code>, <code>:coracao</code>.</span><span lang="en"><em>Ctrl+K</em> opens the launcher: try <code>15% of 240</code>, <code>30c in f</code>, <code>:heart</code>.</span></li>
+    <li><b>4</b><span lang="pt">O dock embaixo passa pelas oito telas. Nada aqui é da máquina de ninguém.</span><span lang="en">The dock below walks the eight screens. Nothing here is from anyone's machine.</span></li>
+  </ul>
 </div>
 
 <div class="faixa" aria-hidden="true">
@@ -507,6 +481,7 @@
     <div class="eyebrow"><span lang="pt">Ambientes</span><span lang="en">Environments</span></div>
     <h2><span lang="pt">Quatro roupas. Um clique.</span><span lang="en">Four outfits. One click.</span></h2>
     <p><span lang="pt">Um ambiente é o tema do app mais o papel de parede da sessão — imagem ou vídeo. Painéis, fontes, dock, lançador e balões mudam juntos, e o seu fundo original fica guardado.</span><span lang="en">An environment is the app's theme plus your session wallpaper — image or video. Panels, fonts, dock, launcher and bubbles change together, and your original wallpaper is kept.</span></p>
+    <p style="margin-top:10px"><span lang="pt">Clique num cartão: ele veste a demo lá em cima.</span><span lang="en">Click a card: it dresses the demo up top.</span></p>
   </div>
   <div class="ambientes">
     <button class="amb revela" style="--d:0;--c:#61d19a" data-env="floresta"><img src="assets/home-floresta.jpg" alt="" loading="lazy"><div class="nome"><div class="cores"><i style="background:#61d19a"></i><i style="background:#b98cff"></i><i style="background:#f2a65a"></i></div><b>Floresta</b><span lang="pt">O vidro do handoff, na mata.</span><span lang="en">The original glass, in the woods.</span></div></button>
@@ -721,49 +696,48 @@
   idioma(guardado === 'pt' || guardado === 'en' ? guardado : doSistema)
   botoesIdioma.forEach((b) => b.addEventListener('click', () => idioma(b.dataset.lang)))
 
-  /* ——— O ambiente: troca a foto do palco e a cor da página ——— */
-  const chips = document.querySelectorAll('.chip')
-  const fotos = document.querySelectorAll('#palco img')
+  /* ——— A demo: o Halo de verdade, num iframe (`demo/`) ———
+     A página só conversa com ela por mensagem: pede o lançador, uma
+     notificação, um ambiente; e ouve o ambiente que o app escolheu, para
+     vestir a própria cor com ele. */
+  const quadro = document.getElementById('demo-quadro')
   const cartoesAmb = document.querySelectorAll('.amb')
-  let manual = false
+  function carregarDemo() {
+    const url = 'demo/?lang=' + raiz.dataset.lang
+    if (quadro.getAttribute('src') !== url) quadro.src = url
+    document.getElementById('demo-cheia').href = url
+  }
+  carregarDemo()
+  // Trocar o idioma da página recarrega a demo no idioma novo.
+  botoesIdioma.forEach((b) => b.addEventListener('click', carregarDemo))
+  const pedir = (msg) => quadro.contentWindow && quadro.contentWindow.postMessage(msg, location.origin === 'null' ? '*' : location.origin)
   function escolher(env) {
     raiz.dataset.env = env
-    fotos.forEach((f) => f.classList.toggle('ativa', f.dataset.env === env))
-    chips.forEach((c) => {
-      const ativo = c.dataset.env === env
-      c.setAttribute('aria-pressed', String(ativo))
-      // Reinicia a barrinha do chip ativo.
-      if (ativo) { c.style.animation = 'none'; void c.offsetWidth; c.style.animation = '' }
-    })
     cartoesAmb.forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.env === env)))
   }
-  function fixar(env) {
-    manual = true
-    document.getElementById('seletor').classList.add('manual')
-    escolher(env)
-  }
-  chips.forEach((c) => c.addEventListener('click', () => fixar(c.dataset.env)))
-  cartoesAmb.forEach((c) => c.addEventListener('click', () => {
-    fixar(c.dataset.env)
-    document.getElementById('palco').scrollIntoView({ behavior: calmo ? 'auto' : 'smooth', block: 'center' })
+  addEventListener('message', (e) => {
+    if (e.source !== quadro.contentWindow || !e.data) return
+    if (e.data.halo === 'env') escolher(e.data.env)
+  })
+  document.querySelectorAll('[data-demo]').forEach((b) => b.addEventListener('click', () => {
+    pedir({ halo: b.dataset.demo })
+    quadro.focus()
   }))
-  const ordem = ['floresta', 'citypop', 'cyberpunk', 'bioshock']
-  let i = 0
-  if (!calmo) setInterval(() => { if (!manual) escolher(ordem[++i % ordem.length]) }, 4200)
+  // Ctrl+K com o foco na página também chama o lançador, se a demo está à vista.
+  let demoAVista = true
+  new IntersectionObserver((es) => { demoAVista = es[0].isIntersecting }).observe(document.getElementById('monitor'))
+  addEventListener('keydown', (e) => {
+    if (!demoAVista || !(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== 'k') return
+    e.preventDefault()
+    pedir({ halo: 'lancador' })
+    quadro.focus()
+  })
+  // Os cartões dos ambientes, mais abaixo, trocam o ambiente DENTRO da demo.
+  cartoesAmb.forEach((c) => c.addEventListener('click', () => {
+    pedir({ halo: 'ambiente', env: c.dataset.env })
+    document.getElementById('monitor').scrollIntoView({ behavior: calmo ? 'auto' : 'smooth', block: 'center' })
+  }))
 
-  /* ——— O palco inclina seguindo o mouse ——— */
-  const palco = document.getElementById('palco')
-  if (!calmo && matchMedia('(hover: hover)').matches) {
-    palco.addEventListener('pointermove', (e) => {
-      const r = palco.getBoundingClientRect()
-      const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height
-      palco.style.setProperty('--ry', ((x - 0.5) * 6).toFixed(2) + 'deg')
-      palco.style.setProperty('--rx', ((0.5 - y) * 5).toFixed(2) + 'deg')
-      palco.style.setProperty('--mx', (x * 100).toFixed(1) + '%')
-      palco.style.setProperty('--my', (y * 100).toFixed(1) + '%')
-    })
-    palco.addEventListener('pointerleave', () => { palco.style.setProperty('--rx', '0deg'); palco.style.setProperty('--ry', '0deg') })
-  }
   // E os cartões acendem onde o mouse está.
   document.querySelectorAll('.cartao').forEach((c) => c.addEventListener('pointermove', (e) => {
     const r = c.getBoundingClientRect()

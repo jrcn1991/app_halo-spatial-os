@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <!--
+      CSP do lançador, separada da do app.
+      Ele não mostra imagem de fora nem fala com rede: só o próprio bundle.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'"
+    />
+    <title>Halo · Lançador</title>
+    <script type="module" crossorigin src="./assets/launcher-Yvm9Rq2X.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/idioma-B4XgNBc4.js">
+    <link rel="modulepreload" crossorigin href="./assets/WarningCircle.es-BK54uf5w.js">
+    <link rel="modulepreload" crossorigin href="./assets/SpeakerSlash.es-CUT9jY2n.js">
+    <link rel="modulepreload" crossorigin href="./assets/Glifo-C00BbFR1.js">
+    <link rel="modulepreload" crossorigin href="./assets/motor-C9QArZRf.js">
+    <link rel="stylesheet" crossorigin href="./assets/idioma-BblMJFmK.css">
+    <link rel="stylesheet" crossorigin href="./assets/WarningCircle-nAXhIGWs.css">
+    <link rel="stylesheet" crossorigin href="./assets/launcher-CeBNXdms.css">
+    <link rel="stylesheet" crossorigin href="./assets/env-bioshock-COS3R-vb.css">
+    <link rel="stylesheet" crossorigin href="./assets/tokens-HCJHUs8n.css">
+  <script src="camada/halo.js"></script></head>
+  <body>
+    <div id="lancador"></div>
+  </body>
+</html>

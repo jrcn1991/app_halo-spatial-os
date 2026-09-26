@@ -28,7 +28,7 @@
 <p align="center">
   <a href="https://jrcn1991.github.io/halo-spatial-os/#passeio"><img src="site/assets/ambientes.gif" alt="Halo switching between its four environments: Cyberpunk, City Pop, Shock and Floresta" width="880"></a>
   <br>
-  <sub>▶ <a href="https://jrcn1991.github.io/halo-spatial-os/#passeio">Watch the full tour</a> — environments, island, launcher, notifications and every screen</sub>
+  <sub>▶ <a href="https://jrcn1991.github.io/halo-spatial-os/#passeio">Watch the full tour</a> — environments, island, launcher, notifications and every screen · <a href="https://jrcn1991.github.io/halo-spatial-os/#demo">Try the interactive demo</a> in your browser</sub>
 </p>
 
 <p align="center">
