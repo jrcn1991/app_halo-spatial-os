@@ -108,6 +108,14 @@ function schedule(): void {
  *   7. `island.focus`         as sessões de foco, quando um temporizador acaba
  *   8. `launcher.recentes`    o que o lançador executou, a cada execução
  *   9. `launcher.position`    onde o usuário deixou a janela do lançador
+ *  10. `claude.mode`          o modo de permissão, pela confirmação nativa
+ *  11. `claude.cli`           o programa claude, pelo seletor de arquivo
+ *
+ * Os dois últimos são outra espécie: não é que o renderer não acompanhe, é que
+ * ele não pode escrever. Um caminho de executável e o modo "tudo liberado"
+ * vindos da tela dariam a quem controlasse a tela um `spawn` de qualquer
+ * programa (auditoria de 26/09/2026). A tela só pode DESCER: esvaziar o
+ * `cli` (voltar a procurar sozinho) é aceito, porque não dá poder a ninguém.
  *
  * Campo novo que o main escreva sozinho entra nesta lista, nesta contagem, e
  * no `??` abaixo. Esquecer é apagar dado do usuário em silêncio.
@@ -127,8 +135,12 @@ export function saveSettings(input: unknown): void {
   // que veio no arranque; aceitar a cópia dele desconectaria a conta no
   // primeiro ajuste de tela feito depois de conectar.
   const spotifyRefreshToken = current?.music.spotifyRefreshToken ?? next.music.spotifyRefreshToken
-  // E o quarto: o token do Seafile nasce de um login feito aqui.
-  const seafileToken = current?.seafile.token ?? next.seafile.token
+  // E o quarto: o token do Seafile nasce de um login feito aqui. Mas ele vale
+  // para UM servidor: trocado o endereço, o token antigo é apagado — senão
+  // ele seguiria, no próximo pedido, para o servidor novo (auditoria de
+  // 26/09/2026). O login seguinte, feito com o endereço novo, grava outro.
+  const mesmoServidor = !current || current.seafile.server.trim() === next.seafile.server.trim()
+  const seafileToken = mesmoServidor ? (current?.seafile.token ?? next.seafile.token) : ''
   // Quinto: a gaveta da ilha é escrita aqui conforme arquivos são soltos na
   // gota. O renderer das configurações não a acompanha; aceitar a cópia dele
   // esvaziaria a gaveta no primeiro ajuste de tela.
@@ -143,6 +155,9 @@ export function saveSettings(input: unknown): void {
   const recentes = current?.launcher.recentes ?? next.launcher.recentes
   // Nono: a posição do lançador, escrita aqui ao fim de um arrasto.
   const posicaoDoLancador = current?.launcher.position ?? next.launcher.position
+  // Décimo e décimo primeiro: ver a lista acima.
+  const modoDoClaude = current?.claude.mode ?? next.claude.mode
+  const cliDoClaude = next.claude.cli === '' ? '' : (current?.claude.cli ?? '')
   current = {
     ...next,
     desktop: { ...next.desktop, position },
@@ -150,12 +165,27 @@ export function saveSettings(input: unknown): void {
     music: { ...next.music, spotifyRefreshToken },
     seafile: { ...next.seafile, token: seafileToken },
     island: { ...next.island, shelf, note, focus },
+    claude: { ...next.claude, mode: modoDoClaude, cli: cliDoClaude },
     launcher: {
       ...next.launcher,
       recentes,
       ...(posicaoDoLancador ? { position: posicaoDoLancador } : {}),
     },
   }
+  schedule()
+}
+
+/** O modo de permissão dos agentes, já confirmado. Só o main escreve isto. */
+export function saveClaudeMode(mode: HaloSettings['claude']['mode']): void {
+  if (!current) return
+  current = { ...current, claude: { ...current.claude, mode } }
+  schedule()
+}
+
+/** O programa claude, escolhido no seletor nativo. Só o main escreve isto. */
+export function saveClaudeCli(cli: string): void {
+  if (!current) return
+  current = { ...current, claude: { ...current.claude, cli } }
   schedule()
 }
 

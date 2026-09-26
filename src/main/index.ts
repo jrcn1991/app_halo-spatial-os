@@ -1,7 +1,8 @@
+import { statSync } from 'node:fs'
 import { stat } from 'node:fs/promises'
 import { homedir } from 'node:os'
-import { join } from 'node:path'
-import type { Attachment } from '@shared/agents'
+import { isAbsolute, join } from 'node:path'
+import { type Attachment, PERMISSION_MODES, type PermissionMode } from '@shared/agents'
 import type { CreativeItem, CreativeProviderId, CreativeQuery } from '@shared/creative'
 import type { EnvironmentId } from '@shared/environments'
 import { definirIdioma, ehIdioma, t } from '@shared/i18n'
@@ -33,7 +34,7 @@ import {
   pararVigia,
   soltarGuardadas,
 } from './island/kwin'
-import { shelfAdd, shelfDragStart, shelfList } from './island/shelf'
+import { registrarArrasto, shelfAdd, shelfDragStart, shelfList } from './island/shelf'
 import { esquecerMemoria, islandSnapshot, setPulsoLeve } from './island/snapshot'
 import { pararTeclado, vigiarTeclado } from './island/teclado'
 import { bindTimer } from './island/timer'
@@ -156,6 +157,8 @@ import {
   gravarPadrao,
   primeiraAbertura,
   readSettings,
+  saveClaudeCli,
+  saveClaudeMode,
   saveLauncherUso,
   saveProgress,
   saveSeafileLibrary,
@@ -163,7 +166,7 @@ import {
 } from './settings'
 import { bandejaDePe, criarBandeja, fecharBandeja, trazerParaAVista } from './tray'
 import { currentWeather } from './weather'
-import { createMainWindow, STAGE } from './window'
+import { createMainWindow, paraRenderer, STAGE } from './window'
 
 // Deixa o Electron usar Wayland nativo quando a sessão for Wayland; em X11
 // ele cai em X11. Sem isto o app roda sempre por XWayland (escala borrada em
@@ -259,8 +262,22 @@ function avisarIdioma(antes: HaloSettings, depois: unknown): void {
   }
 }
 
+/** Uma pasta de verdade, agora — um caminho que sumiu não vira cwd de ninguém. */
+function pastaExiste(caminho: string): boolean {
+  try {
+    return statSync(caminho).isDirectory()
+  } catch {
+    return false
+  }
+}
+
 function registerIpc(): void {
   ipcMain.on(IPC.windowClose, (e) => BrowserWindow.fromWebContents(e.sender)?.close())
+  // O preload da janela principal pede as configurações ao nascer. Sem os
+  // segredos, como sempre (`paraRenderer`), e só para quem traz a marca.
+  ipcMain.on(IPC.settingsInicial, (e) => {
+    e.returnValue = paraRenderer(currentSettings())
+  })
   ipcMain.on(IPC.settingsSave, (_e, settings) => {
     const antes = currentSettings()
     avisarIdioma(antes, settings)
@@ -599,9 +616,18 @@ function registerAgentsIpc(): void {
   })
 
   ipcMain.handle(IPC.agentsList, () => listAgents())
-  ipcMain.handle(IPC.agentsCreate, (_e, project: string, resume: string | null) =>
-    createAgent(project, currentSettings().claude.mode, resume ?? undefined),
-  )
+  ipcMain.handle(IPC.agentsCreate, (_e, project: unknown, resume: unknown) => {
+    // O projeto vira o cwd do agente: uma pasta absoluta que existe, e nada
+    // além disso — o `resume` é conferido em `createAgent`.
+    if (typeof project !== 'string' || !isAbsolute(project) || !pastaExiste(project)) {
+      throw new Error(t('Projeto inválido'))
+    }
+    return createAgent(
+      project,
+      currentSettings().claude.mode,
+      typeof resume === 'string' ? resume : undefined,
+    )
+  })
   ipcMain.on(IPC.agentsSend, (_e, id: string, text: string, anexos: Attachment[]) =>
     sendToAgent(id, text, anexos),
   )
@@ -613,7 +639,10 @@ function registerAgentsIpc(): void {
    * Sem caminhos, abre o seletor; com eles, lê os que já são conhecidos (o que
    * foi colado ou arrastado). A leitura é leitura: nada é escrito ou movido.
    */
-  ipcMain.handle(IPC.agentsAttach, async (e, paths: string[] | null): Promise<Attachment[]> => {
+  ipcMain.handle(IPC.agentsAttach, async (e, pedidos: unknown): Promise<Attachment[]> => {
+    const paths = Array.isArray(pedidos)
+      ? pedidos.filter((p): p is string => typeof p === 'string').slice(0, 20)
+      : null
     let escolhidos = paths
     if (!escolhidos) {
       const win = BrowserWindow.fromWebContents(e.sender)
@@ -626,7 +655,8 @@ function registerAgentsIpc(): void {
         : dialog.showOpenDialog(opcoes))
       escolhidos = escolha.canceled ? [] : escolha.filePaths
     }
-    const lidos = await Promise.all(escolhidos.map(readAttachment))
+    const origem = paths ? 'tela' : 'seletor'
+    const lidos = await Promise.all(escolhidos.map((p) => readAttachment(p, origem)))
     return lidos.filter((a): a is Attachment => a !== null)
   })
   ipcMain.on(IPC.agentsClose, (_e, id: string) => closeAgent(id))
@@ -637,7 +667,40 @@ function registerAgentsIpc(): void {
     const win = BrowserWindow.fromWebContents(e.sender)
     const opcoes = { title: t('Escolher um projeto'), properties: ['openDirectory' as const] }
     const escolha = await (win ? dialog.showOpenDialog(win, opcoes) : dialog.showOpenDialog(opcoes))
-    return escolha.canceled ? null : (escolha.filePaths[0] ?? null)
+    const caminho = escolha.canceled ? null : (escolha.filePaths[0] ?? null)
+    // Quem grava é o main: o caminho de um executável não pode vir da tela.
+    if (caminho) saveClaudeCli(caminho)
+    return caminho
+  })
+  ipcMain.handle(IPC.claudeSetMode, async (e, pedido: unknown): Promise<PermissionMode> => {
+    const atual = currentSettings().claude.mode
+    if (!(PERMISSION_MODES as readonly unknown[]).includes(pedido)) return atual
+    const modo = pedido as PermissionMode
+    // Descer (ou ficar) não dá poder a ninguém. Subir é decisão da pessoa, e
+    // a pergunta é do sistema, fora do alcance da tela.
+    if (PERMISSION_MODES.indexOf(modo) > PERMISSION_MODES.indexOf(atual)) {
+      const win = BrowserWindow.fromWebContents(e.sender)
+      const opcoes = {
+        type: 'warning' as const,
+        buttons: [t('Permitir'), t('Cancelar')],
+        defaultId: 1,
+        cancelId: 1,
+        title: 'Halo',
+        message:
+          modo === 'bypassPermissions'
+            ? t('Deixar os agentes do Claude fazerem tudo sem perguntar?')
+            : t('Deixar os agentes do Claude editarem arquivos?'),
+        detail: t(
+          'Vale para os agentes que você abrir daqui em diante, dentro dos projetos que você adicionou. Dá para voltar ao modo só leitura a qualquer momento.',
+        ),
+      }
+      const { response } = await (win
+        ? dialog.showMessageBox(win, opcoes)
+        : dialog.showMessageBox(opcoes))
+      if (response !== 0) return atual
+    }
+    saveClaudeMode(modo)
+    return modo
   })
 
   // Abrir a pasta de um projeto no gerenciador de arquivos (um clique na pasta
@@ -779,6 +842,7 @@ function registerIslandIpc(): void {
   })
   ipcMain.handle(IPC.islandDisplays, () => listDisplays())
   ipcMain.handle(IPC.islandCatalog, () => CATALOG)
+  ipcMain.on(IPC.arrastoSolto, (_e, caminhos: unknown) => registrarArrasto(caminhos))
   ipcMain.on(IPC.islandOpen, (e, on: boolean) => {
     const win = BrowserWindow.fromWebContents(e.sender)
     if (win) setIslandOpen(win, on)
@@ -1119,7 +1183,7 @@ function ritmoDaIlha(): void {
           if (capturasVistas.has(captura.path)) continue
           capturasVistas.add(captura.path)
           try {
-            shelfAdd(captura.path)
+            shelfAdd(captura.path, 'main')
           } catch {
             // Gaveta cheia ou caminho recusado: o anúncio ainda vale.
           }

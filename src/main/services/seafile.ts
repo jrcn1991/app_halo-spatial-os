@@ -1,7 +1,9 @@
 import { randomBytes } from 'node:crypto'
+import { lookup } from 'node:dns/promises'
 import { createReadStream } from 'node:fs'
 import { request as pedirHttp } from 'node:http'
 import { request as pedirHttps } from 'node:https'
+import { BlockList, isIP } from 'node:net'
 import { basename } from 'node:path'
 import { t } from '@shared/i18n'
 import type {
@@ -70,8 +72,56 @@ function config() {
   }
 }
 
+/**
+ * A exceção do Seafile (CLAUDE.md § Segredos) vale porque o servidor está na
+ * rede LOCAL do usuário — e isto confere, em vez de só dizer: o nome do
+ * servidor tem de resolver só para endereços privados ou de loopback. Um
+ * endereço público (digitado errado, ou trocado) não recebe senha nem token.
+ * A resposta fica guardada por alguns minutos para não resolver a cada pedido.
+ */
+const REDE_LOCAL = (() => {
+  const lista = new BlockList()
+  lista.addSubnet('10.0.0.0', 8, 'ipv4')
+  lista.addSubnet('172.16.0.0', 12, 'ipv4')
+  lista.addSubnet('192.168.0.0', 16, 'ipv4')
+  lista.addSubnet('127.0.0.0', 8, 'ipv4')
+  lista.addSubnet('169.254.0.0', 16, 'ipv4')
+  lista.addSubnet('100.64.0.0', 10, 'ipv4') // CGNAT: VPNs como Tailscale
+  lista.addAddress('::1', 'ipv6')
+  lista.addSubnet('fc00::', 7, 'ipv6')
+  lista.addSubnet('fe80::', 10, 'ipv6')
+  return lista
+})()
+const ehLocal = (ip: string) => {
+  const v4 = ip.startsWith('::ffff:') ? ip.slice(7) : ip
+  const familia = isIP(v4)
+  return familia !== 0 && REDE_LOCAL.check(v4, familia === 6 ? 'ipv6' : 'ipv4')
+}
+const localConferido = new Map<string, { ok: boolean; quando: number }>()
+
+async function servidorNaRedeLocal(server: string): Promise<boolean> {
+  let host: string
+  try {
+    host = new URL(server).hostname.replace(/^\[|\]$/g, '')
+  } catch {
+    return false
+  }
+  const guardado = localConferido.get(host)
+  if (guardado && Date.now() - guardado.quando < 5 * 60_000) return guardado.ok
+  const ok = isIP(host)
+    ? ehLocal(host)
+    : await lookup(host, { all: true })
+        .then((enderecos) => enderecos.length > 0 && enderecos.every((e) => ehLocal(e.address)))
+        .catch(() => false)
+  localConferido.set(host, { ok, quando: Date.now() })
+  return ok
+}
+
 async function pedir(caminho: string, init: RequestInit = {}): Promise<Response> {
   const { server, token } = config()
+  if (!(await servidorNaRedeLocal(server))) {
+    throw new Error(t('o servidor do Seafile precisa estar na rede local'))
+  }
   const controller = new AbortController()
   const relogio = setTimeout(() => controller.abort(), TIMEOUT_MS)
   try {
@@ -250,6 +300,11 @@ function transmitir(
     const cauda = Buffer.from(`\r\n--${fronteira}--\r\n`)
 
     const url = new URL(link)
+    // O link de envio vem do servidor, e leva o token e o arquivo: só vale se
+    // apontar para o MESMO servidor configurado.
+    if (url.host !== new URL(config().server).host) {
+      throw new Error(t('o Seafile devolveu um link de envio para outro servidor'))
+    }
     const pedirCom = url.protocol === 'https:' ? pedirHttps : pedirHttp
     const req = pedirCom(
       url,

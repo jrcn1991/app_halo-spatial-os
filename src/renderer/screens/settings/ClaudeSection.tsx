@@ -50,6 +50,7 @@ const MODOS: Record<PermissionMode, { label: string; explica: string }> = {
 
 export function ClaudeSection() {
   const mode = useHalo((s) => s.claudeMode)
+  const { setMode: pedirModo } = useAgentTools()
   const setMode = useHalo((s) => s.setClaudeMode)
   const projetos = useHalo((s) => s.claudeProjects)
   const grupos = useHalo((s) => s.claudeGroups)
@@ -76,7 +77,11 @@ export function ClaudeSection() {
             label: t(MODOS[valor].label),
           }))}
           value={mode}
-          onChange={(proximo) => setMode(proximo as PermissionMode)}
+          // Quem grava é o main, e subir o modo passa por uma confirmação do
+          // sistema: a tela mostra o que ficou valendo, não o que pediu.
+          onChange={(proximo) =>
+            void pedirModo(proximo as PermissionMode).then((valeu) => setMode(valeu))
+          }
         />
         <span className={styles.note}>{t(MODOS[mode].explica)}</span>
         <span className={styles.note}>

@@ -368,7 +368,7 @@ export type Music = {
  * guardada em lugar nenhum — ela é trocada pelo token e descartada.
  */
 export type SeafileSettings = {
-  /** Endereço do servidor, ex.: `http://192.168.1.20:8000`. */
+  /** Endereço do servidor, ex.: `http://nas.local:8000`. */
   server: string
   /** Token da Web API. Vazio = falta entrar. */
   token: string

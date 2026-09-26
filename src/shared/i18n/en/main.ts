@@ -12,7 +12,6 @@ export const EN_MAIN: Record<string, string> = {
   'a plataforma respondeu HTTP {status}': 'the platform answered HTTP {status}',
   'a página demorou demais': 'the page took too long',
   'a página é grande demais': 'the page is too large',
-  'a resposta do Spotify não bateu com o pedido': "Spotify's response didn't match the request",
   'A resposta não bateu com o pedido. Pode fechar esta aba.':
     "The response didn't match the request. You can close this tab.",
   aberto: 'open',
@@ -438,4 +437,15 @@ export const EN_MAIN: Record<string, string> = {
   Áudio: 'Audio',
   'Última resposta': 'Last reply',
   'Últimos 7 dias': 'Last 7 days',
+  'Deixar os agentes do Claude fazerem tudo sem perguntar?':
+    'Let the Claude agents do everything without asking?',
+  'Deixar os agentes do Claude editarem arquivos?': 'Let the Claude agents edit files?',
+  'Vale para os agentes que você abrir daqui em diante, dentro dos projetos que você adicionou. Dá para voltar ao modo só leitura a qualquer momento.':
+    'It applies to the agents you open from now on, inside the projects you added. You can go back to read-only at any time.',
+  'Projeto inválido': 'Invalid project',
+  'a gaveta só guarda arquivos arrastados para ela': 'the drawer only keeps files dragged onto it',
+  'o servidor do Seafile precisa estar na rede local':
+    'the Seafile server must be on the local network',
+  'o Seafile devolveu um link de envio para outro servidor':
+    'Seafile returned an upload link for another server',
 }

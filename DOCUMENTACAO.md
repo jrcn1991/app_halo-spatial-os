@@ -123,6 +123,31 @@ de fora:
   trocar de endereço entre a conferência e a busca.
 - **Socket local nasce fechado.** A API da ilha cria o socket com `umask`
   0177: ele já existe como 0600, sem intervalo em que outro usuário o abra.
+- **Repositório achado não manda no git.** A varredura de projetos roda
+  `git` em pastas que ninguém escolheu confiar, e um `.git/config` pode
+  mandar o git executar programas (`core.fsmonitor`, filtros `clean`,
+  `log.showSignature`, diff externo). `services/projects.ts` desliga cada um
+  por `-c` em toda chamada — opção da linha de comando vence o config do
+  repositório.
+- **O que dá poder não vem da tela.** O programa `claude` só é trocado pelo
+  seletor nativo, e subir o modo de permissão pede uma confirmação do
+  sistema; `saveSettings` ignora os dois quando chegam na cópia do renderer.
+  O `--resume` só aceita um id de sessão, colado à opção. A gaveta só guarda
+  arquivo que chegou num arrasto de verdade (o preload conta ao main, com
+  `isTrusted`), e anexo vindo da tela não lê a pasta de configuração do app
+  nem as de credenciais.
+- **Página de fora não ganha permissão.** O navegador da Social Arte nega
+  todo pedido de permissão e toda consulta sensível (câmera, microfone,
+  localização, notificações, área de transferência), e a janela oculta não
+  abre janela nenhuma.
+- **O Seafile precisa estar na rede local.** O token só vai a um servidor
+  cujo nome resolve para endereço privado; trocar o endereço apaga o token, e
+  o link de envio tem de apontar para o mesmo servidor.
+- **As configurações não vão no argv.** A janela principal recebe uma marca
+  e pede as configurações por IPC síncrono: em `/proc/<pid>/cmdline` elas
+  eram legíveis por outros usuários da máquina.
+- **O binário não vira Node.** Os fuses do Electron (`electron-builder.yml`)
+  desligam `ELECTRON_RUN_AS_NODE`, `NODE_OPTIONS` e `--inspect`.
 
 ### CSS: três armadilhas que já custaram caro
 

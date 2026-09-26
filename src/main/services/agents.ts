@@ -2,7 +2,7 @@ import { type ChildProcess, spawn } from 'node:child_process'
 import { existsSync, readdirSync } from 'node:fs'
 import { readdir, readFile, stat } from 'node:fs/promises'
 import { homedir } from 'node:os'
-import { basename, extname, join } from 'node:path'
+import { basename, extname, isAbsolute, join, relative } from 'node:path'
 import type {
   Agent,
   AgentApproval,
@@ -312,6 +312,9 @@ function lerSaida(vivo: Vivo, pedaco: string): void {
 }
 
 /** Abre um agente no projeto. Devolve o id para a tela já focar nele. */
+/** O id de uma sessão do CLI: o nome do `.jsonl` em `~/.claude/projects`. */
+const SESSAO = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 export function createAgent(
   project: string,
   mode: PermissionMode,
@@ -333,7 +336,10 @@ export function createAgent(
       '--permission-mode',
       mode,
       // Retomar uma conversa antiga é abrir o agente já com ela dentro.
-      ...(resume ? ['--resume', resume] : []),
+      // Só um id de sessão, e colado à opção: o `--resume` tem valor
+      // OPCIONAL, e um valor começado por `-` seria lido como a opção seguinte
+      // — um jeito de a tela injetar flags no CLI (auditoria de 26/09/2026).
+      ...(resume && SESSAO.test(resume) ? [`--resume=${resume}`] : []),
       ...(opcoes.systemPrompt ? ['--append-system-prompt', opcoes.systemPrompt] : []),
       ...(opcoes.model ? ['--model', opcoes.model] : []),
       // Os pedidos de permissão vêm pela saída como `control_request` e são
@@ -559,11 +565,53 @@ const ANEXO_MAX = 4_000_000
 const TEXTO_MAX = 200_000
 
 /** Lê um arquivo do disco e o prepara como anexo. */
-export async function readAttachment(path: string): Promise<Attachment | null> {
+/**
+ * Onde um anexo vindo da TELA não entra: a pasta de configuração do próprio
+ * app (os segredos que o `paraRenderer` esconde moram ali) e as pastas de
+ * credenciais conhecidas. O anexo volta ao renderer com o conteúdo, e sem esta
+ * lista uma tela comprometida leria o `settings.json` pedindo-o como anexo
+ * (auditoria de 26/09/2026). O seletor nativo não passa por aqui: ali quem
+ * escolhe o arquivo é a pessoa, numa janela do sistema.
+ */
+const FORA_DO_ALCANCE = [
+  '.config/halo-spatial-os',
+  '.ssh',
+  '.gnupg',
+  '.aws',
+  '.kube',
+  '.docker',
+  '.claude',
+  '.netrc',
+  '.git-credentials',
+  '.pgpass',
+  '.password-store',
+  '.mozilla',
+  '.config/gh',
+  '.config/gcloud',
+  '.config/google-chrome',
+  '.config/chromium',
+  '.config/BraveSoftware',
+  '.config/rclone',
+  '.local/share/keyrings',
+  '.local/share/kwalletd',
+].map((p) => join(homedir(), p))
+
+function foraDoAlcance(real: string): boolean {
+  return FORA_DO_ALCANCE.some((pasta) => {
+    const r = relative(pasta, real)
+    return r === '' || (!r.startsWith('..') && !isAbsolute(r))
+  })
+}
+
+export async function readAttachment(
+  path: string,
+  origem: 'seletor' | 'tela' = 'tela',
+): Promise<Attachment | null> {
   try {
     // O caminho vem do renderer (arrasto ou colar): só arquivo comum, fora de
     // `/proc` e afins, e lido pelo destino do link — ver `arquivo-solto.ts`.
     const { caminho: real, bytes } = await arquivoSolto(path, ANEXO_MAX)
+    if (origem === 'tela' && foraDoAlcance(real)) return null
     const info = { size: bytes }
 
     const name = basename(path)

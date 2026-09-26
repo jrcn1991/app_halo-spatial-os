@@ -101,7 +101,7 @@ export function useSessions(project: string | null): AgentSession[] {
  */
 export function useAgentTools(): Pick<
   AgentsRepository,
-  'addProject' | 'openProject' | 'chooseCli'
+  'addProject' | 'openProject' | 'chooseCli' | 'setMode'
 > {
   return repositories.agents
 }

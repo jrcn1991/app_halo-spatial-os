@@ -1,4 +1,4 @@
-import type { Agent, AgentMessage, AgentSession, Attachment } from './agents'
+import type { Agent, AgentMessage, AgentSession, Attachment, PermissionMode } from './agents'
 import type { DesktopApp } from './apps'
 import type {
   CreativeCollection,
@@ -72,6 +72,8 @@ export const IPC = {
   windowDesktopMode: 'window:desktop-mode',
   windowRelaunch: 'window:relaunch',
   settingsSave: 'settings:save',
+  /** As configurações do arranque, pedidas pelo preload (síncrono). */
+  settingsInicial: 'settings:inicial',
   wallpaperApply: 'wallpaper:apply',
   wallpaperPreviews: 'wallpaper:previews',
   wallpaperChoose: 'wallpaper:choose',
@@ -103,6 +105,7 @@ export const IPC = {
   claudeProjectAdd: 'claude:project-add',
   claudeProjectOpen: 'claude:project-open',
   claudeChooseCli: 'claude:choose-cli',
+  claudeSetMode: 'claude:set-mode',
   agentsList: 'agents:list',
   agentsCreate: 'agents:create',
   agentsSend: 'agents:send',
@@ -132,6 +135,8 @@ export const IPC = {
   notificacoesExemplo: 'notificacoes:exemplo',
   islandSnapshot: 'island:snapshot',
   islandAction: 'island:action',
+  /** O preload avisa os caminhos de um arrasto DE VERDADE (`isTrusted`). */
+  arrastoSolto: 'arrasto:solto',
   islandOpen: 'island:open',
   islandDisplays: 'island:displays',
   islandCatalog: 'island:catalog',
@@ -451,6 +456,12 @@ export type HaloApi = {
      * está — em vez de um `spawn claude ENOENT` que não ensina nada.
      */
     chooseCli: () => Promise<string | null>
+    /**
+     * Troca o modo de permissão dos agentes. Quem grava é o main, e SUBIR o
+     * modo passa por uma confirmação nativa que a tela não consegue forjar.
+     * Devolve o modo que ficou valendo.
+     */
+    setMode: (mode: PermissionMode) => Promise<PermissionMode>
   }
   /**
    * Ilha dinâmica — código isolado, ver `src/main/island/`.

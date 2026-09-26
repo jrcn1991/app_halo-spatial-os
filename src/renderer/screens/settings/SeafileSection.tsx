@@ -54,7 +54,7 @@ export function SeafileSection() {
         <input
           className={styles.campo}
           value={server}
-          placeholder="http://192.168.1.20:8000"
+          placeholder="http://nas.local:8000"
           aria-label={t('Endereço do servidor Seafile')}
           spellCheck={false}
           onChange={(e) => setServer(e.target.value)}

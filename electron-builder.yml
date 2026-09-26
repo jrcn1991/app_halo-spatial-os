@@ -30,6 +30,17 @@ extraResources:
     to: THIRD-PARTY.md
   - from: LICENSE
     to: LICENSE
+# Os "fuses" do Electron, gravados no binário do pacote. Sem eles, qualquer
+# processo da máquina transformava `/opt/Halo/halo-spatial-os` num Node comum
+# (`ELECTRON_RUN_AS_NODE=1`, `NODE_OPTIONS`, `--inspect`) — e esse binário sai
+# do confinamento com o perfil do AppArmor que o pacote instala (auditoria de
+# 26/09/2026). O app não usa nenhum dos três. `onlyLoadAppFromAsar` impede
+# trocar o app por uma pasta `app/` ao lado do asar.
+electronFuses:
+  runAsNode: false
+  enableNodeOptionsEnvironmentVariable: false
+  enableNodeCliInspectArguments: false
+  onlyLoadAppFromAsar: true
 linux:
   target:
     - AppImage

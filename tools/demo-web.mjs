@@ -63,8 +63,7 @@ const REMENDOS_DEMO = [
     // estão na demo (`fundos/`), relativos a `app/index.html`.
     'ambientes: a miniatura de cada papel de parede',
     /previews:async\(\)=>\(\{\}\)/,
-    () =>
-      `previews:async()=>({${AMBIENTES.map((id) => `${id}:"../fundos/${id}.jpg"`).join(',')}})`,
+    () => `previews:async()=>({${AMBIENTES.map((id) => `${id}:"../fundos/${id}.jpg"`).join(',')}})`,
   ],
   [
     'idioma: o da página',

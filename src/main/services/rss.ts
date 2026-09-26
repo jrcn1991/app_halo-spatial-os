@@ -6,6 +6,7 @@ import {
   type NewsItem,
   type NewsResult,
 } from '@shared/news'
+import { pedir } from './creative/rede'
 
 /**
  * Leitor de feeds RSS 2.0, RSS 1.0 (RDF) e Atom.
@@ -146,26 +147,50 @@ async function aquecerImagem(url: string): Promise<void> {
   }
 }
 
+/**
+ * A URL da miniatura vem do FEED, não do usuário: um item pode apontar para
+ * `127.0.0.1`, a rede local ou o endereço de metadados da nuvem. Por isso ela
+ * passa pela trava de rede (`creative/rede.ts`), que confere o IP na conexão,
+ * e cada redirecionamento é conferido de novo (auditoria de 26/09/2026).
+ */
 async function baixarComoDataUrl(url: string): Promise<string> {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
   try {
-    const response = await fetch(url, {
-      signal: controller.signal,
-      headers: { Accept: 'image/*', 'User-Agent': 'Halo (leitor de RSS)' },
-    })
-    if (!response.ok) return ''
+    let alvo = new URL(url)
+    for (let salto = 0; salto < 4; salto++) {
+      const resposta = await pedir(
+        alvo,
+        { Accept: 'image/*', 'User-Agent': 'Halo (leitor de RSS)' },
+        controller.signal,
+      )
+      const destino = resposta.headers.location
+      if (resposta.status >= 300 && resposta.status < 400 && typeof destino === 'string') {
+        resposta.descartar()
+        alvo = new URL(destino, alvo)
+        continue
+      }
+      if (resposta.status < 200 || resposta.status >= 300) {
+        resposta.descartar()
+        return ''
+      }
 
-    // O tipo vem do SERVIDOR e não do que a gente espera: sem esta conferência
-    // um `text/html` de página de erro viraria um `data:` que o renderer
-    // tentaria desenhar. `image/svg+xml` fica de fora de propósito — SVG é
-    // documento com script, e isto aqui é uma miniatura de 64px.
-    const tipo = (response.headers.get('content-type') ?? '').split(';')[0]?.trim() ?? ''
-    if (!/^image\/(png|jpeg|jpg|gif|webp|avif)$/i.test(tipo)) return ''
-
-    const buffer = Buffer.from(await response.arrayBuffer())
-    if (buffer.byteLength > MAX_IMAGE_BYTES) return ''
-    return `data:${tipo};base64,${buffer.toString('base64')}`
+      // O tipo vem do SERVIDOR e não do que a gente espera: sem esta conferência
+      // um `text/html` de página de erro viraria um `data:` que o renderer
+      // tentaria desenhar. `image/svg+xml` fica de fora de propósito — SVG é
+      // documento com script, e isto aqui é uma miniatura de 64px.
+      const bruto = resposta.headers['content-type']
+      const tipo = (typeof bruto === 'string' ? bruto : '').split(';')[0]?.trim() ?? ''
+      if (!/^image\/(png|jpeg|jpg|gif|webp|avif)$/i.test(tipo)) {
+        resposta.descartar()
+        return ''
+      }
+      const buffer = await resposta.ler(MAX_IMAGE_BYTES)
+      return `data:${tipo};base64,${buffer.toString('base64')}`
+    }
+    return ''
+  } catch {
+    return ''
   } finally {
     clearTimeout(timer)
   }

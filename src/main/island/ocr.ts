@@ -1,5 +1,5 @@
 import { execFile } from 'node:child_process'
-import { unlink } from 'node:fs/promises'
+import { mkdtemp, rm } from 'node:fs/promises'
 import { join } from 'node:path'
 import { promisify } from 'node:util'
 import { t } from '@shared/i18n'
@@ -56,7 +56,13 @@ export async function lerTextoDaImagem(imagem: string): Promise<string> {
 
 /** Uma região da tela, desenhada pelo usuário no Spectacle, lida e descartada. */
 export async function lerTextoDaTela(): Promise<string> {
-  const arquivo = join(app.getPath('temp'), `halo-ocr-${Date.now().toString(36)}.png`)
+  // Pasta própria, criada agora e só nossa (0700): num nome previsível em
+  // `/tmp` outro usuário da máquina podia criar o arquivo antes e trocar a
+  // imagem lida (auditoria de 26/09/2026). `XDG_RUNTIME_DIR` já é só do
+  // usuário; sem ele, o temporário do sistema.
+  const base = process.env.XDG_RUNTIME_DIR || app.getPath('temp')
+  const pasta = await mkdtemp(join(base, 'halo-ocr-'))
+  const arquivo = join(pasta, 'regiao.png')
   try {
     // `-b` sem interface, `-n` sem notificação, `-r` região: o Spectacle só
     // volta depois que o usuário solta o retângulo (ou cancela, e aí não há
@@ -64,6 +70,6 @@ export async function lerTextoDaTela(): Promise<string> {
     await run('spectacle', ['-b', '-n', '-r', '-o', arquivo], { timeout: 120_000 })
     return await lerTextoDaImagem(arquivo)
   } finally {
-    await unlink(arquivo).catch(() => {})
+    await rm(pasta, { recursive: true, force: true }).catch(() => {})
   }
 }

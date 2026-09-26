@@ -279,26 +279,28 @@ function esperarRetorno(servidor: Server, state: string, caminho: string): Promi
 
       // `state` é a defesa contra alguém chamar este endereço por fora: sem
       // conferir, qualquer página aberta no navegador poderia empurrar um
-      // código de autorização de outra conta para dentro do app.
+      // código de autorização de outra conta para dentro do app. E ele vem
+      // PRIMEIRO, antes até do `error`: quem não traz o `state` certo não é o
+      // Spotify, e não pode nem encerrar o consentimento que está em curso —
+      // a resposta é recusada e o servidor segue esperando a verdadeira.
+      if (devolvido !== state) {
+        res.writeHead(400, { 'Content-Type': 'text/html; charset=utf-8' })
+        res.end(pagina(t('Não deu'), t('A resposta não bateu com o pedido. Pode fechar esta aba.')))
+        return
+      }
       const resposta = negado
         ? terminar(
             { erro: t('o Spotify recusou: {motivo}', { motivo: negado }) },
             t('Não deu'),
             t('Pode fechar esta aba.'),
           )
-        : devolvido !== state
-          ? terminar(
-              { erro: t('a resposta do Spotify não bateu com o pedido') },
+        : code
+          ? terminar({ code }, t('Pronto'), t('Pode fechar esta aba e voltar ao Halo.'))
+          : terminar(
+              { erro: t('o Spotify não devolveu código') },
               t('Não deu'),
-              t('A resposta não bateu com o pedido. Pode fechar esta aba.'),
+              t('Pode fechar esta aba.'),
             )
-          : code
-            ? terminar({ code }, t('Pronto'), t('Pode fechar esta aba e voltar ao Halo.'))
-            : terminar(
-                { erro: t('o Spotify não devolveu código') },
-                t('Não deu'),
-                t('Pode fechar esta aba.'),
-              )
 
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' })
       res.end(pagina(resposta.titulo, resposta.texto))

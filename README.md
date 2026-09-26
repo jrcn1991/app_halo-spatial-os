@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.2.1-61d19a" alt="Version 0.2.1">
+  <img src="https://img.shields.io/badge/version-0.2.2-61d19a" alt="Version 0.2.2">
   <img src="https://img.shields.io/badge/KDE%20Plasma-6-1D99F3?logo=kde&logoColor=white" alt="KDE Plasma 6">
   <img src="https://img.shields.io/badge/Ubuntu-26.04-E95420?logo=ubuntu&logoColor=white" alt="Ubuntu 26.04">
   <img src="https://img.shields.io/badge/Electron-44-47848F?logo=electron&logoColor=white" alt="Electron 44">
@@ -228,7 +228,7 @@ the notification bubbles and the wallpaper switch don't work.
 2. Install it:
 
    ```bash
-   sudo apt install ./halo-spatial-os_0.2.1_amd64.deb
+   sudo apt install ./halo-spatial-os_0.2.2_amd64.deb
    ```
 
 3. Open **Halo** from the application menu.

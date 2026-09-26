@@ -509,7 +509,12 @@ export function detail(uri: string): Promise<SpotifyResult<SpotifyDetail>> {
     if (guardado && Date.now() - guardado.at < CACHE_DETALHE_MS) return guardado.valor
 
     const [, tipo, id] = uri.split(':')
-    if (!tipo || !id) throw new Error(`URI do Spotify inesperada: ${uri}`)
+    // O id entra no caminho da API: só o formato do Spotify (base62, 22
+    // caracteres). Com `../` ele levaria o token do usuário a outro endpoint
+    // (auditoria de 26/09/2026) — e a URI pode vir de qualquer player MPRIS.
+    if (!tipo || !id || !/^[A-Za-z0-9]{22}$/.test(id)) {
+      throw new Error(`URI do Spotify inesperada: ${uri}`)
+    }
 
     const valor =
       tipo === 'playlist'

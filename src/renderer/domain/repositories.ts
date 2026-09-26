@@ -1,4 +1,4 @@
-import type { Agent, AgentMessage, AgentSession, Attachment } from '@shared/agents'
+import type { Agent, AgentMessage, AgentSession, Attachment, PermissionMode } from '@shared/agents'
 import type {
   CreativeCollection,
   CreativeConnection,
@@ -202,6 +202,8 @@ export type AgentsRepository = {
   openProject(path: string): Promise<boolean>
   /** Abre o seletor para apontar o programa `claude`. `null` = cancelou. */
   chooseCli(): Promise<string | null>
+  /** Troca o modo de permissão; subir pede confirmação. Devolve o que valeu. */
+  setMode(mode: PermissionMode): Promise<PermissionMode>
 }
 
 /**

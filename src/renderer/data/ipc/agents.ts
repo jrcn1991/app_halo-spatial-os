@@ -14,4 +14,5 @@ export const ipcAgents: AgentsRepository = {
   addProject: () => window.halo.agents.addProject(),
   openProject: (path) => window.halo.agents.openProject(path),
   chooseCli: () => window.halo.agents.chooseCli(),
+  setMode: (mode) => window.halo.agents.setMode(mode),
 }

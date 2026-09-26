@@ -1,5 +1,5 @@
 import { t } from '@shared/i18n'
-import { BrowserWindow, session, shell } from 'electron'
+import { BrowserWindow, session } from 'electron'
 import { RedeError } from './rede'
 
 /**
@@ -224,12 +224,42 @@ const ocultas = new Set<number>()
 const RASTREIO =
   /doubleclick|googlesyndication|googletagmanager|google-analytics|adsystem|adthrive|criteo|rubiconproject|tapad|safeframe|imasdk|scorecardresearch|quantserve|taboola|outbrain|hotjar|facebook\.net|connect\.facebook/i
 
+/** O que uma página de fora nunca consegue, nem consultando. */
+const SENSIVEIS = new Set([
+  'media',
+  'geolocation',
+  'notifications',
+  'clipboard-read',
+  'clipboard-sanitized-write',
+  'midi',
+  'midiSysex',
+  'hid',
+  'serial',
+  'usb',
+  'openExternal',
+  'display-capture',
+  'idle-detection',
+  'window-management',
+  'keyboardLock',
+  'pointerLock',
+  'fileSystem',
+])
+
 let filtroInstalado = false
 function compartimento() {
   const ses = session.fromPartition(PARTICAO)
   ses.setUserAgent(AGENTE)
   if (!filtroInstalado) {
     filtroInstalado = true
+    // O Electron APROVA por padrão todo pedido de permissão — câmera,
+    // microfone, localização, notificações, área de transferência. Aqui roda
+    // página de terceiro, muitas vezes numa janela que o usuário nem vê: todo
+    // PEDIDO é negado (auditoria de 26/09/2026). A CONSULTA só é negada para o
+    // que é sensível: negar todas quebrou a paginação da busca (medido — a
+    // segunda página vinha vazia), porque o site decide como carregar pelo
+    // que a consulta responde.
+    ses.setPermissionRequestHandler((_conteudo, _permissao, responder) => responder(false))
+    ses.setPermissionCheckHandler((_conteudo, permissao) => !SENSIVEIS.has(permissao))
     ses.webRequest.onBeforeRequest((detalhes, responder) => {
       const oculta = detalhes.webContentsId !== undefined && ocultas.has(detalhes.webContentsId)
       if (!oculta) return responder({})
@@ -290,12 +320,10 @@ function pegarJanela(aba: Aba): BrowserWindow {
     },
   })
   janela.webContents.setUserAgent(AGENTE)
-  // Nada de janelas novas: um pop-up da página abriria no navegador do sistema,
-  // onde o usuário vê o endereço.
-  janela.webContents.setWindowOpenHandler(({ url }) => {
-    if (/^https?:\/\//i.test(url)) void shell.openExternal(url)
-    return { action: 'deny' }
-  })
+  // Nada de janelas novas. Esta janela é OCULTA: ninguém clica nela, então um
+  // `window.open` daqui nunca é gesto do usuário — mandá-lo ao navegador do
+  // sistema deixaria a página abrir abas nele à vontade.
+  janela.webContents.setWindowOpenHandler(() => ({ action: 'deny' }))
   // Oculta: entra no filtro de rede, e sem áudio — um som saindo de uma
   // janela que não existe na tela seria um fantasma.
   const id = janela.webContents.id

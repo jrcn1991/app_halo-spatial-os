@@ -130,6 +130,31 @@ that and the machine. So every IPC channel treats its input as foreign:
 - **The local socket is born closed.** The island API creates its socket
   under `umask` 0177: it exists as 0600 from the start, with no window in
   which another user could open it.
+- **A repository found by the scan doesn't control git.** The project scan
+  runs `git` in folders nobody chose to trust, and a `.git/config` can make
+  git run programs (`core.fsmonitor`, `clean` filters, `log.showSignature`,
+  external diff). `services/projects.ts` turns each one off with `-c` on
+  every call — a command-line option beats the repository's config.
+- **What grants power doesn't come from the screen.** The `claude` program is
+  only changed through the native file picker, and raising the permission
+  mode asks for a system confirmation; `saveSettings` ignores both in the
+  renderer's copy. `--resume` only takes a session id, glued to the option.
+  The drawer only keeps files that arrived in a real drag (the preload tells
+  the main process, checking `isTrusted`), and attachments coming from the
+  screen can't read the app's config folder or credential folders.
+- **Outside pages get no permissions.** The Social Arte browser denies every
+  permission request and every sensitive permission check (camera,
+  microphone, location, notifications, clipboard), and the hidden window
+  opens no windows.
+- **Seafile must be on the local network.** The token only goes to a server
+  whose name resolves to a private address; changing the address clears the
+  token, and the upload link must point to the same server.
+- **Settings don't travel in argv.** The main window gets a marker and asks
+  for its settings over synchronous IPC: in `/proc/<pid>/cmdline` they were
+  readable by other users on the machine.
+- **The binary doesn't turn into Node.** Electron fuses
+  (`electron-builder.yml`) turn off `ELECTRON_RUN_AS_NODE`, `NODE_OPTIONS`
+  and `--inspect`.
 
 ### CSS: three traps that have already cost dearly
 

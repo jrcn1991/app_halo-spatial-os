@@ -1,4 +1,4 @@
-import type { Agent, AgentMessage, AgentSession, Attachment } from '@shared/agents'
+import type { Agent, AgentMessage, AgentSession, Attachment, PermissionMode } from '@shared/agents'
 import type { DesktopApp } from '@shared/apps'
 import type {
   CreativeConnection,
@@ -63,16 +63,46 @@ import type {
 import type { Weather } from '@shared/weather'
 import { contextBridge, ipcRenderer, webUtils } from 'electron'
 
+/*
+ * Os arquivos de um arrasto de verdade, contados ao main ANTES de a página ver
+ * o evento. A gaveta da ilha só guarda arquivo que chegou assim: a página pode
+ * pedir "guarde /qualquer/caminho", mas não consegue fabricar um `drop`
+ * confiável com arquivos do disco — um evento sintético tem `isTrusted` falso
+ * e um `File` criado por ela não tem caminho. Sem isto, uma tela
+ * comprometida punha qualquer arquivo na gaveta e o abria com o programa
+ * padrão (auditoria de 26/09/2026).
+ */
+addEventListener(
+  'drop',
+  (evento) => {
+    if (!evento.isTrusted || !evento.dataTransfer) return
+    const caminhos = [...evento.dataTransfer.files]
+      .map((arquivo) => {
+        try {
+          return webUtils.getPathForFile(arquivo)
+        } catch {
+          return ''
+        }
+      })
+      .filter(Boolean)
+    if (caminhos.length > 0) ipcRenderer.send(IPC.arrastoSolto, caminhos)
+  },
+  true,
+)
+
 /**
  * Superfície mínima e tipada. Cresce um método por integração real (F5),
  * nunca expondo `ipcRenderer` inteiro ao renderer.
  */
-/** As configurações chegam como argumento da janela (ver `window.ts`). */
+/**
+ * As configurações do arranque. Só a janela marcada pelo main as recebe (ver
+ * `window.ts`), por IPC síncrono: a janela precisa delas antes do primeiro
+ * desenho, e no argv elas seriam legíveis em `/proc` por qualquer usuário.
+ */
 function initialSettings(): HaloSettings {
-  const prefix = '--halo-settings='
-  const arg = process.argv.find((a) => a.startsWith(prefix))
+  if (!process.argv.includes('--halo-settings-ipc')) return parseSettings(null)
   try {
-    return parseSettings(arg ? JSON.parse(arg.slice(prefix.length)) : null)
+    return parseSettings(ipcRenderer.sendSync(IPC.settingsInicial))
   } catch {
     return parseSettings(null)
   }
@@ -208,6 +238,8 @@ const api: HaloApi = {
     openProject: (path: string) =>
       ipcRenderer.invoke(IPC.claudeProjectOpen, path) as Promise<boolean>,
     chooseCli: () => ipcRenderer.invoke(IPC.claudeChooseCli) as Promise<string | null>,
+    setMode: (mode: PermissionMode) =>
+      ipcRenderer.invoke(IPC.claudeSetMode, mode) as Promise<PermissionMode>,
   },
   island: {
     snapshot: () => ipcRenderer.invoke(IPC.islandSnapshot) as Promise<IslandSnapshot>,

@@ -5,6 +5,9 @@ import { travarNavegacao } from './navegacao'
 import { isX11, marcarForaDaBarra, setDesktopLayer, setSkipTaskbar } from './services/desktop-layer'
 import { savePosition } from './settings'
 
+/** A janela que recebe as configurações no arranque (ver o preload). */
+export const MARCA_DAS_CONFIGURACOES = '--halo-settings-ipc'
+
 /** Palco do handoff: 1440x900 exatos. A janela nasce nesse tamanho. */
 export const STAGE = { width: 1440, height: 900 } as const
 const ASPECT = STAGE.width / STAGE.height
@@ -59,7 +62,11 @@ export function createMainWindow(
       preload: join(import.meta.dirname, '../preload/index.cjs'),
       // Entrega as configurações ao renderer de forma síncrona, antes do
       // primeiro quadro — ver `settings.initial` no preload.
-      additionalArguments: [`--halo-settings=${JSON.stringify(paraRenderer(settings))}`],
+      // Só uma MARCA no argv: as configurações em si vão pelo IPC síncrono
+      // que o preload pede ao nascer. No argv elas ficavam em
+      // `/proc/<pid>/cmdline`, legíveis por outros usuários da máquina — a nota
+      // da ilha, a gaveta, os projetos, o histórico (auditoria de 26/09/2026).
+      additionalArguments: [MARCA_DAS_CONFIGURACOES],
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
@@ -139,7 +146,7 @@ export function createMainWindow(
  * devolve o campo vazio e `saveSettings` mantém o que está no disco (ver
  * `src/main/settings.ts`).
  */
-function paraRenderer(settings: HaloSettings): HaloSettings {
+export function paraRenderer(settings: HaloSettings): HaloSettings {
   // Todo segredo sai daqui. São três hoje — o refresh do Spotify, o token do
   // Seafile e a chave do TMDB — e a lista cresce junto com as integrações:
   // qualquer credencial nova precisa ser acrescentada aqui, ou ela vaza pelo

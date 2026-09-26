@@ -73,8 +73,29 @@ function avisar(evento?: IslandEvent): void {
   if (evento) announceToIslands(evento)
 }
 
-/** Guarda um arquivo do usuário (referência) ou um endereço http(s). */
-export function shelfAdd(bruto: string): void {
+/**
+ * Arquivos que chegaram por um arrasto de verdade há pouco (o preload conta,
+ * ver `IPC.arrastoSolto`). Só eles entram na gaveta vindos da tela.
+ */
+const arrastados = new Map<string, number>()
+const ARRASTO_VALE_MS = 60_000
+
+export function registrarArrasto(caminhos: unknown): void {
+  if (!Array.isArray(caminhos)) return
+  const agora = Date.now()
+  for (const [c, quando] of arrastados) if (agora - quando > ARRASTO_VALE_MS) arrastados.delete(c)
+  for (const c of caminhos.slice(0, 200)) {
+    if (typeof c === 'string' && c.startsWith('/')) arrastados.set(resolve(c), agora)
+  }
+}
+
+/**
+ * Guarda um arquivo do usuário (referência) ou um endereço http(s).
+ *
+ * `origem: 'tela'` é o pedido vindo do renderer: arquivo só entra se acabou de
+ * ser arrastado de verdade. O main (a captura de tela nova) guarda direto.
+ */
+export function shelfAdd(bruto: string, origem: 'tela' | 'main' = 'tela'): void {
   if (eUrl(bruto)) {
     const path = bruto
     const atual = currentSettings().island.shelf
@@ -89,6 +110,9 @@ export function shelfAdd(bruto: string): void {
   // tela e um jeito de fingir que um arquivo de fora é trecho da gaveta.
   const path = resolve(bruto)
   if (!existsSync(path)) throw new Error(t('esse arquivo não existe'))
+  if (origem === 'tela' && !arrastados.has(path)) {
+    throw new Error(t('a gaveta só guarda arquivos arrastados para ela'))
+  }
   const atual = currentSettings().island.shelf
   if (atual.includes(path)) return
   saveIslandShelf([path, ...atual])

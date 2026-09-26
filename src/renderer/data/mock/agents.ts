@@ -85,4 +85,5 @@ export const mockAgents: AgentsRepository = {
   addProject: async () => null,
   openProject: async () => false,
   chooseCli: async () => null,
+  setMode: async (mode) => mode,
 }

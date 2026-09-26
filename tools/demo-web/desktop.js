@@ -372,7 +372,10 @@
 
   /* ——— E o que a página do projeto pede ——— */
   addEventListener('message', (e) => {
-    if (e.source !== parent || !e.data || typeof e.data !== 'object') return
+    // Só a página do projeto, do mesmo site: um site que emoldurasse a demo
+    // não comanda nada aqui.
+    if (e.source !== parent || e.origin !== location.origin) return
+    if (!e.data || typeof e.data !== 'object') return
     const { halo, env: alvo } = e.data
     if (halo === 'lancador') lancador(true)
     else if (halo === 'aviso') notificar()

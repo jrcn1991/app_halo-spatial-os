@@ -38,18 +38,72 @@ async function findRepos(dir: string, depth: number, found: string[]): Promise<v
   )
 }
 
-async function git(cwd: string, args: string[]): Promise<string> {
-  const { stdout } = await run('git', args, { cwd, timeout: 4000 })
+/**
+ * O git roda em repositórios ACHADOS pela varredura — ninguém escolheu
+ * confiar neles, e um `.git/config` pode mandar o git executar programas: o
+ * `core.fsmonitor` roda no `git status` (medido na auditoria de 26/09/2026:
+ * uma pasta extraída de um zip executava um comando só por existir), um
+ * filtro `clean`/`process` também, o `log.showSignature` chama o
+ * `gpg.program`, e o diff tem `diff.external` e `textconv`. O `safe.directory`
+ * não protege: o dono da pasta é o próprio usuário.
+ *
+ * Opção dada por `-c` vence o config do repositório, então cada gatilho é
+ * desligado aqui, em toda chamada. Os filtros têm nome livre, e por isso são
+ * lidos antes (`git config` só LÊ, não executa nada) e esvaziados um a um:
+ * comando vazio o git não roda.
+ */
+const BLINDAGEM = [
+  '-c',
+  'core.fsmonitor=false',
+  '-c',
+  'core.untrackedCache=false',
+  '-c',
+  'log.showSignature=false',
+  '-c',
+  'diff.external=',
+  '--no-optional-locks',
+]
+
+async function blindagem(cwd: string): Promise<string[]> {
+  const { stdout } = await run(
+    'git',
+    [...BLINDAGEM, 'config', '--name-only', '--get-regexp', '^filter\\.'],
+    { cwd, timeout: 4000 },
+  ).catch(() => ({ stdout: '' }))
+  const filtros = new Set(
+    stdout
+      .split('\n')
+      .map((linha) => /^filter\.(.+)\.[^.]+$/.exec(linha.trim())?.[1])
+      .filter((nome): nome is string => !!nome),
+  )
+  return [
+    ...BLINDAGEM,
+    ...[...filtros].flatMap((nome) => [
+      '-c',
+      `filter.${nome}.clean=`,
+      '-c',
+      `filter.${nome}.smudge=`,
+      '-c',
+      `filter.${nome}.process=`,
+      '-c',
+      `filter.${nome}.required=false`,
+    ]),
+  ]
+}
+
+async function git(cwd: string, prefixo: string[], args: string[]): Promise<string> {
+  const { stdout } = await run('git', [...prefixo, ...args], { cwd, timeout: 4000 })
   return stdout.trim()
 }
 
 async function describe(path: string): Promise<Project | null> {
   try {
+    const seguro = await blindagem(path)
     const [branch, status, numstat, last] = await Promise.all([
-      git(path, ['rev-parse', '--abbrev-ref', 'HEAD']).catch(() => t('sem commits')),
-      git(path, ['status', '--porcelain']),
-      git(path, ['diff', '--numstat']).catch(() => ''),
-      git(path, ['log', '-1', '--format=%s%n%cI']).catch(() => ''),
+      git(path, seguro, ['rev-parse', '--abbrev-ref', 'HEAD']).catch(() => t('sem commits')),
+      git(path, seguro, ['status', '--porcelain']),
+      git(path, seguro, ['diff', '--numstat', '--no-ext-diff', '--no-textconv']).catch(() => ''),
+      git(path, seguro, ['log', '-1', '--no-show-signature', '--format=%s%n%cI']).catch(() => ''),
     ])
 
     const [insertions, deletions] = numstat
