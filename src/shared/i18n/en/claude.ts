@@ -80,4 +80,11 @@ export const EN_CLAUDE: Record<string, string> = {
   texto: 'text',
   'Copiar código': 'Copy code',
   Copiar: 'Copy',
+  'O Claude Code não foi encontrado': 'Claude Code was not found',
+  'O Claude ainda não está configurado': 'Claude is not set up yet',
+  'Esta tela abre agentes do Claude Code, o programa de linha de comando da Anthropic, e ele precisa estar instalado nesta máquina. Instale-o pelo site oficial e entre com a sua conta rodando claude uma vez no terminal. Se ele já está instalado num lugar incomum, aponte o caminho nas configurações.':
+    'This screen opens Claude Code agents, the command-line program from Anthropic, and it has to be installed on this machine. Install it from the official site and sign in by running claude once in a terminal. If it is already installed somewhere unusual, point to it in the settings.',
+  'Adicione a pasta de um projeto à esquerda, ou nas configurações. Cada agente é um Claude rodando dentro daquele repositório, e você conversa com ele aqui.':
+    'Add a project folder on the left, or in the settings. Each agent is a Claude running inside that repository, and you talk to it here.',
+  'Configurar o Claude': 'Set up Claude',
 }

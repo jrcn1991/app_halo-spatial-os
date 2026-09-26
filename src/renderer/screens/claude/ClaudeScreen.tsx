@@ -7,6 +7,7 @@ import { FolderOpen } from '@phosphor-icons/react/dist/icons/FolderOpen'
 import { FolderPlus } from '@phosphor-icons/react/dist/icons/FolderPlus'
 import { FolderSimple } from '@phosphor-icons/react/dist/icons/FolderSimple'
 import { FolderSimplePlus } from '@phosphor-icons/react/dist/icons/FolderSimplePlus'
+import { Gear } from '@phosphor-icons/react/dist/icons/Gear'
 import { GitBranch } from '@phosphor-icons/react/dist/icons/GitBranch'
 import { Paperclip } from '@phosphor-icons/react/dist/icons/Paperclip'
 import { PaperPlaneRight } from '@phosphor-icons/react/dist/icons/PaperPlaneRight'
@@ -19,6 +20,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useAgentMessages, useAgents, useAgentTools, useSessions } from '@/hooks/useAgents'
 import { usePathOf } from '@/hooks/useFiles'
 import { useProjectInfos, useProjects } from '@/hooks/useProjects'
+import { useDependencies } from '@/hooks/useSistema'
 import { useHalo } from '@/store/useHalo'
 import { cx } from '@/ui/cx'
 import { Panel } from '@/ui/Panel'
@@ -708,18 +710,7 @@ function ConversaPanel({
     fim.current?.scrollIntoView({ block: 'end' })
   }, [mensagens.length])
 
-  if (!agente) {
-    return (
-      <div className={styles.vazio}>
-        <p className={styles.vazioTitulo}>{t('Nenhum agente aberto')}</p>
-        <p className={styles.vazioTexto}>
-          {t(
-            'Clique num projeto à esquerda para abrir um. Cada agente é um Claude rodando dentro daquele repositório, e você conversa com ele aqui.',
-          )}
-        </p>
-      </div>
-    )
-  }
+  if (!agente) return <SemAgente />
 
   const enviar = () => {
     if (!texto.trim() && anexos.length === 0) return
@@ -825,6 +816,61 @@ function ConversaPanel({
           <PaperPlaneRight size={15} weight="fill" />
         </button>
       </div>
+    </div>
+  )
+}
+
+/**
+ * O miolo sem agente aberto. Quando a tela ainda não serve para nada — sem o
+ * programa `claude` ou sem projeto —, ela diz o que falta e leva direto a
+ * Configurações → Claude, em vez de deixar a pessoa adivinhar.
+ *
+ * Componente próprio porque o diagnóstico sai para processos externos: só
+ * é pedido enquanto não há agente, e não a cada mensagem da conversa.
+ */
+function SemAgente() {
+  const { data: diagnostico } = useDependencies()
+  const projetos = useHalo((s) => s.claudeProjects)
+  const setScreen = useHalo((s) => s.setScreen)
+  const setSection = useHalo((s) => s.setSettingsSection)
+
+  // `false`, e não "falsy": chave ausente é "não verificado", e aí não se acusa.
+  const semPrograma = diagnostico?.presentes.claude === false
+  const semProjeto = projetos.length === 0
+
+  const configurar = () => {
+    setSection('claude')
+    setScreen('settings')
+  }
+
+  return (
+    <div className={styles.vazio}>
+      <p className={styles.vazioTitulo}>
+        {semPrograma
+          ? t('O Claude Code não foi encontrado')
+          : semProjeto
+            ? t('O Claude ainda não está configurado')
+            : t('Nenhum agente aberto')}
+      </p>
+      <p className={styles.vazioTexto}>
+        {semPrograma
+          ? t(
+              'Esta tela abre agentes do Claude Code, o programa de linha de comando da Anthropic, e ele precisa estar instalado nesta máquina. Instale-o pelo site oficial e entre com a sua conta rodando claude uma vez no terminal. Se ele já está instalado num lugar incomum, aponte o caminho nas configurações.',
+            )
+          : semProjeto
+            ? t(
+                'Adicione a pasta de um projeto à esquerda, ou nas configurações. Cada agente é um Claude rodando dentro daquele repositório, e você conversa com ele aqui.',
+              )
+            : t(
+                'Clique num projeto à esquerda para abrir um. Cada agente é um Claude rodando dentro daquele repositório, e você conversa com ele aqui.',
+              )}
+      </p>
+      {semPrograma || semProjeto ? (
+        <button type="button" className={styles.action} onClick={configurar}>
+          <Gear size={16} />
+          {t('Configurar o Claude')}
+        </button>
+      ) : null}
     </div>
   )
 }

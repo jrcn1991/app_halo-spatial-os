@@ -58,7 +58,7 @@ export type SeafileState = {
  * Reduz o endereço à raiz do servidor.
  *
  * O que se cola é o que está na barra do navegador — e no Seafile isso costuma
- * ser `http://host:8087/accounts/login/?next=/`. Guardar o caminho junto faria
+ * ser `http://host:8000/accounts/login/?next=/`. Guardar o caminho junto faria
  * a API virar `…/accounts/login/?next=//api2/ping/`, que devolve a página de
  * login em HTML e não um erro claro: o app pareceria quebrado sem dizer por
  * quê. Ficar só com protocolo, host e porta resolve, e não custa nada a quem

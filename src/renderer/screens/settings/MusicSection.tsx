@@ -44,6 +44,27 @@ export function MusicSection() {
       </div>
       <div className={styles.divider} />
 
+      {/* O MPRIS não pede conta nem token — é o que o `playback` e o `control`
+          do main tentam primeiro. A API só entra para a biblioteca e para o
+          Connect (outro aparelho). */}
+      <div className={styles.section}>
+        <span className={styles.sectionLabel}>{t('Só com o aplicativo instalado')}</span>
+        <span className={styles.note}>
+          {t(
+            'Com o aplicativo do Spotify aberto neste computador, sem configurar nada: o que está tocando (música, artista, capa e progresso) na Início e na ilha, e os comandos de tocar, pausar, pular, aleatório e repetir. O Halo conversa com o aplicativo pelo D-Bus (MPRIS), sem conta e sem internet.',
+          )}
+        </span>
+      </div>
+
+      <div className={styles.section}>
+        <span className={styles.sectionLabel}>{t('Com a integração da API')}</span>
+        <span className={styles.note}>
+          {t(
+            'Para a tela de Música mostrar as suas playlists, álbuns salvos e artistas, e para comandar o Spotify em outro aparelho (celular, caixa de som), é preciso ligar a API: crie um app gratuito no painel de desenvolvedor do Spotify, cole o Client ID abaixo e clique em Conectar. Comandar outro aparelho exige Premium.',
+          )}
+        </span>
+      </div>
+
       <div className={styles.section}>
         <span className={styles.sectionLabel}>Client ID</span>
         <input

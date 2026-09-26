@@ -505,8 +505,6 @@ export const DEFAULT_SETTINGS: HaloSettings = {
   // `plan` é só leitura: o agente estuda e propõe, mas não mexe. Subir daqui
   // é decisão consciente, tomada na tela de Configurações.
   claude: { projects: [], groups: [], mode: 'plan', cli: '' },
-  // Desligada por padrão: ela aparece POR CIMA de tudo, e nada que ocupa o
-  // topo da tela do usuário deve começar ligado sem ele pedir.
   // Desligado por padrão: ligar tira o Meta+V do Klipper (ver `launcher/klipper.ts`),
   // e nada que mexe num atalho do sistema começa ligado sem o usuário pedir.
   launcher: { on: false, recentes: [] },
@@ -519,8 +517,13 @@ export const DEFAULT_SETTINGS: HaloSettings = {
   // balões do Plasma e desenhar os dele, e isso não se faz sem a pessoa pedir.
   // Quem já as ligou tem `on: true` gravado, e o padrão não o alcança.
   notificacoes: { on: false, canto: 'topo-direita' },
+  // Ligada por padrão numa instalação nova, a pedido do usuário (26/09/2026):
+  // a ilha é a porta de entrada do app, e com a janela nascendo recolhida é
+  // ela quem mostra que o Halo está de pé. Já foi desligada ("nada que ocupa o
+  // topo da tela começa ligado sem pedir"); quem a desligou tem `on: false`
+  // gravado, e o padrão não o alcança.
   island: {
-    on: false,
+    on: true,
     display: 'primary',
     // Sobre a barra: a ilha é o notch, e o notch mora na barra de menus. Abaixo
     // dela a pílula roubaria uma faixa da área útil de cada janela maximizada.
@@ -556,9 +559,18 @@ export const DEFAULT_SETTINGS: HaloSettings = {
   seafile: { server: '', token: '', library: '' },
   mascot: { file: '', on: false, liveliness: 'normal' },
   music: { spotifyClientId: '', spotifyRedirect: '', spotifyRefreshToken: '' },
-  // Um feed de exemplo em português, para a coluna de leitura nascer com
-  // conteúdo de verdade — e para o usuário ver onde trocar.
-  news: { feeds: ['https://tecnoblog.net/feed/'] },
+  // Feeds de exemplo, para a coluna de leitura nascer com conteúdo de verdade
+  // — e para o usuário ver onde trocar: um de tecnologia e dois de notícia
+  // geral, um nacional e um internacional. A CNN é a Brasil: os feeds da CNN
+  // internacional (`rss.cnn.com`) pararam de ser atualizados (medido em
+  // 26/09/2026: o mais novo era de 2024).
+  news: {
+    feeds: [
+      'https://tecnoblog.net/feed/',
+      'https://www.cnnbrasil.com.br/feed/',
+      'https://feeds.bbci.co.uk/news/world/rss.xml',
+    ],
+  },
 }
 
 const DOCKS: DockPosition[] = ['top', 'bottom', 'left', 'right']

@@ -267,7 +267,7 @@ export const useHalo = create<HaloState>((set) => ({
   lab: 0,
   sliders: { imersao: 70, vol: 64, mvol: 58 },
   nonce: 0,
-  settingsSection: 'animation',
+  settingsSection: 'language',
   language: initial.language,
   setLanguage: (language) => {
     definirIdioma(language)

@@ -74,6 +74,26 @@
   background: var(--hover-row);
 }
 
+/* Rótulo de grupo: a mesma voz do `eyebrow` do cabeçalho, com respiro acima
+   para separar do bloco anterior sem precisar de fio. */
+.navGroup {
+  flex: none;
+  padding: 12px 12px 2px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+/* Fecha o grupo de integrações antes de Sistema e Sobre. */
+.navRule {
+  height: 1px;
+  flex: none;
+  margin: 6px 12px;
+  background: var(--divider);
+}
+
 .navItemActive {
   background: var(--surface-inner-active-bg);
   /* `border`, e não `border-color`: o token guarda o atalho inteiro

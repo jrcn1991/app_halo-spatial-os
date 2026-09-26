@@ -1482,15 +1482,16 @@ const SPECS = {
       },
     ],
     [
-      'a ilha dinâmica tem seção própria, e nasce desligada',
+      'a ilha dinâmica tem seção própria, e nasce ligada',
       async (p) => {
         await p.click('nav[aria-label="Seções"] >> text=Ilha')
         await p.waitForTimeout(400)
 
         const chave = p.locator('[role="switch"]:has-text("Mostrar a ilha dinâmica")')
         if ((await chave.count()) === 0) return 'sem o interruptor da ilha'
-        // Ela aparece POR CIMA de tudo: começar ligada sem pedir seria invasivo.
-        if ((await chave.getAttribute('aria-checked')) === 'true') return 'nasceu ligada'
+        // Ligada numa instalação nova, a pedido do usuário (26/09/2026): com a
+        // janela nascendo recolhida, é a ilha que mostra que o app está de pé.
+        if ((await chave.getAttribute('aria-checked')) !== 'true') return 'nasceu desligada'
 
         // As cinco variações de movimento têm de estar oferecidas.
         const movimentos = await p

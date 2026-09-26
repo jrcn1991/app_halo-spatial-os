@@ -80,6 +80,24 @@ for (const [i, name] of APP_SCREENS.entries()) {
 /** Cada tela nos dois modos de navegação. */
 const CASES = Object.keys(found)
 
+// Janela MENOR que o palco: a baseline só mede em 1440x900, onde o palco não
+// precisa encolher — e foi justamente fora dela que ele saiu descentralizado
+// e o painel direito foi cortado pela janela (tela de 1920x887, janela de
+// 1346x841). Aqui não há baseline: o que se cobra é o palco ocupar a janela
+// inteira, começando no zero.
+const PEQUENA = { width: 1346, height: 841 }
+const menor = await newContext(browser)
+const pagina = await menor.newPage()
+await pagina.setViewportSize(PEQUENA)
+await pagina.goto(url)
+await pagina.waitForTimeout(SETTLE)
+const palco = await pagina.evaluate(() => {
+  const r = document.querySelector('[style*="--stage-scale"]').getBoundingClientRect()
+  return { x: +r.x.toFixed(1), right: +r.right.toFixed(1) }
+})
+const descentralizado =
+  Math.abs(palco.x) > TOLERANCE || Math.abs(palco.right - PEQUENA.width) > TOLERANCE
+
 await browser.close()
 server.close()
 
@@ -143,6 +161,15 @@ for (const name of CASES) {
   console.log(
     rows.length ? `  ✗ ${name}\n${rows.join('\n')}` : `  ✓ ${name} (${got.panels.length} painéis)`,
   )
+}
+
+if (descentralizado) {
+  failures += 1
+  console.log(
+    `  ✗ janela ${PEQUENA.width}x${PEQUENA.height}: palco de x=${palco.x} a ${palco.right}, esperado de 0 a ${PEQUENA.width}`,
+  )
+} else {
+  console.log(`  ✓ janela ${PEQUENA.width}x${PEQUENA.height}: palco centralizado`)
 }
 
 console.log(

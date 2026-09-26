@@ -21,6 +21,9 @@ export const EN_SETTINGS: Record<string, string> = {
   Sobre: 'About',
   Configurações: 'Settings',
   Seções: 'Sections',
+  Integrações: 'Integrations',
+  'Agentes mascotes disponíveis': 'Available mascot agents',
+  'Abrir a lista de agentes mascotes no navegador': 'Open the mascot agent list in the browser',
   'Preset do ambiente': 'Environment preset',
   Selecionada: 'Selected',
   Centro: 'Center',
@@ -393,6 +396,12 @@ export const EN_SETTINGS: Record<string, string> = {
   'Este produto usa a API do TMDB, mas não é endossado nem certificado por eles. A atribuição é condição dos termos de uso, e aparece também junto dos dados na tela de Mídia.':
     'This product uses the TMDB API but is not endorsed or certified by TMDB. Attribution is a condition of the terms of use, and it also appears next to the data on the Media screen.',
   'Música · Spotify': 'Music · Spotify',
+  'Só com o aplicativo instalado': 'With just the app installed',
+  'Com o aplicativo do Spotify aberto neste computador, sem configurar nada: o que está tocando (música, artista, capa e progresso) na Início e na ilha, e os comandos de tocar, pausar, pular, aleatório e repetir. O Halo conversa com o aplicativo pelo D-Bus (MPRIS), sem conta e sem internet.':
+    'With the Spotify app open on this computer and nothing to set up: what is playing (song, artist, cover and progress) on Home and on the island, and the play, pause, skip, shuffle and repeat controls. Halo talks to the app over D-Bus (MPRIS), with no account and no internet.',
+  'Com a integração da API': 'With the API integration',
+  'Para a tela de Música mostrar as suas playlists, álbuns salvos e artistas, e para comandar o Spotify em outro aparelho (celular, caixa de som), é preciso ligar a API: crie um app gratuito no painel de desenvolvedor do Spotify, cole o Client ID abaixo e clique em Conectar. Comandar outro aparelho exige Premium.':
+    'For the Music screen to show your playlists, saved albums and artists, and to control Spotify on another device (phone, speaker), you need to turn on the API: create a free app in the Spotify developer dashboard, paste its Client ID below and click Connect. Controlling another device requires Premium.',
   'Sua conta': 'Your account',
   'A tela de Música mostra as suas playlists, álbuns salvos e artistas, e comanda a reprodução. O áudio toca no aplicativo do Spotify ou em outro aparelho seu — não dentro do Halo.':
     'The Music screen shows your playlists, saved albums and artists, and controls playback. The audio plays in the Spotify app or on another of your devices — not inside Halo.',

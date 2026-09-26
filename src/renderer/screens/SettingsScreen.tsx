@@ -34,13 +34,17 @@ import { WindowSection } from './settings/WindowSection'
  * dentro da linguagem em vez de parecer um enxerto.
  */
 
-const SECTIONS: readonly { id: SettingsSection; label: string }[] = [
-  { id: 'animation', label: marcar('Animação') },
-  { id: 'appearance', label: marcar('Aparência') },
+/**
+ * `grupo` abre um bloco na lista: com texto vira um rótulo pequeno sobre a
+ * seção, vazio vira só o fio que fecha o bloco anterior.
+ */
+const SECTIONS: readonly { id: SettingsSection; label: string; grupo?: string }[] = [
   { id: 'language', label: marcar('Idioma') },
+  { id: 'appearance', label: marcar('Aparência') },
   { id: 'environment', label: marcar('Ambiente') },
+  { id: 'animation', label: marcar('Animação') },
   { id: 'window', label: marcar('Janela') },
-  { id: 'widgets', label: marcar('Widgets') },
+  { id: 'widgets', label: marcar('Widgets'), grupo: marcar('Integrações') },
   { id: 'media', label: marcar('Mídia') },
   { id: 'claude', label: 'Claude' },
   { id: 'island', label: marcar('Ilha') },
@@ -49,7 +53,7 @@ const SECTIONS: readonly { id: SettingsSection; label: string }[] = [
   { id: 'seafile', label: 'Seafile' },
   { id: 'music', label: marcar('Música') },
   { id: 'news', label: marcar('Notícias') },
-  { id: 'system', label: marcar('Sistema') },
+  { id: 'system', label: marcar('Sistema'), grupo: '' },
   { id: 'about', label: marcar('Sobre') },
 ]
 
@@ -75,7 +79,14 @@ export function SettingsScreen() {
         </div>
         <div className={styles.divider} />
         <nav className={styles.nav} aria-label={t('Seções')}>
-          {SECTIONS.map(({ id, label }) => (
+          {SECTIONS.map(({ id, label, grupo }) => [
+            grupo === undefined ? null : grupo ? (
+              <span key={`grupo-${id}`} className={styles.navGroup}>
+                {t(grupo)}
+              </span>
+            ) : (
+              <div key={`grupo-${id}`} className={styles.navRule} />
+            ),
             <button
               key={id}
               type="button"
@@ -86,8 +97,8 @@ export function SettingsScreen() {
               onClick={() => setSection(id)}
             >
               {t(label)}
-            </button>
-          ))}
+            </button>,
+          ])}
         </nav>
       </Panel>
 

@@ -181,6 +181,9 @@ function ProgramaClaude() {
  * antigo — no lugar do orbe, reagindo ao que os agentes fazem. Sem personagem
  * escolhido o orbe continua: a tela nunca fica com um buraco.
  */
+/** Acervo público dos personagens clássicos do Microsoft Agent (`.acs`). */
+const AGENTES_CLASSICOS = 'https://tmafe.com/classic-ms-agents/'
+
 function MascoteConfig() {
   const file = useHalo((s) => s.mascotFile)
   const on = useHalo((s) => s.mascotOn)
@@ -302,6 +305,25 @@ function MascoteConfig() {
           'Arquivos `.acs` do Microsoft Agent. O escolhido é copiado para a sua biblioteca, e o app decodifica o formato binário direto — imagens, paleta e a compressão própria da Microsoft.',
         )}
       </span>
+
+      {/* `<a target="_blank">`, como em Sobre: o main manda o endereço para o
+          navegador do sistema (só http(s)). O app não baixa nada de lá — o
+          usuário baixa e traz pelo botão acima. */}
+      <div className={styles.linha}>
+        <span className={styles.linhaTexto}>
+          <span className={styles.linhaTitulo}>{t('Agentes mascotes disponíveis')}</span>
+          <span className={styles.linhaDetalhe}>tmafe.com/classic-ms-agents</span>
+        </span>
+        <a
+          className={styles.acao}
+          href={AGENTES_CLASSICOS}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={t('Abrir a lista de agentes mascotes no navegador')}
+        >
+          {t('Abrir')}
+        </a>
+      </div>
     </div>
   )
 }
