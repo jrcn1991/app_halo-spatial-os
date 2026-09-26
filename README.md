@@ -7,13 +7,14 @@
 <p align="center"><b>English</b> · <a href="README.pt-BR.md">Português (Brasil)</a></p>
 
 <p align="center">
-  <b>Glass panels floating over your desktop, a dynamic island at the top of the screen,<br>
-  and environments that switch the theme and the wallpaper in one go.</b><br>
-  For Linux with KDE Plasma 6.
+  <b>An all-in-one app for Linux: system meters, files, movies, music, Docker and Claude Code agents<br>
+  in one window, plus a dynamic island, a Meta+V launcher and one-click themes.</b><br>
+  For KDE Plasma 6.
 </p>
 
 <p align="center">
   <a href="https://github.com/jrcn1991/app_halo-spatial-os/releases/latest"><img src="https://img.shields.io/badge/Download-.deb%20for%20Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white" alt="Download the .deb"></a>
+  <a href="https://jrcn1991.github.io/app_halo-spatial-os/#demo"><img src="https://img.shields.io/badge/Try%20the-interactive%20demo-61D19A?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Try the interactive demo"></a>
   <a href="https://jrcn1991.github.io/app_halo-spatial-os/"><img src="https://img.shields.io/badge/Visit-the%20website-7C5CFF?style=for-the-badge&logo=githubpages&logoColor=white" alt="Project website"></a>
 </p>
 
@@ -26,9 +27,9 @@
 </p>
 
 <p align="center">
-  <a href="https://jrcn1991.github.io/app_halo-spatial-os/#passeio"><img src="site/assets/ambientes.gif" alt="Halo switching between its four environments: Cyberpunk, City Pop, Shock and Floresta" width="880"></a>
+  <a href="https://jrcn1991.github.io/app_halo-spatial-os/#demo"><img src="site/assets/ambientes.gif" alt="Halo switching between its four environments: Cyberpunk, City Pop, Shock and Floresta" width="880"></a>
   <br>
-  <sub>▶ <a href="https://jrcn1991.github.io/app_halo-spatial-os/#passeio">Watch the full tour</a> — environments, island, launcher, notifications and every screen · <a href="https://jrcn1991.github.io/app_halo-spatial-os/#demo">Try the interactive demo</a> in your browser</sub>
+  <sub>▶ <a href="https://jrcn1991.github.io/app_halo-spatial-os/#demo">Try the interactive demo in your browser</a> — the island, the launcher, the eight screens and the four themes, with sample data</sub>
 </p>
 
 <p align="center">

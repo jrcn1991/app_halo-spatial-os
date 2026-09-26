@@ -7,13 +7,14 @@
 <p align="center"><a href="README.md">English</a> · <b>Português (Brasil)</b></p>
 
 <p align="center">
-  <b>Painéis de vidro flutuando sobre a sua área de trabalho, uma ilha dinâmica no topo da tela<br>
-  e ambientes que trocam o tema e o papel de parede de uma vez.</b><br>
-  Para Linux com KDE Plasma 6.
+  <b>Um app tudo-em-um para Linux: medidores do sistema, arquivos, filmes, música, Docker e agentes do Claude Code<br>
+  numa janela só, com ilha dinâmica, lançador no Meta+V e temas que trocam com um clique.</b><br>
+  Para KDE Plasma 6.
 </p>
 
 <p align="center">
   <a href="https://github.com/jrcn1991/app_halo-spatial-os/releases/latest"><img src="https://img.shields.io/badge/Baixar-.deb%20para%20Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white" alt="Baixar o .deb"></a>
+  <a href="https://jrcn1991.github.io/app_halo-spatial-os/#demo"><img src="https://img.shields.io/badge/Experimente-a%20demo%20interativa-61D19A?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Experimente a demo interativa"></a>
   <a href="https://jrcn1991.github.io/app_halo-spatial-os/"><img src="https://img.shields.io/badge/Conhe%C3%A7a-a%20p%C3%A1gina-7C5CFF?style=for-the-badge&logo=githubpages&logoColor=white" alt="Página do projeto"></a>
 </p>
 
@@ -26,9 +27,9 @@
 </p>
 
 <p align="center">
-  <a href="https://jrcn1991.github.io/app_halo-spatial-os/#passeio"><img src="site/assets/ambientes.gif" alt="O Halo trocando entre os quatro ambientes: Cyberpunk, City Pop, Shock e Floresta" width="880"></a>
+  <a href="https://jrcn1991.github.io/app_halo-spatial-os/#demo"><img src="site/assets/ambientes.gif" alt="O Halo trocando entre os quatro ambientes: Cyberpunk, City Pop, Shock e Floresta" width="880"></a>
   <br>
-  <sub>▶ <a href="https://jrcn1991.github.io/app_halo-spatial-os/#passeio">Assista ao passeio completo</a> — ambientes, ilha, lançador, notificações e todas as telas · <a href="https://jrcn1991.github.io/app_halo-spatial-os/#demo">Experimente a demo interativa</a> no navegador</sub>
+  <sub>▶ <a href="https://jrcn1991.github.io/app_halo-spatial-os/#demo">Experimente a demo interativa no navegador</a> — a ilha, o lançador, as oito telas e os quatro temas, com dados de exemplo</sub>
 </p>
 
 <p align="center">
