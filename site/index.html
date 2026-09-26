@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-lang="pt">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Halo — Spatial OS</title>
-<meta name="description" content="Painéis de vidro flutuando sobre a sua área de trabalho e uma ilha dinâmica no topo da tela. Para Linux com KDE Plasma 6. Grátis e GPL.">
+<meta name="description" content="Painéis de vidro flutuando sobre a sua área de trabalho, uma ilha dinâmica no topo da tela e ambientes que trocam o tema e o papel de parede. Para Linux com KDE Plasma 6. Grátis e GPL.">
 <meta property="og:title" content="Halo — Spatial OS">
-<meta property="og:description" content="Painéis de vidro sobre a sua área de trabalho e uma ilha dinâmica no topo da tela. Para KDE Plasma 6.">
+<meta property="og:description" content="Painéis de vidro sobre a sua área de trabalho, uma ilha dinâmica, um lançador no Meta+V e quatro ambientes. Para KDE Plasma 6.">
 <meta property="og:image" content="assets/home-cyberpunk.jpg">
 <meta name="theme-color" content="#07090c">
 <link rel="icon" href="assets/icone.png">
@@ -26,14 +26,20 @@
     --faint: #6b7480;
     /* A cor de destaque é a do ambiente escolhido na demonstração. */
     --accent: #61d19a;
+    --accent-2: #b98cff;
     --accent-soft: rgba(97, 209, 154, 0.16);
     --radius: 22px;
     --sans: "DM Sans", system-ui, sans-serif;
     --mono: "DM Mono", ui-monospace, monospace;
+    --ease: cubic-bezier(.2, .8, .2, 1);
+    --spring: cubic-bezier(.34, 1.4, .5, 1);
   }
-  :root[data-env="citypop"] { --accent: #4fd8ff; --accent-soft: rgba(79, 216, 255, 0.16); }
-  :root[data-env="cyberpunk"] { --accent: #f75049; --accent-soft: rgba(247, 80, 73, 0.16); }
-  :root[data-env="bioshock"] { --accent: #d9a441; --accent-soft: rgba(217, 164, 65, 0.16); }
+  :root[data-env="citypop"] { --accent: #4fd8ff; --accent-2: #ff5fa2; --accent-soft: rgba(79, 216, 255, 0.16); }
+  :root[data-env="cyberpunk"] { --accent: #f75049; --accent-2: #fcee0a; --accent-soft: rgba(247, 80, 73, 0.16); }
+  :root[data-env="bioshock"] { --accent: #d9a441; --accent-2: #4fb5a5; --accent-soft: rgba(217, 164, 65, 0.16); }
+
+  /* Bilíngue sem script: o inglês fica escondido até alguém pedir. */
+  html[data-lang="pt"] [lang="en"], html[data-lang="en"] [lang="pt"] { display: none !important; }
 
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
@@ -49,75 +55,125 @@
   }
   a { color: inherit; }
   img, video { display: block; max-width: 100%; }
+  code { font-family: var(--mono); font-size: .92em; background: var(--glass-2); padding: 1px 6px; border-radius: 6px; }
   .wrap { width: min(1180px, 100% - 32px); margin: 0 auto; }
 
-  /* O halo de cor atrás de tudo segue o ambiente. */
-  .aura {
-    position: fixed; inset: -20vh 0 auto; height: 90vh; z-index: -1;
-    background: radial-gradient(ellipse at 50% 0%, var(--accent-soft), transparent 60%);
-    transition: background 0.8s ease;
-    pointer-events: none;
+  /* ——— O fundo: dois halos de cor que seguem o ambiente e respiram ——— */
+  .aura { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+  .aura i {
+    position: absolute; width: 70vmax; height: 70vmax; border-radius: 50%;
+    filter: blur(90px); opacity: .22; transition: background 1s ease;
+  }
+  .aura i:nth-child(1) { background: var(--accent); top: -40vmax; left: -10vmax; animation: deriva 22s ease-in-out infinite alternate; }
+  .aura i:nth-child(2) { background: var(--accent-2); top: -30vmax; right: -30vmax; opacity: .14; animation: deriva 28s ease-in-out infinite alternate-reverse; }
+  @keyframes deriva { to { transform: translate(12vmax, 10vmax) scale(1.1); } }
+  .grao {
+    position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .05;
+    background-image: radial-gradient(rgba(255,255,255,.7) 1px, transparent 1px);
+    background-size: 3px 3px;
   }
 
   /* ——— Navegação ——— */
-  nav {
+  nav.topo {
     position: sticky; top: 0; z-index: 20;
     backdrop-filter: blur(18px) saturate(1.3);
     -webkit-backdrop-filter: blur(18px) saturate(1.3);
     background: rgba(7, 9, 12, 0.66);
     border-bottom: 1px solid var(--line);
   }
-  nav .wrap { display: flex; align-items: center; gap: 28px; height: 64px; }
+  nav.topo .wrap { display: flex; align-items: center; gap: 22px; height: 64px; }
   .marca { display: flex; align-items: center; gap: 10px; font-weight: 700; text-decoration: none; letter-spacing: -0.01em; }
   .marca img { width: 28px; height: 28px; }
-  nav .links { display: flex; gap: 22px; margin-left: auto; font-size: 15px; }
-  nav .links a { text-decoration: none; color: var(--muted); transition: color 0.2s; }
-  nav .links a:hover { color: var(--text); }
+  nav.topo .links { display: flex; gap: 20px; margin-left: auto; font-size: 15px; }
+  nav.topo .links a { text-decoration: none; color: var(--muted); transition: color 0.2s; }
+  nav.topo .links a:hover { color: var(--text); }
+  .idioma { display: flex; border: 1px solid var(--line-2); border-radius: 999px; padding: 2px; }
+  .idioma button { font: 500 12px var(--mono); color: var(--muted); background: none; border: 0; padding: 5px 10px; border-radius: 999px; cursor: pointer; }
+  .idioma button[aria-pressed="true"] { background: var(--glass-2); color: var(--text); }
   .botao {
     display: inline-flex; align-items: center; gap: 8px;
     padding: 11px 20px; border-radius: 999px;
     font: 600 15px var(--sans); text-decoration: none; cursor: pointer;
     border: 1px solid var(--line-2); background: var(--glass-2); color: var(--text);
-    transition: transform 0.2s, background 0.2s, border-color 0.2s;
+    transition: transform 0.25s var(--spring), background 0.2s, border-color 0.2s, box-shadow .3s;
   }
-  .botao:hover { transform: translateY(-1px); border-color: var(--accent); }
-  .botao.primario { background: var(--accent); color: #07090c; border-color: transparent; }
-  .botao.primario:hover { filter: brightness(1.08); }
-  nav .botao { padding: 8px 16px; font-size: 14px; }
+  .botao:hover { transform: translateY(-2px); border-color: var(--accent); }
+  .botao.primario { background: var(--accent); color: #07090c; border-color: transparent; box-shadow: 0 8px 30px var(--accent-soft); transition: transform 0.25s var(--spring), background .8s, box-shadow .3s; }
+  .botao.primario:hover { box-shadow: 0 10px 44px var(--accent-soft), 0 0 0 4px var(--accent-soft); }
+  nav.topo .botao { padding: 8px 16px; font-size: 14px; }
 
   /* ——— Hero ——— */
-  .hero { text-align: center; padding: 72px 0 40px; position: relative; }
-  /* A pílula do topo: a ilha, respirando. */
+  .hero { text-align: center; padding: 64px 0 36px; position: relative; }
+  /* A pílula do topo: a ilha de verdade faz isto — fecha, alarga para anunciar,
+     volta. Aqui ela passa pelos três estados em loop. */
   .pilula {
-    width: 170px; height: 34px; margin: 0 auto 36px;
-    background: #000; border-radius: 0 0 18px 18px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--line);
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-    font: 500 12px var(--mono); color: var(--muted);
-    animation: respira 6s ease-in-out infinite;
+    position: relative; height: 38px; margin: 0 auto 38px; width: 190px;
+    background: #000; border-radius: 0 0 20px 20px;
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--line);
+    animation: pilula 12s var(--spring) infinite;
+    overflow: hidden;
   }
-  .pilula i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
-  @keyframes respira { 0%, 100% { width: 170px; } 50% { width: 230px; } }
-  .eyebrow { font: 500 13px var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
-  h1 { font-size: clamp(40px, 7vw, 82px); line-height: 1.02; letter-spacing: -0.035em; margin: 14px 0 20px; font-weight: 700; }
-  h1 em { font-style: normal; color: var(--accent); transition: color 0.6s; }
-  .sub { color: var(--muted); font-size: clamp(17px, 2vw, 20px); max-width: 640px; margin: 0 auto 32px; }
+  .pilula > div {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 10px;
+    font: 500 12.5px var(--mono); color: var(--muted); white-space: nowrap; opacity: 0;
+  }
+  .pilula .p1 { animation: fase1 12s infinite; }
+  .pilula .p2 { animation: fase2 12s infinite; }
+  .pilula .p3 { animation: fase3 12s infinite; }
+  .capinha { width: 22px; height: 22px; border-radius: 6px; background: linear-gradient(160deg, #0f2027 10%, #2c5364 60%, #f7b267); position: relative; overflow: hidden; }
+  .capinha::after { content: ""; position: absolute; width: 10px; height: 10px; border-radius: 50%; background: #fef3e2; left: 6px; top: 5px; }
+  .onda { display: inline-flex; gap: 2px; align-items: center; height: 16px; }
+  .onda b { width: 3px; border-radius: 2px; background: var(--accent); animation: barra 0.9s ease-in-out infinite; transition: background .8s; }
+  .onda b:nth-child(2) { animation-delay: -.3s; } .onda b:nth-child(3) { animation-delay: -.6s; } .onda b:nth-child(4) { animation-delay: -.15s; } .onda b:nth-child(5) { animation-delay: -.45s; }
+  @keyframes barra { 0%, 100% { height: 4px; } 50% { height: 15px; } }
+  .ponto { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); }
+  @keyframes pilula {
+    0%, 28% { width: 190px; height: 38px; }
+    33%, 60% { width: 340px; height: 38px; }
+    65%, 90% { width: 240px; height: 38px; }
+    100% { width: 190px; }
+  }
+  @keyframes fase1 { 0%, 27% { opacity: 1; } 31%, 94% { opacity: 0; } 98%, 100% { opacity: 1; } }
+  @keyframes fase2 { 0%, 32% { opacity: 0; } 36%, 59% { opacity: 1; } 63%, 100% { opacity: 0; } }
+  @keyframes fase3 { 0%, 64% { opacity: 0; } 68%, 89% { opacity: 1; } 93%, 100% { opacity: 0; } }
+
+  .eyebrow { font: 500 13px var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); transition: color .8s; }
+  h1 { font-size: clamp(40px, 7.4vw, 88px); line-height: 1.02; letter-spacing: -0.04em; margin: 14px 0 20px; font-weight: 700; }
+  h1 em {
+    font-style: normal;
+    background: linear-gradient(100deg, var(--accent), var(--accent-2), var(--accent));
+    background-size: 200% 100%;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: brilho 6s linear infinite;
+  }
+  @keyframes brilho { to { background-position: -200% 0; } }
+  .sub { color: var(--muted); font-size: clamp(17px, 2vw, 20px); max-width: 660px; margin: 0 auto 32px; }
   .ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
   .selos { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 26px; }
   .selo { font: 500 12.5px var(--mono); color: var(--muted); padding: 5px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--glass); }
 
-  /* ——— Demonstração ——— */
-  .demo { padding: 20px 0 80px; }
+  /* A entrada do hero: cada peça sobe, uma depois da outra. */
+  .js .sobe { opacity: 0; transform: translateY(22px); animation: sobe .9s var(--ease) forwards; animation-delay: calc(var(--d, 0) * 110ms + 120ms); }
+  @keyframes sobe { to { opacity: 1; transform: none; } }
+
+  /* ——— O palco: a Home nos quatro ambientes, com uma inclinação que segue o mouse ——— */
+  .demo { padding: 16px 0 40px; perspective: 1600px; }
   .palco {
     position: relative; aspect-ratio: 16 / 9; border-radius: var(--radius); overflow: hidden;
     border: 1px solid var(--line-2);
-    box-shadow: 0 40px 120px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(0, 0, 0, 0.4), 0 0 80px var(--accent-soft);
-    transition: box-shadow 0.8s;
+    box-shadow: 0 40px 120px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(0, 0, 0, 0.4), 0 0 90px var(--accent-soft);
+    transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+    transition: box-shadow 0.8s, transform .5s var(--ease);
+    transform-style: preserve-3d;
   }
-  .palco img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.7s ease, transform 1.2s ease; transform: scale(1.02); }
-  .palco img.ativa { opacity: 1; transform: none; }
+  .js .palco { animation: pouso 1.4s var(--ease) both .5s; }
+  @keyframes pouso { from { opacity: 0; transform: rotateX(18deg) translateY(60px) scale(.94); } }
+  .palco img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.9s ease, transform 6s linear; transform: scale(1.06); }
+  .palco img.ativa { opacity: 1; transform: scale(1); }
+  .brilho-palco { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(600px circle at var(--mx, 50%) var(--my, 0%), rgba(255,255,255,.10), transparent 45%); }
   .seletor { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 22px; }
   .chip {
+    position: relative; overflow: hidden;
     display: inline-flex; align-items: center; gap: 9px; cursor: pointer;
     padding: 9px 16px; border-radius: 999px; font: 600 14px var(--sans); color: var(--muted);
     background: var(--glass); border: 1px solid var(--line); transition: all 0.25s;
@@ -125,51 +181,122 @@
   .chip span { width: 10px; height: 10px; border-radius: 50%; }
   .chip:hover { color: var(--text); border-color: var(--line-2); }
   .chip[aria-pressed="true"] { color: var(--text); border-color: var(--accent); background: var(--accent-soft); }
+  /* O relógio do passeio automático: uma barra que enche no chip ativo. */
+  .chip[aria-pressed="true"]::after { content: ""; position: absolute; left: 0; bottom: 0; height: 2px; background: var(--accent); animation: enche 4.2s linear; }
+  .manual .chip::after { display: none; }
+  @keyframes enche { from { width: 0; } to { width: 100%; } }
   .legenda { text-align: center; color: var(--faint); font-size: 14px; margin-top: 14px; }
 
+  /* ——— A faixa corrida ——— */
+  .faixa { border-block: 1px solid var(--line); background: rgba(255,255,255,.02); overflow: hidden; padding: 16px 0; margin: 40px 0 0; mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); }
+  .faixa-trilho { display: flex; gap: 40px; width: max-content; animation: corre 42s linear infinite; }
+  .faixa span { font: 500 14px var(--mono); color: var(--muted); white-space: nowrap; display: inline-flex; align-items: center; gap: 40px; }
+  .faixa span::after { content: "✦"; color: var(--accent); transition: color .8s; }
+  @keyframes corre { to { transform: translateX(-50%); } }
+
   /* ——— Seções ——— */
-  section { padding: 90px 0; }
-  .titulo { text-align: center; max-width: 720px; margin: 0 auto 48px; }
-  h2 { font-size: clamp(30px, 4.4vw, 48px); line-height: 1.08; letter-spacing: -0.03em; margin: 12px 0 14px; }
-  .titulo p { color: var(--muted); margin: 0; }
+  section { padding: 96px 0; }
+  .titulo { text-align: center; max-width: 740px; margin: 0 auto 48px; }
+  h2 { font-size: clamp(30px, 4.6vw, 52px); line-height: 1.06; letter-spacing: -0.035em; margin: 12px 0 14px; }
+  h3 { letter-spacing: -0.01em; }
+  .titulo p, .lado p.texto { color: var(--muted); margin: 0; }
 
-  .video {
-    border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line-2);
-    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6); background: #000;
+  .moldura {
+    position: relative; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line-2);
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6), 0 0 60px var(--accent-soft); background: #000;
+    transition: box-shadow .8s;
   }
-  .video video { width: 100%; }
+  .moldura video, .moldura img { width: 100%; height: auto; }
+  .moldura .selo-canto { position: absolute; top: 12px; left: 12px; font: 500 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; background: rgba(0,0,0,.55); color: var(--text); backdrop-filter: blur(8px); }
 
-  .grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 16px; }
-  .cartao {
-    background: var(--glass); border: 1px solid var(--line); border-radius: var(--radius);
-    padding: 24px; transition: border-color 0.25s, transform 0.25s, background 0.25s;
+  .lado { display: grid; grid-template-columns: 1.15fr 1fr; gap: 56px; align-items: center; }
+  .lado.inverso { grid-template-columns: 1fr 1.15fr; }
+  .lado.inverso > :first-child { order: 2; }
+  .lado h2 { text-align: left; }
+
+  /* As abas da ilha: uma lista viva, a aba acesa desliza. */
+  .ilha-video { max-width: 980px; margin: 0 auto; }
+  .abas { list-style: none; margin: 28px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .abas li {
+    display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start; padding: 10px 12px;
+    border-radius: 14px; border: 1px solid var(--line); background: rgba(255,255,255,.02); transition: background .35s, border-color .35s, transform .35s var(--spring), opacity .9s var(--ease);
+    color: var(--muted); font-size: 15px;
   }
-  .cartao:hover { border-color: var(--line-2); background: var(--glass-2); transform: translateY(-2px); }
-  .cartao .icone { font-size: 24px; width: 46px; height: 46px; display: grid; place-items: center; border-radius: 14px; background: var(--accent-soft); margin-bottom: 16px; }
-  .cartao h3 { margin: 0 0 6px; font-size: 18px; letter-spacing: -0.01em; }
-  .cartao p { margin: 0; color: var(--muted); font-size: 15px; }
+  .abas li b { color: var(--text); display: block; font-size: 15.5px; }
+  .abas li i { font-style: normal; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; background: var(--glass-2); font-size: 16px; }
+  .abas li.acesa, .js .abas li.revela.visivel.acesa { background: var(--glass-2); border-color: var(--accent); transform: translateY(-4px); }
+  .abas li.acesa i { background: var(--accent-soft); }
 
-  .telas { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 18px; }
+  /* O lançador de mentira: um campo que digita sozinho. */
+  .campo-demo { margin-top: 26px; border-radius: 18px; border: 1px solid var(--line-2); background: rgba(10, 14, 20, .8); overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+  .campo-demo .linha-campo { display: flex; gap: 12px; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--line); font: 500 17px var(--mono); }
+  .campo-demo .linha-campo svg { flex: none; opacity: .6; }
+  .cursor { display: inline-block; width: 2px; height: 1.1em; background: var(--accent); vertical-align: -3px; margin-left: 2px; animation: pisca 1s steps(1) infinite; }
+  @keyframes pisca { 50% { opacity: 0; } }
+  .campo-demo .resposta { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 18px; min-height: 58px; }
+  .campo-demo .resposta b { font-size: 18px; transition: opacity .25s, transform .3s var(--spring); }
+  .campo-demo .resposta small { font: 500 11.5px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--faint); }
+  .campo-demo .resposta.nova b { animation: salta .45s var(--spring); }
+  @keyframes salta { from { opacity: 0; transform: translateY(8px) scale(.96); } }
+
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--faint); font: 500 12.5px var(--mono); text-transform: uppercase; letter-spacing: 0.1em; }
+  td:first-child { color: var(--muted); }
+  tr:last-child td { border-bottom: 0; }
+  .tabela { background: var(--glass); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 10px; overflow-x: auto; }
+
+  /* ——— Ambientes ——— */
+  .ambientes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .amb {
+    position: relative; border-radius: 20px; overflow: hidden; border: 1px solid var(--line); cursor: pointer; aspect-ratio: 3 / 4;
+    transition: transform .5s var(--spring), border-color .3s, box-shadow .4s; background: #000; padding: 0; text-align: left; color: inherit; font: inherit;
+  }
+  .amb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; transition: transform 1.2s var(--ease), filter .5s; filter: saturate(.85) brightness(.8); }
+  .amb:hover { transform: translateY(-6px); border-color: var(--c); box-shadow: 0 20px 60px -10px var(--c); }
+  .amb:hover img { transform: scale(1.08); filter: none; }
+  .amb .nome { position: absolute; left: 0; right: 0; bottom: 0; padding: 60px 18px 18px; background: linear-gradient(transparent, rgba(0,0,0,.85)); }
+  .amb .nome b { display: block; font-size: 20px; letter-spacing: -.02em; }
+  .amb .nome span { color: var(--muted); font-size: 13.5px; }
+  .amb .cores { display: flex; gap: 5px; margin-bottom: 10px; }
+  .amb .cores i { width: 12px; height: 12px; border-radius: 4px; }
+  .amb[aria-pressed="true"] { border-color: var(--c); box-shadow: 0 0 0 2px var(--c); }
+
+  /* ——— Balões ——— */
+  .baloes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 18px; }
+  .baloes figure { margin: 0; border-radius: 16px; overflow: hidden; border: 1px solid var(--line); transition: transform .4s var(--spring), border-color .3s; }
+  .baloes figure:hover { transform: translateY(-4px) rotate(-.6deg); border-color: var(--line-2); }
+  .baloes figcaption { font: 500 12px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 8px 12px; background: var(--glass); }
+
+  /* ——— Telas ——— */
+  .telas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 28px; }
   .tela { margin: 0; cursor: zoom-in; }
-  .tela img { border-radius: 16px; border: 1px solid var(--line); transition: transform 0.35s, border-color 0.35s; aspect-ratio: 16 / 10; object-fit: cover; width: 100%; }
-  .tela:hover img { transform: scale(1.015); border-color: var(--accent); }
-  .tela figcaption { padding: 12px 4px 0; }
-  .tela figcaption b { display: block; font-size: 16px; }
-  .tela figcaption span { color: var(--muted); font-size: 14.5px; }
+  .tela .quadro { border-radius: 14px; overflow: hidden; border: 1px solid var(--line); transition: transform 0.45s var(--spring), border-color 0.35s, box-shadow .4s; }
+  .tela img { aspect-ratio: 16 / 10; object-fit: cover; width: 100%; transition: transform .8s var(--ease); }
+  .tela:hover .quadro { transform: translateY(-4px); border-color: var(--accent); box-shadow: 0 16px 40px -12px var(--accent-soft); }
+  .tela:hover img { transform: scale(1.05); }
+  .tela figcaption { padding: 10px 2px 0; }
+  .tela figcaption b { display: block; font-size: 15.5px; }
+  .tela figcaption span { color: var(--muted); font-size: 14px; }
 
-  .ilha { display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; align-items: center; }
-  .ilha-vitrine { position: relative; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line-2); aspect-ratio: 900 / 440; background: #000; cursor: pointer; }
-  .ilha-vitrine img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; transition: opacity 0.5s; }
-  .ilha-vitrine .aberta { opacity: 0; z-index: 1; }
-  .ilha-vitrine:hover .aberta, .ilha-vitrine.aberta-agora .aberta { opacity: 1; }
-  .ilha ul { list-style: none; padding: 0; margin: 24px 0 0; display: grid; gap: 12px; }
-  .ilha li { padding-left: 28px; position: relative; color: var(--muted); }
-  .ilha li::before { content: ""; position: absolute; left: 4px; top: 10px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
-  .ilha li b { color: var(--text); font-weight: 600; }
+  /* ——— Cartões ——— */
+  .grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+  .cartao {
+    position: relative; overflow: hidden;
+    background: var(--glass); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 24px; transition: border-color 0.25s, transform 0.35s var(--spring), background 0.25s;
+  }
+  /* O brilho que acompanha o mouse dentro do cartão. */
+  .cartao::before { content: ""; position: absolute; inset: 0; opacity: 0; transition: opacity .3s; background: radial-gradient(320px circle at var(--mx, 50%) var(--my, 50%), var(--accent-soft), transparent 60%); pointer-events: none; }
+  .cartao:hover::before { opacity: 1; }
+  .cartao:hover { border-color: var(--line-2); transform: translateY(-3px); }
+  .cartao .icone { font-size: 22px; width: 46px; height: 46px; display: grid; place-items: center; border-radius: 14px; background: var(--accent-soft); margin-bottom: 16px; transition: background .8s; }
+  .cartao h3 { margin: 0 0 6px; font-size: 18px; }
+  .cartao p { margin: 0; color: var(--muted); font-size: 15px; }
 
   .numeros { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
   .numero { text-align: center; padding: 30px 12px; border-radius: var(--radius); background: var(--glass); border: 1px solid var(--line); }
-  .numero b { display: block; font-size: 44px; letter-spacing: -0.04em; line-height: 1; color: var(--accent); transition: color 0.6s; }
+  .numero b { display: block; font-size: 48px; letter-spacing: -0.04em; line-height: 1; color: var(--accent); transition: color 0.8s; font-variant-numeric: tabular-nums; }
   .numero span { color: var(--muted); font-size: 14.5px; }
 
   .passos { display: grid; gap: 14px; max-width: 760px; margin: 0 auto; counter-reset: passo; }
@@ -178,91 +305,122 @@
   .passo h3 { margin: 0 0 4px; font-size: 17px; }
   .passo p { margin: 0; color: var(--muted); font-size: 15px; }
   pre { position: relative; margin: 12px 0 0; padding: 14px 16px; padding-right: 88px; background: #000; border: 1px solid var(--line); border-radius: 12px; overflow-x: auto; font: 14px/1.55 var(--mono); color: #d6dde6; }
+  pre code { background: none; padding: 0; }
   .copiar { position: absolute; top: 8px; right: 8px; font: 500 12px var(--mono); padding: 5px 10px; border-radius: 8px; border: 1px solid var(--line-2); background: var(--glass-2); color: var(--muted); cursor: pointer; }
   .copiar:hover { color: var(--text); }
-
-  table { width: 100%; border-collapse: collapse; font-size: 15px; }
-  th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
-  th { color: var(--faint); font: 500 12.5px var(--mono); text-transform: uppercase; letter-spacing: 0.1em; }
-  td:first-child { color: var(--muted); }
-  .tabela { background: var(--glass); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 10px; overflow-x: auto; }
 
   .faq { max-width: 780px; margin: 0 auto; display: grid; gap: 10px; }
   details { background: var(--glass); border: 1px solid var(--line); border-radius: 16px; padding: 4px 20px; transition: border-color 0.25s; }
   details[open] { border-color: var(--line-2); }
   summary { cursor: pointer; list-style: none; padding: 16px 0; font-weight: 600; display: flex; justify-content: space-between; gap: 16px; }
   summary::-webkit-details-marker { display: none; }
-  summary::after { content: "+"; color: var(--accent); font: 500 20px var(--mono); line-height: 1; }
-  details[open] summary::after { content: "–"; }
+  summary::after { content: "+"; color: var(--accent); font: 500 20px var(--mono); line-height: 1; transition: transform .3s var(--spring); }
+  details[open] summary::after { transform: rotate(45deg); }
   details p { margin: 0 0 18px; color: var(--muted); font-size: 15.5px; }
 
   .inspira { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
-  .inspira a { text-decoration: none; display: block; padding: 20px; border-radius: 18px; background: var(--glass); border: 1px solid var(--line); transition: border-color 0.25s, transform 0.25s; }
-  .inspira a:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .inspira a { text-decoration: none; display: block; padding: 20px; border-radius: 18px; background: var(--glass); border: 1px solid var(--line); transition: border-color 0.25s, transform 0.35s var(--spring); }
+  .inspira a:hover { border-color: var(--accent); transform: translateY(-3px); }
   .inspira small { font: 500 11.5px var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); }
   .inspira b { display: block; margin: 6px 0 4px; font-size: 16.5px; }
   .inspira span { color: var(--muted); font-size: 14.5px; }
 
-  .final { text-align: center; padding: 100px 0 120px; }
+  .aviso-demo { margin: 36px auto 0; max-width: 780px; display: flex; gap: 14px; padding: 16px 18px; border-radius: 16px; border: 1px dashed var(--line-2); color: var(--muted); font-size: 14.5px; }
+  .aviso-demo b { color: var(--text); }
+
+  .final { text-align: center; padding: 110px 0 120px; position: relative; }
+  .final h2 { font-size: clamp(34px, 5.6vw, 64px); }
 
   footer { border-top: 1px solid var(--line); padding: 36px 0 48px; color: var(--faint); font-size: 14px; }
-  footer .wrap { display: flex; gap: 24px; flex-wrap: wrap; justify-content: space-between; }
+  footer .wrap { display: grid; gap: 14px; }
   footer a { color: var(--muted); }
 
   /* Lightbox das telas. */
   dialog { border: 0; padding: 0; background: transparent; max-width: min(1400px, 94vw); }
   dialog::backdrop { background: rgba(0, 0, 0, 0.82); backdrop-filter: blur(6px); }
-  dialog img { border-radius: 14px; }
+  dialog[open] img { animation: zoom .35s var(--spring); border-radius: 14px; }
+  @keyframes zoom { from { opacity: 0; transform: scale(.94); } }
 
   /* Só esconde quando o script está de pé: sem ele, a página aparece inteira. */
-  .js .revela { opacity: 0; transform: translateY(18px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .js .revela { opacity: 0; transform: translateY(28px); transition: opacity 0.9s var(--ease), transform 0.9s var(--ease); transition-delay: calc(var(--d, 0) * 90ms); }
   .js .revela.visivel { opacity: 1; transform: none; }
+  .js .revela.de-lado { transform: translateX(-36px); }
+  .js .revela.de-lado.visivel { transform: none; }
 
+  @media (max-width: 980px) {
+    .ambientes, .baloes, .abas { grid-template-columns: repeat(2, 1fr); }
+    .telas { grid-template-columns: repeat(2, 1fr); }
+    .lado, .lado.inverso { grid-template-columns: 1fr; gap: 32px; }
+    .lado.inverso > :first-child { order: 0; }
+  }
   @media (max-width: 860px) {
-    nav .links { display: none; }
-    nav .botao { margin-left: auto; }
-    .ilha { grid-template-columns: 1fr; }
+    nav.topo .links { display: none; }
+    .idioma { margin-left: auto; }
     .numeros { grid-template-columns: repeat(2, 1fr); }
     section { padding: 64px 0; }
   }
+  @media (max-width: 520px) {
+    .telas, .abas { grid-template-columns: 1fr; }
+    .ambientes { gap: 10px; }
+    .amb .nome { padding: 40px 12px 12px; }
+    .amb .nome span { display: none; }
+    nav.topo .botao { display: none; }
+    table { font-size: 14px; }
+    th, td { padding: 9px 8px; }
+  }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
-    .revela { opacity: 1; transform: none; }
+    .revela, .sobe { opacity: 1 !important; transform: none !important; }
+    .pilula .p1 { opacity: 1; }
+    .faixa-trilho { transform: none; }
   }
 </style>
 </head>
 <body>
-<div class="aura" aria-hidden="true"></div>
+<div class="aura" aria-hidden="true"><i></i><i></i></div>
+<div class="grao" aria-hidden="true"></div>
 
-<nav>
+<nav class="topo">
   <div class="wrap">
     <a class="marca" href="#"><img src="assets/icone.png" alt="">Halo</a>
     <div class="links">
-      <a href="#recursos">Recursos</a>
-      <a href="#passeio">Passeio</a>
-      <a href="#ilha">Ilha</a>
-      <a href="#instalar">Instalar</a>
-      <a href="#faq">Perguntas</a>
+      <a href="#ilha"><span lang="pt">Ilha</span><span lang="en">Island</span></a>
+      <a href="#lancador"><span lang="pt">Lançador</span><span lang="en">Launcher</span></a>
+      <a href="#ambientes"><span lang="pt">Ambientes</span><span lang="en">Environments</span></a>
+      <a href="#telas"><span lang="pt">Telas</span><span lang="en">Screens</span></a>
+      <a href="#instalar"><span lang="pt">Instalar</span><span lang="en">Install</span></a>
       <a href="https://github.com/jrcn1991/halo-spatial-os">GitHub</a>
     </div>
-    <a class="botao primario" href="https://github.com/jrcn1991/halo-spatial-os/releases/latest">Baixar</a>
+    <div class="idioma" role="group" aria-label="Idioma / Language">
+      <button type="button" data-lang="pt" aria-pressed="true">PT</button>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+    <a class="botao primario" href="https://github.com/jrcn1991/halo-spatial-os/releases/latest"><span lang="pt">Baixar</span><span lang="en">Download</span></a>
   </div>
 </nav>
 
 <header class="hero wrap">
-  <div class="pilula" aria-hidden="true"><i></i>tocando agora</div>
-  <div class="eyebrow">Spatial OS para Linux</div>
-  <h1>Sua área de trabalho,<br><em>em vidro.</em></h1>
-  <p class="sub">Painéis flutuando sobre o seu papel de parede, uma ilha dinâmica no topo da tela e ambientes que trocam o tema e o fundo de uma vez. Para KDE Plasma 6.</p>
-  <div class="ctas">
-    <a class="botao primario" href="https://github.com/jrcn1991/halo-spatial-os/releases/latest">Baixar o .deb</a>
-    <a class="botao" href="#passeio">Assistir ao passeio</a>
+  <div class="pilula sobe" aria-hidden="true" style="--d:0">
+    <div class="p1"><span class="capinha"></span><span class="onda"><b></b><b></b><b></b><b></b><b></b></span></div>
+    <div class="p2"><span class="ponto"></span><span lang="pt">Download concluído · halo 0.2.1</span><span lang="en">Download finished · halo 0.2.1</span></div>
+    <div class="p3"><span>⏱</span><span lang="pt">foco · 24:59</span><span lang="en">focus · 24:59</span></div>
   </div>
-  <div class="selos">
+  <div class="eyebrow sobe" style="--d:1"><span lang="pt">Spatial OS para Linux</span><span lang="en">Spatial OS for Linux</span></div>
+  <h1 class="sobe" style="--d:2"><span lang="pt">Sua área de trabalho,<br><em>em vidro.</em></span><span lang="en">Your desktop,<br><em>made of glass.</em></span></h1>
+  <p class="sub sobe" style="--d:3">
+    <span lang="pt">Painéis flutuando sobre o seu papel de parede, uma ilha dinâmica no topo da tela, um lançador no Meta+V e ambientes que trocam o tema e o fundo de uma vez. Para KDE Plasma 6.</span>
+    <span lang="en">Panels floating over your wallpaper, a dynamic island at the top of the screen, a launcher on Meta+V and environments that switch the theme and the wallpaper in one go. For KDE Plasma 6.</span>
+  </p>
+  <div class="ctas sobe" style="--d:4">
+    <a class="botao primario" href="https://github.com/jrcn1991/halo-spatial-os/releases/latest"><span lang="pt">Baixar o .deb</span><span lang="en">Download the .deb</span></a>
+    <a class="botao" href="#passeio"><span lang="pt">▶ Assistir ao passeio</span><span lang="en">▶ Watch the tour</span></a>
+  </div>
+  <div class="selos sobe" style="--d:5">
+    <span class="selo">v0.2.1</span>
     <span class="selo">KDE Plasma 6</span>
     <span class="selo">Ubuntu 26.04</span>
-    <span class="selo">grátis · GPL-3.0</span>
-    <span class="selo">sem conta, sem telemetria</span>
+    <span class="selo"><span lang="pt">grátis · GPL-3.0</span><span lang="en">free · GPL-3.0</span></span>
+    <span class="selo"><span lang="pt">sem conta, sem telemetria</span><span lang="en">no account, no telemetry</span></span>
   </div>
 </header>
 
@@ -272,216 +430,429 @@
     <img src="assets/home-citypop.jpg" data-env="citypop" alt="O Halo no ambiente City Pop" loading="lazy">
     <img src="assets/home-cyberpunk.jpg" data-env="cyberpunk" alt="O Halo no ambiente Cyberpunk" loading="lazy">
     <img src="assets/home-bioshock.jpg" data-env="bioshock" alt="O Halo no ambiente Shock" loading="lazy">
+    <div class="brilho-palco" aria-hidden="true"></div>
   </div>
-  <div class="seletor" role="group" aria-label="Escolha um ambiente">
+  <div class="seletor" id="seletor" role="group" aria-label="Ambientes">
     <button class="chip" data-env="floresta" aria-pressed="true"><span style="background:#61d19a"></span>Floresta</button>
     <button class="chip" data-env="citypop" aria-pressed="false"><span style="background:#4fd8ff"></span>City Pop</button>
     <button class="chip" data-env="cyberpunk" aria-pressed="false"><span style="background:#f75049"></span>Cyberpunk</button>
     <button class="chip" data-env="bioshock" aria-pressed="false"><span style="background:#d9a441"></span>Shock</button>
   </div>
-  <p class="legenda">Clique num ambiente — no app, ele troca o tema <em>e</em> o papel de parede da sua sessão.</p>
+  <p class="legenda"><span lang="pt">Clique num ambiente — no app, ele troca o tema <em>e</em> o papel de parede da sua sessão.</span><span lang="en">Pick an environment — in the app, it switches the theme <em>and</em> your session wallpaper.</span></p>
 </div>
 
-<section id="passeio" class="wrap revela">
-  <div class="titulo">
-    <div class="eyebrow">O passeio</div>
-    <h2>Quatro ambientes, oito telas, uma ilha.</h2>
-    <p>Quarenta segundos, sem cortes: a troca de ambiente, a ilha abrindo e cada tela entrando com a animação dela.</p>
+<div class="faixa" aria-hidden="true">
+  <div class="faixa-trilho">
+    <span>Ilha dinâmica</span><span>Meta+V</span><span>Floresta</span><span>City Pop</span><span>Cyberpunk</span><span>Shock</span><span>Claude Code</span><span>Spotify · MPRIS</span><span>M3U + TMDB</span><span>Docker</span><span>Git</span><span>KDE Connect</span><span>OCR</span><span>Balões do tema</span><span>Meta+Espaço</span>
+    <span>Ilha dinâmica</span><span>Meta+V</span><span>Floresta</span><span>City Pop</span><span>Cyberpunk</span><span>Shock</span><span>Claude Code</span><span>Spotify · MPRIS</span><span>M3U + TMDB</span><span>Docker</span><span>Git</span><span>KDE Connect</span><span>OCR</span><span>Balões do tema</span><span>Meta+Espaço</span>
   </div>
-  <div class="video">
-    <video controls muted playsinline preload="metadata" poster="assets/passeio.jpg">
+</div>
+
+<!-- ——— A ilha ——— -->
+<section id="ilha" class="wrap">
+  <div class="titulo revela">
+    <div class="eyebrow"><span lang="pt">A ilha</span><span lang="en">The island</span></div>
+    <h2><span lang="pt">O notch que o Linux não tem.</span><span lang="en">The notch Linux never had.</span></h2>
+    <p>
+      <span lang="pt">Uma pílula sobre o painel do Plasma que anuncia, mostra a música com o espectro de verdade e abre ao passar o mouse. Nasce <b>ligada</b>, e o Meta+Espaço recolhe o app inteiro para dentro dela.</span>
+      <span lang="en">A pill on top of the Plasma panel that announces, shows the music with the real spectrum and opens on hover. It's <b>on by default</b>, and Meta+Space folds the whole app into it.</span>
+    </p>
+  </div>
+  <div class="moldura ilha-video revela">
+    <video class="auto" muted loop playsinline preload="none" poster="assets/ilha.jpg" data-src="assets/ilha.mp4" aria-label="A ilha abrindo e passando pelas oito abas"></video>
+    <span class="selo-canto"><span lang="pt">dados de exemplo</span><span lang="en">demo data</span></span>
+  </div>
+  <ul class="abas" id="abas">
+    <li class="revela" style="--d:0"><i>⌂</i><div><b><span lang="pt">Início</span><span lang="en">Home</span></b><span lang="pt">Player, conexões, atalhos, temporizadores e o campo do lançador.</span><span lang="en">Player, connections, shortcuts, timers and the launcher field.</span></div></li>
+    <li class="revela" style="--d:1"><i>▦</i><div><b><span lang="pt">Painéis</span><span lang="en">Panels</span></b><span lang="pt">Sistema, GPU, áudio, rede, discos, celular, foco.</span><span lang="en">System, GPU, audio, network, disks, phone, focus.</span></div></li>
+    <li class="revela" style="--d:2"><i>✳</i><div><b>Claude</b><span lang="pt">Pergunte com <code>?</code> e aprove na pílula.</span><span lang="en">Ask with <code>?</code> and approve in the pill.</span></div></li>
+    <li class="revela" style="--d:3"><i>⤓</i><div><b><span lang="pt">Gaveta</span><span lang="en">Drawer</span></b><span lang="pt">Solte arquivos, links e texto na pílula.</span><span lang="en">Drop files, links and text on the pill.</span></div></li>
+    <li class="revela" style="--d:0"><i>▢</i><div><b><span lang="pt">Janelas</span><span lang="en">Windows</span></b><span lang="pt">Guarde uma janela — ela voa para a ilha.</span><span lang="en">Put a window away — it flies into the island.</span></div></li>
+    <li class="revela" style="--d:1"><i>🔔</i><div><b><span lang="pt">Avisos</span><span lang="en">Notices</span></b><span lang="pt">As últimas notificações do sistema.</span><span lang="en">The latest system notifications.</span></div></li>
+    <li class="revela" style="--d:2"><i>⎘</i><div><b><span lang="pt">Cópias</span><span lang="en">Copies</span></b><span lang="pt">O histórico da área de transferência, com ações para links, cores e e-mails.</span><span lang="en">Clipboard history, with actions for links, colors and e-mails.</span></div></li>
+    <li class="revela" style="--d:3"><i>✎</i><div><b><span lang="pt">Nota</span><span lang="en">Note</span></b><span lang="pt">Uma nota rápida que sobrevive ao reinício.</span><span lang="en">A quick note that survives restarts.</span></div></li>
+  </ul>
+</section>
+
+<!-- ——— O lançador ——— -->
+<section id="lancador" class="wrap">
+  <div class="lado inverso">
+    <div class="revela" style="--d:1">
+      <div class="moldura">
+        <video class="auto" muted loop playsinline preload="none" poster="assets/lancador.jpg" data-src="assets/lancador.mp4" aria-label="O lançador do Meta+V respondendo a apps, contas, conversões e emoji"></video>
+        <span class="selo-canto">Meta+V</span>
+      </div>
+    </div>
+    <div class="revela de-lado">
+      <div class="eyebrow"><span lang="pt">O lançador</span><span lang="en">The launcher</span></div>
+      <h2><span lang="pt">Um campo resolve.</span><span lang="en">One field does it.</span></h2>
+      <p class="texto">
+        <span lang="pt">Apps, comandos, contas, conversões, emoji, busca na web e janelas — no Meta+V, vestido pelo ambiente, e no campo da ilha, que é o mesmo motor.</span>
+        <span lang="en">Apps, commands, math, conversions, emoji, web search and windows — on Meta+V, dressed by the environment, and in the island's field, which is the same engine.</span>
+      </p>
+      <div class="campo-demo" aria-hidden="true">
+        <div class="linha-campo">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <span id="digitado"></span><span class="cursor"></span>
+        </div>
+        <div class="resposta" id="resposta"><b>—</b><small></small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ——— Ambientes ——— -->
+<section id="ambientes" class="wrap">
+  <div class="titulo revela">
+    <div class="eyebrow"><span lang="pt">Ambientes</span><span lang="en">Environments</span></div>
+    <h2><span lang="pt">Quatro roupas. Um clique.</span><span lang="en">Four outfits. One click.</span></h2>
+    <p><span lang="pt">Um ambiente é o tema do app mais o papel de parede da sessão — imagem ou vídeo. Painéis, fontes, dock, lançador e balões mudam juntos, e o seu fundo original fica guardado.</span><span lang="en">An environment is the app's theme plus your session wallpaper — image or video. Panels, fonts, dock, launcher and bubbles change together, and your original wallpaper is kept.</span></p>
+  </div>
+  <div class="ambientes">
+    <button class="amb revela" style="--d:0;--c:#61d19a" data-env="floresta"><img src="assets/home-floresta.jpg" alt="" loading="lazy"><div class="nome"><div class="cores"><i style="background:#61d19a"></i><i style="background:#b98cff"></i><i style="background:#f2a65a"></i></div><b>Floresta</b><span lang="pt">O vidro do handoff, na mata.</span><span lang="en">The original glass, in the woods.</span></div></button>
+    <button class="amb revela" style="--d:1;--c:#4fd8ff" data-env="citypop"><img src="assets/home-citypop.jpg" alt="" loading="lazy"><div class="nome"><div class="cores"><i style="background:#ff5fa2"></i><i style="background:#4fd8ff"></i><i style="background:#ffd166"></i></div><b>City Pop</b><span lang="pt">Anos 80, beira-mar, néon.</span><span lang="en">The 80s, seaside, neon.</span></div></button>
+    <button class="amb revela" style="--d:2;--c:#f75049" data-env="cyberpunk"><img src="assets/home-cyberpunk.jpg" alt="" loading="lazy"><div class="nome"><div class="cores"><i style="background:#fcee0a"></i><i style="background:#02d7f2"></i><i style="background:#f75049"></i></div><b>Cyberpunk</b><span lang="pt">Chanfros, amarelo e chuva.</span><span lang="en">Chamfers, yellow and rain.</span></div></button>
+    <button class="amb revela" style="--d:3;--c:#d9a441" data-env="bioshock"><img src="assets/home-bioshock.jpg" alt="" loading="lazy"><div class="nome"><div class="cores"><i style="background:#9ee6e0"></i><i style="background:#d9a441"></i><i style="background:#2f6f5e"></i></div><b>Shock</b><span lang="pt">Art déco no fundo do mar.</span><span lang="en">Art deco under the sea.</span></div></button>
+  </div>
+</section>
+
+<!-- ——— Balões ——— -->
+<section id="avisos" class="wrap">
+  <div class="lado">
+    <div class="revela de-lado">
+      <div class="eyebrow"><span lang="pt">Notificações</span><span lang="en">Notifications</span></div>
+      <h2><span lang="pt">Até o balão veste o tema.</span><span lang="en">Even the bubble wears the theme.</span></h2>
+      <p class="texto">
+        <span lang="pt">O Plasma continua servidor; o Halo vira vigia, esconde os balões dele e desenha os seus, com o vidro, as fontes e a entrada do ambiente. Clicar numa ação volta ao app que mandou, e fechar o Halo devolve os balões na hora. Ligue em Configurações → Notificações.</span>
+        <span lang="en">Plasma stays the server; Halo becomes a watcher, hides its bubbles and draws its own, with the environment's glass, fonts and entrance. Clicking an action goes back to the app that sent it, and closing Halo gives the bubbles back at once. Turn it on in Settings → Notifications.</span>
+      </p>
+    </div>
+    <div class="revela" style="--d:1">
+      <div class="moldura" style="max-width:520px;margin-inline:auto">
+        <video class="auto" muted loop playsinline preload="none" poster="assets/avisos-cyberpunk.jpg" data-src="assets/avisos.mp4" aria-label="Balões de notificação chegando em cada tema"></video>
+      </div>
+    </div>
+  </div>
+  <div class="baloes">
+    <figure class="revela" style="--d:0"><img src="assets/avisos-floresta.jpg" alt="Balões na Floresta" loading="lazy"><figcaption>Floresta</figcaption></figure>
+    <figure class="revela" style="--d:1"><img src="assets/avisos-citypop.jpg" alt="Balões no City Pop" loading="lazy"><figcaption>City Pop</figcaption></figure>
+    <figure class="revela" style="--d:2"><img src="assets/avisos-cyberpunk.jpg" alt="Balões no Cyberpunk" loading="lazy"><figcaption>Cyberpunk</figcaption></figure>
+    <figure class="revela" style="--d:3"><img src="assets/avisos-bioshock.jpg" alt="Balões no Shock" loading="lazy"><figcaption>Shock</figcaption></figure>
+  </div>
+</section>
+
+<!-- ——— Telas ——— -->
+<section id="telas" class="wrap">
+  <div class="titulo revela">
+    <div class="eyebrow"><span lang="pt">As telas</span><span lang="en">The screens</span></div>
+    <h2><span lang="pt">Oito telas, três painéis cada.</span><span lang="en">Eight screens, three panels each.</span></h2>
+    <p><span lang="pt">Cada uma entra com a animação dela. Clique numa imagem para ver de perto.</span><span lang="en">Each one comes in with its own animation. Click an image to see it up close.</span></p>
+  </div>
+  <div class="moldura revela">
+    <video class="auto" muted loop playsinline preload="none" poster="assets/telas.jpg" data-src="assets/telas.mp4" aria-label="Passando pelas oito telas"></video>
+  </div>
+  <div class="telas">
+    <figure class="tela revela" style="--d:0"><div class="quadro"><img src="assets/tela-home.jpg" alt="Tela Início" loading="lazy"></div><figcaption><b><span lang="pt">Início</span><span lang="en">Home</span></b><span lang="pt">Relógio, clima, música, medidores, projetos e notícias.</span><span lang="en">Clock, weather, music, meters, projects and news.</span></figcaption></figure>
+    <figure class="tela revela" style="--d:1"><div class="quadro"><img src="assets/tela-social.jpg" alt="Tela Social" loading="lazy"></div><figcaption><b>Social</b><span lang="pt">Um mural pessoal de referências de arte.</span><span lang="en">A personal board of art references.</span></figcaption></figure>
+    <figure class="tela revela" style="--d:2"><div class="quadro"><img src="assets/tela-claude.jpg" alt="Tela do Claude" loading="lazy"></div><figcaption><b>Claude</b><span lang="pt">Um agente do Claude Code por projeto.</span><span lang="en">One Claude Code agent per project.</span></figcaption></figure>
+    <figure class="tela revela" style="--d:3"><div class="quadro"><img src="assets/tela-files.jpg" alt="Tela de Arquivos" loading="lazy"></div><figcaption><b><span lang="pt">Arquivos</span><span lang="en">Files</span></b><span lang="pt">Discos e pastas, somente leitura.</span><span lang="en">Disks and folders, read-only.</span></figcaption></figure>
+    <figure class="tela revela" style="--d:0"><div class="quadro"><img src="assets/tela-lab.jpg" alt="Tela Lab" loading="lazy"></div><figcaption><b>Lab</b><span lang="pt">Containers, serviços e a máquina.</span><span lang="en">Containers, services and the machine.</span></figcaption></figure>
+    <figure class="tela revela" style="--d:1"><div class="quadro"><img src="assets/tela-media.jpg" alt="Tela de Mídia" loading="lazy"></div><figcaption><b><span lang="pt">Mídia</span><span lang="en">Media</span></b><span lang="pt">Sua lista M3U, com sinopse do TMDB.</span><span lang="en">Your M3U list, with TMDB synopsis.</span></figcaption></figure>
+    <figure class="tela revela" style="--d:2"><div class="quadro"><img src="assets/tela-music.jpg" alt="Tela de Música" loading="lazy"></div><figcaption><b><span lang="pt">Música</span><span lang="en">Music</span></b><span lang="pt">Playlists, álbuns e artistas do Spotify.</span><span lang="en">Spotify playlists, albums and artists.</span></figcaption></figure>
+    <figure class="tela revela" style="--d:3"><div class="quadro"><img src="assets/tela-settings.jpg" alt="Tela de Configurações" loading="lazy"></div><figcaption><b><span lang="pt">Configurações</span><span lang="en">Settings</span></b><span lang="pt">Aparência primeiro, integrações depois.</span><span lang="en">Looks first, integrations next.</span></figcaption></figure>
+  </div>
+</section>
+
+<!-- ——— Recursos ——— -->
+<section id="recursos" class="wrap">
+  <div class="titulo revela">
+    <div class="eyebrow"><span lang="pt">Recursos</span><span lang="en">Features</span></div>
+    <h2><span lang="pt">Tudo o que a sua máquina já sabe, num lugar só.</span><span lang="en">Everything your machine already knows, in one place.</span></h2>
+    <p><span lang="pt">Os dados são os seus, lidos daqui mesmo: sem conta, sem servidor, sem nada inventado.</span><span lang="en">The data is yours, read right here: no account, no server, nothing made up.</span></p>
+  </div>
+  <div class="grade">
+    <div class="cartao revela" style="--d:0"><div class="icone">🪟</div><h3><span lang="pt">Janela que não cobre nada</span><span lang="en">A window that covers nothing</span></h3><p><span lang="pt">Mora na camada do papel de parede, fora da barra de tarefas. Nasce recolhida e volta pela ilha, pela bandeja ou por Meta+Espaço.</span><span lang="en">Lives on the wallpaper layer, out of the taskbar. Starts collapsed and comes back from the island, the tray or Meta+Space.</span></p></div>
+    <div class="cartao revela" style="--d:1"><div class="icone">🎵</div><h3><span lang="pt">Spotify sem configurar</span><span lang="en">Spotify with no setup</span></h3><p><span lang="pt">Com o app do Spotify aberto, o "tocando agora" e os comandos já funcionam, pelo MPRIS. A API só entra para playlists e outros aparelhos.</span><span lang="en">With the Spotify app open, now playing and the controls just work, over MPRIS. The API is only for playlists and other devices.</span></p></div>
+    <div class="cartao revela" style="--d:2"><div class="icone">📈</div><h3><span lang="pt">Medidores de verdade</span><span lang="en">Real meters</span></h3><p><span lang="pt">CPU, memória, GPU e temperatura, com histórico, lidos por um relógio só para não pesar.</span><span lang="en">CPU, memory, GPU and temperature, with history, read by a single clock to stay light.</span></p></div>
+    <div class="cartao revela" style="--d:3"><div class="icone">✳️</div><h3>Claude Code</h3><p><span lang="pt">Um agente por projeto, com histórico e anexos. O CLI é instalado à parte — sem ele, a tela avisa e mostra onde configurar.</span><span lang="en">One agent per project, with history and attachments. The CLI is installed separately — without it, the screen tells you where to set it up.</span></p></div>
+    <div class="cartao revela" style="--d:0"><div class="icone">🧞</div><h3><span lang="pt">Mascote clássico</span><span lang="en">Classic mascot</span></h3><p><span lang="pt">Genie, Merlin ou Clippit reagindo ao que os agentes fazem — personagens <code>.acs</code> do Microsoft Agent, que você traz.</span><span lang="en">Genie, Merlin or Clippit reacting to what agents do — Microsoft Agent <code>.acs</code> characters you bring.</span></p></div>
+    <div class="cartao revela" style="--d:1"><div class="icone">🎬</div><h3><span lang="pt">Sua biblioteca</span><span lang="en">Your library</span></h3><p><span lang="pt">Sua lista M3U vira catálogo com favoritos e "continuar assistindo", e um player que fica por cima.</span><span lang="en">Your M3U list becomes a catalog with favorites and "continue watching", and a player that stays on top.</span></p></div>
+    <div class="cartao revela" style="--d:2"><div class="icone">🐳</div><h3>Home Lab</h3><p><span lang="pt">Containers do Docker, serviços com latência medida e a saúde da máquina.</span><span lang="en">Docker containers, services with measured latency and the machine's health.</span></p></div>
+    <div class="cartao revela" style="--d:3"><div class="icone">📰</div><h3><span lang="pt">Leitura na Início</span><span lang="en">Reading on Home</span></h3><p><span lang="pt">Feeds RSS que você escolhe — nasce com Tecnoblog, CNN Brasil e BBC World.</span><span lang="en">RSS feeds of your choice — starts with Tecnoblog, CNN Brasil and BBC World.</span></p></div>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="numeros">
+    <div class="numero revela" style="--d:0"><b data-conta="8">8</b><span lang="pt">telas</span><span lang="en">screens</span></div>
+    <div class="numero revela" style="--d:1"><b data-conta="4">4</b><span lang="pt">ambientes</span><span lang="en">environments</span></div>
+    <div class="numero revela" style="--d:2"><b data-conta="141">141</b><span lang="pt">integrações na ilha</span><span lang="en">island integrations</span></div>
+    <div class="numero revela" style="--d:3"><b data-conta="0">0</b><span lang="pt">contas para criar</span><span lang="en">accounts to create</span></div>
+  </div>
+</section>
+
+<!-- ——— O passeio ——— -->
+<section id="passeio" class="wrap">
+  <div class="titulo revela">
+    <div class="eyebrow"><span lang="pt">O passeio</span><span lang="en">The tour</span></div>
+    <h2><span lang="pt">Tudo de uma vez, sem cortes.</span><span lang="en">All of it, uncut.</span></h2>
+    <p><span lang="pt">Os ambientes, a ilha e as abas, o lançador, os balões em cada tema e cada tela entrando com a animação dela.</span><span lang="en">The environments, the island and its tabs, the launcher, the bubbles in each theme and every screen coming in with its animation.</span></p>
+  </div>
+  <div class="moldura revela">
+    <video controls muted playsinline preload="none" poster="assets/passeio.jpg">
       <source src="assets/passeio.mp4" type="video/mp4">
     </video>
   </div>
-</section>
-
-<section id="recursos" class="wrap revela">
-  <div class="titulo">
-    <div class="eyebrow">Recursos</div>
-    <h2>Tudo o que a sua máquina já sabe, num lugar só.</h2>
-    <p>Os dados são os seus, lidos daqui mesmo: sem conta, sem servidor, sem nada inventado.</p>
-  </div>
-  <div class="grade">
-    <div class="cartao"><div class="icone">🪟</div><h3>Janela que não cobre nada</h3><p>Mora na camada do papel de parede, fora da barra de tarefas. Volta pela bandeja ou por Meta+Espaço.</p></div>
-    <div class="cartao"><div class="icone">🏝️</div><h3>Ilha dinâmica</h3><p>Música, temporizadores, cópias, Wi-Fi, Bluetooth, captura, texto da tela e um campo que abre apps e roda comandos.</p></div>
-    <div class="cartao"><div class="icone">🎨</div><h3>Ambientes</h3><p>Floresta, City Pop, Cyberpunk e Shock trocam o tema e o papel de parede — imagem ou vídeo.</p></div>
-    <div class="cartao"><div class="icone">📈</div><h3>Medidores de verdade</h3><p>CPU, memória, GPU e temperatura, com histórico, lidos por um relógio só para não pesar.</p></div>
-    <div class="cartao"><div class="icone">✳️</div><h3>Claude Code</h3><p>Um agente por projeto, com o histórico das conversas e, se quiser, o Genie ou o Clippit reagindo.</p></div>
-    <div class="cartao"><div class="icone">🎬</div><h3>Mídia e música</h3><p>Sua lista M3U com sinopse do TMDB, um player que fica por cima, e o seu Spotify.</p></div>
-    <div class="cartao"><div class="icone">🐳</div><h3>Home Lab</h3><p>Containers do Docker, serviços com latência medida e a saúde da máquina.</p></div>
-    <div class="cartao"><div class="icone">⌨️</div><h3>Lançador no Meta+V</h3><p>O mesmo motor da ilha, numa janela vestida pelo ambiente. Desligar devolve a tecla ao Klipper.</p></div>
+  <div class="aviso-demo revela">
+    <span>ⓘ</span>
+    <span><span lang="pt"><b>Tudo nesta página é dado de demonstração.</b> As imagens e os vídeos saem do app construído rodando fora do Electron, com os dados de exemplo — músicas, filmes, projetos e avisos inventados, sobre os papéis de parede dos próprios ambientes. Nada vem de uma tela de verdade.</span><span lang="en"><b>Everything on this page is demo data.</b> The images and videos come from the built app running outside Electron, with its sample data — made-up songs, films, projects and notices, over the environments' own wallpapers. Nothing comes from a real screen.</span></span>
   </div>
 </section>
 
-<section class="wrap revela">
-  <div class="titulo">
-    <div class="eyebrow">As telas</div>
-    <h2>Oito telas, três painéis cada.</h2>
-    <p>Clique para ver de perto.</p>
-  </div>
-  <div class="telas">
-    <figure class="tela"><img src="assets/tela-music.jpg" alt="Tela de Música" loading="lazy"><figcaption><b>Música</b><span>Playlists, álbuns e artistas do seu Spotify.</span></figcaption></figure>
-    <figure class="tela"><img src="assets/tela-lab.jpg" alt="Tela Lab" loading="lazy"><figcaption><b>Lab</b><span>Containers, serviços e a máquina.</span></figcaption></figure>
-    <figure class="tela"><img src="assets/tela-claude.jpg" alt="Tela do Claude" loading="lazy"><figcaption><b>Claude</b><span>Agentes do Claude Code por projeto.</span></figcaption></figure>
-    <figure class="tela"><img src="assets/tela-files.jpg" alt="Tela de Arquivos" loading="lazy"><figcaption><b>Arquivos</b><span>Pastas e discos, somente leitura.</span></figcaption></figure>
-    <figure class="tela"><img src="assets/tela-social.jpg" alt="Tela Social" loading="lazy"><figcaption><b>Social</b><span>Referências de arte, numa biblioteca sua.</span></figcaption></figure>
-    <figure class="tela"><img src="assets/tela-media.jpg" alt="Tela de Mídia" loading="lazy"><figcaption><b>Mídia</b><span>Sua biblioteca, com o que você parou de ver.</span></figcaption></figure>
-  </div>
-</section>
-
-<section id="ilha" class="wrap revela">
-  <div class="ilha">
-    <div class="ilha-vitrine" id="ilha-vitrine" tabindex="0" aria-label="A ilha: passe o mouse para abrir">
-      <img class="aberta" src="assets/ilha-aberta.jpg" alt="A ilha aberta" loading="lazy">
-      <img class="fechada" src="assets/ilha-fechada-alta.jpg" alt="A ilha fechada">
-    </div>
-    <div>
-      <div class="eyebrow">A ilha</div>
-      <h2>O notch que o Linux não tem.</h2>
-      <p style="color:var(--muted);margin:0">Uma pílula no topo da tela, sobre o painel do Plasma. Passe o mouse e ela abre — como na imagem ao lado.</p>
-      <ul>
-        <li><b>Tocando agora</b> — a faixa, a capa e o espectro do som de verdade.</li>
-        <li><b>Atalhos da máquina</b> — volume, microfone, cafeína, captura, bloqueio.</li>
-        <li><b>Temporizadores</b> e cronômetro, com aviso ao terminar.</li>
-        <li><b>Um campo para tudo</b> — apps, comandos, cópias, emoji, ou <code>?</code> para perguntar ao Claude.</li>
-        <li><b>Guarde janelas</b> na gaveta, com um voo que o KWin anima.</li>
-      </ul>
-    </div>
-  </div>
-</section>
-
-<section class="wrap revela">
-  <div class="numeros">
-    <div class="numero"><b>8</b><span>telas</span></div>
-    <div class="numero"><b>4</b><span>ambientes</span></div>
-    <div class="numero"><b>141</b><span>integrações na ilha</span></div>
-    <div class="numero"><b>0</b><span>contas para criar</span></div>
-  </div>
-</section>
-
-<section id="instalar" class="wrap revela">
-  <div class="titulo">
-    <div class="eyebrow">Instalar</div>
-    <h2>Três passos.</h2>
-    <p>Feito para Ubuntu com KDE Plasma 6. Não tenta ser compatível com tudo — e diz o que precisa.</p>
+<!-- ——— Instalar ——— -->
+<section id="instalar" class="wrap">
+  <div class="titulo revela">
+    <div class="eyebrow"><span lang="pt">Instalar</span><span lang="en">Install</span></div>
+    <h2><span lang="pt">Três passos.</span><span lang="en">Three steps.</span></h2>
+    <p><span lang="pt">Feito para Ubuntu com KDE Plasma 6. Não tenta ser compatível com tudo — e diz o que precisa.</span><span lang="en">Made for Ubuntu with KDE Plasma 6. It doesn't try to run everywhere — and it tells you what it needs.</span></p>
   </div>
   <div class="passos">
-    <div class="passo"><div><h3>Baixe o .deb</h3><p>A versão mais recente está em <a href="https://github.com/jrcn1991/halo-spatial-os/releases/latest">Releases</a>.</p></div></div>
-    <div class="passo"><div><h3>Instale</h3><p>Ele puxa o que é essencial e o perfil do AppArmor de que o Electron precisa.</p><pre><code>sudo apt install ./halo-spatial-os_0.2.0_amd64.deb</code><button class="copiar" type="button">copiar</button></pre></div></div>
-    <div class="passo"><div><h3>Abra e confira</h3><p>Abra o Halo pelo menu. Em <b>Configurações → Sistema</b> ele lista cada programa que falta, o que se perde sem ele e o comando para instalar.</p></div></div>
+    <div class="passo revela" style="--d:0"><div><h3><span lang="pt">Baixe o .deb</span><span lang="en">Download the .deb</span></h3><p><span lang="pt">A versão mais recente está em</span><span lang="en">The latest version is in</span> <a href="https://github.com/jrcn1991/halo-spatial-os/releases/latest">Releases</a>.</p></div></div>
+    <div class="passo revela" style="--d:1"><div><h3><span lang="pt">Instale</span><span lang="en">Install it</span></h3><p><span lang="pt">Ele puxa o que é essencial e o perfil do AppArmor de que o Electron precisa.</span><span lang="en">It pulls in the essentials and the AppArmor profile Electron needs.</span></p><pre><code>sudo apt install ./halo-spatial-os_0.2.1_amd64.deb</code><button class="copiar" type="button">copiar</button></pre></div></div>
+    <div class="passo revela" style="--d:2"><div><h3><span lang="pt">Abra e confira</span><span lang="en">Open it and check</span></h3><p><span lang="pt">Abra o Halo pelo menu — a ilha aparece no topo da tela. Em <b>Configurações → Sistema</b> ele lista cada programa que falta, o que se perde sem ele e o comando para instalar.</span><span lang="en">Open Halo from the menu — the island shows up at the top of the screen. <b>Settings → System</b> lists every missing program, what you lose without it and the command to install it.</span></p></div></div>
   </div>
 
-  <div class="titulo" style="margin-top:72px">
-    <h2 style="font-size:30px">Onde foi testado</h2>
+  <div class="titulo revela" style="margin-top:72px">
+    <h2 style="font-size:30px"><span lang="pt">Onde foi testado</span><span lang="en">Where it was tested</span></h2>
   </div>
-  <div class="tabela">
+  <div class="tabela revela">
     <table>
-      <thead><tr><th></th><th>Testado em</th><th>Precisa de</th></tr></thead>
+      <thead><tr><th></th><th><span lang="pt">Testado em</span><span lang="en">Tested on</span></th><th><span lang="pt">Precisa de</span><span lang="en">Requires</span></th></tr></thead>
       <tbody>
-        <tr><td>Distribuição</td><td>Ubuntu 26.04.1 LTS</td><td>Ubuntu (ou derivado Debian) recente</td></tr>
-        <tr><td>Área de trabalho</td><td>KDE Plasma 6.6.6 · KWin 6.6.6</td><td><b>KDE Plasma 6</b></td></tr>
-        <tr><td>Sessão</td><td>Wayland, com o app em X11 pelo Xwayland</td><td>X11, ou Wayland com Xwayland</td></tr>
-        <tr><td>Vídeo</td><td>NVIDIA, driver proprietário</td><td>qualquer placa (o medidor de GPU lê NVIDIA)</td></tr>
-        <tr><td>Monitores</td><td>mais de um</td><td>um ou mais</td></tr>
+        <tr><td><span lang="pt">Distribuição</span><span lang="en">Distribution</span></td><td>Ubuntu 26.04.1 LTS</td><td><span lang="pt">Ubuntu (ou derivado Debian) recente</span><span lang="en">a recent Ubuntu (or Debian derivative)</span></td></tr>
+        <tr><td><span lang="pt">Área de trabalho</span><span lang="en">Desktop</span></td><td>KDE Plasma 6.6.6 · KWin 6.6.6</td><td><b>KDE Plasma 6</b></td></tr>
+        <tr><td><span lang="pt">Sessão</span><span lang="en">Session</span></td><td><span lang="pt">Wayland, com o app em X11 pelo Xwayland</span><span lang="en">Wayland, with the app on X11 through Xwayland</span></td><td><span lang="pt">X11, ou Wayland com Xwayland</span><span lang="en">X11, or Wayland with Xwayland</span></td></tr>
+        <tr><td><span lang="pt">Vídeo</span><span lang="en">Graphics</span></td><td><span lang="pt">NVIDIA, driver proprietário</span><span lang="en">NVIDIA, proprietary driver</span></td><td><span lang="pt">qualquer placa (o medidor de GPU lê NVIDIA)</span><span lang="en">any GPU (the GPU meter reads NVIDIA)</span></td></tr>
+        <tr><td><span lang="pt">Monitores</span><span lang="en">Monitors</span></td><td><span lang="pt">mais de um</span><span lang="en">more than one</span></td><td><span lang="pt">um ou mais — abaixo de 1440 px a janela fica centralizada</span><span lang="en">one or more — below 1440 px the window is centered</span></td></tr>
       </tbody>
     </table>
   </div>
 </section>
 
-<section id="faq" class="wrap revela">
-  <div class="titulo">
-    <div class="eyebrow">Perguntas</div>
-    <h2>Antes de instalar.</h2>
+<!-- ——— Privacidade ——— -->
+<section id="privacidade" class="wrap">
+  <div class="titulo revela">
+    <div class="eyebrow"><span lang="pt">Privacidade</span><span lang="en">Privacy</span></div>
+    <h2><span lang="pt">O que é seu fica aí.</span><span lang="en">What's yours stays with you.</span></h2>
   </div>
-  <div class="faq">
-    <details><summary>É grátis?</summary><p>Sim, e o código é aberto, sob GPL-3.0. Não há conta, assinatura nem versão paga.</p></details>
-    <details><summary>Funciona no GNOME, no Windows ou no Mac?</summary><p>Não. O Halo conversa com o KWin, o Klipper, a bandeja e o painel do Plasma — é feito para KDE Plasma 6. Fora dele o app abre, mas a ilha, o lançador, a bandeja e a troca de papel de parede não funcionam.</p></details>
-    <details><summary>Meus dados vão para algum lugar?</summary><p>Não há telemetria. O Halo lê a sua máquina localmente; sai para a rede só o que você liga: o clima (Open-Meteo), os feeds de notícias que você escolher, as fontes da Social Arte, o TMDB e o Spotify, se configurar as chaves — e as chaves ficam no seu computador.</p></details>
-    <details><summary>Ele mexe nas configurações do meu KDE?</summary><p>Quatro coisas, cada uma com interruptor: o papel de parede ao trocar de ambiente (o seu é guardado antes, e um botão o devolve), o efeito da gaveta do KWin e os atalhos, só com a ilha ligada, e o Meta+V, só com o lançador ligado. Desligar desfaz.</p></details>
-    <details><summary>Preciso do Claude Code, do Spotify ou do Docker?</summary><p>Não. Cada integração é opcional: sem ela, a tela diz o que falta e onde configurar, e o resto do app funciona igual.</p></details>
-    <details><summary>Como desinstalo?</summary><p>Antes, desligue a ilha e o lançador em Configurações (isso apaga os atalhos e devolve o Meta+V). Depois, <code>sudo apt remove halo-spatial-os</code>. Suas configurações ficam em <code>~/.config/halo-spatial-os</code>, se quiser apagar também.</p></details>
+  <div class="grade">
+    <div class="cartao revela" style="--d:0"><div class="icone">🔒</div><h3><span lang="pt">Sem telemetria</span><span lang="en">No telemetry</span></h3><p><span lang="pt">Sem conta, sem servidor. O Halo lê a máquina localmente e não manda nada sobre ela.</span><span lang="en">No account, no server. Halo reads the machine locally and sends nothing about it.</span></p></div>
+    <div class="cartao revela" style="--d:1"><div class="icone">🌐</div><h3><span lang="pt">Rede só no que você liga</span><span lang="en">Network only for what you enable</span></h3><p><span lang="pt">Clima, os feeds que você mantiver, letras (LRCLIB), Social Arte, TMDB e Spotify quando configurados.</span><span lang="en">Weather, the feeds you keep, lyrics (LRCLIB), Social Arte, TMDB and Spotify when set up.</span></p></div>
+    <div class="cartao revela" style="--d:2"><div class="icone">🔑</div><h3><span lang="pt">Chaves no seu disco</span><span lang="en">Keys on your disk</span></h3><p><span lang="pt">Em <code>~/.config/halo-spatial-os</code>. Token não viaja em linha de comando e a interface nunca o vê.</span><span lang="en">In <code>~/.config/halo-spatial-os</code>. Tokens never travel on the command line and the interface never sees them.</span></p></div>
+    <div class="cartao revela" style="--d:3"><div class="icone">📁</div><h3><span lang="pt">Arquivos só leitura</span><span lang="en">Read-only files</span></h3><p><span lang="pt">Não existe operação de escrever, apagar, renomear ou executar — nem no serviço, nem no IPC.</span><span lang="en">There is no write, delete, rename or execute operation — not in the service, not in IPC.</span></p></div>
   </div>
 </section>
 
-<section class="wrap revela">
-  <div class="titulo">
-    <div class="eyebrow">Inspirações</div>
-    <h2>Em ombros de gigantes.</h2>
-    <p>Projetos e trabalhos que mostraram o caminho.</p>
+<section id="faq" class="wrap">
+  <div class="titulo revela">
+    <div class="eyebrow"><span lang="pt">Perguntas</span><span lang="en">Questions</span></div>
+    <h2><span lang="pt">Antes de instalar.</span><span lang="en">Before installing.</span></h2>
+  </div>
+  <div class="faq">
+    <details class="revela"><summary><span lang="pt">É grátis?</span><span lang="en">Is it free?</span></summary><p><span lang="pt">Sim, e o código é aberto, sob GPL-3.0. Não há conta, assinatura nem versão paga.</span><span lang="en">Yes, and open source under GPL-3.0. No account, subscription or paid version.</span></p></details>
+    <details class="revela"><summary><span lang="pt">Funciona no GNOME, no Windows ou no Mac?</span><span lang="en">Does it work on GNOME, Windows or Mac?</span></summary><p><span lang="pt">Não. O Halo conversa com o KWin, o Klipper, a bandeja e o painel do Plasma — é feito para KDE Plasma 6. Fora dele o app abre, mas a ilha, o lançador, a bandeja, os balões e a troca de papel de parede não funcionam.</span><span lang="en">No. Halo talks to KWin, Klipper, the tray and the Plasma panel — it's made for KDE Plasma 6. Elsewhere the app opens, but the island, launcher, tray, bubbles and wallpaper switch don't work.</span></p></details>
+    <details class="revela"><summary><span lang="pt">Abri e não apareceu a janela.</span><span lang="en">I opened it and no window showed up.</span></summary><p><span lang="pt">É de propósito: da segunda abertura em diante o Halo nasce recolhido. Passe o mouse na ilha, aperte Meta+Espaço ou clique no ícone da bandeja. Para abrir sempre visível, desligue em Configurações → Janela.</span><span lang="en">That's on purpose: from the second launch on, Halo starts collapsed. Hover the island, press Meta+Space or click the tray icon. To always open visible, turn it off in Settings → Window.</span></p></details>
+    <details class="revela"><summary><span lang="pt">Ele mexe nas configurações do meu KDE?</span><span lang="en">Does it touch my KDE settings?</span></summary><p><span lang="pt">Quatro coisas, cada uma com interruptor: o papel de parede ao trocar de ambiente (o seu é guardado antes, e um botão o devolve); o efeito da gaveta do KWin e os atalhos, que vêm com a ilha (ligada por padrão); e o Meta+V, só com o lançador ligado. Desligar desfaz.</span><span lang="en">Four things, each with a switch: the wallpaper when you switch environments (yours is saved first, and a button restores it); the KWin drawer effect and the shortcuts, which come with the island (on by default); and Meta+V, only with the launcher on. Turning them off undoes it.</span></p></details>
+    <details class="revela"><summary><span lang="pt">Preciso do Claude Code, do Spotify ou do Docker?</span><span lang="en">Do I need Claude Code, Spotify or Docker?</span></summary><p><span lang="pt">Não. Cada integração é opcional: sem ela, a tela diz o que falta e onde configurar, e o resto do app funciona igual. O Claude Code CLI é instalado à parte; o Spotify funciona só com o app aberto.</span><span lang="en">No. Every integration is optional: without it, the screen says what's missing and where to set it up, and the rest works the same. The Claude Code CLI is installed separately; Spotify works with just the app open.</span></p></details>
+    <details class="revela"><summary><span lang="pt">Como desinstalo?</span><span lang="en">How do I uninstall?</span></summary><p><span lang="pt">Antes, desligue a ilha e o lançador em Configurações (isso apaga os atalhos e o efeito e devolve o Meta+V). Depois, <code>sudo apt remove halo-spatial-os</code>. Suas configurações ficam em <code>~/.config/halo-spatial-os</code>, se quiser apagar também.</span><span lang="en">First turn off the island and the launcher in Settings (that deletes the shortcuts and the effect and gives Meta+V back). Then <code>sudo apt remove halo-spatial-os</code>. Your settings stay in <code>~/.config/halo-spatial-os</code> if you want to delete them too.</span></p></details>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="titulo revela">
+    <div class="eyebrow"><span lang="pt">Inspirações</span><span lang="en">Inspiration</span></div>
+    <h2><span lang="pt">Em ombros de gigantes.</span><span lang="en">On the shoulders of giants.</span></h2>
   </div>
   <div class="inspira">
-    <a href="https://github.com/TheBoredTeam/boring.notch"><small>Ilha · macOS</small><b>Boring Notch</b><span>O notch como centro de música, prateleira e HUD.</span></a>
-    <a href="https://github.com/Ebullioscopic/Atoll"><small>Ilha · macOS</small><b>Atoll</b><span>A ilha como superfície de comando, com atividades ao vivo.</span></a>
-    <a href="https://notchy.dev/"><small>Ilha · macOS</small><b>Notchy</b><span>A ilha como produto completo — e a inspiração desta página.</span></a>
-    <a href="https://github.com/aeusteixeira/dynamic-island-projects"><small>Ilha · Windows</small><b>dynamic-island-projects</b><span>Projetos e sessões do Claude Code numa gota no topo da tela.</span></a>
-    <a href="https://dribbble.com/shots/21707259-Vision-Pro-Application"><small>Design · Dribbble</small><b>Vision Pro Application</b><span>Os painéis de vidro no espaço — a gramática visual do Halo.</span></a>
-    <a href="https://www.behance.net/gallery/131293967/Cyberpunk-2077-UIUX-In-game-Ads"><small>Design · Behance</small><b>Cyberpunk 2077 — UI/UX In-game Ads</b><span>A linguagem das telas do ambiente Cyberpunk.</span></a>
+    <a class="revela" style="--d:0" href="https://github.com/TheBoredTeam/boring.notch"><small>Ilha · macOS</small><b>Boring Notch</b><span lang="pt">O notch como centro de música, prateleira e HUD.</span><span lang="en">The notch as music center, shelf and HUD.</span></a>
+    <a class="revela" style="--d:1" href="https://github.com/Ebullioscopic/Atoll"><small>Ilha · macOS</small><b>Atoll</b><span lang="pt">A ilha como superfície de comando, com atividades ao vivo.</span><span lang="en">The island as a command surface, with live activities.</span></a>
+    <a class="revela" style="--d:2" href="https://notchy.dev/"><small>Ilha · macOS</small><b>Notchy</b><span lang="pt">A ilha como produto completo — e a inspiração desta página.</span><span lang="en">The island as a full product — and this page's inspiration.</span></a>
+    <a class="revela" style="--d:0" href="https://github.com/aeusteixeira/dynamic-island-projects"><small>Ilha · Windows</small><b>dynamic-island-projects</b><span lang="pt">Projetos e sessões do Claude Code numa gota no topo da tela.</span><span lang="en">Projects and Claude Code sessions in a drop at the top of the screen.</span></a>
+    <a class="revela" style="--d:1" href="https://dribbble.com/shots/21707259-Vision-Pro-Application"><small>Design · Dribbble</small><b>Vision Pro Application</b><span lang="pt">Os painéis de vidro no espaço — a gramática visual do Halo.</span><span lang="en">Glass panels in space — Halo's visual grammar.</span></a>
+    <a class="revela" style="--d:2" href="https://www.behance.net/gallery/131293967/Cyberpunk-2077-UIUX-In-game-Ads"><small>Design · Behance</small><b>Cyberpunk 2077 — UI/UX In-game Ads</b><span lang="pt">A linguagem das telas do ambiente Cyberpunk.</span><span lang="en">The screen language of the Cyberpunk environment.</span></a>
   </div>
 </section>
 
 <div class="final wrap revela">
-  <h2>Deixe a área de trabalho respirar.</h2>
-  <p class="sub" style="margin-bottom:28px">Grátis, aberto, e feito para o Plasma.</p>
+  <h2><span lang="pt">Deixe a área de trabalho respirar.</span><span lang="en">Let your desktop breathe.</span></h2>
+  <p class="sub" style="margin-bottom:28px"><span lang="pt">Grátis, aberto, e feito para o Plasma.</span><span lang="en">Free, open, and made for Plasma.</span></p>
   <div class="ctas">
-    <a class="botao primario" href="https://github.com/jrcn1991/halo-spatial-os/releases/latest">Baixar o .deb</a>
-    <a class="botao" href="https://github.com/jrcn1991/halo-spatial-os">Ver no GitHub</a>
+    <a class="botao primario" href="https://github.com/jrcn1991/halo-spatial-os/releases/latest"><span lang="pt">Baixar o .deb</span><span lang="en">Download the .deb</span></a>
+    <a class="botao" href="https://github.com/jrcn1991/halo-spatial-os"><span lang="pt">Ver no GitHub</span><span lang="en">View on GitHub</span></a>
   </div>
 </div>
 
 <footer>
   <div class="wrap">
-    <span>Halo — Spatial OS · GPL-3.0 · <a href="https://github.com/jrcn1991/halo-spatial-os">código</a> · <a href="https://github.com/jrcn1991/halo-spatial-os/blob/main/THIRD-PARTY.md">créditos</a></span>
-    <span>Projeto pessoal, gratuito e sem fins comerciais. Os ambientes são inspirações com arte própria — o Shock vem de <i>BioShock</i> (2K) e o Cyberpunk da estética do gênero e de <i>Cyberpunk 2077</i> (CD Projekt Red) —, sem vínculo com os estúdios. Este produto usa a API do TMDB, mas não é endossado nem certificado pelo TMDB.</span>
+    <span>Halo — Spatial OS · v0.2.1 · GPL-3.0 · <a href="https://github.com/jrcn1991/halo-spatial-os">código</a> · <a href="https://github.com/jrcn1991/halo-spatial-os/blob/main/THIRD-PARTY.md">créditos</a> · <span lang="pt">feito por</span><span lang="en">made by</span> <a href="https://github.com/jrcn1991">Rafael Neves</a></span>
+    <span lang="pt">Projeto pessoal, gratuito e sem fins comerciais. Os ambientes são inspirações com arte própria — o Shock vem de <i>BioShock</i> (2K) e o Cyberpunk da estética do gênero e de <i>Cyberpunk 2077</i> (CD Projekt Red) —, sem vínculo com os estúdios. Os ícones do clima são CC BY-NC-SA, dos autores deles. Este produto usa a API do TMDB, mas não é endossado nem certificado pelo TMDB.</span>
+    <span lang="en">A personal, free, non-commercial project. The environments are inspirations with original art — Shock comes from <i>BioShock</i> (2K) and Cyberpunk from the genre's aesthetic and <i>Cyberpunk 2077</i> (CD Projekt Red) — with no affiliation to the studios. The weather icons are CC BY-NC-SA, by their authors. This product uses the TMDB API but is not endorsed or certified by TMDB.</span>
   </div>
 </footer>
 
 <dialog id="zoom"><img alt=""></dialog>
 
 <script>
-  document.documentElement.classList.add('js')
-  // A demonstração: o ambiente escolhido troca a imagem e a cor da página.
   const raiz = document.documentElement
+  raiz.classList.add('js')
+  const calmo = matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  /* ——— Idioma: lembrado neste navegador, e o do sistema na primeira visita ——— */
+  const botoesIdioma = document.querySelectorAll('.idioma button')
+  function idioma(l) {
+    raiz.dataset.lang = l
+    raiz.lang = l === 'en' ? 'en' : 'pt-BR'
+    botoesIdioma.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.lang === l)))
+    try { localStorage.setItem('halo-lang', l) } catch {}
+  }
+  let guardado = null
+  try { guardado = localStorage.getItem('halo-lang') } catch {}
+  const doSistema = (navigator.language || '').toLowerCase().startsWith('pt') ? 'pt' : 'en'
+  idioma(guardado === 'pt' || guardado === 'en' ? guardado : doSistema)
+  botoesIdioma.forEach((b) => b.addEventListener('click', () => idioma(b.dataset.lang)))
+
+  /* ——— O ambiente: troca a foto do palco e a cor da página ——— */
   const chips = document.querySelectorAll('.chip')
   const fotos = document.querySelectorAll('#palco img')
+  const cartoesAmb = document.querySelectorAll('.amb')
   let manual = false
   function escolher(env) {
     raiz.dataset.env = env
     fotos.forEach((f) => f.classList.toggle('ativa', f.dataset.env === env))
-    chips.forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.env === env)))
+    chips.forEach((c) => {
+      const ativo = c.dataset.env === env
+      c.setAttribute('aria-pressed', String(ativo))
+      // Reinicia a barrinha do chip ativo.
+      if (ativo) { c.style.animation = 'none'; void c.offsetWidth; c.style.animation = '' }
+    })
+    cartoesAmb.forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.env === env)))
   }
-  chips.forEach((c) => c.addEventListener('click', () => { manual = true; escolher(c.dataset.env) }))
-  // Sozinha, ela passeia pelos ambientes até alguém escolher um.
+  function fixar(env) {
+    manual = true
+    document.getElementById('seletor').classList.add('manual')
+    escolher(env)
+  }
+  chips.forEach((c) => c.addEventListener('click', () => fixar(c.dataset.env)))
+  cartoesAmb.forEach((c) => c.addEventListener('click', () => {
+    fixar(c.dataset.env)
+    document.getElementById('palco').scrollIntoView({ behavior: calmo ? 'auto' : 'smooth', block: 'center' })
+  }))
   const ordem = ['floresta', 'citypop', 'cyberpunk', 'bioshock']
   let i = 0
-  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    setInterval(() => { if (!manual) escolher(ordem[++i % ordem.length]) }, 4200)
+  if (!calmo) setInterval(() => { if (!manual) escolher(ordem[++i % ordem.length]) }, 4200)
+
+  /* ——— O palco inclina seguindo o mouse ——— */
+  const palco = document.getElementById('palco')
+  if (!calmo && matchMedia('(hover: hover)').matches) {
+    palco.addEventListener('pointermove', (e) => {
+      const r = palco.getBoundingClientRect()
+      const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height
+      palco.style.setProperty('--ry', ((x - 0.5) * 6).toFixed(2) + 'deg')
+      palco.style.setProperty('--rx', ((0.5 - y) * 5).toFixed(2) + 'deg')
+      palco.style.setProperty('--mx', (x * 100).toFixed(1) + '%')
+      palco.style.setProperty('--my', (y * 100).toFixed(1) + '%')
+    })
+    palco.addEventListener('pointerleave', () => { palco.style.setProperty('--rx', '0deg'); palco.style.setProperty('--ry', '0deg') })
   }
+  // E os cartões acendem onde o mouse está.
+  document.querySelectorAll('.cartao').forEach((c) => c.addEventListener('pointermove', (e) => {
+    const r = c.getBoundingClientRect()
+    c.style.setProperty('--mx', e.clientX - r.left + 'px')
+    c.style.setProperty('--my', e.clientY - r.top + 'px')
+  }))
 
-  // A ilha abre no toque, para quem não tem mouse.
-  const ilha = document.getElementById('ilha-vitrine')
-  ilha.addEventListener('click', () => ilha.classList.toggle('aberta-agora'))
+  /* ——— As abas da ilha acendem uma a uma, como no vídeo ——— */
+  const abas = document.querySelectorAll('#abas li')
+  let aba = 0
+  if (!calmo) setInterval(() => {
+    abas.forEach((a, n) => a.classList.toggle('acesa', n === aba))
+    aba = (aba + 1) % abas.length
+  }, 1800)
 
-  // As telas abrem de perto.
+  /* ——— O lançador digita sozinho ——— */
+  const exemplos = [
+    ['fire', 'Firefox', { pt: 'abrir', en: 'open' }],
+    ['15% de 240', '36', { pt: 'enter copia', en: 'enter copies' }],
+    ['30c em f', '86 °F', { pt: 'conversão', en: 'conversion' }],
+    [':coracao', '❤️', { pt: 'copiar emoji', en: 'copy emoji' }],
+    ['cafe', 'Cafeína', { pt: 'comando', en: 'command' }],
+    ['g kde plasma', 'Google: kde plasma', { pt: 'buscar', en: 'search' }],
+  ]
+  const digitado = document.getElementById('digitado')
+  const resposta = document.getElementById('resposta')
+  const esperar = (ms) => new Promise((ok) => setTimeout(ok, ms))
+  async function digitar() {
+    for (let n = 0; ; n = (n + 1) % exemplos.length) {
+      const [texto, res, rotulo] = exemplos[n]
+      for (let k = 1; k <= texto.length; k++) { digitado.textContent = texto.slice(0, k); await esperar(90) }
+      resposta.querySelector('b').textContent = res
+      resposta.querySelector('small').textContent = rotulo[raiz.dataset.lang] || rotulo.pt
+      resposta.classList.remove('nova'); void resposta.offsetWidth; resposta.classList.add('nova')
+      await esperar(1800)
+      for (let k = texto.length; k >= 0; k--) { digitado.textContent = texto.slice(0, k); await esperar(28) }
+      await esperar(250)
+    }
+  }
+  if (calmo) { digitado.textContent = '15% de 240'; resposta.querySelector('b').textContent = '36' } else digitar()
+
+  /* ——— Os vídeos: carregam quando chegam perto e só tocam à vista ——— */
+  const videos = document.querySelectorAll('video.auto')
+  const vistaVideo = new IntersectionObserver((es) => es.forEach((e) => {
+    const v = e.target
+    if (e.isIntersecting) {
+      if (!v.src && v.dataset.src) v.src = v.dataset.src
+      if (!calmo) v.play().catch(() => {})
+    } else v.pause()
+  }), { rootMargin: '200px 0px' })
+  videos.forEach((v) => vistaVideo.observe(v))
+
+  /* ——— As telas abrem de perto ——— */
   const zoom = document.getElementById('zoom')
-  document.querySelectorAll('.tela img').forEach((img) =>
+  document.querySelectorAll('.tela img, .baloes img').forEach((img) =>
     img.addEventListener('click', () => { zoom.querySelector('img').src = img.src; zoom.showModal() }),
   )
   zoom.addEventListener('click', () => zoom.close())
 
-  // Copiar o comando.
+  /* ——— Copiar o comando ——— */
   document.querySelectorAll('.copiar').forEach((b) =>
     b.addEventListener('click', async () => {
       try {
         await navigator.clipboard.writeText(b.previousElementSibling.textContent)
-        b.textContent = 'copiado'
-      } catch { b.textContent = 'selecione e copie' }
-      setTimeout(() => (b.textContent = 'copiar'), 1600)
+        b.textContent = raiz.dataset.lang === 'en' ? 'copied' : 'copiado'
+      } catch { b.textContent = raiz.dataset.lang === 'en' ? 'select and copy' : 'selecione e copie' }
+      setTimeout(() => (b.textContent = raiz.dataset.lang === 'en' ? 'copy' : 'copiar'), 1600)
     }),
   )
 
-  // As seções entram quando chegam à vista.
+  /* ——— Os números contam ao aparecer ——— */
+  function contar(el) {
+    const alvo = Number(el.dataset.conta)
+    if (calmo || alvo === 0) return
+    const t0 = performance.now()
+    const passo = (t) => {
+      const p = Math.min(1, (t - t0) / 1400)
+      el.textContent = Math.round(alvo * (1 - Math.pow(1 - p, 3)))
+      if (p < 1) requestAnimationFrame(passo)
+    }
+    requestAnimationFrame(passo)
+  }
+
+  /* ——— As seções entram quando chegam à vista ——— */
   const vista = new IntersectionObserver((es) => es.forEach((e) => {
-    if (e.isIntersecting) { e.target.classList.add('visivel'); vista.unobserve(e.target) }
+    if (!e.isIntersecting) return
+    e.target.classList.add('visivel')
+    e.target.querySelectorAll('[data-conta]').forEach(contar)
+    vista.unobserve(e.target)
   }), { threshold: 0, rootMargin: '0px 0px -8% 0px' })
   document.querySelectorAll('.revela').forEach((el) => vista.observe(el))
 </script>

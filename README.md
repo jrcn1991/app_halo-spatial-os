@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="site/assets/icone.png" alt="Halo" width="128">
+  <img src="site/assets/icone.png" alt="Halo" width="112">
 </p>
 
 <h1 align="center">Halo — Spatial OS</h1>
@@ -7,7 +7,8 @@
 <p align="center"><b>English</b> · <a href="README.pt-BR.md">Português (Brasil)</a></p>
 
 <p align="center">
-  <b>Glass panels floating over your desktop, and a dynamic island at the top of the screen.</b><br>
+  <b>Glass panels floating over your desktop, a dynamic island at the top of the screen,<br>
+  and environments that switch the theme and the wallpaper in one go.</b><br>
   For Linux with KDE Plasma 6.
 </p>
 
@@ -17,11 +18,30 @@
 </p>
 
 <p align="center">
+  <img src="https://img.shields.io/badge/version-0.2.1-61d19a" alt="Version 0.2.1">
   <img src="https://img.shields.io/badge/KDE%20Plasma-6-1D99F3?logo=kde&logoColor=white" alt="KDE Plasma 6">
   <img src="https://img.shields.io/badge/Ubuntu-26.04-E95420?logo=ubuntu&logoColor=white" alt="Ubuntu 26.04">
   <img src="https://img.shields.io/badge/Electron-44-47848F?logo=electron&logoColor=white" alt="Electron 44">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0-blue" alt="GPL-3.0 license"></a>
 </p>
+
+<p align="center">
+  <a href="https://jrcn1991.github.io/halo-spatial-os/#passeio"><img src="site/assets/ambientes.gif" alt="Halo switching between its four environments: Cyberpunk, City Pop, Shock and Floresta" width="880"></a>
+  <br>
+  <sub>▶ <a href="https://jrcn1991.github.io/halo-spatial-os/#passeio">Watch the full tour</a> — environments, island, launcher, notifications and every screen</sub>
+</p>
+
+<p align="center">
+  <a href="#the-dynamic-island">Island</a> ·
+  <a href="#the-launcher-metav">Launcher</a> ·
+  <a href="#four-environments">Environments</a> ·
+  <a href="#notifications-dressed-by-the-theme">Notifications</a> ·
+  <a href="#eight-screens">Screens</a> ·
+  <a href="#installation">Install</a> ·
+  <a href="#privacy">Privacy</a>
+</p>
+
+---
 
 Say hello to **Halo**: a way to make the Linux desktop feel like a spatial
 operating system. The window is **transparent** — there is no background at
@@ -34,83 +54,151 @@ and your session wallpaper in one go.
 > [!NOTE]
 > The interface speaks **Brazilian Portuguese** by default and **English** as
 > an option: Configurações → Idioma (Settings → Language). The switch applies
-> right away, in every window.
-
-<p align="center">
-  <a href="https://jrcn1991.github.io/halo-spatial-os/#passeio"><img src="site/assets/ambientes.gif" alt="Halo's four environments" width="860"></a>
-  <br>
-  <sub>▶ <a href="https://jrcn1991.github.io/halo-spatial-os/#passeio">Watch the full tour, through every screen</a></sub>
-</p>
-
----
+> right away, in every window. The images on this page show the Portuguese
+> interface.
 
 ## Highlights
 
-- **Eight screens of glass panels** — Home, Social, Claude, Files, Lab, Media,
-  Music and Settings, each with three panels and a dock.
-- **Dynamic island** at the top of the screen: now playing, timers, recent
-  copies, Wi-Fi, Bluetooth, screenshots, on-screen text (OCR), caffeine, and a
-  field that opens apps, runs commands and asks Claude.
-- **Four environments** — Floresta, City Pop, Cyberpunk and Shock — that switch
-  the interface theme **and** the Plasma session wallpaper (image or video).
-- **Real data from your machine**: CPU, memory, GPU and temperature, your git
-  repositories, Docker containers, disks, what's playing (MPRIS) and your
-  accounts.
-- **Claude Code agents** per project, with conversation history and an optional
-  Microsoft Agent mascot (Genie, Merlin, Clippit).
-- **Media library** from your own M3U list, with synopsis and cast from TMDB,
-  and a player that can stay on top of everything.
-- **Spotify** with playlists, albums, artists and playback control.
+|  |  |
+|---|---|
+| 🏝️ **Dynamic island** | A pill at the top of the screen that opens on hover: now playing with the real sound spectrum, timers, clipboard, windows, a file drawer, notifications, a note and Claude. **On by default.** |
+| ⌨️ **Launcher on Meta+V** | One field for apps, commands, math, unit conversion, emoji, web search and windows — the same engine as the island, dressed by the environment. |
+| 🎨 **Four environments** | Floresta, City Pop, Cyberpunk and Shock switch the interface theme **and** the Plasma wallpaper (image or video). |
+| 💬 **Themed notifications** | Plasma stays the notification server; Halo redraws the bubbles in the environment's style. |
+| 🪟 **Eight screens** | Home, Social, Claude, Files, Lab, Media, Music and Settings — three glass panels each, and a dock. |
+| 📈 **Real data** | CPU, memory, GPU and temperature, git repositories, Docker, disks, what's playing (MPRIS) — read from your machine, never made up. |
+| ✳️ **Claude Code** | One agent per project, with conversation history and an optional Microsoft Agent mascot. |
+| 🎬 **Media and music** | Your own M3U library with TMDB synopsis, a player that stays on top, and Spotify. |
 
-## Other features
-
-- **Launcher on Meta+V** — the same engine as the island's field, in a window
-  dressed by the environment.
-- **Themed notification bubbles** — Plasma stays the notification server; Halo
-  only redraws the bubble (off until you turn it on).
-- **Lives in the system tray**: the window sits on the wallpaper layer, out of
-  the taskbar, and comes back with a click on the tray icon or with Meta+Space.
-- **Social Arte** — a personal, read-only aggregator of references from
-  DeviantArt, ArtStation, Behance, Pinterest and Thingiverse.
-- **Nothing made up without saying so**: without an account, a key or a
-  program, the screen tells you what's missing and where to set it up.
+## The dynamic island
 
 <p align="center">
-  <img src="site/assets/home-cyberpunk.jpg" alt="Home in the Cyberpunk environment" width="920">
+  <img src="site/assets/ilha.gif" alt="The island: an announcement and the volume HUD on the closed pill, then it opens and goes through its eight tabs" width="720">
 </p>
 
-## Environments
+A black pill sits **on top of the Plasma panel**, like a notch on the menu bar.
+Closed, it shows what matters now — the cover and the sound wave of what's
+playing, a running timer, an announcement that widens and folds back (a
+finished download, the volume HUD). Hover it (or click, if you prefer) and it
+opens into eight tabs:
+
+| Tab | What's there |
+|---|---|
+| **Início** (Home) | The player with cover, progress and volume; Halo, Wi-Fi, Bluetooth and Do Not Disturb; mute, microphone, caffeine, show desktop, screenshot and lock; timers and stopwatch; and the launcher field. With nothing playing, a panorama of clock, weather and live meters takes the player's place. |
+| **Painéis** (Panels) | Every module in detail: system, GPU, audio outputs, network, Bluetooth, disks and USB drives, phone (KDE Connect), focus week, ports, services. |
+| **Claude** | Ask with `?` in the island's field; answers and permission prompts (✓ / ✗) right in the pill. |
+| **Gaveta** (Drawer) | Drop files, links or text on the pill to keep them at hand, and drag them back out. |
+| **Janelas** (Windows) | Put a window away in the drawer — the KWin effect flies the real window into the pill — and bring it back. |
+| **Avisos** (Notices) | The latest system notifications. |
+| **Cópias** (Copies) | Clipboard history with smart actions for links, colors and e-mails. |
+| **Nota** (Note) | A quick note that survives restarts. |
+
+**Meta+Space** folds the whole app into the island and brings it back. The
+island is **on by default** on a fresh install — it's the front door of the app,
+since the main window starts collapsed. Everything is in **Configurações → Ilha**.
+
+## The launcher (Meta+V)
+
+<p align="center">
+  <img src="site/assets/lancador.gif" alt="The Meta+V launcher: recent items, then typing an app, a percentage, a unit conversion, an emoji and a command" width="640">
+</p>
+
+**Meta+V** opens a launcher window on the screen you're working on, dressed by
+the current environment. The field understands:
+
+| Type | Example | Does |
+|---|---|---|
+| App or command | `fire`, `cafe` | opens Firefox; toggles caffeine |
+| Math | `2+2`, `15% de 240` | shows the result; Enter copies |
+| Conversion | `30c em f`, `2 gb em mb` | temperature, size, length… |
+| Emoji | `:coracao` | copies the symbol |
+| Web search | `g kde plasma` | opens the search in your browser |
+| Claude | `? how do I…` | asks the island's Claude |
+
+With the field empty it lists what you use most (frequency with recency). The
+island's field is the **same engine**, so whatever one learns, the other knows.
+Meta+V belongs to Klipper by default: turning the launcher on in
+**Configurações → Lançador** borrows the key, and turning it off gives it back.
+
+## Four environments
 
 | Floresta | City Pop |
 |:---:|:---:|
-| <img src="site/assets/home-floresta.jpg" alt="Floresta" width="440"> | <img src="site/assets/home-citypop.jpg" alt="City Pop" width="440"> |
+| <img src="site/assets/home-floresta.jpg" alt="Floresta environment" width="440"> | <img src="site/assets/home-citypop.jpg" alt="City Pop environment" width="440"> |
 | **Cyberpunk** | **Shock** |
-| <img src="site/assets/home-cyberpunk.jpg" alt="Cyberpunk" width="440"> | <img src="site/assets/home-bioshock.jpg" alt="Shock" width="440"> |
+| <img src="site/assets/home-cyberpunk.jpg" alt="Cyberpunk environment" width="440"> | <img src="site/assets/home-bioshock.jpg" alt="Shock environment" width="440"> |
 
-## The screens
+An environment is **the app's theme plus your session wallpaper**. Pick one in
+the right panel of Home: panels, fonts, the dock, the launcher and the
+notification bubbles all change, and Plasma gets the environment's wallpaper
+(or video). Before the first switch Halo saves your own wallpaper, and
+**Configurações → Ambiente → Restaurar o meu papel de parede** gives it back.
+Glass preferences — transparency, brightness, entrance animation — are
+**per environment**.
 
-| Music | Lab |
-|:---:|:---:|
-| <img src="site/assets/tela-music.jpg" alt="Music" width="440"> | <img src="site/assets/tela-lab.jpg" alt="Lab" width="440"> |
-| **Claude** | **Files** |
-| <img src="site/assets/tela-claude.jpg" alt="Claude" width="440"> | <img src="site/assets/tela-files.jpg" alt="Files" width="440"> |
-| **Social** | **Media** |
-| <img src="site/assets/tela-social.jpg" alt="Social" width="440"> | <img src="site/assets/tela-media.jpg" alt="Media" width="440"> |
-
-## The island
+## Notifications dressed by the theme
 
 <p align="center">
-  <img src="site/assets/ilha-fechada.jpg" alt="The island, closed" width="600">
-  <br><br>
-  <img src="site/assets/ilha-aberta.jpg" alt="The island, open" width="600">
+  <img src="site/assets/avisos.gif" alt="Notification bubbles arriving in each of the four themes" width="420">
 </p>
 
-Hover (or click, if you prefer) the pill to open it. The island is off by
-default: turn it on in **Configurações (Settings) → Ilha (Island)**.
+<p align="center">
+  <img src="site/assets/avisos.jpg" alt="The same bubbles in Floresta, City Pop, Cyberpunk and Shock" width="880">
+</p>
+
+Turn on **Configurações → Notificações** and Halo becomes a *watcher* of the
+Plasma notification server: Plasma's bubbles are hidden and Halo draws its own,
+with the environment's glass, fonts and entrance. Clicking an action goes back
+to the app that sent it. Plasma keeps the history, the bell and critical
+notifications, and closing Halo gives the bubbles back immediately. Off until
+you turn it on.
+
+## Eight screens
+
+<p align="center">
+  <img src="site/assets/telas.gif" alt="Going through the screens: Social, Claude, Files, Lab, Media, Music, Settings and Home" width="880">
+</p>
+
+| Home | Social |
+|:---:|:---:|
+| <img src="site/assets/tela-home.jpg" alt="Home screen" width="440"> | <img src="site/assets/tela-social.jpg" alt="Social screen" width="440"> |
+| Clock, weather, now playing, live meters, projects, news and notifications. | Social Arte: a personal, read-only board of art references. |
+| **Claude** | **Files** |
+| <img src="site/assets/tela-claude.jpg" alt="Claude screen" width="440"> | <img src="site/assets/tela-files.jpg" alt="Files screen" width="440"> |
+| A Claude Code agent per project, with history and attachments. | Disks and folders, **read-only** by design. |
+| **Lab** | **Media** |
+| <img src="site/assets/tela-lab.jpg" alt="Lab screen" width="440"> | <img src="site/assets/tela-media.jpg" alt="Media screen" width="440"> |
+| Docker containers, services with latency and the machine's health. | Your M3U library, favorites and "continue watching". |
+| **Music** | **Settings** |
+| <img src="site/assets/tela-music.jpg" alt="Music screen" width="440"> | <img src="site/assets/tela-settings.jpg" alt="Settings screen" width="440"> |
+| Spotify playlists, albums and artists. | One section per topic, with "Restore default" in each. |
+
+**Music and Spotify.** With just the **Spotify app installed** — nothing to set
+up — Halo shows what's playing (title, artist, cover, progress) on Home and in
+the island and controls play, pause, skip, shuffle and repeat, through MPRIS on
+D-Bus: no account, no internet. The **API** is only needed for the Music screen
+to list your playlists, saved albums and artists, and to control Spotify on
+another device (that part requires Premium): create a free app on the Spotify
+developer dashboard, paste the Client ID in Configurações → Música and click
+Conectar. Sign-in opens in your system browser.
+
+**Claude.** The Claude screen and the island's Claude run the **Claude Code
+CLI**, installed separately. Without it, the screen says so and takes you to
+Configurações → Claude. Agents start in `plan` mode (read-only) — letting them
+edit files is your explicit choice. The optional **mascot** reads classic
+Microsoft Agent characters (`.acs`: Genie, Merlin, Clippit…); you can find them
+at [tmafe.com/classic-ms-agents](https://tmafe.com/classic-ms-agents/).
+
+**Media.** Point Halo at your own M3U list and it becomes a library with
+categories, favorites and "continue watching"; with a free TMDB key, each title
+gets synopsis, cast and poster. The player can stay on top of every window.
 
 > [!NOTE]
-> The images on this page were generated from the app's **demo data**
-> (`node tools/vitrine.mjs`), over the environments' own wallpapers. On your
+> **Everything on this page is demo data.** The images and videos are generated
+> by `node tools/vitrine.mjs` from the built app running outside Electron, where
+> it falls back to its mocks — plus covers, posters and an island snapshot
+> drawn by `tools/vitrine-demo.mjs`. The songs, films, projects and
+> notifications are made up, and nothing comes from a real screen. On your
 > machine, the screens show your data.
 
 ## Requirements
@@ -125,7 +213,7 @@ guaranteed, and the rest is "should work" without anyone having checked.
 | Desktop | KDE Plasma 6.6.6, KWin 6.6.6, Qt 6.10 | **KDE Plasma 6** |
 | Session | Wayland, with the app on X11 through Xwayland 24.1 | X11, **or** Wayland with Xwayland (Plasma's default) |
 | Graphics | NVIDIA, proprietary driver | any GPU — the GPU meter only reads NVIDIA |
-| Monitors | more than one | one or more |
+| Monitors | more than one | one or more — on screens narrower than 1440 px the window is centered |
 | To build | Node 22, Electron 44 | Node 22 or newer |
 
 The app **always** runs as an X11 client (`--ozone-platform=x11`): only there
@@ -140,7 +228,7 @@ the notification bubbles and the wallpaper switch don't work.
 2. Install it:
 
    ```bash
-   sudo apt install ./halo-spatial-os_0.2.0_amd64.deb
+   sudo apt install ./halo-spatial-os_0.2.1_amd64.deb
    ```
 
 3. Open **Halo** from the application menu.
@@ -157,15 +245,11 @@ and may hit Ubuntu's user-namespace restriction — prefer the `.deb`.
 ## Quick start
 
 - **The first launch shows the window.** From the second one on, Halo starts
-  collapsed: only the tray icon (near the clock) remains, and it brings the
-  window back. To always open visible, turn this off in Configurações →
-  Janela (Window).
-- **Switch environments** in the right panel of Home. Before the first switch,
-  Halo saves your wallpaper; **Configurações → Ambiente (Environment) →
-  Restaurar o meu papel de parede** (restore my wallpaper) brings it back.
-- **Turn the island on** in Configurações → Ilha. With it, **Meta+Space**
-  collapses and restores the app, and the island's field opens apps and runs
-  commands.
+  collapsed: the **island** at the top of the screen and the **tray icon** stay,
+  and **Meta+Space**, the Halo row in the island or the tray icon bring the
+  window back. To always open visible, turn this off in Configurações → Janela
+  (Window).
+- **Switch environments** in the right panel of Home.
 - **Turn the launcher on** in Configurações → Lançador (Launcher) to use
   **Meta+V**.
 - **Pick the weather city** in Configurações → Widgets.
@@ -174,12 +258,15 @@ and may hit Ubuntu's user-namespace restriction — prefer the `.deb`.
 
 ## Settings
 
-Everything lives in **Configurações** (the gear in the dock), one section per
-topic: animation, appearance (transparency, brightness, glass color),
-environment, window, widgets, media, Claude, island, launcher, notifications,
-Seafile, music, news and system. Glass preferences are **per environment** —
-changing Floresta doesn't change Cyberpunk — and every section has its own
-"Restaurar padrão" (restore default).
+Everything lives in **Configurações** (the gear in the dock). The menu starts
+with the look of the app — **Idioma** (Language), **Aparência** (Appearance:
+transparency, brightness, glass color), **Ambiente** (Environment), **Animação**
+(Animation) and **Janela** (Window) — then a group of **Integrações**
+(Integrations): Widgets, Mídia, Claude, Ilha, Lançador, Notificações, Seafile,
+Música and Notícias (News). **Sistema** (System) and **Sobre** (About) close the
+list. Glass preferences are **per environment** — changing Floresta doesn't
+change Cyberpunk — and every section has its own "Restaurar padrão" (restore
+default).
 
 The file lives at `~/.config/halo-spatial-os/settings.json` and can be edited
 by hand.
@@ -187,8 +274,8 @@ by hand.
 ### System programs
 
 The app calls 26 system programs and bundles none of them. There is a single
-list (`src/shared/dependencias.ts`), read by `doctor`, Configurações → Sistema
-and the `.deb`. Details in [DOCUMENTATION.md](DOCUMENTATION.md).
+list (`src/shared/dependencias.ts`), read by `npm run doctor`, Configurações →
+Sistema and the `.deb`. Details in [DOCUMENTATION.md](DOCUMENTATION.md).
 
 **Essential** — the `.deb` installs them:
 
@@ -243,10 +330,15 @@ Each screen tells you where to set it up while it's missing:
 
 - **Media** — your own M3U list (Configurações → Mídia) and, for synopsis and
   cast, a free TMDB key.
-- **Music** — a free app on the Spotify developer dashboard, with its Client ID
-  in Configurações → Música.
+- **Music** — nothing for now playing and playback controls (the Spotify app is
+  enough); for playlists, albums, artists and other devices, a free app on the
+  Spotify developer dashboard, with its Client ID in Configurações → Música.
+- **Claude** — the Claude Code CLI, installed separately.
+- **News** — the Home reading column starts with Tecnoblog, CNN Brasil and BBC
+  World; swap them in Configurações → Notícias.
 - **Seafile** — only if you have a server on your local network.
-- **Mascot** — Microsoft Agent `.acs` characters you already own.
+- **Mascot** — Microsoft Agent `.acs` characters
+  ([tmafe.com/classic-ms-agents](https://tmafe.com/classic-ms-agents/)).
 - **Video wallpaper** — needs a separate Plasma video wallpaper plugin
   (`org.local.videowallpaper`); without it the environment keeps its image.
 
@@ -259,8 +351,8 @@ switch:
 | What | Where | Default | How to turn off |
 |---|---|---|---|
 | Session wallpaper | Plasma, through `plasma-apply-wallpaperimage` | **on** — acts when switching environments | Configurações → Ambiente |
-| KWin "drawer" effect | `~/.local/share/kwin[-wayland]/effects/halo-gaveta/` | only with the island on | Configurações → Ilha (turning off removes it) |
-| Global shortcuts (Meta+Space and others) | `~/.config/kglobalshortcutsrc` | only with the island on | Configurações → Ilha (turning off deletes them) |
+| KWin "drawer" effect | `~/.local/share/kwin[-wayland]/effects/halo-gaveta/` | **on**, with the island | Configurações → Ilha (turning off removes it) |
+| Global shortcuts (Meta+Space and others) | `~/.config/kglobalshortcutsrc` | **on**, with the island | Configurações → Ilha (turning off deletes them) |
 | Meta+V taken from Klipper | kglobalaccel, over D-Bus | off | Configurações → Lançador (turning off gives it back) |
 
 And one that writes nothing but changes what you see: **the notification
@@ -273,17 +365,37 @@ right away.
 that deletes the shortcuts and the effect and gives Meta+V back to Klipper.
 Uninstalling the package doesn't touch your home folder.
 
+## Privacy
+
+- **No telemetry, no account.** Halo reads your machine locally and sends
+  nothing about it anywhere.
+- **The network is only what you turn on:** weather (Open-Meteo), the news
+  feeds you keep, song lyrics for the island (LRCLIB), the Social Arte sources,
+  TMDB and Spotify when you set them up. Network and disk access live in the
+  main process only; the interface can load nothing but cover images from a
+  short, listed set of hosts.
+- **Keys stay on your computer**, in `settings.json`. Tokens never travel on the
+  command line, and the interface never sees them.
+- **Third-party sign-ins open in your system browser** (Spotify uses OAuth with
+  PKCE), never in a password field drawn by Halo. The two documented exceptions
+  are the Seafile server on your own local network and the platform's own login
+  page for Social Arte.
+- **Files are read-only.** There is no write, delete, rename or execute
+  operation — not in the service, not in the IPC contract.
+
 ## Troubleshooting
 
-- **I opened it and nothing showed up.** Halo is collapsed: click its tray
-  icon. If even the icon doesn't show, the session may not be KDE — Halo needs
-  Plasma 6.
+- **I opened it and nothing showed up.** Halo starts collapsed: hover the island
+  at the top of the screen, press **Meta+Space** or click the tray icon. If none
+  of them shows up, the session may not be KDE — Halo needs Plasma 6.
 - **Temperature, GPU or an island section is missing.** A system program is
   missing: see **Configurações → Sistema**.
 - **The wallpaper doesn't change.** Check the switch in Configurações →
   Ambiente and whether `plasma-apply-wallpaperimage` is installed.
 - **Meta+V still opens Klipper.** Turn the launcher on in Configurações →
   Lançador; turning it off gives the key back to Klipper.
+- **The Claude screen asks for the CLI.** Install Claude Code separately; if
+  Halo doesn't find it, point to it in Configurações → Claude.
 
 ## Building from source
 
@@ -292,6 +404,7 @@ npm install
 npm run dev        # Electron with reload (on X11)
 npm run check      # typecheck, lint, build, screen and layout tests
 npm run dist       # builds the .deb and the AppImage in dist/
+npm run build && node tools/vitrine.mjs   # regenerates the images on this page
 ```
 
 The rest — architecture decisions, how each integration works and how to verify
@@ -324,7 +437,9 @@ Halo is a personal, free project, **with no commercial purpose**. The
 environments are inspirations with original art: **Shock** comes from the
 underwater art deco of *BioShock* (a 2K trademark), and **Cyberpunk** from the
 genre's aesthetic and *Cyberpunk 2077* (by CD Projekt Red). No affiliation with
-the studios.
+the studios. Microsoft Agent characters are not distributed with Halo.
+
+Made by [Rafael Neves](https://github.com/jrcn1991).
 
 ## Inspiration and thanks
 
@@ -357,5 +472,6 @@ Halo wouldn't exist without these projects and works, which showed the way:
 - [TMDB](https://www.themoviedb.org) — synopsis, cast and posters for the
   library. *This product uses the TMDB API but is not endorsed or certified by
   TMDB.*
+- [LRCLIB](https://lrclib.net) — synced lyrics in the island.
 - The Rainmeter skins the weather icons came from, the DM font family and
   Phosphor icons — full credits in [THIRD-PARTY.md](THIRD-PARTY.md).
