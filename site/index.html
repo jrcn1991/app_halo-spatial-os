@@ -210,6 +210,11 @@
   .tabela { background: var(--glass); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 10px; overflow-x: auto; }
 
   /* ——— Ambientes ——— */
+  /* Os downloads dos papéis de parede, logo abaixo dos cartões. */
+  .papeis { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; margin-top: 22px; color: var(--muted); font-size: 14.5px; }
+  .papeis > span { margin-right: 6px; }
+  .papeis a { color: var(--text); text-decoration: none; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--glass); transition: border-color .25s, background .25s; }
+  .papeis a:hover { border-color: var(--accent); background: var(--accent-soft); }
   .ambientes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
   .amb {
     position: relative; border-radius: 20px; overflow: hidden; border: 1px solid var(--line); cursor: pointer; aspect-ratio: 3 / 4;
@@ -291,7 +296,11 @@
   details[open] summary::after { transform: rotate(45deg); }
   details p { margin: 0 0 18px; color: var(--muted); font-size: 15.5px; }
 
-  .inspira { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+  /* Flex, e não grid: a última linha, incompleta, fica centralizada. */
+  .inspira { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; }
+  .inspira a { flex: 0 1 calc((100% - 28px) / 3); box-sizing: border-box; }
+  @media (max-width: 900px) { .inspira a { flex-basis: calc((100% - 14px) / 2); } }
+  @media (max-width: 560px) { .inspira a { flex-basis: 100%; } }
   .inspira a { text-decoration: none; display: block; padding: 20px; border-radius: 18px; background: var(--glass); border: 1px solid var(--line); transition: border-color 0.25s, transform 0.35s var(--spring); }
   .inspira a:hover { border-color: var(--accent); transform: translateY(-3px); }
   .inspira small { font: 500 11.5px var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); }
@@ -364,7 +373,7 @@
       <a href="#ilha"><span lang="pt">Ilha</span><span lang="en">Island</span></a>
       <a href="#lancador"><span lang="pt">Lançador</span><span lang="en">Launcher</span></a>
       <a href="#ambientes"><span lang="pt">Ambientes</span><span lang="en">Environments</span></a>
-      <a href="#telas"><span lang="pt">Telas</span><span lang="en">Screens</span></a>
+      <a href="#navegacao"><span lang="pt">Navegação</span><span lang="en">Navigation</span></a>
       <a href="#instalar"><span lang="pt">Instalar</span><span lang="en">Install</span></a>
       <a href="https://github.com/jrcn1991/app_halo-spatial-os">GitHub</a>
     </div>
@@ -378,10 +387,10 @@
 
 <header class="hero wrap">
   <div class="eyebrow sobe" style="--d:1"><span lang="pt">Spatial OS para Linux</span><span lang="en">Spatial OS for Linux</span></div>
-  <h1 class="sobe" style="--d:2"><span lang="pt">Sua área de trabalho,<br><em>em vidro.</em></span><span lang="en">Your desktop,<br><em>made of glass.</em></span></h1>
+  <h1 class="sobe" style="--d:2"><span lang="pt">Tudo centralizado<br><em>num único app.</em></span><span lang="en">Everything in one place,<br><em>in a single app.</em></span></h1>
   <p class="sub sobe" style="--d:3">
-    <span lang="pt">Painéis flutuando sobre o seu papel de parede, uma ilha dinâmica no topo da tela, um lançador no Meta+V e ambientes que trocam o tema e o fundo de uma vez. Para KDE Plasma 6.</span>
-    <span lang="en">Panels floating over your wallpaper, a dynamic island at the top of the screen, a launcher on Meta+V and environments that switch the theme and the wallpaper in one go. For KDE Plasma 6.</span>
+    <span lang="pt">Medidores do sistema, arquivos, filmes, música, containers e agentes do Claude Code numa janela só, com uma ilha dinâmica no topo da tela e um lançador no Meta+V. Para Linux com KDE Plasma 6.</span>
+    <span lang="en">System meters, files, movies, music, containers and Claude Code agents in a single window, with a dynamic island at the top of the screen and a launcher on Meta+V. For Linux with KDE Plasma 6.</span>
   </p>
   <div class="ctas sobe" style="--d:4">
     <a class="botao primario" href="https://github.com/jrcn1991/app_halo-spatial-os/releases/latest"><span lang="pt">Baixar o .deb</span><span lang="en">Download the .deb</span></a>
@@ -486,13 +495,20 @@
     <div class="eyebrow"><span lang="pt">Ambientes</span><span lang="en">Environments</span></div>
     <h2><span lang="pt">Quatro temas, um clique.</span><span lang="en">Four themes, one click.</span></h2>
     <p><span lang="pt">Cada ambiente muda o tema do Halo e o papel de parede do computador, com imagem ou vídeo. Painéis, fontes, dock, lançador e notificações mudam juntos, e o seu papel de parede original fica guardado.</span><span lang="en">Each environment changes Halo's theme and your desktop wallpaper, image or video. Panels, fonts, dock, launcher and notifications change together, and your original wallpaper is kept.</span></p>
-    <p style="margin-top:10px"><span lang="pt">Clique num cartão para aplicar o tema na demo lá em cima.</span><span lang="en">Click a card to apply it to the demo up top.</span></p>
+    <p style="margin-top:10px"><span lang="pt">Clique num cartão para ver o tema na demo lá em cima. Os papéis de parede são arte do próprio Halo e podem ser baixados em 4K, para usar onde quiser.</span><span lang="en">Click a card to see the theme in the demo up top. The wallpapers are Halo's own art and can be downloaded in 4K, to use wherever you like.</span></p>
   </div>
   <div class="ambientes">
     <button class="amb revela" style="--d:0;--c:#61d19a" data-env="floresta"><img src="assets/home-floresta.jpg" alt="" loading="lazy"><div class="nome"><div class="cores"><i style="background:#61d19a"></i><i style="background:#b98cff"></i><i style="background:#f2a65a"></i></div><b>Floresta</b><span lang="pt">Vidro claro sobre a floresta.</span><span lang="en">Clear glass over the forest.</span></div></button>
     <button class="amb revela" style="--d:1;--c:#4fd8ff" data-env="citypop"><img src="assets/home-citypop.jpg" alt="" loading="lazy"><div class="nome"><div class="cores"><i style="background:#ff5fa2"></i><i style="background:#4fd8ff"></i><i style="background:#ffd166"></i></div><b>City Pop</b><span lang="pt">Anos 80, beira-mar, néon.</span><span lang="en">The 80s, seaside, neon.</span></div></button>
     <button class="amb revela" style="--d:2;--c:#f75049" data-env="cyberpunk"><img src="assets/home-cyberpunk.jpg" alt="" loading="lazy"><div class="nome"><div class="cores"><i style="background:#fcee0a"></i><i style="background:#02d7f2"></i><i style="background:#f75049"></i></div><b>Cyberpunk</b><span lang="pt">Cantos cortados, amarelo e chuva.</span><span lang="en">Cut corners, yellow and rain.</span></div></button>
     <button class="amb revela" style="--d:3;--c:#d9a441" data-env="bioshock"><img src="assets/home-bioshock.jpg" alt="" loading="lazy"><div class="nome"><div class="cores"><i style="background:#9ee6e0"></i><i style="background:#d9a441"></i><i style="background:#2f6f5e"></i></div><b>Shock</b><span lang="pt">Art déco no fundo do mar.</span><span lang="en">Art deco under the sea.</span></div></button>
+  </div>
+  <div class="papeis revela">
+    <span><span lang="pt">Papéis de parede em 4K</span><span lang="en">4K wallpapers</span></span>
+    <a href="assets/papeis/halo-floresta-4k.jpg" download>Floresta</a>
+    <a href="assets/papeis/halo-citypop-4k.jpg" download>City Pop</a>
+    <a href="assets/papeis/halo-cyberpunk-4k.jpg" download>Cyberpunk</a>
+    <a href="assets/papeis/halo-bioshock-4k.jpg" download>Shock</a>
   </div>
 </section>
 
@@ -521,27 +537,6 @@
   </div>
 </section>
 
-<!-- ——— Telas ——— -->
-<section id="telas" class="wrap">
-  <div class="titulo revela">
-    <div class="eyebrow"><span lang="pt">As telas</span><span lang="en">The screens</span></div>
-    <h2><span lang="pt">Oito telas, três painéis cada.</span><span lang="en">Eight screens, three panels each.</span></h2>
-    <p><span lang="pt">Cada tela tem a sua animação de entrada. Clique numa imagem para ampliar.</span><span lang="en">Each screen has its own entrance animation. Click an image to enlarge it.</span></p>
-  </div>
-  <div class="moldura revela">
-    <video class="auto" muted loop playsinline preload="none" poster="assets/telas.jpg" data-src="assets/telas.mp4" aria-label="Passando pelas oito telas"></video>
-  </div>
-  <div class="telas">
-    <figure class="tela revela" style="--d:0"><div class="quadro"><img src="assets/tela-home.jpg" alt="Tela Início" loading="lazy"></div><figcaption><b><span lang="pt">Início</span><span lang="en">Home</span></b><span lang="pt">Relógio, clima, música, medidores, projetos e notícias.</span><span lang="en">Clock, weather, music, meters, projects and news.</span></figcaption></figure>
-    <figure class="tela revela" style="--d:1"><div class="quadro"><img src="assets/tela-social.jpg" alt="Tela Social" loading="lazy"></div><figcaption><b>Social</b><span lang="pt">Um mural pessoal de referências de arte.</span><span lang="en">A personal board of art references.</span></figcaption></figure>
-    <figure class="tela revela" style="--d:2"><div class="quadro"><img src="assets/tela-claude.jpg" alt="Tela do Claude" loading="lazy"></div><figcaption><b>Claude</b><span lang="pt">Um agente do Claude Code por projeto.</span><span lang="en">One Claude Code agent per project.</span></figcaption></figure>
-    <figure class="tela revela" style="--d:3"><div class="quadro"><img src="assets/tela-files.jpg" alt="Tela de Arquivos" loading="lazy"></div><figcaption><b><span lang="pt">Arquivos</span><span lang="en">Files</span></b><span lang="pt">Discos e pastas, somente leitura.</span><span lang="en">Disks and folders, read-only.</span></figcaption></figure>
-    <figure class="tela revela" style="--d:0"><div class="quadro"><img src="assets/tela-lab.jpg" alt="Tela Lab" loading="lazy"></div><figcaption><b>Lab</b><span lang="pt">Containers, serviços e a máquina.</span><span lang="en">Containers, services and the machine.</span></figcaption></figure>
-    <figure class="tela revela" style="--d:1"><div class="quadro"><img src="assets/tela-media.jpg" alt="Tela de Mídia" loading="lazy"></div><figcaption><b><span lang="pt">Mídia</span><span lang="en">Media</span></b><span lang="pt">Sua lista M3U, com sinopse do TMDB.</span><span lang="en">Your M3U list, with TMDB synopsis.</span></figcaption></figure>
-    <figure class="tela revela" style="--d:2"><div class="quadro"><img src="assets/tela-music.jpg" alt="Tela de Música" loading="lazy"></div><figcaption><b><span lang="pt">Música</span><span lang="en">Music</span></b><span lang="pt">Playlists, álbuns e artistas do Spotify.</span><span lang="en">Spotify playlists, albums and artists.</span></figcaption></figure>
-    <figure class="tela revela" style="--d:3"><div class="quadro"><img src="assets/tela-settings.jpg" alt="Tela de Configurações" loading="lazy"></div><figcaption><b><span lang="pt">Configurações</span><span lang="en">Settings</span></b><span lang="pt">Aparência primeiro, integrações depois.</span><span lang="en">Looks first, integrations next.</span></figcaption></figure>
-  </div>
-</section>
 
 <!-- ——— Navegação ——— -->
 <section id="navegacao" class="wrap">
@@ -582,30 +577,13 @@
 </section>
 
 
-<!-- ——— O passeio ——— -->
-<section id="passeio" class="wrap">
-  <div class="titulo revela">
-    <div class="eyebrow"><span lang="pt">O passeio</span><span lang="en">The tour</span></div>
-    <h2><span lang="pt">O passeio completo.</span><span lang="en">The full tour.</span></h2>
-    <p><span lang="pt">Os ambientes, a ilha com as abas, o lançador, as notificações em cada tema e todas as telas.</span><span lang="en">The environments, the island and its tabs, the launcher, the notifications in each theme and every screen.</span></p>
-  </div>
-  <div class="moldura revela">
-    <video controls muted playsinline preload="none" poster="assets/passeio.jpg">
-      <source src="assets/passeio.mp4" type="video/mp4">
-    </video>
-  </div>
-  <div class="aviso-demo revela">
-    <span class="i-info"><svg viewBox="0 0 256 256" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V128a8,8,0,0,1,0-16,16,16,0,0,1,16,16v40A8,8,0,0,1,144,176ZM112,84a12,12,0,1,1,12,12A12,12,0,0,1,112,84Z"/></svg></span>
-    <span><span lang="pt"><b>Tudo nesta página é dado de demonstração.</b> As imagens e os vídeos saem do app construído rodando fora do Electron, com os dados de exemplo — músicas, filmes, projetos e avisos inventados, sobre os papéis de parede dos próprios ambientes. Nada vem de uma tela de verdade.</span><span lang="en"><b>Everything on this page is demo data.</b> The images and videos come from the built app running outside Electron, with its sample data — made-up songs, films, projects and notices, over the environments' own wallpapers. Nothing comes from a real screen.</span></span>
-  </div>
-</section>
 
 <!-- ——— Instalar ——— -->
 <section id="instalar" class="wrap">
   <div class="titulo revela">
     <div class="eyebrow"><span lang="pt">Instalar</span><span lang="en">Install</span></div>
     <h2><span lang="pt">Três passos.</span><span lang="en">Three steps.</span></h2>
-    <p><span lang="pt">Feito para Ubuntu com KDE Plasma 6. Ele não funciona em qualquer sistema, e avisa o que está faltando.</span><span lang="en">Made for Ubuntu with KDE Plasma 6. It doesn't run everywhere, and it tells you what's missing.</span></p>
+    <p><span lang="pt">Feito para Ubuntu com KDE Plasma 6. Em outras distribuições com Plasma ele pode funcionar: fique à vontade para testar, e o próprio app avisa o que estiver faltando.</span><span lang="en">Made for Ubuntu with KDE Plasma 6. It may work on other distributions with Plasma: feel free to try it, and the app itself tells you what's missing.</span></p>
   </div>
   <div class="passos">
     <div class="passo revela" style="--d:0"><div><h3><span lang="pt">Baixe o .deb</span><span lang="en">Download the .deb</span></h3><p><span lang="pt">A versão mais recente está em</span><span lang="en">The latest version is in</span> <a href="https://github.com/jrcn1991/app_halo-spatial-os/releases/latest">Releases</a>.</p></div></div>
@@ -651,7 +629,7 @@
   </div>
   <div class="faq">
     <details class="revela"><summary><span lang="pt">É grátis?</span><span lang="en">Is it free?</span></summary><p><span lang="pt">Sim, e o código é aberto, sob GPL-3.0. Não há conta, assinatura nem versão paga.</span><span lang="en">Yes, and open source under GPL-3.0. No account, subscription or paid version.</span></p></details>
-    <details class="revela"><summary><span lang="pt">Funciona no GNOME, no Windows ou no Mac?</span><span lang="en">Does it work on GNOME, Windows or Mac?</span></summary><p><span lang="pt">Não. O Halo conversa com o KWin, o Klipper, a bandeja e o painel do Plasma — é feito para KDE Plasma 6. Fora dele o app abre, mas a ilha, o lançador, a bandeja, os balões e a troca de papel de parede não funcionam.</span><span lang="en">No. Halo talks to KWin, Klipper, the tray and the Plasma panel — it's made for KDE Plasma 6. Elsewhere the app opens, but the island, launcher, tray, bubbles and wallpaper switch don't work.</span></p></details>
+    <details class="revela"><summary><span lang="pt">Funciona no GNOME, no Windows ou no Mac?</span><span lang="en">Does it work on GNOME, Windows or Mac?</span></summary><p><span lang="pt">Atualmente não. O Halo conversa com o KWin, o Klipper, a bandeja e o painel do Plasma — é feito para KDE Plasma 6. Fora dele o app abre, mas a ilha, o lançador, a bandeja, os balões e a troca de papel de parede não funcionam.</span><span lang="en">Not at the moment. Halo talks to KWin, Klipper, the tray and the Plasma panel — it's made for KDE Plasma 6. Elsewhere the app opens, but the island, launcher, tray, bubbles and wallpaper switch don't work.</span></p></details>
     <details class="revela"><summary><span lang="pt">Abri e não apareceu a janela.</span><span lang="en">I opened it and no window showed up.</span></summary><p><span lang="pt">É de propósito: da segunda abertura em diante o Halo nasce recolhido. Passe o mouse na ilha, aperte Meta+Espaço ou clique no ícone da bandeja. Para abrir sempre visível, desligue em Configurações → Janela.</span><span lang="en">That's on purpose: from the second launch on, Halo starts collapsed. Hover the island, press Meta+Space or click the tray icon. To always open visible, turn it off in Settings → Window.</span></p></details>
     <details class="revela"><summary><span lang="pt">Ele mexe nas configurações do meu KDE?</span><span lang="en">Does it touch my KDE settings?</span></summary><p><span lang="pt">Quatro coisas, cada uma com interruptor: o papel de parede ao trocar de ambiente (o seu é guardado antes, e um botão o devolve); o efeito da gaveta do KWin e os atalhos, que vêm com a ilha (ligada por padrão); e o Meta+V, só com o lançador ligado. Desligar desfaz.</span><span lang="en">Four things, each with a switch: the wallpaper when you switch environments (yours is saved first, and a button restores it); the KWin drawer effect and the shortcuts, which come with the island (on by default); and Meta+V, only with the launcher on. Turning them off undoes it.</span></p></details>
     <details class="revela"><summary><span lang="pt">Preciso do Claude Code, do Spotify ou do Docker?</span><span lang="en">Do I need Claude Code, Spotify or Docker?</span></summary><p><span lang="pt">Não. Cada integração é opcional: sem ela, a tela diz o que falta e onde configurar, e o resto do app funciona igual. O Claude Code CLI é instalado à parte; o Spotify funciona só com o app aberto.</span><span lang="en">No. Every integration is optional: without it, the screen says what's missing and where to set it up, and the rest works the same. The Claude Code CLI is installed separately; Spotify works with just the app open.</span></p></details>
@@ -667,7 +645,7 @@
   <div class="inspira">
     <a class="revela" style="--d:0" href="https://github.com/TheBoredTeam/boring.notch"><small>Ilha · macOS</small><b>Boring Notch</b><span lang="pt">O notch como centro de música, prateleira e HUD.</span><span lang="en">The notch as music center, shelf and HUD.</span></a>
     <a class="revela" style="--d:1" href="https://github.com/Ebullioscopic/Atoll"><small>Ilha · macOS</small><b>Atoll</b><span lang="pt">A ilha como superfície de comando, com atividades ao vivo.</span><span lang="en">The island as a command surface, with live activities.</span></a>
-    <a class="revela" style="--d:2" href="https://notchy.dev/"><small>Ilha · macOS</small><b>Notchy</b><span lang="pt">A ilha como produto completo — e a inspiração desta página.</span><span lang="en">The island as a full product — and this page's inspiration.</span></a>
+    <a class="revela" style="--d:2" href="https://notchy.dev/"><small>Ilha · macOS</small><b>Notchy</b><span lang="pt">A ilha como app completo — e a inspiração desta página.</span><span lang="en">The island as a full app — and this page's inspiration.</span></a>
     <a class="revela" style="--d:0" href="https://github.com/aeusteixeira/dynamic-island-projects"><small>Ilha · Windows</small><b>dynamic-island-projects</b><span lang="pt">Projetos e sessões do Claude Code numa gota no topo da tela.</span><span lang="en">Projects and Claude Code sessions in a drop at the top of the screen.</span></a>
     <a class="revela" style="--d:1" href="https://dribbble.com/shots/21707259-Vision-Pro-Application"><small>Design · Dribbble</small><b>Vision Pro Application</b><span lang="pt">Os painéis de vidro no espaço — a gramática visual do Halo.</span><span lang="en">Glass panels in space — Halo's visual grammar.</span></a>
     <a class="revela" style="--d:2" href="https://www.behance.net/gallery/131293967/Cyberpunk-2077-UIUX-In-game-Ads"><small>Design · Behance</small><b>Cyberpunk 2077 — UI/UX In-game Ads</b><span lang="pt">A linguagem das telas do ambiente Cyberpunk.</span><span lang="en">The screen language of the Cyberpunk environment.</span></a>
@@ -686,7 +664,7 @@
 <footer>
   <div class="wrap">
     <span>Halo — Spatial OS · v0.2.2 · GPL-3.0 · <a href="https://github.com/jrcn1991/app_halo-spatial-os">código</a> · <a href="https://github.com/jrcn1991/app_halo-spatial-os/blob/main/THIRD-PARTY.md">créditos</a> · <span lang="pt">feito por</span><span lang="en">made by</span> <a href="https://github.com/jrcn1991">Rafael Neves</a></span>
-    <span lang="pt">Projeto pessoal, gratuito e sem fins comerciais. Os ambientes são inspirações com arte própria — o Shock vem de <i>BioShock</i> (2K) e o Cyberpunk da estética do gênero e de <i>Cyberpunk 2077</i> (CD Projekt Red) —, sem vínculo com os estúdios. Os ícones do clima são CC BY-NC-SA, dos autores deles. Este produto usa a API do TMDB, mas não é endossado nem certificado pelo TMDB.</span>
+    <span lang="pt">Projeto pessoal, gratuito e sem fins comerciais. Os ambientes são inspirações com arte própria — o Shock vem de <i>BioShock</i> (2K) e o Cyberpunk da estética do gênero e de <i>Cyberpunk 2077</i> (CD Projekt Red) —, sem vínculo com os estúdios. Os ícones do clima são CC BY-NC-SA, dos autores deles. Este app usa a API do TMDB, mas não é endossado nem certificado pelo TMDB.</span>
     <span lang="en">A personal, free, non-commercial project. The environments are inspirations with original art — Shock comes from <i>BioShock</i> (2K) and Cyberpunk from the genre's aesthetic and <i>Cyberpunk 2077</i> (CD Projekt Red) — with no affiliation to the studios. The weather icons are CC BY-NC-SA, by their authors. This product uses the TMDB API but is not endorsed or certified by TMDB.</span>
   </div>
 </footer>
