@@ -46,6 +46,8 @@ export type EventoDoVigia =
   | { tipo: 'atalho-lancador' }
   /** Alguma janela abriu, fechou, mudou de título ou de foco: a lista mudou. */
   | { tipo: 'janelas' }
+  /** A janela principal ficou inteira por baixo de outras janelas (ou saiu dela). */
+  | { tipo: 'coberta'; coberta: boolean }
 
 /** Recebe o `callDBus` que o script do KWin faz de volta. */
 class Entrega extends dbus.interface.Interface {
@@ -599,6 +601,113 @@ function sobreOPainel() {
 }
 sobreOPainel()
 `
+
+/**
+ * A janela principal está INTEIRA por baixo de outras janelas?
+ *
+ * Ela mora na camada do papel de parede, então qualquer janela aberta por
+ * cima a esconde — e o Chromium não sabe disso: no X11 janela coberta continua
+ * `visible`, e um laço de CSS segue gerando quadro a cada vsync para ninguém
+ * ver. MEDIDO em 28/09/2026, no Cyberpunk, com o navegador maximizado por
+ * cima: 60 quadros/s e ~13 % de CPU no processo de GPU. O main usa a resposta
+ * para pôr a página para dormir, como já fazia ao minimizar.
+ *
+ * A conta é a área da janela menos os retângulos de quem está por cima; sobrou
+ * nada, está coberta. Conservadora de propósito — na dúvida, acordada:
+ *
+ * - só contam janelas normais e diálogos, inteiros (`opacity` 1), na área de
+ *   trabalho e atividade atuais. Painéis e docks ficam de fora, porque são
+ *   translúcidos, e as janelas do próprio Halo também;
+ * - uma janela translúcida por PIXEL (um terminal com fundo transparente) conta
+ *   como opaca — o KWin 6 não expõe o canal alfa ao script (`alpha` volta
+ *   `undefined`, medido). O que se perde ali é a animação vista através de um
+ *   vidro, e ela volta no instante em que a janela sai;
+ * - "mostrar a área de trabalho" acorda: as janelas ficam de lado sem estarem
+ *   minimizadas (`hiddenByShowDesktop`).
+ *
+ * Os sinais são os de CADA janela: o KWin 6 não tem `stackingOrderChanged`
+ * nem `showingDesktopChanged` em `workspace` (medido, voltam `undefined`), e
+ * sem o `stackingOrderChanged` da janela a conta feita ao mapear — antes de o
+ * KWin assentá-la na camada de baixo — ficava valendo. Só avisa quando o
+ * estado MUDA: `frameGeometryChanged` dispara a cada passo de um arrasto.
+ */
+const COBERTA = `${EH_HALO}
+function naAreaAtual(w) {
+  var desk = w.onAllDesktops
+  for (var i = 0; !desk && i < w.desktops.length; i++) if (w.desktops[i].id === workspace.currentDesktop.id) desk = true
+  if (!desk) return false
+  var atv = w.activities
+  if (!atv || atv.length === 0) return true
+  for (var j = 0; j < atv.length; j++) if (String(atv[j]) === String(workspace.currentActivity)) return true
+  return false
+}
+function menos(partes, c) {
+  var fora = []
+  for (var i = 0; i < partes.length; i++) {
+    var r = partes[i]
+    var x1 = Math.max(r.x, c.x), y1 = Math.max(r.y, c.y)
+    var x2 = Math.min(r.x + r.w, c.x + c.width), y2 = Math.min(r.y + r.h, c.y + c.height)
+    if (x1 >= x2 || y1 >= y2) { fora.push(r); continue }
+    if (r.y < y1) fora.push({ x: r.x, y: r.y, w: r.w, h: y1 - r.y })
+    if (y2 < r.y + r.h) fora.push({ x: r.x, y: y2, w: r.w, h: r.y + r.h - y2 })
+    if (r.x < x1) fora.push({ x: r.x, y: y1, w: x1 - r.x, h: y2 - y1 })
+    if (x2 < r.x + r.w) fora.push({ x: x2, y: y1, w: r.x + r.w - x2, h: y2 - y1 })
+  }
+  return fora
+}
+function haloCoberta() {
+  var pilha = workspace.stackingOrder, alguma = false
+  for (var i = 0; i < pilha.length; i++) {
+    var h = pilha[i]
+    if (!ehHalo(h) || h.minimized || h.hidden) continue
+    alguma = true
+    // Fora da área de trabalho atual ninguém a vê.
+    if (!naAreaAtual(h)) continue
+    var g = h.frameGeometry
+    var partes = [{ x: g.x, y: g.y, w: g.width, h: g.height }]
+    for (var k = i + 1; k < pilha.length && partes.length > 0; k++) {
+      var w = pilha[k]
+      if (!(w.normalWindow || w.dialog) || w.minimized || w.hidden || w.hiddenByShowDesktop) continue
+      if (w.opacity < 1) continue
+      if (String(w.resourceClass) === 'halo-spatial-os' || !naAreaAtual(w)) continue
+      partes = menos(partes, w.frameGeometry)
+    }
+    // Sobra de menos de 2 px é arredondamento de geometria fracionária.
+    for (var p = 0; p < partes.length; p++) if (partes[p].w >= 2 && partes[p].h >= 2) return false
+  }
+  return alguma
+}
+var cobertaDita = null
+function coberta() {
+  var agora = false
+  try { agora = haloCoberta() } catch (e) { agora = false }
+  if (agora === cobertaDita) return
+  cobertaDita = agora
+  avisar({ tipo: 'coberta', coberta: agora })
+}
+function vigiaCobertura(w) {
+  if (!w) return
+  if (w.frameGeometryChanged) w.frameGeometryChanged.connect(coberta)
+  if (w.minimizedChanged) w.minimizedChanged.connect(coberta)
+  if (w.opacityChanged) w.opacityChanged.connect(coberta)
+  if (w.desktopsChanged) w.desktopsChanged.connect(coberta)
+  if (w.activitiesChanged) w.activitiesChanged.connect(coberta)
+  if (w.hiddenChanged) w.hiddenChanged.connect(coberta)
+  if (w.stackingOrderChanged) w.stackingOrderChanged.connect(coberta)
+  if (w.keepBelowChanged) w.keepBelowChanged.connect(coberta)
+  if (w.hiddenByShowDesktopChanged) w.hiddenByShowDesktopChanged.connect(coberta)
+  if (w.readyForPaintingChanged) w.readyForPaintingChanged.connect(coberta)
+}
+var todas = workspace.windowList()
+for (var c = 0; c < todas.length; c++) vigiaCobertura(todas[c])
+workspace.windowAdded.connect(vigiaCobertura)
+workspace.windowAdded.connect(coberta)
+workspace.windowRemoved.connect(coberta)
+workspace.windowActivated.connect(coberta)
+if (workspace.currentDesktopChanged) workspace.currentDesktopChanged.connect(coberta)
+if (workspace.currentActivityChanged) workspace.currentActivityChanged.connect(coberta)
+coberta()
+`
 const VIGIA = 'halo-ilha-vigia'
 const ATALHO_TITULO = 'Halo: guardar a janela ativa na ilha'
 const ATALHO_TECLAS = 'Meta+Shift+H'
@@ -675,6 +784,7 @@ if (workspace.currentDesktopChanged) workspace.currentDesktopChanged.connect(tel
 workspace.windowActivated.connect(telaCheia)
 workspace.windowActivated.connect(janelasMudaram)
 ${SOBRE_O_PAINEL}
+${COBERTA}
 ${
   opcoes.atalho
     ? `registerShortcut(${JSON.stringify(ATALHO_TITULO)}, ${JSON.stringify(ATALHO_TITULO)}, ${JSON.stringify(ATALHO_TECLAS)}, function () { avisar({ tipo: 'atalho-guardar' }) })`

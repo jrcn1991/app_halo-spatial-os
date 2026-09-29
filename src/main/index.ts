@@ -983,24 +983,28 @@ app.whenReady().then(async () => {
   const temBandeja = await criarBandeja()
   const recolhida = nasceRecolhido(settings, temBandeja)
   const principal = createMainWindow(settings, temBandeja, recolhida)
-  // Escondida ou minimizada, a janela avisa o renderer para pausar as
+  // Escondida, minimizada ou coberta, a janela avisa o renderer para pausar as
   // animações; de volta, retoma (DESEMPENHO.md, P3-12).
-  const dormir = (sim: boolean) => () => {
-    if (!principal.isDestroyed()) principal.webContents.send(IPC.windowDormindo, sim)
+  janelaQueDorme = principal
+  const oculta = (sim: boolean) => () => {
+    sono.oculta = sim
+    acertarSono()
   }
-  principal.on('minimize', dormir(true))
-  principal.on('hide', dormir(true))
-  principal.on('restore', dormir(false))
-  principal.on('show', dormir(false))
+  principal.on('minimize', oculta(true))
+  principal.on('hide', oculta(true))
+  principal.on('restore', oculta(false))
+  principal.on('show', oculta(false))
+  // A cada carga (a primeira, ou um recarregamento) o renderer nasce acordado
+  // e precisa ouvir o estado de novo. É também o que cobre o arranque
+  // recolhido: `hide` só dispara para janela que esteve à vista, e esta nunca
+  // esteve — sem o aviso, o renderer subiria animando por trás de nada.
+  principal.webContents.on('did-finish-load', () => {
+    sono.dito = null
+    acertarSono()
+  })
   if (recolhida) {
     nascerRecolhido(principal)
-    // O aviso de dormir tem de ser dado à mão: `hide` só dispara para janela
-    // que esteve à vista, e esta nunca esteve. Sem ele o renderer subiria
-    // animando por trás de nada — e é justamente o custo que este modo evita.
-    // No `did-finish-load` porque antes disso não há quem ouça.
-    principal.webContents.once('did-finish-load', () => {
-      if (!principal.isDestroyed()) principal.webContents.send(IPC.windowDormindo, true)
-    })
+    sono.oculta = true
   }
   applyIsland(settings.island)
   applyLauncher(settings.launcher.on, settings.environment.id)
@@ -1043,10 +1047,43 @@ function aplicarExtras(ilha: IslandSettings): void {
 }
 
 /**
+ * O sono da janela principal: dois motivos, um aviso só.
+ *
+ * `oculta` vem do Electron (minimizar, esconder); `coberta`, do vigia do KWin —
+ * a janela mora atrás de tudo, e uma janela maximizada por cima a esconde sem
+ * que o Chromium saiba. Qualquer um dos dois pausa as animações; o renderer só
+ * ouve quando a soma muda.
+ */
+const sono: { oculta: boolean; coberta: boolean; dito: boolean | null } = {
+  oculta: false,
+  coberta: false,
+  dito: null,
+}
+let janelaQueDorme: BrowserWindow | null = null
+
+function acertarSono(): void {
+  const janela = janelaQueDorme
+  if (!janela || janela.isDestroyed()) return
+  const dormindo = sono.oculta || sono.coberta
+  if (dormindo === sono.dito) return
+  sono.dito = dormindo
+  janela.webContents.send(IPC.windowDormindo, dormindo)
+}
+
+function definirCoberta(sim: boolean): void {
+  sono.coberta = sim
+  acertarSono()
+}
+
+/**
  * O vigia do KWin: tela cheia esconde a ilha; o atalho global (se o usuário o
- * ligou) guarda a janela ativa com o voo.
+ * ligou) guarda a janela ativa com o voo; e diz quando a janela principal está
+ * coberta, para ela dormir.
  */
 async function aplicarVigia(ilha: IslandSettings, lancador: boolean): Promise<void> {
+  // Sem vigia, ninguém avisaria que a janela foi DESCOBERTA: o estado velho
+  // sai antes, e um vigia novo manda o dele ao nascer. Na dúvida, acordada.
+  definirCoberta(false)
   await aplicarEfeito(ilha).catch(() => {
     // Sem KWin, ou sem permissão de escrever o pacote: o cartão continua.
   })
@@ -1091,9 +1128,11 @@ async function aplicarVigia(ilha: IslandSettings, lancador: boolean): Promise<vo
       if (evento.tipo === 'atalho-halo') void alternarHalo().catch(() => {})
       if (evento.tipo === 'atalho-lancador') void toggleLauncher().catch(() => {})
       if (evento.tipo === 'janelas') invalidarJanelas()
+      if (evento.tipo === 'coberta') definirCoberta(evento.coberta === true)
     },
   ).catch(() => {
     // Sem KWin (outro ambiente): a ilha vive sem o vigia.
+    definirCoberta(false)
   })
   if (!lancador) await devolverMetaV().catch(() => {})
 }

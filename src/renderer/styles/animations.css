@@ -1405,11 +1405,19 @@
 }
 
 /* ——— Dormindo ——————————————————————————————————————————————
-   A janela está minimizada ou escondida (recolhida para a ilha, por exemplo):
-   ninguém vê, e um laço infinito num palco de 1440×900 gera um quadro por
-   vsync mesmo assim — a 144 Hz, 2,4× o custo de 60 (DESEMPENHO.md, P3-12).
-   Pausar preserva o desenho: ao voltar, tudo retoma de onde parou. */
-:root[data-halo-dormindo="sim"] * {
+   A janela está minimizada, escondida (recolhida para a ilha, por exemplo) ou
+   coberta por outras janelas (o vigia do KWin diz): ninguém vê, e um laço
+   infinito num palco de 1440×900 gera um quadro por vsync mesmo assim — a
+   144 Hz, 2,4× o custo de 60 (DESEMPENHO.md, P3-12). Pausar preserva o
+   desenho: ao voltar, tudo retoma de onde parou.
+
+   Os pseudo-elementos entram À PARTE: `*` não os alcança, e é neles que moram
+   a estática e a varredura do Cyberpunk. MEDIDO em 28/09/2026: só com `*`, as
+   duas seguiam rodando com a janela dormindo — a estática sozinha custava
+   ~9 pontos de CPU no processo de GPU. */
+:root[data-halo-dormindo="sim"] *,
+:root[data-halo-dormindo="sim"] *::before,
+:root[data-halo-dormindo="sim"] *::after {
   /* `!important` de propósito: o shorthand `animation` de cada laço repõe o
      `animation-play-state: running`, e uma regra em `*` perderia para todos
      eles na cascata. É a única forma de pausar tudo de um lugar só. */
