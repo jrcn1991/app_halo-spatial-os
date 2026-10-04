@@ -84,6 +84,11 @@ export const EN_SHARED: Record<string, string> = {
   'a pasta de capturas cai no palpite `~/Pictures`':
     'the screenshots folder falls back to the guess `~/Pictures`',
   'Claude Code (instalado à parte)': 'Claude Code (installed separately)',
+  'CyberKDE (tema do KDE, instalado à parte)': 'CyberKDE (KDE theme, installed separately)',
+  'Integrações → Tema: o tema do KDE segue a cor do ambiente':
+    "Integrations → Theme: the KDE theme follows the environment's color",
+  'a integração com o tema do KDE não faz nada; o resto do app segue igual':
+    'the KDE theme integration does nothing; the rest of the app is unaffected',
   'os agentes da tela do Claude e o Claude da ilha':
     "the agents on the Claude screen and the island's Claude",
   'a tela do Claude não abre agente nenhum': "the Claude screen can't open any agent",

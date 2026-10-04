@@ -24,6 +24,7 @@ import { feedUrlValida, MAX_FEEDS } from './news'
 import { CANTOS_DOS_AVISOS, type CantoDosAvisos, type NotificacoesSettings } from './notificacoes'
 import { normalizarServidor } from './seafile'
 import { redirectValido } from './spotify'
+import { ehCorHex, type TemaKdeSettings } from './tema-kde'
 
 /**
  * Configurações persistidas.
@@ -428,6 +429,8 @@ export type HaloSettings = {
   launcher: LauncherSettings
   /** As notificações do sistema no estilo do ambiente. Ver `src/shared/notificacoes.ts`. */
   notificacoes: NotificacoesSettings
+  /** A integração opcional com o CyberKDE. Ver `src/shared/tema-kde.ts`. */
+  temaKde: TemaKdeSettings
   seafile: SeafileSettings
   mascot: MascotSettings
   music: Music
@@ -517,6 +520,9 @@ export const DEFAULT_SETTINGS: HaloSettings = {
   // balões do Plasma e desenhar os dele, e isso não se faz sem a pessoa pedir.
   // Quem já as ligou tem `on: true` gravado, e o padrão não o alcança.
   notificacoes: { on: false, canto: 'topo-direita' },
+  // Desligada: ligar faz a troca de ambiente recolorir o KDE pelo CyberKDE, e
+  // só quem tem o tema e pediu isso a liga (29/09/2026).
+  temaKde: { on: false, cores: {} },
   // Ligada por padrão numa instalação nova, a pedido do usuário (26/09/2026):
   // a ilha é a porta de entrada do app, e com a janela nascendo recolhida é
   // ela quem mostra que o Halo está de pé. Já foi desligada ("nada que ocupa o
@@ -652,6 +658,7 @@ export function parseSettings(input: unknown): HaloSettings {
     island: parseIsland(input.island),
     launcher: parseLauncher(input.launcher),
     notificacoes: parseNotificacoes(input.notificacoes),
+    temaKde: parseTemaKde(input.temaKde),
     seafile: parseSeafile(input.seafile),
     mascot: parseMascot(input.mascot),
     music: parseMusic(input.music),
@@ -786,6 +793,22 @@ function parseNotificacoes(input: unknown): NotificacoesSettings {
       ? (input.canto as CantoDosAvisos)
       : base.canto,
   }
+}
+
+/**
+ * A cor de cada ambiente vai para a linha de comando do `cyberkde`: só entra
+ * `#RRGGBB`, e só para ambiente que existe. O resto some, e vale o padrão.
+ */
+function parseTemaKde(input: unknown): TemaKdeSettings {
+  const base = DEFAULT_SETTINGS.temaKde
+  if (!isRecord(input)) return base
+  const brutas = isRecord(input.cores) ? input.cores : {}
+  const cores: TemaKdeSettings['cores'] = {}
+  for (const id of ENVIRONMENT_IDS) {
+    const cor = brutas[id]
+    if (ehCorHex(cor)) cores[id] = cor.toUpperCase()
+  }
+  return { on: typeof input.on === 'boolean' ? input.on : base.on, cores }
 }
 
 /** Endereço tem de ser http(s); o resto é texto curto. */

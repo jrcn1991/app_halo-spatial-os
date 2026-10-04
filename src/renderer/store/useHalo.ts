@@ -21,6 +21,7 @@ import {
   type NavigationMode,
   type Widgets,
 } from '@shared/settings'
+import type { TemaKdeSettings } from '@shared/tema-kde'
 import { create } from 'zustand'
 import type { EntranceName } from '@/styles/entrances'
 
@@ -51,6 +52,7 @@ export type SettingsSection =
   | 'environment'
   | 'window'
   | 'widgets'
+  | 'tema'
   | 'media'
   | 'claude'
   | 'island'
@@ -148,6 +150,8 @@ type HaloState = {
   launcher: LauncherSettings
   /** As notificações do sistema no estilo do ambiente (a janela dos avisos). */
   notificacoes: NotificacoesSettings
+  /** A integração opcional com o CyberKDE (a cor do KDE segue o ambiente). */
+  temaKde: TemaKdeSettings
   /** Endereço do servidor Seafile do usuário. */
   seafileServer: string
   /** Biblioteca que recebe os arquivos arrastados na ilha. */
@@ -244,6 +248,7 @@ type HaloState = {
   setIsland: (patch: Partial<IslandSettings>) => void
   setLauncher: (patch: Partial<LauncherSettings>) => void
   setNotificacoes: (patch: Partial<NotificacoesSettings>) => void
+  setTemaKde: (patch: Partial<TemaKdeSettings>) => void
   setSeafileServer: (server: string) => void
   setSeafileLibrary: (library: string) => void
   setMascot: (patch: { file?: string; on?: boolean; liveliness?: MascotLiveliness }) => void
@@ -292,6 +297,7 @@ export const useHalo = create<HaloState>((set) => ({
   island: initial.island,
   launcher: initial.launcher,
   notificacoes: initial.notificacoes,
+  temaKde: initial.temaKde,
   seafileServer: initial.seafile.server,
   seafileLibrary: initial.seafile.library,
   mascotFile: initial.mascot.file,
@@ -563,6 +569,7 @@ export const useHalo = create<HaloState>((set) => ({
   setIsland: (patch) => set((s) => ({ island: { ...s.island, ...patch } })),
   setLauncher: (patch) => set((s) => ({ launcher: { ...s.launcher, ...patch } })),
   setNotificacoes: (patch) => set((s) => ({ notificacoes: { ...s.notificacoes, ...patch } })),
+  setTemaKde: (patch) => set((s) => ({ temaKde: { ...s.temaKde, ...patch } })),
   setSeafileServer: (seafileServer) => set({ seafileServer }),
   setSeafileLibrary: (seafileLibrary) => set({ seafileLibrary }),
   setMascot: (patch) =>

@@ -60,6 +60,7 @@ import type {
   SpotifyPlayback,
   SpotifyResult,
 } from '@shared/spotify'
+import type { EstadoDoTemaKde } from '@shared/tema-kde'
 import type { Weather } from '@shared/weather'
 import { contextBridge, ipcRenderer, webUtils } from 'electron'
 
@@ -143,6 +144,9 @@ const api: HaloApi = {
   },
   system: {
     dependencies: () => ipcRenderer.invoke(IPC.systemDependencies) as Promise<DiagnosticoDoSistema>,
+  },
+  temaKde: {
+    estado: () => ipcRenderer.invoke(IPC.temaKdeEstado) as Promise<EstadoDoTemaKde>,
   },
   weather: {
     current: (place: string) => ipcRenderer.invoke(IPC.weatherCurrent, place) as Promise<Weather>,

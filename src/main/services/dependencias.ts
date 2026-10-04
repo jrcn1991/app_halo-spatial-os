@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs'
 import { delimiter, isAbsolute, join } from 'node:path'
 import { DEPENDENCIAS, type DiagnosticoDoSistema } from '@shared/dependencias'
 import { acharClaude } from './agents'
+import { acharCyberkde } from './tema-kde'
 
 /**
  * O que falta nesta máquina.
@@ -33,6 +34,8 @@ export function diagnosticoDoSistema(): DiagnosticoDoSistema {
   // diria "faltando" sobre um CLI que a tela do Claude abre sem reclamar.
   const claude = acharClaude()
   presentes.claude = isAbsolute(claude) ? existsSync(claude) : noCaminho(claude)
+  // O CyberKDE também: o `instalar.sh` dele põe o link em `~/.local/bin`.
+  presentes.cyberkde = acharCyberkde() !== null
 
   return {
     presentes,

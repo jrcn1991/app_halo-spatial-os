@@ -233,6 +233,13 @@ export const DEPENDENCIAS: readonly Dependencia[] = [
     nivel: 'opcional',
     perde: marcar('a tela do Claude não abre agente nenhum'),
   },
+  {
+    id: 'cyberkde',
+    pacote: marcar('CyberKDE (tema do KDE, instalado à parte)'),
+    para: marcar('Integrações → Tema: o tema do KDE segue a cor do ambiente'),
+    nivel: 'opcional',
+    perde: marcar('a integração com o tema do KDE não faz nada; o resto do app segue igual'),
+  },
 ] as const
 
 /**

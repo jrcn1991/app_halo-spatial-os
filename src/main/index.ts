@@ -14,6 +14,7 @@ import type { SeafileResolution } from '@shared/seafile'
 import type { HaloSettings, RecenteDoLancador } from '@shared/settings'
 import { alturaDaIlha } from '@shared/settings'
 import type { SpotifyCommand } from '@shared/spotify'
+import { corDoAmbiente } from '@shared/tema-kde'
 import { app, BrowserWindow, dialog, type IpcMainInvokeEvent, ipcMain, screen } from 'electron'
 import { guardarComVoo, runIslandAction } from './island/act'
 import { abrir } from './island/actions'
@@ -143,6 +144,7 @@ import {
   playback as spotifyPlayback,
   raise as spotifyRaise,
 } from './services/spotify'
+import { estadoDoTemaKde, pedirTemaKde } from './services/tema-kde'
 import { extra } from './services/tmdb'
 import {
   applyWallpaper,
@@ -329,6 +331,21 @@ function registerIpc(): void {
     ) {
       void aplicarNotificacoes(depois.notificacoes, depois.environment.id)
     }
+    // O CyberKDE segue o ambiente, se o usuário ligou a integração: trocou de
+    // ambiente, acabou de ligar, ou mudou a cor do ambiente em que está. Só
+    // nestes gestos — nada roda no arranque nem sozinho. Ver `tema-kde.ts`.
+    if (depois.temaKde.on) {
+      const id = depois.environment.id
+      const cor = corDoAmbiente(depois.temaKde, id)
+      if (
+        cor &&
+        (antes.environment.id !== id ||
+          !antes.temaKde.on ||
+          corDoAmbiente(antes.temaKde, id) !== cor)
+      ) {
+        pedirTemaKde(id, cor)
+      }
+    }
     // A ALTURA DA PÍLULA é só CSS: ela viaja pelo canal e a gota anima até a
     // altura nova. Se ela foi a única coisa que mudou, a ilha NÃO é remontada
     // — recriar a janela a cada passo do slider fazia a pílula sumir e cair do
@@ -439,6 +456,7 @@ function registerIpc(): void {
   // O que falta nesta máquina. Não sai para nenhum processo — ver
   // `services/dependencias.ts`.
   ipcMain.handle(IPC.systemDependencies, () => diagnosticoDoSistema())
+  ipcMain.handle(IPC.temaKdeEstado, () => estadoDoTemaKde())
   // A imagem de um ambiente, escolhida pelo usuário. Escolher é leitura: o
   // diálogo não cria nem sobrescreve nada, e o app só guarda o caminho.
   const escolherArquivo = async (

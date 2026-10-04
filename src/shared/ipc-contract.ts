@@ -52,6 +52,7 @@ import type {
   SpotifyPlayback,
   SpotifyResult,
 } from './spotify'
+import type { EstadoDoTemaKde } from './tema-kde'
 import type { Weather } from './weather'
 
 /**
@@ -82,6 +83,8 @@ export const IPC = {
   wallpaperOriginal: 'wallpaper:original',
   wallpaperRestaurar: 'wallpaper:restaurar',
   systemDependencies: 'system:dependencies',
+  /** A integração opcional com o CyberKDE — ver `main/services/tema-kde.ts`. */
+  temaKdeEstado: 'tema-kde:estado',
   weatherCurrent: 'weather:current',
   newsHeadlines: 'news:headlines',
   labHost: 'lab:host',
@@ -302,6 +305,13 @@ export type HaloApi = {
      * `npm run doctor` percorre no terminal.
      */
     dependencies: () => Promise<DiagnosticoDoSistema>
+  }
+  /**
+   * A integração OPCIONAL com o CyberKDE, o tema do KDE do usuário. Quem
+   * chama o tema é o main, na troca de ambiente; a tela só lê o estado.
+   */
+  temaKde: {
+    estado: () => Promise<EstadoDoTemaKde>
   }
   /**
    * O papel de parede da máquina — a única coisa que um ambiente muda fora do

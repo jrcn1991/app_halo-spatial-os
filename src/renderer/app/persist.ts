@@ -35,6 +35,7 @@ export function startPersistingSettings(): () => void {
       next.island === previous.island &&
       next.launcher === previous.launcher &&
       next.notificacoes === previous.notificacoes &&
+      next.temaKde === previous.temaKde &&
       next.seafile.server === previous.seafile.server &&
       next.seafile.library === previous.seafile.library &&
       next.mascot.file === previous.mascot.file &&
@@ -80,6 +81,7 @@ function snapshot(state: ReturnType<typeof useHalo.getState>): HaloSettings {
     island: state.island,
     launcher: state.launcher,
     notificacoes: state.notificacoes,
+    temaKde: state.temaKde,
     // `token` vai vazio de propósito: quem o conhece é o main, que o preserva
     // ao gravar — mesma proteção do refresh token do Spotify.
     seafile: { server: state.seafileServer, token: '', library: state.seafileLibrary },

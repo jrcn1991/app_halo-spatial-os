@@ -407,6 +407,35 @@
   background: var(--surface-inner-active-bg);
 }
 
+/* A cor de um ambiente em Integrações → Tema: o seletor nativo É o quadrado.
+   A cor chega por variável porque é dado do usuário, não estilo do app. */
+.corDoAmbiente {
+  width: 26px;
+  height: 26px;
+  flex: none;
+  padding: 0;
+  border: var(--surface-inner-active-border);
+  border-radius: var(--radius-chip);
+  background: var(--cor-do-ambiente);
+  cursor: pointer;
+  appearance: none;
+}
+
+.corDoAmbiente::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.corDoAmbiente::-webkit-color-swatch {
+  border: none;
+  border-radius: var(--radius-chip);
+}
+
+/* O hexa ao lado do quadrado, na linha: não ocupa a linha inteira. */
+.hexCurto {
+  flex: none;
+  width: 84px;
+}
+
 /* Campo de texto de uma linha — usado pela chave do TMDB. */
 .campo {
   width: 100%;

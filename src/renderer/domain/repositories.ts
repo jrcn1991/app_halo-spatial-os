@@ -35,6 +35,7 @@ import type {
   SpotifyPlayback,
   SpotifyResult,
 } from '@shared/spotify'
+import type { EstadoDoTemaKde } from '@shared/tema-kde'
 import type {
   Container,
   DesktopApp,
@@ -309,6 +310,14 @@ export type NotificacoesRepository = {
   exemplo(): Promise<void>
 }
 
+/**
+ * A integração opcional com o CyberKDE. `null` fora do Electron: não há tema
+ * do KDE a quem perguntar.
+ */
+export type TemaKdeRepository = {
+  estado(): Promise<EstadoDoTemaKde | null>
+}
+
 export type Repositories = {
   weather: WeatherRepository
   lab: LabRepository
@@ -329,4 +338,5 @@ export type Repositories = {
   mascot: MascotRepository
   islandSettings: IslandSettingsRepository
   notificacoes: NotificacoesRepository
+  temaKde: TemaKdeRepository
 }

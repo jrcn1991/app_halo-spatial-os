@@ -622,4 +622,43 @@ export const EN_SETTINGS: Record<string, string> = {
     "Home and Settings can't be turned off — without the gear there would be no way back.",
   Tudo: 'All',
   'Escolher lista': 'Choose list',
+  // Integrações → Tema (CyberKDE)
+  Tema: 'Theme',
+  'Integrações · tema do KDE': 'Integrations · KDE theme',
+  'Com o CyberKDE instalado, a troca de ambiente também veste o KDE: o tema é aplicado se ainda não estiver, e a cor de destaque — pastas, ícones da dock, janelas — passa a ser a do ambiente.':
+    "With CyberKDE installed, switching environments dresses KDE too: the theme is applied if it isn't yet, and the accent color — folders, dock icons, windows — becomes the environment's.",
+  'O CyberKDE segue o ambiente': 'CyberKDE follows the environment',
+  'O Halo não edita o tema: ele só executa o comando cyberkde, e é o tema que se regenera e reinicia o painel do Plasma no fim — leva alguns segundos. Nada roda sem um gesto seu: só ao trocar de ambiente, ao ligar a integração ou ao mudar a cor do ambiente em que você está. Para desfazer tudo no KDE, rode cyberkde off.':
+    "Halo doesn't edit the theme: it only runs the cyberkde command, and the theme regenerates itself and restarts the Plasma panel at the end — it takes a few seconds. Nothing runs without a gesture of yours: only when switching environments, turning the integration on, or changing the color of the environment you're in. To undo everything in KDE, run cyberkde off.",
+  'Cor de cada ambiente': 'Color of each environment',
+  'O CyberKDE clareia uma cor escura demais para ela continuar legível sobre o fundo dele; a cor que você escolheu continua guardada como está.':
+    'CyberKDE lightens a color that is too dark so it stays readable on its background; the color you chose stays saved as is.',
+  'ambiente ativo': 'active environment',
+  'escolhida por você': 'chosen by you',
+  padrão: 'default',
+  'Cor do {nome}': '{nome} color',
+  'Cor do {nome} em hexadecimal': '{nome} color in hexadecimal',
+  'Aplicado no {ambiente}.': 'Applied for {ambiente}.',
+  'Aplicado no {ambiente}; só a tela de login ficou para depois (pede root).':
+    'Applied for {ambiente}; only the login screen was left for later (it needs root).',
+  'O {ambiente} já estava com esta cor — nada foi chamado.':
+    '{ambiente} already had this color — nothing was run.',
+  'O comando cyberkde não foi encontrado.': 'The cyberkde command was not found.',
+  'O CyberKDE estava ocupado com outra operação; troque de ambiente de novo em instantes.':
+    'CyberKDE was busy with another operation; switch environments again in a moment.',
+  'O CyberKDE não terminou a tempo no {ambiente}; rode a troca de novo para completar.':
+    "CyberKDE didn't finish in time for {ambiente}; switch again to complete it.",
+  'O CyberKDE falhou no {ambiente}: {detalhe}': 'CyberKDE failed for {ambiente}: {detalhe}',
+  'O CyberKDE não está instalado nesta máquina (o comando cyberkde não está no PATH nem em ~/.local/bin). Sem ele a integração não faz nada.':
+    "CyberKDE isn't installed on this machine (the cyberkde command is neither in PATH nor in ~/.local/bin). Without it the integration does nothing.",
+  'Aplicando o {ambiente} no CyberKDE — {etapa} ({feitas} de {total})…':
+    'Applying {ambiente} to CyberKDE — {etapa} ({feitas} of {total})…',
+  'Aplicando o {ambiente} no CyberKDE…': 'Applying {ambiente} to CyberKDE…',
+  'O CyberKDE não respondeu ao status.': "CyberKDE didn't answer the status request.",
+  'O CyberKDE está aplicado, com a cor {cor}.': 'CyberKDE is applied, with the color {cor}.',
+  'O CyberKDE está instalado, mas não aplicado.': 'CyberKDE is installed, but not applied.',
+  'A integração está desligada: o Halo não o chama.':
+    "The integration is off: Halo doesn't call it.",
+  'O CyberKDE está aplicado. Você pediu {cor}, mas o tema usa {aplicada}: a cor pedida não teria contraste sobre o fundo dele.':
+    'CyberKDE is applied. You asked for {cor}, but the theme uses {aplicada}: the requested color would lack contrast on its background.',
 }

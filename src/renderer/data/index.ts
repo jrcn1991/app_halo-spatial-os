@@ -11,6 +11,7 @@ import { ipcNotificacoes } from './ipc/notificacoes'
 import { ipcSeafile } from './ipc/seafile'
 import { ipcSystem, ipcWindow } from './ipc/sistema'
 import { ipcSpotify } from './ipc/spotify'
+import { ipcTemaKde } from './ipc/tema-kde'
 import { ipcWallpaper } from './ipc/wallpaper'
 import { ipcWeather } from './ipc/weather'
 import { mockAgents } from './mock/agents'
@@ -25,6 +26,7 @@ import { mockNotificacoes } from './mock/notificacoes'
 import { mockSeafile } from './mock/seafile'
 import { mockSystem, mockWindow } from './mock/sistema'
 import { mockSpotify } from './mock/spotify'
+import { mockTemaKde } from './mock/tema-kde'
 import { mockWallpaper } from './mock/wallpaper'
 import { mockWeather } from './mock/weather'
 
@@ -69,4 +71,5 @@ export const repositories: Repositories = {
   mascot: inApp ? ipcMascot : mockMascot,
   islandSettings: inApp ? ipcIslandSettings : mockIslandSettings,
   notificacoes: inApp ? ipcNotificacoes : mockNotificacoes,
+  temaKde: inApp ? ipcTemaKde : mockTemaKde,
 }

@@ -274,7 +274,7 @@ by hand.
 
 ### System programs
 
-The app calls 26 system programs and bundles none of them. There is a single
+The app calls 27 system programs and bundles none of them. There is a single
 list (`src/shared/dependencias.ts`), read by `npm run doctor`, Configurações →
 Sistema and the `.deb`. Details in [DOCUMENTATION.md](DOCUMENTATION.md).
 

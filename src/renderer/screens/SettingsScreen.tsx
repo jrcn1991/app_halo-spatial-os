@@ -23,6 +23,7 @@ import { NewsSection } from './settings/NewsSection'
 import { NotificacoesSection } from './settings/NotificacoesSection'
 import { SeafileSection } from './settings/SeafileSection'
 import { SystemSection } from './settings/SystemSection'
+import { TemaSection } from './settings/TemaSection'
 import { WidgetsSection } from './settings/WidgetsSection'
 import { WindowSection } from './settings/WindowSection'
 
@@ -45,6 +46,7 @@ const SECTIONS: readonly { id: SettingsSection; label: string; grupo?: string }[
   { id: 'animation', label: marcar('Animação') },
   { id: 'window', label: marcar('Janela') },
   { id: 'widgets', label: marcar('Widgets'), grupo: marcar('Integrações') },
+  { id: 'tema', label: marcar('Tema') },
   { id: 'media', label: marcar('Mídia') },
   { id: 'claude', label: 'Claude' },
   { id: 'island', label: marcar('Ilha') },
@@ -119,6 +121,8 @@ export function SettingsScreen() {
             <WindowSection />
           ) : section === 'widgets' ? (
             <WidgetsSection />
+          ) : section === 'tema' ? (
+            <TemaSection />
           ) : section === 'media' ? (
             <MediaSection />
           ) : section === 'claude' ? (
