@@ -1,4 +1,4 @@
-import { statSync } from 'node:fs'
+import { readFileSync, statSync } from 'node:fs'
 import { stat } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { isAbsolute, join } from 'node:path'
@@ -179,6 +179,37 @@ app.commandLine.appendSwitch('ozone-platform-hint', 'auto')
 // 31/08/2026 com um app Electron mínimo; desligar o proxy foi o único remédio
 // que segurou o processo. O app não tem menu de janela, então nada se perde.
 process.env.UBUNTU_MENUPROXY = '0'
+
+// Mesma família, outro módulo: o KDE põe `gtk-modules=colorreload-gtk-module:…`
+// no `settings.ini` do GTK3. O GTK do Chromium o carrega, DESCARREGA logo
+// depois, e o vigia que ele deixou em `~/.config/gtk-3.0/colors.css` continua
+// ligado — na próxima vez que o KDE regrava o arquivo (qualquer troca de
+// esquema de cores, inclusive a do CyberKDE pela integração de Tema), o
+// callback aponta para memória que não existe mais e o app cai com SIGSEGV.
+// Medido em 29/09/2026: um Electron vazio cai só com o arquivo reescrito com o
+// MESMO conteúdo; duas quedas do Halo instalado (25/09 e 29/09) tinham essa
+// pilha, um segundo depois de um recarregar do xsettingsd. Módulo que vem do
+// `GTK_MODULES` nunca é descarregado — com os do `settings.ini` também ali, o
+// processo sobreviveu às mesmas reescritas, e os módulos seguem funcionando.
+manterModulosDoGtk()
+
+function manterModulosDoGtk(): void {
+  const pasta = process.env.XDG_CONFIG_HOME || join(homedir(), '.config')
+  let texto: string
+  try {
+    texto = readFileSync(join(pasta, 'gtk-3.0/settings.ini'), 'utf8')
+  } catch {
+    return // Sem o arquivo, o GTK não carrega módulo nenhum por ali.
+  }
+  const linha = /^\s*gtk-modules\s*=\s*(.+)$/m.exec(texto)?.[1]?.trim()
+  if (!linha) return
+  const atuais = (process.env.GTK_MODULES ?? '').split(':').filter(Boolean)
+  const novos = linha
+    .split(':')
+    .map((m) => m.trim())
+    .filter((m) => m && !atuais.includes(m))
+  process.env.GTK_MODULES = [...atuais, ...novos].join(':')
+}
 
 /** Evita relançar em laço se a flag não pegar por algum motivo. */
 const X11_TENTADO = '--halo-x11'
