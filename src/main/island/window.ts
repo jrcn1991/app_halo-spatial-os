@@ -84,6 +84,12 @@ function topo(display: Display): number {
   return assentamento === 'sobre' ? display.bounds.y : display.workArea.y
 }
 
+/** Onde a janela da ilha fica numa tela: centrada na área útil, no topo escolhido. */
+function posicaoNa(display: Display): { x: number; y: number } {
+  const area = display.workArea
+  return { x: Math.round(area.x + (area.width - TAMANHO.width) / 2), y: topo(display) }
+}
+
 function telaDaIlha(win: BrowserWindow): Display {
   const lembrada = telaDe.get(win)
   return (
@@ -105,13 +111,11 @@ function carregar(win: BrowserWindow, consultaSemIdioma: string): void {
 }
 
 function criar(display: Display, settings: IslandSettings): BrowserWindow {
-  const area = display.workArea
   const win = new BrowserWindow({
     width: TAMANHO.width,
     height: TAMANHO.height,
-    x: Math.round(area.x + (area.width - TAMANHO.width) / 2),
     // É de onde a gota escorre: o topo da tela ou o topo da área útil.
-    y: topo(display),
+    ...posicaoNa(display),
     frame: false,
     transparent: true,
     // `dock`, o tipo do próprio painel do Plasma: o KWin não o posiciona nem
@@ -205,6 +209,7 @@ function telasEscolhidas(settings: IslandSettings): Display[] {
 export function applyIsland(settings: IslandSettings): void {
   closeIsland()
   assentamento = settings.placement
+  ouvirTelas()
   if (!settings.on) return
   for (const display of telasEscolhidas(settings)) {
     janelas.set(String(display.id), criar(display, settings))
@@ -218,6 +223,54 @@ export function closeIsland(): void {
   if (camada && !camada.isDestroyed()) camada.destroy()
   camada = null
   camadaPronta = false
+}
+
+/**
+ * As telas mudaram — girar um monitor, trocar a resolução, ligar ou desligar
+ * um. A posição da ilha só era calculada ao criá-la, e ao girar a tela da
+ * esquerda para retrato (1920 → 1080 de largura) as duas ilhas ficaram nas
+ * coordenadas do arranjo antigo: a da tela girada fora do centro e a da
+ * outra ALÉM da borda direita da área das telas (relatado em 03/10/2026).
+ *
+ * Com agrupamento: um giro dispara vários `display-metrics-changed` seguidos,
+ * e o KDE leva um instante até a área útil (o painel) assentar. Se o conjunto
+ * de telas escolhidas mudou, as ilhas são recriadas; senão cada uma só é
+ * MOVIDA — sem mudar de tamanho, que é o que dá o quadro velho no X11 (ver
+ * TAMANHO) — e só quando a posição de fato mudou.
+ */
+let ouvindoTelasDaIlha = false
+let reposicionar: NodeJS.Timeout | undefined
+const REPOSICIONAR_MS = 400
+function ouvirTelas(): void {
+  if (ouvindoTelasDaIlha) return
+  ouvindoTelasDaIlha = true
+  const agendar = () => {
+    clearTimeout(reposicionar)
+    reposicionar = setTimeout(reposicionarIlhas, REPOSICIONAR_MS)
+  }
+  screen.on('display-added', agendar)
+  screen.on('display-removed', agendar)
+  screen.on('display-metrics-changed', agendar)
+}
+
+function reposicionarIlhas(): void {
+  const settings = currentSettings().island
+  if (!settings.on || janelas.size === 0) return
+  const querem = telasEscolhidas(settings)
+  const chave = (ids: string[]) => ids.sort().join()
+  if (chave(querem.map((d) => String(d.id))) !== chave([...janelas.keys()])) {
+    applyIsland(settings)
+    return
+  }
+  for (const display of querem) {
+    const win = janelas.get(String(display.id))
+    if (!win || win.isDestroyed()) continue
+    const { x, y } = posicaoNa(display)
+    const b = win.getBounds()
+    if (b.x !== x || b.y !== y || b.width !== TAMANHO.width || b.height !== TAMANHO.height) {
+      win.setBounds({ x, y, ...TAMANHO })
+    }
+  }
 }
 
 /* ——— A região de entrada ————————————————————————————————— */
