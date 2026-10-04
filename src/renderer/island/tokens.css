@@ -62,6 +62,58 @@
   --ilha-app-7: rgb(172 230 150);
 
   /*
+   * O vidro (`island.style`: `degrade` e `vidro`), medido no Droppy —
+   * `.claude/pesquisa/droppy.md` § 1.2 e 1.3. O desfoque é do KWin (o app não
+   * escolhe quantos px); daqui sai só a TINTA por cima dele.
+   *
+   * `escuro-degrade`  o piso do `degrade`: leve, senão a base nunca fica
+   *           transparente. O preto da rampa é que segura o texto.
+   * `escuro-cheio`    o piso do `vidro`, onde não há nada além dele: a 34 %
+   *           sobre uma página branca o texto secundário sumia (medido na
+   *           tela real, 04/10/2026).
+   * `tinta`   a luz do vidro: o branco a 12 % do botão convexo do Droppy,
+   *           um pouco abaixo, porque aqui ela soma ao `escuro`. No
+   *           `degrade` quase nada — tinta branca lava o papel de parede, e
+   *           no Droppy o azul passa saturado pela metade de baixo.
+   * `piso`    quase sólido: cobre o vidro enquanto a gota anima (a região
+   *           do KWin não anima) e fica de vez sem o efeito de desfoque.
+   * `topo`    onde o preto sólido do `degrade` acaba.
+   */
+  --ilha-vidro-escuro-degrade: rgb(0 0 0 / 0.15);
+  --ilha-vidro-escuro-cheio: rgb(0 0 0 / 0.6);
+  --ilha-vidro-tinta: rgb(255 255 255 / 0.1);
+  --ilha-vidro-tinta-degrade: rgb(255 255 255 / 0.04);
+  --ilha-vidro-piso: rgb(0 0 0 / 0.86);
+  /*
+   * O que se copia do Droppy é a PERCEPÇÃO, não a porcentagem. Lá o painel
+   * tem ~130px (só o player) e o preto vai a 62 %; aqui ele tem ~400px, e os
+   * mesmos 62 % viravam uma placa preta com a base cinza (o usuário viu, em
+   * 04/10/2026). Então: preto sólido só na faixa da barra de abas, colada ao
+   * painel do KDE, e daí uma rampa LONGA e suave até quase transparente.
+   */
+  --ilha-vidro-topo: 16%;
+  --ilha-vidro-degrade: linear-gradient(
+    to bottom,
+    var(--ilha-fundo) 0,
+    var(--ilha-fundo) var(--ilha-vidro-topo),
+    color-mix(in srgb, var(--ilha-fundo) 85%, transparent) 35%,
+    color-mix(in srgb, var(--ilha-fundo) 55%, transparent) 60%,
+    color-mix(in srgb, var(--ilha-fundo) 25%, transparent) 85%,
+    color-mix(in srgb, var(--ilha-fundo) 8%, transparent) 100%
+  );
+  /* A borda de luz de 1px: realce nos lados e na base (o topo é a borda da
+     tela). No `degrade` ela só aparece onde o preto cedeu. */
+  --ilha-vidro-borda: rgb(255 255 255 / 0.2);
+  --ilha-vidro-borda-fraca: rgb(255 255 255 / 0.1);
+  /* Texto sobre vidro: uma sombra curta, a do ícone do Droppy (preto 20 %,
+     raio 1, y 1), mais forte porque aqui o papel de parede é qualquer um. */
+  --ilha-vidro-sombra-texto: 0 1px 2px rgb(0 0 0 / 0.55);
+  /* No `degrade` a metade de baixo fica sobre vidro quase limpo. */
+  --ilha-vidro-sombra-texto-forte: 0 1px 2px rgb(0 0 0 / 0.8), 0 0 8px rgb(0 0 0 / 0.5);
+  /* Glifo (SVG não tem `text-shadow`). */
+  --ilha-vidro-sombra-glifo: drop-shadow(0 1px 1px rgb(0 0 0 / 0.45));
+
+  /*
    * A altura da pílula FECHADA. 36 é o número do handoff; o renderer reescreve
    * esta variável no palco com o que o usuário escolheu em Configurações
    * (`island.pillHeight`, 24–48). Fica aqui para a página valer sozinha — sem

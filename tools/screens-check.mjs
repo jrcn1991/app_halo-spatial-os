@@ -1482,7 +1482,7 @@ const SPECS = {
       },
     ],
     [
-      'a ilha dinâmica tem seção própria, e nasce ligada',
+      'a ilha dinâmica tem seção própria, nasce ligada e preta',
       async (p) => {
         await p.click('nav[aria-label="Seções"] >> text=Ilha')
         await p.waitForTimeout(400)
@@ -1498,8 +1498,18 @@ const SPECS = {
           .locator('[role="group"][aria-label="Animação da ilha"] button')
           .count()
           .catch(() => 0)
+        // Os três estilos, e o preto do handoff marcado: o vidro é escolha do
+        // usuário, nunca o ponto de partida.
+        const estilos = p.locator('[role="group"][aria-label="Estilo da ilha aberta"] button')
+        const nEstilos = await estilos.count().catch(() => 0)
+        const marcado = await p
+          .locator('[role="group"][aria-label="Estilo da ilha aberta"] button[aria-pressed="true"]')
+          .textContent()
+          .catch(() => null)
         await p.click('nav[aria-label="Seções"] >> text=Janela')
         await p.waitForTimeout(300)
+        if (nEstilos !== 3) return `${nEstilos} estilos da ilha, esperados 3`
+        if (marcado?.trim() !== 'Preto') return `estilo marcado "${marcado}", esperado o Preto`
         return movimentos === 5 ? true : `${movimentos} variações de movimento, esperadas 5`
       },
     ],

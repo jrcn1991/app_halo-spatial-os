@@ -51,6 +51,7 @@ import {
   islandWindows,
   listDisplays,
   setIslandFocus,
+  setIslandGlass,
   setIslandOpen,
   setIslandsHidden,
   setIslandTargets,
@@ -913,6 +914,10 @@ function registerIslandIpc(): void {
   ipcMain.on(IPC.islandAlvo, (e, retangulos: Electron.Rectangle[]) => {
     const win = BrowserWindow.fromWebContents(e.sender)
     if (win) setIslandTargets(win, Array.isArray(retangulos) ? retangulos : [])
+  })
+  ipcMain.on(IPC.islandVidro, (e, area: unknown) => {
+    const win = BrowserWindow.fromWebContents(e.sender)
+    if (win) setIslandGlass(win, area)
   })
   ipcMain.on(IPC.islandVooPronto, (e) => {
     const win = BrowserWindow.fromWebContents(e.sender)

@@ -20,6 +20,8 @@ import {
   ALTURA_PILULA_MAX,
   ALTURA_PILULA_MIN,
   ALTURA_PILULA_PADRAO,
+  ISLAND_STYLES,
+  type IslandStyle,
   VOO_CHEGADA_MS,
 } from '@shared/island'
 import type { SeafileResolution, SeafileState } from '@shared/seafile'
@@ -233,6 +235,10 @@ export function IslandApp() {
   const motion = parametros.get('motion') ?? 'gota'
   const opacidadeOciosa = Number(parametros.get('idle') ?? 55) / 100
   const abrirAoPairar = (parametros.get('open') ?? 'hover') !== 'click'
+  const estiloPedido = parametros.get('estilo')
+  const estilo: IslandStyle = (ISLAND_STYLES as readonly string[]).includes(estiloPedido ?? '')
+    ? (estiloPedido as IslandStyle)
+    : 'preto'
   /**
    * A altura da pílula FECHADA. Chega na URL no arranque e por evento quando o
    * usuário arrasta o slider — é a única opção da ilha que não remonta a
@@ -534,12 +540,75 @@ export function IslandApp() {
     }
   }, [])
 
+  /* ——— O vidro (`island.style`) —————————————————————————————
+   *
+   * O desfoque de verdade é uma região do KWin atrás da janela
+   * (`main/vidro.ts`): um retângulo PARADO, que não acompanha a mola de
+   * abrir. Por isso ele só é pedido com a gota ASSENTADA — e o véu escuro
+   * do CSS (`data-vidro`) cobre a gota até lá e sai por fade. Depois, numa
+   * troca de aba, a região fica no MENOR dos dois tamanhos enquanto a gota
+   * anima: crescendo, a faixa nova espera o fim da mola; encolhendo, a
+   * região encolhe junto. Nunca há desfoque passando da borda da gota.
+   */
+  const [vidroAssentado, setVidroAssentado] = useState(false)
+  const alturaAssentada = useRef(0)
+  const deVidro = estilo !== 'preto'
+  const mandarVidro = useCallback(() => {
+    const el = gota.current
+    if (!deVidro || !el || !aberta || !vidroAssentado) {
+      window.halo?.island.vidro(null)
+      return
+    }
+    const r = el.getBoundingClientRect()
+    if (!geometriaAnimando(el)) alturaAssentada.current = r.height
+    window.halo?.island.vidro({
+      x: r.left,
+      y: r.top,
+      width: r.width,
+      height: Math.min(r.height, alturaAssentada.current),
+      raio: Number.parseFloat(getComputedStyle(el).borderBottomLeftRadius) || 0,
+    })
+  }, [deVidro, aberta, vidroAssentado])
+  // Abriu: assenta no fim da mola (`assentou`, abaixo). Sem mola nenhuma (a
+  // variação "nenhuma" não anima a geometria) não há `transitionend` para
+  // esperar — confere logo; e uma rede de segurança para a mola interrompida.
+  useEffect(() => {
+    if (!aberta) {
+      setVidroAssentado(false)
+      return
+    }
+    if (!deVidro) return
+    const conferir = () => {
+      if (gota.current && !geometriaAnimando(gota.current)) setVidroAssentado(true)
+    }
+    const logo = setTimeout(conferir, 60)
+    const rede = setTimeout(() => setVidroAssentado(true), 900)
+    return () => {
+      clearTimeout(logo)
+      clearTimeout(rede)
+    }
+  }, [aberta, deVidro])
+  useEffect(() => {
+    mandarVidro()
+    if (!deVidro || !aberta || !vidroAssentado || !gota.current) return
+    const observador = new ResizeObserver(mandarVidro)
+    observador.observe(gota.current)
+    return () => observador.disconnect()
+  }, [deVidro, aberta, vidroAssentado, mandarVidro])
+
   /** A gota assentou (fim da transição de altura ou largura): avisa o main. */
-  const assentou = useCallback((evento: React.TransitionEvent) => {
-    if (evento.target !== gota.current) return
-    if (evento.propertyName !== 'height' && evento.propertyName !== 'width') return
-    window.halo?.island.assentou(gota.current?.offsetHeight ?? 0)
-  }, [])
+  const assentou = useCallback(
+    (evento: React.TransitionEvent) => {
+      if (evento.target !== gota.current) return
+      if (evento.propertyName !== 'height' && evento.propertyName !== 'width') return
+      window.halo?.island.assentou(gota.current?.offsetHeight ?? 0)
+      if (deVidro && aberta) {
+        if (vidroAssentado) mandarVidro()
+        else setVidroAssentado(true)
+      }
+    },
+    [deVidro, aberta, vidroAssentado, mandarVidro],
+  )
 
   /* ——— A largura intrínseca da pílula ————————————————————— */
   const medidorResumo = useRef<HTMLSpanElement>(null)
@@ -755,6 +824,8 @@ export function IslandApp() {
         data-nivel={evento?.dado.level ?? 'ok'}
         data-chegando={chegando ? 'sim' : 'nao'}
         data-motion={motion}
+        data-estilo={estilo}
+        data-vidro={vidroAssentado ? 'sim' : 'nao'}
         style={
           {
             '--ilha-ocioso': ocioso && !aberta ? opacidadeOciosa : 1,
@@ -1351,6 +1422,18 @@ function Digito({ valor }: { valor: number }) {
  * A chegada: uma luz percorre a borda da pílula uma vez, depois que a gota
  * assentou — o "hello" do boring.notch, em meio segundo.
  */
+/** A gota está no meio da mola (largura ou altura)? O vidro do KWin espera. */
+function geometriaAnimando(el: HTMLElement): boolean {
+  return el
+    .getAnimations()
+    .some(
+      (a) =>
+        a instanceof CSSTransition &&
+        (a.transitionProperty === 'height' || a.transitionProperty === 'width') &&
+        a.playState === 'running',
+    )
+}
+
 function Chegada() {
   return (
     <svg className="chegada" aria-hidden="true">

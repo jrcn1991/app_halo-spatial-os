@@ -322,6 +322,18 @@ export const EN_SETTINGS: Record<string, string> = {
   'Gesto de abrir': 'Opening gesture',
   Movimento: 'Motion',
   'Animação da ilha': 'Island animation',
+  Estilo: 'Style',
+  'Estilo da ilha aberta': 'Open island style',
+  Preto: 'Black',
+  'Preto em vidro': 'Black into glass',
+  'A placa preta e opaca da Dynamic Island. É o padrão.':
+    "The Dynamic Island's opaque black slab. It's the default.",
+  'Aberta, ela é preta no topo, colada à borda da tela, e dissolve em vidro para baixo.':
+    'When open, it is black at the top, against the screen edge, and melts into glass toward the bottom.',
+  'Aberta, o painel inteiro é vidro, com uma borda de luz.':
+    'When open, the whole panel is glass, with a rim of light.',
+  'Fechada, anunciando e na bolha ela continua preta. O desfoque é do efeito "Desfoque" do KWin; sem ele, o vidro fica escuro, quase sólido.':
+    'Closed, announcing and in the bubble it stays black. The blur comes from the KWin "Blur" effect; without it, the glass stays dark, almost solid.',
   Voo: 'Flight',
   'Animação do voo': 'Flight animation',
   'Como a janela entra na pílula e sai dela — vale para a janela guardada na gaveta e para o próprio Halo recolhido com Meta+Espaço.':

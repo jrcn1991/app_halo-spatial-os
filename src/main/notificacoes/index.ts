@@ -3,7 +3,7 @@ import { t } from '@shared/i18n'
 import { IPC } from '@shared/ipc-contract'
 import type { EstadoDosAvisos, NotificacoesSettings } from '@shared/notificacoes'
 import { ipcMain } from 'electron'
-import { type AreaDeVidro, kwinDesfoca } from './desfoque'
+import { type AreaDeVidro, kwinDesfoca } from '../vidro'
 import {
   abrirJanelaDosAvisos,
   empurrarAvisos,
@@ -123,7 +123,7 @@ async function aplicar(cfg: NotificacoesSettings, env: EnvironmentId): Promise<v
   if (!janelaDosAvisosAberta()) {
     janelaPronta = false
     // O KWin decide se o balão pode ser vidro: sem o efeito de desfoque, um
-    // balão aberto seria texto sobre texto (ver `desfoque.ts`).
+    // balão aberto seria texto sobre texto (ver `main/vidro.ts`).
     abrirJanelaDosAvisos(env, cfg.canto, await kwinDesfoca(), aoPronta, aoCair)
     return
   }
@@ -213,8 +213,8 @@ export function registrarIpcDasNotificacoes(): void {
       retangulos(bruto).map(
         (r): AreaDeVidro => ({
           ...r,
-          raio: Number.isFinite((r as Partial<AreaDeVidro>).raio)
-            ? Math.max(0, Math.min(64, (r as AreaDeVidro).raio))
+          raio: Number.isFinite((r as Partial<{ raio: number }>).raio)
+            ? Math.max(0, Math.min(64, (r as Partial<{ raio: number }>).raio as number))
             : 0,
         }),
       ),

@@ -40,7 +40,7 @@ const consulta = new URLSearchParams(window.location.search)
 const env = consulta.get('env')
 if (env) document.documentElement.dataset.env = env
 // O KWin desfoca atrás da janela? É o que deixa o balão ser vidro aberto (ver
-// `main/notificacoes/desfoque.ts`); sem isso ele fica no piso quase sólido.
+// `main/vidro.ts`); sem isso ele fica no piso quase sólido.
 document.documentElement.dataset.desfoque = consulta.get('desfoque') === 'sim' ? 'sim' : 'nao'
 window.halo?.notificacoes.onEnv((novo) => {
   document.documentElement.dataset.env = novo

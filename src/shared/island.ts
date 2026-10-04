@@ -23,6 +23,21 @@ export const ISLAND_MOTIONS: readonly IslandMotion[] = [
 ]
 
 /**
+ * A roupa da ilha ABERTA.
+ *
+ * `preto` — a placa preta da Dynamic Island, o handoff e o padrão. `degrade` —
+ * preto no topo, colado à borda da tela, dissolvendo em vidro para baixo (o
+ * "Dynamic Glass" do Droppy, medido em `.claude/pesquisa/droppy.md` § 1.2).
+ * `vidro` — vidro inteiro com borda clara (o "Liquid Glass" do Droppy). Nos
+ * dois de vidro a pílula fechada, o anúncio e a bolha continuam PRETOS, como
+ * no Droppy: o vidro é do painel, não da moldura. O desfoque de verdade é
+ * pedido ao KWin pelo main (`src/main/vidro.ts`).
+ */
+export type IslandStyle = 'preto' | 'degrade' | 'vidro'
+
+export const ISLAND_STYLES: readonly IslandStyle[] = ['preto', 'degrade', 'vidro']
+
+/**
  * Onde a ilha se assenta em relação à barra do sistema.
  *
  * `sobre` — por cima do painel, como o notch de um MacBook fica na barra de
@@ -133,6 +148,8 @@ export type IslandSettings = {
   /** Como ela abre: ao passar o mouse (com um atraso curto) ou só ao clicar. */
   opening: IslandOpening
   motion: IslandMotion
+  /** A roupa da ilha aberta. Ver `IslandStyle`. Global, não por ambiente. */
+  style: IslandStyle
   /** Como o fantasma voa para a pílula e volta. Ver `IslandFlightStyle`. */
   flight: IslandFlightStyle
   /** O HUD de volume: a pílula mostra a barra quando o volume muda. */

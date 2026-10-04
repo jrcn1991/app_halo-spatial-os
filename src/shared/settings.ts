@@ -15,6 +15,7 @@ import {
   ISLAND_MOTIONS,
   ISLAND_OPENINGS,
   ISLAND_PLACEMENTS,
+  ISLAND_STYLES,
   type IslandSettings,
   limitarAltura,
 } from './island'
@@ -536,6 +537,8 @@ export const DEFAULT_SETTINGS: HaloSettings = {
     placement: 'sobre',
     opening: 'hover',
     motion: 'gota',
+    // A placa preta do handoff. O vidro é escolha do usuário (Configurações → Ilha).
+    style: 'preto',
     // A janela de verdade voando: é o que o
     // efeito do KWin já fazia com as janelas guardadas, agora também com o
     // app. Sem o efeito carregado, cai no `sugado` sozinho.
@@ -936,6 +939,9 @@ function parseIsland(input: unknown): IslandSettings {
     motion: (ISLAND_MOTIONS as readonly string[]).includes(motion as string)
       ? (motion as IslandSettings['motion'])
       : base.motion,
+    style: (ISLAND_STYLES as readonly string[]).includes(input.style as string)
+      ? (input.style as IslandSettings['style'])
+      : base.style,
     flight: (ISLAND_FLIGHTS as readonly string[]).includes(input.flight as string)
       ? (input.flight as IslandSettings['flight'])
       : base.flight,

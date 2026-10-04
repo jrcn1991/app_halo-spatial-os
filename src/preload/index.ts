@@ -290,6 +290,8 @@ const api: HaloApi = {
     assentou: (altura: number) => ipcRenderer.send(IPC.islandAssentou, altura),
     alvo: (retangulos: { x: number; y: number; width: number; height: number }[]) =>
       ipcRenderer.send(IPC.islandAlvo, retangulos),
+    vidro: (area: { x: number; y: number; width: number; height: number; raio: number } | null) =>
+      ipcRenderer.send(IPC.islandVidro, area),
     vooPronto: () => ipcRenderer.send(IPC.islandVooPronto),
     onVoo: (handler: (voo: IslandFlight) => void) => {
       const ouvinte = (_e: unknown, voo: IslandFlight) => handler(voo)

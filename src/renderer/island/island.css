@@ -188,6 +188,90 @@ body {
   animation: none;
 }
 
+/* ——— Os estilos de vidro (`island.style`) ———————————————————
+ *
+ * Só a gota ABERTA muda: fechada, anunciando e a bolha continuam pretas nos
+ * três estilos, como no Droppy — o vidro é do painel, não da moldura, e sobre
+ * o painel do KDE a pílula preta continua sendo a mais neutra.
+ *
+ * As camadas, de baixo para cima:
+ *   1. o fundo da gota: tinta clara sobre o piso escuro (o vidro), e no
+ *      `degrade` o preto do topo dissolvendo por cima dele;
+ *   2. o `::before`, um véu quase sólido (`--ilha-vidro-piso`) que cobre o
+ *      vidro enquanto a gota anima e SAI por fade quando ela assenta
+ *      (`data-vidro="sim"`). O desfoque é uma região do KWin, retangular e
+ *      parada; ela só entra com a gota parada, e o véu esconde a troca;
+ *   3. o conteúdo.
+ * Sem o efeito de desfoque do KWin (`:root[data-desfoque="nao"]`) o véu
+ * nunca sai: vidro sem desfoque atrás seria texto sobre texto.
+ *
+ * `isolation` cria o contexto em que o `z-index: -1` do véu fica ACIMA do
+ * fundo da gota e abaixo do conteúdo.
+ */
+.gota[data-estilo="degrade"][data-aberta="sim"],
+.gota[data-estilo="vidro"][data-aberta="sim"] {
+  isolation: isolate;
+  /* Sem a sombra externa: "o vidro não precisa de sombra" (Droppy). */
+  box-shadow:
+    inset 1px 0 0 var(--ilha-vidro-borda-fraca),
+    inset -1px 0 0 var(--ilha-vidro-borda-fraca),
+    inset 0 -1px 0 var(--ilha-vidro-borda);
+}
+
+.gota[data-estilo="degrade"][data-aberta="sim"] {
+  background-color: var(--ilha-vidro-escuro-degrade);
+  background-image:
+    var(--ilha-vidro-degrade),
+    linear-gradient(var(--ilha-vidro-tinta-degrade), var(--ilha-vidro-tinta-degrade));
+}
+
+.gota[data-estilo="vidro"][data-aberta="sim"] {
+  background-color: var(--ilha-vidro-escuro-cheio);
+  background-image: linear-gradient(var(--ilha-vidro-tinta), var(--ilha-vidro-tinta));
+  box-shadow:
+    inset 1px 0 0 var(--ilha-vidro-borda),
+    inset -1px 0 0 var(--ilha-vidro-borda),
+    inset 0 -1px 0 var(--ilha-vidro-borda);
+}
+
+.gota[data-estilo="degrade"][data-aberta="sim"]::before,
+.gota[data-estilo="vidro"][data-aberta="sim"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--ilha-vidro-piso);
+  pointer-events: none;
+  transition: opacity 260ms var(--ilha-entrar);
+}
+
+/* No `degrade` o véu só precisa cobrir onde o preto cedeu — a mesma faixa
+   do token, então os dois andam juntos se o ponto mudar. */
+.gota[data-estilo="degrade"][data-aberta="sim"]::before {
+  top: var(--ilha-vidro-topo);
+}
+
+:root[data-desfoque="sim"] .gota[data-vidro="sim"][data-aberta="sim"]::before {
+  opacity: 0;
+}
+
+/* Texto e glifos sobre o vidro: uma sombra curta, para continuarem legíveis
+   num papel de parede claro. No `degrade` só a parte de baixo é vidro, mas o
+   conteúdo não sabe onde cai — e sobre preto a sombra não se vê. */
+.gota[data-estilo="degrade"][data-aberta="sim"] .corpo,
+.gota[data-estilo="vidro"][data-aberta="sim"] .corpo {
+  text-shadow: var(--ilha-vidro-sombra-texto);
+}
+
+.gota[data-estilo="degrade"][data-aberta="sim"] .corpo {
+  text-shadow: var(--ilha-vidro-sombra-texto-forte);
+}
+
+.gota[data-estilo="degrade"][data-aberta="sim"] .corpo svg,
+.gota[data-estilo="vidro"][data-aberta="sim"] .corpo svg {
+  filter: var(--ilha-vidro-sombra-glifo);
+}
+
 /* ——— Resumo (ilha fechada): UMA atividade ———————————————————— */
 
 .resumo {

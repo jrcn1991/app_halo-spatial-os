@@ -14,6 +14,7 @@ import { BrowserWindow, type Display, screen } from 'electron'
 import { travarNavegacao } from '../navegacao'
 import { setSkipTaskbar } from '../services/desktop-layer'
 import { currentSettings } from '../settings'
+import { desfocarAtras, kwinDesfoca } from '../vidro'
 import { setInputRegion } from './entrada'
 import { ativarIlha, devolverFoco } from './kwin'
 
@@ -110,7 +111,7 @@ function carregar(win: BrowserWindow, consultaSemIdioma: string): void {
   }
 }
 
-function criar(display: Display, settings: IslandSettings): BrowserWindow {
+function criar(display: Display, settings: IslandSettings, desfoca: boolean): BrowserWindow {
   const win = new BrowserWindow({
     width: TAMANHO.width,
     height: TAMANHO.height,
@@ -158,7 +159,7 @@ function criar(display: Display, settings: IslandSettings): BrowserWindow {
 
   carregar(
     win,
-    `motion=${settings.motion}&idle=${settings.idleOpacity}&open=${settings.opening}&h=${alturaDaIlha(currentSettings())}`,
+    `motion=${settings.motion}&idle=${settings.idleOpacity}&open=${settings.opening}&h=${alturaDaIlha(currentSettings())}&estilo=${settings.style}&desfoque=${desfoca ? 'sim' : 'nao'}`,
   )
 
   win.once('ready-to-show', () => {
@@ -211,13 +212,32 @@ export function applyIsland(settings: IslandSettings): void {
   assentamento = settings.placement
   ouvirTelas()
   if (!settings.on) return
+  if (settings.style === 'preto') {
+    montar(settings, false)
+    return
+  }
+  // O KWin desfoca atrás de janela? Perguntado uma vez por montagem, e só
+  // no estilo de vidro (a ilha preta não precisa saber); a resposta vai na
+  // URL, porque a página precisa dela no primeiro desenho. Sem o efeito a
+  // página cai no piso quase sólido (`data-desfoque="nao"`, em `island.css`)
+  // — nunca texto sobre texto. Quem desmonta a ilha durante a pergunta
+  // (outra mudança de configuração) invalida esta montagem.
+  const pedido = ++montagem
+  void kwinDesfoca().then((desfoca) => {
+    if (pedido === montagem) montar(settings, desfoca)
+  })
+}
+let montagem = 0
+
+function montar(settings: IslandSettings, desfoca: boolean): void {
   for (const display of telasEscolhidas(settings)) {
-    janelas.set(String(display.id), criar(display, settings))
+    janelas.set(String(display.id), criar(display, settings, desfoca))
   }
   criarCamada()
 }
 
 export function closeIsland(): void {
+  montagem++
   for (const win of janelas.values()) if (!win.isDestroyed()) win.destroy()
   janelas.clear()
   if (camada && !camada.isDestroyed()) camada.destroy()
@@ -330,10 +350,55 @@ export function setIslandOpen(win: BrowserWindow, aberta: boolean): void {
   if (aberta) abertas.add(win)
   else {
     abertas.delete(win)
+    // Fechou: o vidro sai JÁ, sem esperar o renderer — a pílula é preta, e um
+    // retângulo desfocado do tamanho do painel ficaria sobrando atrás dela.
+    setIslandGlass(win, null)
     // Ao fechar, o foco (se a ilha o tinha, por um clique) volta à pilha do KWin.
     if (win.isFocused()) void devolverFoco().catch(() => {})
   }
   aplicarEntrada(win)
+}
+
+/* ——— O vidro ———————————————————————————————————————————————— */
+
+/** A última área de vidro escrita em cada ilha, para não reescrever a mesma. */
+const vidros = new WeakMap<BrowserWindow, string>()
+
+/**
+ * O renderer disse onde está a gota de vidro ASSENTADA (ou `null`): o KWin
+ * desfoca o que está atrás dela. Quem decide QUANDO é o renderer — ele sabe se
+ * a gota está animando, e a região do KWin não anima (ver "O vidro" em
+ * `IslandApp.tsx`). Aqui só se confere a forma: o dado veio da página.
+ *
+ * A gota é colada ao topo da tela: cantos de cima retos, os de baixo com o
+ * raio informado e a curva do `corner-shape: squircle` dela.
+ */
+export function setIslandGlass(win: BrowserWindow, bruto: unknown): void {
+  if (win.isDestroyed()) return
+  const b = win.getBounds()
+  const r = bruto as Record<string, unknown> | null
+  const numero = (k: string) => (r && Number.isFinite(r[k]) ? (r[k] as number) : Number.NaN)
+  const x = numero('x')
+  const y = numero('y')
+  const width = numero('width')
+  const height = numero('height')
+  const valida =
+    abertas.has(win) &&
+    [x, y, width, height].every(Number.isFinite) &&
+    width > 0 &&
+    height > 0 &&
+    x >= -1 &&
+    y >= -1 &&
+    x + width <= b.width + 1 &&
+    y + height <= b.height + 1
+  const raio = Math.max(0, Math.min(64, numero('raio') || 0))
+  const areas = valida
+    ? [{ x, y, width, height, raio: { te: 0, td: 0, bd: raio, be: raio }, curva: 4 }]
+    : []
+  const chave = JSON.stringify(areas)
+  if (vidros.get(win) === chave) return
+  vidros.set(win, chave)
+  void desfocarAtras(win, areas)
 }
 
 /** Mantido por compatibilidade: a janela não redimensiona mais. */

@@ -9,10 +9,12 @@ import {
   ISLAND_MOTIONS,
   ISLAND_OPENINGS,
   ISLAND_PLACEMENTS,
+  ISLAND_STYLES,
   type IslandFlightStyle,
   type IslandMotion,
   type IslandOpening,
   type IslandPlacement,
+  type IslandStyle,
 } from '@shared/island'
 import { fusoValido } from '@shared/settings'
 import { useState } from 'react'
@@ -47,6 +49,25 @@ const EXPLICA: Record<IslandMotion, string> = {
   desliza: marcar('Entrada reta e curta, sem elasticidade. A mais discreta.'),
   expandir: marcar('Cresce a partir do topo, sem escorrer.'),
   nenhuma: marcar('Sem animação nenhuma. Útil em máquina apertada.'),
+}
+
+/**
+ * A roupa da ilha aberta. O preto é o handoff e o padrão; os dois de vidro
+ * vêm do Droppy (`.claude/pesquisa/droppy.md`). Global, não por ambiente: é
+ * gosto do usuário, não sugestão de tema.
+ */
+const ESTILOS: Record<IslandStyle, string> = {
+  preto: marcar('Preto'),
+  degrade: marcar('Preto em vidro'),
+  vidro: marcar('Vidro'),
+}
+
+const EXPLICA_ESTILO: Record<IslandStyle, string> = {
+  preto: marcar('A placa preta e opaca da Dynamic Island. É o padrão.'),
+  degrade: marcar(
+    'Aberta, ela é preta no topo, colada à borda da tela, e dissolve em vidro para baixo.',
+  ),
+  vidro: marcar('Aberta, o painel inteiro é vidro, com uma borda de luz.'),
 }
 
 /**
@@ -298,6 +319,24 @@ export function IslandSection() {
           onChange={(proximo) => setIsland({ motion: proximo as IslandMotion })}
         />
         <span className={styles.note}>{t(EXPLICA[island.motion])}</span>
+      </div>
+
+      <div className={styles.section}>
+        <span className={styles.sectionLabel}>{t('Estilo')}</span>
+        <Tabs
+          label={t('Estilo da ilha aberta')}
+          options={ISLAND_STYLES.map((e) => ({ value: e, label: t(ESTILOS[e]) }))}
+          value={island.style}
+          onChange={(proximo) => setIsland({ style: proximo as IslandStyle })}
+        />
+        <span className={styles.note}>
+          {t(EXPLICA_ESTILO[island.style])}{' '}
+          {island.style !== 'preto'
+            ? t(
+                'Fechada, anunciando e na bolha ela continua preta. O desfoque é do efeito "Desfoque" do KWin; sem ele, o vidro fica escuro, quase sólido.',
+              )
+            : null}
+        </span>
       </div>
 
       <div className={styles.section}>

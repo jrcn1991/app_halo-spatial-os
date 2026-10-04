@@ -7,7 +7,7 @@ import { BrowserWindow, screen } from 'electron'
 import { setInputRegion } from '../island/entrada'
 import { travarNavegacao } from '../navegacao'
 import { setSkipTaskbar } from '../services/desktop-layer'
-import { type AreaDeVidro, desfocarAtras } from './desfoque'
+import { type AreaDeVidro, desfocarAtras } from '../vidro'
 
 /**
  * A janela dos avisos — a terceira carcaça que veste o tema (depois do app e
@@ -222,7 +222,7 @@ export function regiaoDosAvisos(retangulos: Electron.Rectangle[]): void {
 
 /**
  * Os balões de VIDRO assentados, relativos à janela: o KWin desfoca atrás
- * deles (ver `desfoque.ts`). Sem o efeito de desfoque não há o que pedir — o
+ * deles (ver `main/vidro.ts`). Sem o efeito de desfoque não há o que pedir — o
  * balão já nasceu com piso sólido.
  */
 export function vidroDosAvisos(areas: AreaDeVidro[]): void {

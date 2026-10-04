@@ -178,6 +178,7 @@ export const IPC = {
   islandFoco: 'island:foco',
   islandAssentou: 'island:assentou',
   islandAlvo: 'island:alvo',
+  islandVidro: 'island:vidro',
   islandVooPronto: 'island:voo-pronto',
   islandAtividades: 'island:atividades',
   islandEspectro: 'island:espectro',
@@ -524,6 +525,14 @@ export type HaloApi = {
      * retângulos para tornar o resto transparente ao mouse.
      */
     alvo: (retangulos: { x: number; y: number; width: number; height: number }[]) => void
+    /**
+     * A gota de vidro ASSENTADA, com o raio dos cantos de baixo: o KWin
+     * desfoca o que está atrás dela. `null` apaga o pedido (fechada, preta,
+     * animando). Nada é gravado — é uma propriedade da janela.
+     */
+    vidro: (
+      area: { x: number; y: number; width: number; height: number; raio: number } | null,
+    ) => void
     /** O fantasma do voo já está desenhado sobre a janela: pode minimizá-la. */
     vooPronto: () => void
     /** O voo de uma janela guardada: o fantasma sai do retângulo dela e entra na pílula. */
